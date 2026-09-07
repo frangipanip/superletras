@@ -3,7 +3,10 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="mobile-web-app-capable" content="yes">
 	<title>Superletras</title>
+	<link rel="manifest" href="manifest.json">
 	<style>
 		html,
 		body {
@@ -111,11 +114,11 @@
 		}
 
 		.character-button img {
-			width: min(27vw, 250px);
+			width: clamp(120px, 28vmin, 250px);
 		}
 
 		.play-button img {
-			width: min(16vw, 110px);
+			width: clamp(55px, 12vmin, 110px);
 		}
 
 		@media (max-width: 600px) {
@@ -126,11 +129,11 @@
 			}
 
 			.character-button img {
-				width: 27vw;
+				width: 28vmin;
 			}
 
 			.play-button img {
-				width: 14vw;
+				width: 12vmin;
 			}
 		}
 	</style>
@@ -155,6 +158,7 @@
 		const charactersRow = document.querySelector(".characters-row");
 		const characterButtons = document.querySelectorAll(".character-button");
 		const playButton = document.querySelector(".play-button");
+		const isMobileDevice = window.matchMedia("(max-width: 900px) and (pointer: coarse)").matches;
 
 		function selectCharacter(character) {
 			charactersRow.classList.add("has-selection");
@@ -168,13 +172,23 @@
 			localStorage.setItem(selectedCharacterKey, character);
 		}
 
+		function requestFullscreen() {
+			if (isMobileDevice && !document.fullscreenElement && document.documentElement.requestFullscreen) {
+				document.documentElement.requestFullscreen().catch(() => {});
+			}
+		}
+
+		requestFullscreen();
+
 		characterButtons.forEach((button) => {
 			button.addEventListener("click", () => {
+				requestFullscreen();
 				selectCharacter(button.dataset.character);
 			});
 		});
 
 		playButton.addEventListener("click", () => {
+			requestFullscreen();
 			window.location.href = "mundos.html";
 		});
 

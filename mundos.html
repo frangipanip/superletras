@@ -3,7 +3,10 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="mobile-web-app-capable" content="yes">
 	<title>Superletras - Mundos</title>
+	<link rel="manifest" href="manifest.json">
 	<style>
 		html,
 		body {
@@ -41,7 +44,7 @@
 
 		.hero-button img {
 			display: block;
-			width: min(13.5vw, 125px);
+			width: clamp(65px, 18vmin, 125px);
 			height: auto;
 			transition: filter 220ms ease;
 			filter: drop-shadow(0 0 14px rgba(0, 0, 0, 0.7));
@@ -92,7 +95,7 @@
 			}
 
 			.hero-button img {
-				width: min(14.5vw, 85px);
+				width: 18vmin;
 			}
 
 			.hero-button:first-child {
@@ -121,6 +124,7 @@
 		const selectedCharacterKey = "superletras-character";
 		const worldsRow = document.querySelector(".worlds-row");
 		const heroButtons = document.querySelectorAll(".hero-button");
+		const isMobileDevice = window.matchMedia("(max-width: 900px) and (pointer: coarse)").matches;
 
 		function selectCharacter(character) {
 			worldsRow.classList.add("has-selection");
@@ -133,8 +137,17 @@
 			localStorage.setItem(selectedCharacterKey, character);
 		}
 
+		function requestFullscreen() {
+			if (isMobileDevice && !document.fullscreenElement && document.documentElement.requestFullscreen) {
+				document.documentElement.requestFullscreen().catch(() => {});
+			}
+		}
+
+		requestFullscreen();
+
 		heroButtons.forEach((button) => {
 			button.addEventListener("click", () => {
+				requestFullscreen();
 				selectCharacter(button.dataset.character);
 			});
 		});
