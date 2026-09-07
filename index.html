@@ -5,9 +5,13 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Superletras</title>
 	<style>
+		html,
 		body {
+			width: 100%;
 			margin: 0;
-			min-height: 100vh;
+			min-height: 100%;
+			height: 100%;
+			overflow: hidden;
 			background-image: url("assets/imagenes/FONDO.jpeg");
 			background-size: cover;
 			background-position: center;
@@ -16,12 +20,12 @@
 
 		.characters-row {
 			position: absolute;
-			top: 65vh;
+			top: 65dvh;
 			left: 50%;
 			display: flex;
 			align-items: flex-end;
 			justify-content: center;
-			gap: clamp(1rem, 5vw, 4rem);
+			gap: clamp(0.5rem, 5vw, 4rem);
 			width: min(94vw, 1000px);
 			transform: translate(-50%, -50%);
 		}
@@ -116,12 +120,17 @@
 
 		@media (max-width: 600px) {
 			.characters-row {
-				gap: 0.5rem;
-				width: 100vw;
+				top: 68dvh;
+				gap: 2vw;
+				width: 96vw;
 			}
 
 			.character-button img {
-				width: min(29vw, 170px);
+				width: 27vw;
+			}
+
+			.play-button img {
+				width: 14vw;
 			}
 		}
 	</style>
