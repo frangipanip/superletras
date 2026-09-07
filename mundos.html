@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Superletras - Mundos</title>
+	<style>
+		body {
+			margin: 0;
+			min-height: 100vh;
+			background-image: url("assets/imagenes/FONDO.jpeg");
+			background-size: cover;
+			background-position: center;
+			background-repeat: no-repeat;
+		}
+
+		.worlds-row {
+			position: relative;
+			min-height: 40vh;
+			padding: clamp(1rem, 4vh, 3rem) 1rem 0;
+		}
+
+		.hero-button {
+			position: absolute;
+			top: clamp(1rem, 4vh, 3rem);
+			padding: 0;
+			border: 0;
+			background: transparent;
+			cursor: pointer;
+			transition: transform 220ms ease;
+		}
+
+		.hero-button:hover,
+		.hero-button:focus-visible {
+			transform: translateY(-8px) scale(1.08);
+		}
+
+		.hero-button img {
+			display: block;
+			width: min(13.5vw, 125px);
+			height: auto;
+			transition: filter 220ms ease;
+			filter: drop-shadow(0 0 14px rgba(0, 0, 0, 0.7));
+		}
+
+		.hero-button:hover img,
+		.hero-button:focus-visible img {
+			filter: none;
+		}
+
+		.hero-button img {
+			transition: filter 220ms ease;
+			filter: drop-shadow(0 0 14px rgba(0, 0, 0, 0.7));
+		}
+
+		.worlds-row.has-selection .hero-button:not(.selected) img {
+			filter: grayscale(1) drop-shadow(0 0 14px rgba(0, 0, 0, 0.7));
+		}
+
+		.worlds-row.has-selection .hero-button:not(.selected):hover img,
+		.worlds-row.has-selection .hero-button:not(.selected):focus-visible img {
+			filter: grayscale(1);
+		}
+
+		.hero-button:first-child {
+			left: 30%;
+			transform: translateX(-50%);
+		}
+
+		.hero-button:last-child {
+			right: 30%;
+			transform: translateX(50%);
+		}
+
+		.hero-button:first-child:hover,
+		.hero-button:first-child:focus-visible {
+			transform: translateX(-50%) translateY(-8px) scale(1.08);
+		}
+
+		.hero-button:last-child:hover,
+		.hero-button:last-child:focus-visible {
+			transform: translateX(50%) translateY(-8px) scale(1.08);
+		}
+
+		@media (max-width: 600px) {
+			.worlds-row {
+				min-height: 30vh;
+			}
+
+			.hero-button img {
+				width: min(14.5vw, 85px);
+			}
+
+			.hero-button:first-child {
+				left: 25%;
+			}
+
+			.hero-button:last-child {
+				right: 25%;
+			}
+
+		}
+	</style>
+</head>
+<body>
+	<main class="worlds-row" aria-label="Selección de mundo">
+		<button class="hero-button" type="button" data-character="supernena" aria-label="Elegir Supernena">
+			<img src="assets/imagenes/supernena.png" alt="Supernena">
+		</button>
+
+		<button class="hero-button" type="button" data-character="supernene" aria-label="Elegir Supernene">
+			<img src="assets/imagenes/supernene.png" alt="Supernene">
+		</button>
+	</main>
+
+	<script>
+		const selectedCharacterKey = "superletras-character";
+		const worldsRow = document.querySelector(".worlds-row");
+		const heroButtons = document.querySelectorAll(".hero-button");
+
+		function selectCharacter(character) {
+			worldsRow.classList.add("has-selection");
+			heroButtons.forEach((button) => {
+				const isSelected = button.dataset.character === character;
+				button.classList.toggle("selected", isSelected);
+				button.setAttribute("aria-pressed", String(isSelected));
+			});
+
+			localStorage.setItem(selectedCharacterKey, character);
+		}
+
+		heroButtons.forEach((button) => {
+			button.addEventListener("click", () => {
+				selectCharacter(button.dataset.character);
+			});
+		});
+
+		const savedCharacter = localStorage.getItem(selectedCharacterKey);
+		if ([...heroButtons].some((button) => button.dataset.character === savedCharacter)) {
+			selectCharacter(savedCharacter);
+		}
+	</script>
+</body>
+</html>
