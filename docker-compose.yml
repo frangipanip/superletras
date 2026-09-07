@@ -3,8 +3,8 @@ services:
     build:
       context: .
     restart: unless-stopped
-    expose:
-      - "80"
+    ports:
+      - "${WEB_PORT:-8080}:80"
 
   cloudflared:
     image: cloudflare/cloudflared:latest

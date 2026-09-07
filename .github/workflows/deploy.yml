@@ -1,0 +1,29 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  # Dos pushes seguidos se despliegan en fila, sin builds simultaneos.
+  group: deploy-main
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    timeout-minutes: 40
+    steps:
+      # Se trabaja sobre el clon existente, que conserva el .env con secretos.
+      - name: Deploy con deploy.sh
+        run: |
+          DEPLOY_DIR="${{ vars.DEPLOY_DIR }}"
+          DEPLOY_DIR="${DEPLOY_DIR:-$HOME/proyectos/pau/superletras}"
+          if [ ! -d "$DEPLOY_DIR/.git" ]; then
+            echo "::error::No existe un repo git en $DEPLOY_DIR. Configura la variable DEPLOY_DIR en GitHub (Settings -> Secrets and variables -> Actions -> Variables)."
+            exit 1
+          fi
+          cd "$DEPLOY_DIR"
+          chmod +x ./deploy.sh
+          ./deploy.sh
