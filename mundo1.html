@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Mundo 1</title>
+	<style>
+		html,
+		body {
+			width: 100%;
+			height: 100%;
+			min-height: 100%;
+			margin: 0;
+			overflow: hidden;
+			background: url("assets/imagenes/FONDOM1.jpg") center / cover no-repeat;
+		}
+
+		.menu {
+			position: absolute;
+			left: clamp(0.5rem, 3vw, 2.5rem);
+			top: 50%;
+			width: clamp(155px, 24vw, 270px);
+			aspect-ratio: 235 / 530;
+			transform: translateY(-50%);
+		}
+
+		.menu img {
+			display: block;
+			width: 100%;
+			height: 100%;
+			object-fit: contain;
+		}
+
+		.menu-letter-button {
+			position: absolute;
+			left: 50%;
+			width: 58%;
+			height: 15%;
+			padding: 0;
+			border: 0;
+			border-radius: 50%;
+			background: transparent;
+			cursor: pointer;
+			transform: translateX(-50%);
+		}
+
+		.menu-letter-button:hover,
+		.menu-letter-button:focus-visible {
+			outline: 3px solid rgba(255, 255, 255, 0.9);
+			outline-offset: 3px;
+			filter: brightness(1.12) drop-shadow(0 0 6px rgba(255, 255, 255, 0.8));
+		}
+
+		.menu-letter-button[data-letter="a"] {
+			top: 10%;
+		}
+
+		.menu-letter-button[data-letter="m"] {
+			top: 28%;
+		}
+
+		.menu-letter-button[data-letter="s"] {
+			top: 45%;
+		}
+
+		.menu-letter-button[data-letter="t"] {
+			top: 63%;
+		}
+
+		@media (max-width: 600px) {
+			.menu {
+				left: 0.35rem;
+				width: clamp(125px, 34vw, 190px);
+			}
+		}
+	</style>
+</head>
+<body>
+	<nav class="menu" aria-label="Menú del mundo 1">
+		<img src="assets/imagenes/MENUM1.png" alt="Menú con las letras A, M, S y T">
+		<button class="menu-letter-button" type="button" data-letter="a" aria-label="Letra A"></button>
+		<button class="menu-letter-button" type="button" data-letter="m" aria-label="Letra M"></button>
+		<button class="menu-letter-button" type="button" data-letter="s" aria-label="Letra S"></button>
+		<button class="menu-letter-button" type="button" data-letter="t" aria-label="Letra T"></button>
+	</nav>
+</body>
+</html>

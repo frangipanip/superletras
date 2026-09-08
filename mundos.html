@@ -10,15 +10,162 @@
 	<style>
 		html,
 		body {
+			font-family: Arial, Helvetica, sans-serif;
 			width: 100%;
 			margin: 0;
 			min-height: 100%;
 			height: 100%;
 			overflow: hidden;
-			background-image: url("assets/imagenes/FONDO.jpeg");
+			background-image: url("assets/imagenes/FONDOmundos.jpg");
 			background-size: cover;
 			background-position: center;
 			background-repeat: no-repeat;
+			text-transform: uppercase;
+		}
+
+		.corner-button {
+			position: fixed;
+			top: clamp(0.75rem, 2vw, 1.5rem);
+			z-index: 2;
+			border: 0;
+			background: transparent;
+			cursor: pointer;
+			transition: transform 180ms ease, filter 180ms ease;
+		}
+
+		.back-button:hover,
+		.back-button:focus-visible {
+			transform: translateY(-3px) scale(1.05);
+			filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.45));
+		}
+
+		.back-button {
+			left: clamp(0.75rem, 2vw, 1.5rem);
+			padding: 0;
+		}
+
+		.back-button img {
+			display: block;
+			width: clamp(52px, 10vmin, 90px);
+			height: auto;
+		}
+
+		.guest-button {
+			right: clamp(0.75rem, 2vw, 1.5rem);
+			box-sizing: border-box;
+			width: clamp(100px, 18vmin, 190px);
+			aspect-ratio: 1080 / 354;
+			padding: 0 4%;
+			border: 3px solid #2f8498;
+			border-radius: 22% / 42%;
+			background:
+				linear-gradient(178deg, rgba(255, 255, 255, 0.78) 0 7%, transparent 20%),
+				linear-gradient(180deg, #d6f8ff 0%, #a9e7f4 43%, #7bcfe3 72%, #5fb5cb 100%);
+			color: #6b3f24;
+			font: 700 clamp(0.8rem, 2vmin, 1.25rem) Arial, Helvetica, sans-serif;
+			box-shadow:
+				inset 0 3px 0 rgba(255, 255, 255, 0.9),
+				inset 0 0 0 3px rgba(111, 210, 229, 0.65),
+				inset 0 -7px 0 rgba(38, 126, 149, 0.42),
+				0 3px 0 #286f84,
+				0 5px 6px rgba(0, 0, 0, 0.28);
+			transition: transform 180ms ease, filter 180ms ease, box-shadow 180ms ease;
+		}
+
+		.guest-button:hover,
+		.guest-button:focus-visible {
+			transform: translateY(-2px) scale(1.04);
+			filter: brightness(1.06) drop-shadow(0 0 7px rgba(0, 0, 0, 0.35));
+		}
+
+		.guest-button span {
+			position: absolute;
+			inset: 3px;
+			box-sizing: border-box;
+			min-width: 0;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 0 15%;
+			color: #6b3f24;
+			line-height: 1;
+			text-align: center;
+			text-transform: uppercase;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		.profile-modal[hidden] {
+			display: none;
+		}
+
+		.profile-modal {
+			position: fixed;
+			inset: 0;
+			z-index: 5;
+			display: grid;
+			place-items: center;
+			background: rgba(0, 0, 0, 0.35);
+		}
+
+		.profile-window {
+			position: relative;
+			width: min(92vw, 700px, 126dvh);
+			max-height: 90dvh;
+			aspect-ratio: 700 / 500;
+			background: url("assets/imagenes/ventanauser.png") center / 100% 100% no-repeat;
+		}
+
+		.profile-input {
+			position: absolute;
+			top: 54%;
+			left: 8%;
+			width: 81%;
+			box-sizing: border-box;
+			padding: 0.6rem 1rem;
+			border: 0;
+			outline: 0;
+			background: transparent;
+			color: #4b3529;
+			font: 700 clamp(1rem, 3.5vmin, 2rem) Arial, Helvetica, sans-serif;
+			text-align: left;
+			text-transform: uppercase;
+		}
+
+		.profile-input::placeholder {
+			color: #888;
+			opacity: 1;
+			text-transform: none;
+		}
+
+		.profile-counter {
+			position: absolute;
+			right: 10%;
+			bottom: 27%;
+			color: #4b3529;
+			font: 700 clamp(0.75rem, 2vmin, 1.1rem) Arial, Helvetica, sans-serif;
+		}
+
+		.profile-actions {
+			position: absolute;
+			right: 7%;
+			bottom: 7%;
+			display: flex;
+			gap: 0.5rem;
+		}
+
+		.profile-actions button {
+			padding: 0;
+			border: 0;
+			background: transparent;
+			cursor: pointer;
+		}
+
+		.profile-actions img {
+			display: block;
+			width: min(18vw, 18vmin, 125px);
+			height: auto;
 		}
 
 		.worlds-row {
@@ -27,9 +174,50 @@
 			padding: clamp(1rem, 4vh, 3rem) 1rem 0;
 		}
 
+		.levels-layout {
+			position: absolute;
+			top: 65%;
+			left: 50%;
+			display: flex;
+			flex-direction: column;
+			gap: clamp(0.75rem, 3vmin, 2rem);
+			width: min(90vw, 1100px);
+			transform: translate(-50%, -50%);
+		}
+
+		.level-row {
+			display: flex;
+			justify-content: center;
+			gap: clamp(0.75rem, 3vmin, 2rem);
+		}
+
+		.level-button {
+			flex: 1 1 0;
+			max-width: 330px;
+			padding: 0;
+			border: 0;
+			background: transparent;
+			cursor: pointer;
+			transition: transform 180ms ease, filter 180ms ease;
+		}
+
+		.level-button:hover,
+		.level-button:focus-visible {
+			z-index: 1;
+			transform: translateY(-5px) scale(1.06);
+			filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.55));
+		}
+
+		.level-button img {
+			display: block;
+			width: 100%;
+			height: auto;
+		}
+
 		.hero-button {
 			position: absolute;
 			top: clamp(1rem, 4vh, 3rem);
+			--hero-gap: clamp(0.25rem, 1.5vmin, 1rem);
 			padding: 0;
 			border: 0;
 			background: transparent;
@@ -44,7 +232,7 @@
 
 		.hero-button img {
 			display: block;
-			width: clamp(65px, 18vmin, 125px);
+			width: clamp(71.5px, 19.8vmin, 137.5px);
 			height: auto;
 			transition: filter 220ms ease;
 			filter: drop-shadow(0 0 14px rgba(0, 0, 0, 0.7));
@@ -69,47 +257,82 @@
 			filter: grayscale(1);
 		}
 
-		.hero-button:first-child {
-			left: 30%;
-			transform: translateX(-50%);
+		.hero-button[data-character="supernena"] {
+			left: 50%;
+			transform: translateX(calc(-100% - var(--hero-gap)));
 		}
 
-		.hero-button:last-child {
-			right: 30%;
-			transform: translateX(50%);
+		.hero-button[data-character="supernene"] {
+			left: 50%;
+			transform: translateX(var(--hero-gap));
 		}
 
-		.hero-button:first-child:hover,
-		.hero-button:first-child:focus-visible {
-			transform: translateX(-50%) translateY(-8px) scale(1.08);
+		.hero-button[data-character="supernena"]:hover,
+		.hero-button[data-character="supernena"]:focus-visible {
+			transform: translateX(calc(-100% - var(--hero-gap))) translateY(-8px) scale(1.08);
 		}
 
-		.hero-button:last-child:hover,
-		.hero-button:last-child:focus-visible {
-			transform: translateX(50%) translateY(-8px) scale(1.08);
+		.hero-button[data-character="supernene"]:hover,
+		.hero-button[data-character="supernene"]:focus-visible {
+			transform: translateX(var(--hero-gap)) translateY(-8px) scale(1.08);
 		}
 
-		@media (max-width: 600px) {
+		@media (max-width: 900px) {
 			.worlds-row {
 				min-height: 100dvh;
 			}
 
+			.levels-layout,
+			.mobile-layout .levels-layout {
+				width: min(92vw, 560px);
+				gap: 2vmin;
+			}
+
+			.level-row {
+				gap: 2vmin;
+			}
+
 			.hero-button img {
-				width: 18vmin;
+				width: 19.8vmin;
 			}
 
-			.hero-button:first-child {
-				left: 25%;
+			.guest-button span {
+				padding: 0 2%;
+				font-size: clamp(0.35rem, 1.4vmin, 0.7rem);
 			}
 
-			.hero-button:last-child {
-				right: 25%;
-			}
+		}
 
+		.mobile-layout .levels-layout {
+			width: min(92vw, 560px);
 		}
 	</style>
 </head>
 <body>
+	<nav aria-label="Navegación y usuario">
+		<button class="corner-button back-button" type="button" aria-label="Volver">
+			<img src="assets/imagenes/volverbtn.png" alt="Volver">
+		</button>
+		<button class="corner-button guest-button" type="button" id="guest-button">
+			<span id="guest-name">USUARIO</span>
+		</button>
+	</nav>
+
+	<section class="profile-modal" id="profile-modal" role="dialog" aria-modal="true" aria-label="Configurar perfil" hidden>
+		<div class="profile-window">
+			<input class="profile-input" id="profile-input" type="text" maxlength="10" placeholder="Escribe tu nombre aqui..." autocomplete="name">
+			<span class="profile-counter" id="profile-counter">0/10</span>
+			<div class="profile-actions">
+				<button type="button" id="accept-name" aria-label="Aceptar">
+					<img src="assets/imagenes/aceptarbtn.png" alt="Aceptar">
+				</button>
+				<button type="button" id="cancel-name" aria-label="Cancelar">
+					<img src="assets/imagenes/cancelarbtn.png" alt="Cancelar">
+				</button>
+			</div>
+		</div>
+	</section>
+
 	<main class="worlds-row" aria-label="Selección de mundo">
 		<button class="hero-button" type="button" data-character="supernena" aria-label="Elegir Supernena">
 			<img src="assets/imagenes/supernena.png" alt="Supernena">
@@ -118,6 +341,31 @@
 		<button class="hero-button" type="button" data-character="supernene" aria-label="Elegir Supernene">
 			<img src="assets/imagenes/supernene.png" alt="Supernene">
 		</button>
+
+		<section class="levels-layout" aria-label="Selección de nivel">
+			<div class="level-row">
+			<button class="level-button" type="button" id="level-one-button" aria-label="Nivel 1">
+				<img src="assets/imagenes/1btn.png" alt="Nivel 1">
+			</button>
+			<button class="level-button" type="button" aria-label="Nivel 2">
+				<img src="assets/imagenes/2btn.png" alt="Nivel 2">
+			</button>
+			<button class="level-button" type="button" aria-label="Nivel 3">
+				<img src="assets/imagenes/3btn.png" alt="Nivel 3">
+			</button>
+			</div>
+			<div class="level-row">
+			<button class="level-button" type="button" aria-label="Nivel 4">
+				<img src="assets/imagenes/4btn.png" alt="Nivel 4">
+			</button>
+			<button class="level-button" type="button" aria-label="Nivel 5">
+				<img src="assets/imagenes/5btn.png" alt="Nivel 5">
+			</button>
+			<button class="level-button" type="button" aria-label="Nivel 6">
+				<img src="assets/imagenes/6btn.png" alt="Nivel 6">
+			</button>
+			</div>
+		</section>
 	</main>
 
 	<script>
@@ -125,6 +373,19 @@
 		const worldsRow = document.querySelector(".worlds-row");
 		const heroButtons = document.querySelectorAll(".hero-button");
 		const isMobileDevice = window.matchMedia("(max-width: 900px) and (pointer: coarse)").matches;
+		const mobileUserAgent = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+		const isMobileLayout = mobileUserAgent || window.innerWidth <= 600;
+		const backButton = document.querySelector(".back-button");
+		const guestButton = document.querySelector("#guest-button");
+		const guestNameElement = document.querySelector("#guest-name");
+		const guestNameKey = "superletras-guest-name";
+		const profileModal = document.querySelector("#profile-modal");
+		const profileInput = document.querySelector("#profile-input");
+		const acceptNameButton = document.querySelector("#accept-name");
+		const cancelNameButton = document.querySelector("#cancel-name");
+		const profileCounter = document.querySelector("#profile-counter");
+		const levelOneButton = document.querySelector("#level-one-button");
+		document.body.classList.toggle("mobile-layout", isMobileLayout);
 
 		function selectCharacter(character) {
 			worldsRow.classList.add("has-selection");
@@ -143,7 +404,47 @@
 			}
 		}
 
+		function openProfileModal() {
+			profileInput.value = localStorage.getItem(guestNameKey) || "";
+			updateProfileCounter();
+			profileModal.hidden = false;
+			profileInput.focus();
+		}
+
+		function closeProfileModal() {
+			profileModal.hidden = true;
+		}
+
+		function saveGuestName() {
+			const guestName = profileInput.value.trim().slice(0, 10).toUpperCase();
+			if (!guestName) {
+				guestNameElement.textContent = "USUARIO";
+				localStorage.removeItem(guestNameKey);
+				closeProfileModal();
+				return;
+			}
+
+			guestNameElement.textContent = guestName;
+			localStorage.setItem(guestNameKey, guestName);
+			closeProfileModal();
+		}
+
+		function updateProfileCounter() {
+			profileCounter.textContent = `${profileInput.value.length}/10`;
+		}
+
 		requestFullscreen();
+		backButton.addEventListener("click", () => {
+			window.history.back();
+		});
+		guestNameElement.textContent = localStorage.getItem(guestNameKey) || "USUARIO";
+		guestButton.addEventListener("click", openProfileModal);
+		profileInput.addEventListener("input", updateProfileCounter);
+		acceptNameButton.addEventListener("click", saveGuestName);
+		cancelNameButton.addEventListener("click", closeProfileModal);
+		levelOneButton.addEventListener("click", () => {
+			window.location.href = "mundo1.html";
+		});
 
 		heroButtons.forEach((button) => {
 			button.addEventListener("click", () => {
