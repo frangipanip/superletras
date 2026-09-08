@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Mundo 1</title>
+	<title>Botón 1</title>
 	<style>
 		html,
 		body {
@@ -15,73 +15,90 @@
 			background: url("assets/imagenes/FONDOM1.jpg") center / cover no-repeat;
 		}
 
-		.menu {
-			position: absolute;
-			left: clamp(0.5rem, 3vw, 2.5rem);
+		.menu-panel {
+			position: fixed;
 			top: 50%;
-			width: clamp(155px, 24vw, 270px);
-			aspect-ratio: 235 / 530;
+			left: 5%;
+			z-index: 1;
+			width: clamp(168px, 36.75vmin, 367.5px);
 			transform: translateY(-50%);
 		}
 
-		.menu img {
+		.menu-panel img {
 			display: block;
 			width: 100%;
-			height: 100%;
-			object-fit: contain;
+			height: auto;
 		}
 
-		.menu-letter-button {
+		.menu-option {
 			position: absolute;
 			left: 50%;
-			width: 58%;
-			height: 15%;
+			width: 24%;
 			padding: 0;
 			border: 0;
-			border-radius: 50%;
 			background: transparent;
 			cursor: pointer;
-			transform: translateX(-50%);
+			transform: translate(-50%, -50%);
+			transition: transform 180ms ease, filter 180ms ease;
 		}
 
-		.menu-letter-button:hover,
-		.menu-letter-button:focus-visible {
-			outline: 3px solid rgba(255, 255, 255, 0.9);
-			outline-offset: 3px;
-			filter: brightness(1.12) drop-shadow(0 0 6px rgba(255, 255, 255, 0.8));
+		.menu-option:hover,
+		.menu-option:focus-visible {
+			z-index: 1;
+			transform: translate(-50%, -50%) scale(1.12);
+			filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.35));
 		}
 
-		.menu-letter-button[data-letter="a"] {
-			top: 10%;
+		.menu-option img {
+			display: block;
+			width: 100%;
+			height: auto;
 		}
 
-		.menu-letter-button[data-letter="m"] {
-			top: 28%;
+		.menu-option[data-option="a"] {
+			top: 14%;
 		}
 
-		.menu-letter-button[data-letter="s"] {
-			top: 45%;
+		.menu-option[data-option="l"] {
+			top: 29%;
+			left: 44%;
+			width: 19.2%;
 		}
 
-		.menu-letter-button[data-letter="t"] {
-			top: 63%;
+		.menu-option[data-option="m"] {
+			top: 42%;
+			width: 31.2%;
 		}
 
-		@media (max-width: 600px) {
-			.menu {
-				left: 0.35rem;
-				width: clamp(125px, 34vw, 190px);
-			}
+		.menu-option[data-option="s"] {
+			top: 56%;
+			width: 18%;
+		}
+
+		.menu-option[data-option="t"] {
+			top: 73%;
+			width: 31.2%;
 		}
 	</style>
 </head>
 <body>
-	<nav class="menu" aria-label="Menú del mundo 1">
-		<img src="assets/imagenes/MENUM1.png" alt="Menú con las letras A, M, S y T">
-		<button class="menu-letter-button" type="button" data-letter="a" aria-label="Letra A"></button>
-		<button class="menu-letter-button" type="button" data-letter="m" aria-label="Letra M"></button>
-		<button class="menu-letter-button" type="button" data-letter="s" aria-label="Letra S"></button>
-		<button class="menu-letter-button" type="button" data-letter="t" aria-label="Letra T"></button>
-	</nav>
+	<aside class="menu-panel" aria-label="Menú del mundo 1">
+		<img src="assets/imagenes/MENUM1.png" alt="">
+		<button class="menu-option" type="button" data-option="a" aria-label="A">
+			<img src="assets/imagenes/Abtn.png" alt="A">
+		</button>
+		<button class="menu-option" type="button" data-option="l" aria-label="L">
+			<img src="assets/imagenes/Lbtn.png" alt="L">
+		</button>
+		<button class="menu-option" type="button" data-option="m" aria-label="M">
+			<img src="assets/imagenes/Mbtn.png" alt="M">
+		</button>
+		<button class="menu-option" type="button" data-option="s" aria-label="S">
+			<img src="assets/imagenes/Sbtn.png" alt="S">
+		</button>
+		<button class="menu-option" type="button" data-option="t" aria-label="T">
+			<img src="assets/imagenes/Tbtn.png" alt="T">
+		</button>
+	</aside>
 </body>
 </html>
