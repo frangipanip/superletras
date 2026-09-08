@@ -158,7 +158,6 @@
 		const charactersRow = document.querySelector(".characters-row");
 		const characterButtons = document.querySelectorAll(".character-button");
 		const playButton = document.querySelector(".play-button");
-		const isMobileDevice = window.matchMedia("(max-width: 900px) and (pointer: coarse)").matches;
 
 		function selectCharacter(character) {
 			charactersRow.classList.add("has-selection");
@@ -173,7 +172,7 @@
 		}
 
 		function requestFullscreen() {
-			if (isMobileDevice && !document.fullscreenElement && document.documentElement.requestFullscreen) {
+			if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
 				document.documentElement.requestFullscreen().catch(() => {});
 			}
 		}

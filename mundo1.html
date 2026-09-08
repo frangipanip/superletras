@@ -439,6 +439,12 @@
 		const selectedCharacterElement = document.querySelector("#selected-character");
 		const selectedCharacterImage = document.querySelector("#selected-character-image");
 		const selectedCharacterKey = "superletras-character";
+		function requestFullscreen() {
+			if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
+				document.documentElement.requestFullscreen().catch(() => {});
+			}
+		}
+
 		const menuAudios = {
 			a: new Audio("assets/sonidos/Vocales.m4a"),
 			l: new Audio("assets/sonidos/Ele.m4a"),
@@ -532,12 +538,15 @@
 
 		menuOptions.forEach((option) => {
 			option.addEventListener("click", () => {
+				requestFullscreen();
 				selectMenuOption(option);
 				playMenuAudio(option.dataset.option);
 			});
 		});
 
+		requestFullscreen();
 		backButton.addEventListener("click", () => {
+			requestFullscreen();
 			window.history.back();
 		});
 		guestNameElement.textContent = localStorage.getItem(guestNameKey) || "USUARIO";

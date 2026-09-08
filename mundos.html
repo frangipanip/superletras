@@ -372,7 +372,6 @@
 		const selectedCharacterKey = "superletras-character";
 		const worldsRow = document.querySelector(".worlds-row");
 		const heroButtons = document.querySelectorAll(".hero-button");
-		const isMobileDevice = window.matchMedia("(max-width: 900px) and (pointer: coarse)").matches;
 		const mobileUserAgent = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
 		const isMobileLayout = mobileUserAgent || window.innerWidth <= 600;
 		const backButton = document.querySelector(".back-button");
@@ -399,7 +398,7 @@
 		}
 
 		function requestFullscreen() {
-			if (isMobileDevice && !document.fullscreenElement && document.documentElement.requestFullscreen) {
+			if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
 				document.documentElement.requestFullscreen().catch(() => {});
 			}
 		}
