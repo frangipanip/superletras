@@ -15,18 +15,218 @@
 			background: url("assets/imagenes/FONDOM1.jpg") center / cover no-repeat;
 		}
 
+		:root {
+			--menu-left: 5%;
+			--menu-width: clamp(168px, 36.75vmin, 367.5px);
+		}
+
 		.menu-panel {
 			position: fixed;
-			top: 50%;
-			left: 5%;
+			top: 55%;
+			left: var(--menu-left);
 			z-index: 1;
-			width: clamp(168px, 36.75vmin, 367.5px);
+			width: var(--menu-width);
 			transform: translateY(-50%);
 		}
 
 		.menu-panel img {
 			display: block;
 			width: 100%;
+			height: auto;
+		}
+
+		.selected-character {
+			position: fixed;
+			top: clamp(0.75rem, 3vh, 2rem);
+			z-index: 2;
+			width: clamp(65px, 18vmin, 125px);
+			left: calc(var(--menu-left) + var(--menu-width) + clamp(1.25rem, 3vw, 3rem) + clamp(3rem, 9vmin, 7.5rem));
+			transform: translateX(-50%);
+		}
+
+		.selected-character[hidden] {
+			display: none;
+		}
+
+		.selected-character img {
+			display: block;
+			width: 100%;
+			height: auto;
+			filter: drop-shadow(0 0 14px rgba(0, 0, 0, 0.7));
+		}
+
+		.background-option {
+			position: fixed;
+			z-index: 1;
+			padding: 0;
+			border: 0;
+			background: transparent;
+			cursor: pointer;
+		}
+
+		.background-option[data-option="syllables"] {
+			top: 39%;
+			left: 39%;
+			width: 15%;
+			height: 9%;
+		}
+
+		.background-option[data-option="words"] {
+			top: 52%;
+			left: 39%;
+			width: 16%;
+			height: 9%;
+		}
+
+		.background-option[data-option="sentences"] {
+			top: 66%;
+			left: 38%;
+			width: 18%;
+			height: 10%;
+		}
+
+		.corner-button {
+			position: fixed;
+			top: clamp(0.75rem, 2vw, 1.5rem);
+			z-index: 2;
+			border: 0;
+			background: transparent;
+			cursor: pointer;
+			transition: transform 180ms ease, filter 180ms ease;
+		}
+
+		.back-button {
+			left: clamp(0.75rem, 2vw, 1.5rem);
+			padding: 0;
+		}
+
+		.back-button:hover,
+		.back-button:focus-visible {
+			transform: translateY(-3px) scale(1.05);
+			filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.45));
+		}
+
+		.back-button img {
+			display: block;
+			width: clamp(52px, 10vmin, 90px);
+			height: auto;
+		}
+
+		.guest-button {
+			right: clamp(0.75rem, 2vw, 1.5rem);
+			box-sizing: border-box;
+			width: clamp(100px, 18vmin, 190px);
+			aspect-ratio: 1080 / 354;
+			padding: 0 4%;
+			border: 3px solid #2f8498;
+			border-radius: 22% / 42%;
+			background:
+				linear-gradient(178deg, rgba(255, 255, 255, 0.78) 0 7%, transparent 20%),
+				linear-gradient(180deg, #d6f8ff 0%, #a9e7f4 43%, #7bcfe3 72%, #5fb5cb 100%);
+			color: #6b3f24;
+			font: 700 clamp(0.8rem, 2vmin, 1.25rem) Arial, Helvetica, sans-serif;
+			box-shadow:
+				inset 0 3px 0 rgba(255, 255, 255, 0.9),
+				inset 0 0 0 3px rgba(111, 210, 229, 0.65),
+				inset 0 -7px 0 rgba(38, 126, 149, 0.42),
+				0 3px 0 #286f84,
+				0 5px 6px rgba(0, 0, 0, 0.28);
+			transition: transform 180ms ease, filter 180ms ease, box-shadow 180ms ease;
+		}
+
+		.guest-button:hover,
+		.guest-button:focus-visible {
+			transform: translateY(-2px) scale(1.04);
+			filter: brightness(1.06) drop-shadow(0 0 7px rgba(0, 0, 0, 0.35));
+		}
+
+		.guest-button span {
+			position: absolute;
+			inset: 3px;
+			box-sizing: border-box;
+			min-width: 0;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 0 4%;
+			color: #6b3f24;
+			line-height: 1;
+			text-align: center;
+			text-transform: uppercase;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		.profile-modal[hidden] {
+			display: none;
+		}
+
+		.profile-modal {
+			position: fixed;
+			inset: 0;
+			z-index: 5;
+			display: grid;
+			place-items: center;
+			background: rgba(0, 0, 0, 0.35);
+		}
+
+		.profile-window {
+			position: relative;
+			width: min(92vw, 700px, 126dvh);
+			max-height: 90dvh;
+			aspect-ratio: 700 / 500;
+			background: url("assets/imagenes/ventanauser.png") center / 100% 100% no-repeat;
+		}
+
+		.profile-input {
+			position: absolute;
+			top: 54%;
+			left: 8%;
+			width: 81%;
+			box-sizing: border-box;
+			padding: 0.6rem 1rem;
+			border: 0;
+			outline: 0;
+			background: transparent;
+			color: #4b3529;
+			font: 700 clamp(1rem, 3.5vmin, 2rem) Arial, Helvetica, sans-serif;
+			text-align: left;
+			text-transform: uppercase;
+		}
+
+		.profile-input::placeholder {
+			color: #888;
+			opacity: 1;
+			text-transform: none;
+		}
+
+		.profile-counter {
+			position: absolute;
+			right: 10%;
+			bottom: 27%;
+			color: #4b3529;
+			font: 700 clamp(0.75rem, 2vmin, 1.1rem) Arial, Helvetica, sans-serif;
+		}
+
+		.profile-actions {
+			position: absolute;
+			right: 7%;
+			bottom: 7%;
+			display: flex;
+			gap: 0.5rem;
+		}
+
+		.profile-actions button {
+			padding: 0;
+			border: 0;
+			background: transparent;
+			cursor: pointer;
+		}
+
+		.profile-actions img {
+			display: block;
+			width: min(18vw, 18vmin, 125px);
 			height: auto;
 		}
 
@@ -39,49 +239,151 @@
 			background: transparent;
 			cursor: pointer;
 			transform: translate(-50%, -50%);
-			transition: transform 180ms ease, filter 180ms ease;
+			transition: transform 180ms ease;
 		}
 
 		.menu-option:hover,
 		.menu-option:focus-visible {
 			z-index: 1;
 			transform: translate(-50%, -50%) scale(1.12);
-			filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.35));
 		}
 
 		.menu-option img {
 			display: block;
 			width: 100%;
 			height: auto;
+			transition: filter 180ms ease;
+		}
+
+		.menu-option:hover img,
+		.menu-option:focus-visible img,
+		.menu-option.selected img {
+			filter:
+				brightness(1.35)
+				saturate(1.2)
+				drop-shadow(1px 0 0 var(--outline-color))
+				drop-shadow(-1px 0 0 var(--outline-color))
+				drop-shadow(0 1px 0 var(--outline-color))
+				drop-shadow(0 -1px 0 var(--outline-color))
+				drop-shadow(0 0 8px rgba(255, 255, 255, 0.9));
 		}
 
 		.menu-option[data-option="a"] {
 			top: 14%;
+			--outline-color: #410a4a;
+		}
+
+		.menu-option[data-option="a"]:hover img,
+		.menu-option[data-option="a"]:focus-visible img,
+		.menu-option[data-option="a"].selected img {
+			filter:
+				brightness(1.35)
+				saturate(1.2)
+				drop-shadow(1px 0 0 #410a4a)
+				drop-shadow(-1px 0 0 #410a4a)
+				drop-shadow(0 1px 0 #410a4a)
+				drop-shadow(0 -1px 0 #410a4a)
+				drop-shadow(0 0 8px rgba(255, 255, 255, 0.9));
 		}
 
 		.menu-option[data-option="l"] {
 			top: 29%;
 			left: 44%;
 			width: 19.2%;
+			--outline-color: #006633;
 		}
 
 		.menu-option[data-option="m"] {
 			top: 42%;
 			width: 31.2%;
+			--outline-color: #b48b18;
 		}
 
 		.menu-option[data-option="s"] {
-			top: 56%;
+			top: 55%;
 			width: 18%;
+			--outline-color: #910b0b;
 		}
 
 		.menu-option[data-option="t"] {
-			top: 73%;
+			top: 70%;
 			width: 31.2%;
+			--outline-color: #17547f;
 		}
+
+		.letter-panel {
+			position: absolute;
+			top: 50%;
+			left: calc(100% + clamp(1.25rem, 3vw, 3rem));
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: clamp(0.15rem, 1vmin, 0.75rem);
+			width: max-content;
+			transform: translateY(-50%);
+		}
+
+		.letter-panel[hidden] {
+			display: none;
+		}
+
+		.letter-panel span {
+			display: block;
+			color: #fff;
+			font-size: clamp(6rem, 18vmin, 15rem);
+			line-height: 0.95;
+		}
+
+		.letter-panel[data-option="a"] span {
+			color: #cfacd6;
+		}
+
+		.letter-panel[data-option="l"] span {
+			color: #aad8bb;
+		}
+
+		.letter-panel[data-option="m"] span {
+			color: #d0ab5b;
+		}
+
+		.letter-panel[data-option="s"] span {
+			color: #f28c80;
+		}
+
+		.letter-panel[data-option="t"] span {
+			color: #a0cce7;
+		}
+
+		.letter-panel .uppercase-letter {
+			font-family: Arial, Helvetica, sans-serif;
+			font-weight: 700;
+		}
+
+		.letter-panel .lowercase-letter {
+			font-family: Arial, Helvetica, sans-serif;
+			font-weight: 400;
+		}
+
 	</style>
 </head>
 <body>
+	<nav aria-label="Navegación y usuario">
+		<button class="corner-button back-button" type="button" aria-label="Volver">
+			<img src="assets/imagenes/volverbtn.png" alt="Volver">
+		</button>
+		<button class="corner-button guest-button" type="button" id="guest-button">
+			<span id="guest-name">USUARIO</span>
+		</button>
+	</nav>
+
+	<button class="background-option" type="button" data-option="syllables" aria-label="Sílabas"></button>
+	<button class="background-option" type="button" data-option="words" aria-label="Palabras"></button>
+	<button class="background-option" type="button" data-option="sentences" aria-label="Oraciones"></button>
+
+	<div class="selected-character" id="selected-character" aria-label="Personaje seleccionado" hidden>
+		<img id="selected-character-image" alt="">
+	</div>
+
 	<aside class="menu-panel" aria-label="Menú del mundo 1">
 		<img src="assets/imagenes/MENUM1.png" alt="">
 		<button class="menu-option" type="button" data-option="a" aria-label="A">
@@ -99,6 +401,153 @@
 		<button class="menu-option" type="button" data-option="t" aria-label="T">
 			<img src="assets/imagenes/Tbtn.png" alt="T">
 		</button>
+		<section class="letter-panel" id="letter-panel" aria-label="Letras del mundo" hidden>
+			<span class="uppercase-letter" id="uppercase-letter"></span>
+			<span class="lowercase-letter" id="lowercase-letter"></span>
+		</section>
 	</aside>
+
+	<section class="profile-modal" id="profile-modal" role="dialog" aria-modal="true" aria-label="Configurar perfil" hidden>
+		<div class="profile-window">
+			<input class="profile-input" id="profile-input" type="text" maxlength="10" placeholder="Escribe tu nombre aqui..." autocomplete="name">
+			<span class="profile-counter" id="profile-counter">0/10</span>
+			<div class="profile-actions">
+				<button type="button" id="accept-name" aria-label="Aceptar">
+					<img src="assets/imagenes/aceptarbtn.png" alt="Aceptar">
+				</button>
+				<button type="button" id="cancel-name" aria-label="Cancelar">
+					<img src="assets/imagenes/cancelarbtn.png" alt="Cancelar">
+				</button>
+			</div>
+		</div>
+	</section>
+
+	<script>
+		const menuOptions = document.querySelectorAll(".menu-option");
+		const letterPanel = document.querySelector("#letter-panel");
+		const uppercaseLetter = document.querySelector("#uppercase-letter");
+		const lowercaseLetter = document.querySelector("#lowercase-letter");
+		const backButton = document.querySelector(".back-button");
+		const guestButton = document.querySelector("#guest-button");
+		const guestNameElement = document.querySelector("#guest-name");
+		const guestNameKey = "superletras-guest-name";
+		const profileModal = document.querySelector("#profile-modal");
+		const profileInput = document.querySelector("#profile-input");
+		const acceptNameButton = document.querySelector("#accept-name");
+		const cancelNameButton = document.querySelector("#cancel-name");
+		const profileCounter = document.querySelector("#profile-counter");
+		const selectedCharacterElement = document.querySelector("#selected-character");
+		const selectedCharacterImage = document.querySelector("#selected-character-image");
+		const selectedCharacterKey = "superletras-character";
+		const menuAudios = {
+			a: new Audio("assets/sonidos/Vocales.m4a"),
+			l: new Audio("assets/sonidos/Ele.m4a"),
+			m: new Audio("assets/sonidos/Eme.m4a"),
+			s: new Audio("assets/sonidos/Ese.m4a"),
+			t: new Audio("assets/sonidos/Te.m4a")
+		};
+		Object.values(menuAudios).forEach((audio) => {
+			audio.preload = "auto";
+		});
+		const lettersByOption = {
+			a: "a",
+			l: "l",
+			m: "m",
+			s: "s",
+			t: "t"
+		};
+
+		function selectMenuOption(option) {
+			const letter = lettersByOption[option.dataset.option];
+			uppercaseLetter.textContent = letter.toUpperCase();
+			lowercaseLetter.textContent = letter;
+			letterPanel.dataset.option = option.dataset.option;
+			letterPanel.hidden = false;
+
+			menuOptions.forEach((button) => {
+				const isSelected = button === option;
+				button.classList.toggle("selected", isSelected);
+				button.setAttribute("aria-pressed", String(isSelected));
+			});
+		}
+
+		function openProfileModal() {
+			profileInput.value = localStorage.getItem(guestNameKey) || "";
+			updateProfileCounter();
+			profileModal.hidden = false;
+			profileInput.focus();
+		}
+
+		function closeProfileModal() {
+			profileModal.hidden = true;
+		}
+
+		function saveGuestName() {
+			const guestName = profileInput.value.trim().slice(0, 10).toUpperCase();
+			if (!guestName) {
+				guestNameElement.textContent = "USUARIO";
+				localStorage.removeItem(guestNameKey);
+				closeProfileModal();
+				return;
+			}
+
+			guestNameElement.textContent = guestName;
+			localStorage.setItem(guestNameKey, guestName);
+			closeProfileModal();
+		}
+
+		function updateProfileCounter() {
+			profileCounter.textContent = `${profileInput.value.length}/10`;
+		}
+
+		function showSelectedCharacter() {
+			const selectedCharacter = localStorage.getItem(selectedCharacterKey);
+			const characterImages = {
+				supernena: "assets/imagenes/supernena.png",
+				supernene: "assets/imagenes/supernene.png"
+			};
+			const imageSource = characterImages[selectedCharacter];
+
+			if (!imageSource) {
+				return;
+			}
+
+			selectedCharacterImage.src = imageSource;
+			selectedCharacterImage.alt = selectedCharacter === "supernena" ? "Supernena" : "Supernene";
+			selectedCharacterElement.hidden = false;
+		}
+
+		function playMenuAudio(optionKey) {
+			const audio = menuAudios[optionKey];
+			if (!audio) {
+				return;
+			}
+
+			Object.values(menuAudios).forEach((menuAudio) => {
+				menuAudio.pause();
+				menuAudio.currentTime = 0;
+			});
+			audio.play().catch(() => {});
+		}
+
+		menuOptions.forEach((option) => {
+			option.addEventListener("click", () => {
+				selectMenuOption(option);
+				playMenuAudio(option.dataset.option);
+			});
+		});
+
+		backButton.addEventListener("click", () => {
+			window.history.back();
+		});
+		guestNameElement.textContent = localStorage.getItem(guestNameKey) || "USUARIO";
+		guestButton.addEventListener("click", openProfileModal);
+		profileInput.addEventListener("input", updateProfileCounter);
+		acceptNameButton.addEventListener("click", saveGuestName);
+		cancelNameButton.addEventListener("click", closeProfileModal);
+		selectMenuOption(document.querySelector('.menu-option[data-option="a"]'));
+		playMenuAudio("a");
+		showSelectedCharacter();
+	</script>
 </body>
 </html>
