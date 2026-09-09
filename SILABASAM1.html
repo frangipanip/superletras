@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="mobile-web-app-capable" content="yes">
+	<title>Silabas - Mundo 1</title>
+	<style>
+		html,
+		body {
+			width: 100%;
+			height: 100%;
+			min-height: 100%;
+			margin: 0;
+			overflow: hidden;
+			background: url("assets/imagenes/FONDOejerciciosM1.jpg") center / cover no-repeat;
+		}
+
+		.corner-button {
+			position: fixed;
+			top: clamp(0.75rem, 2vw, 1.5rem);
+			z-index: 3;
+			border: 0;
+			background: transparent;
+			cursor: pointer;
+			transition: transform 180ms ease, filter 180ms ease;
+		}
+
+		.back-button {
+			left: clamp(0.75rem, 2vw, 1.5rem);
+			padding: 0;
+		}
+
+		.back-button:hover,
+		.back-button:focus-visible {
+			transform: translateY(-3px) scale(1.05);
+			filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.45));
+		}
+
+		.back-button img {
+			display: block;
+			width: clamp(52px, 10vmin, 90px);
+			height: auto;
+		}
+
+		.guest-button {
+			right: clamp(0.75rem, 2vw, 1.5rem);
+			box-sizing: border-box;
+			width: clamp(100px, 18vmin, 190px);
+			aspect-ratio: 1080 / 354;
+			padding: 0 4%;
+			border: 3px solid #2f8498;
+			border-radius: 22% / 42%;
+			background:
+				linear-gradient(178deg, rgba(255, 255, 255, 0.78) 0 7%, transparent 20%),
+				linear-gradient(180deg, #d6f8ff 0%, #a9e7f4 43%, #7bcfe3 72%, #5fb5cb 100%);
+			color: #6b3f24;
+			font: 700 clamp(0.8rem, 2vmin, 1.25rem) Arial, Helvetica, sans-serif;
+			box-shadow:
+				inset 0 3px 0 rgba(255, 255, 255, 0.9),
+				inset 0 0 0 3px rgba(111, 210, 229, 0.65),
+				inset 0 -7px 0 rgba(38, 126, 149, 0.42),
+				0 3px 0 #286f84,
+				0 5px 6px rgba(0, 0, 0, 0.28);
+			transition: transform 180ms ease, filter 180ms ease;
+		}
+
+		.guest-button:hover,
+		.guest-button:focus-visible {
+			transform: translateY(-2px) scale(1.04);
+			filter: brightness(1.06) drop-shadow(0 0 7px rgba(0, 0, 0, 0.35));
+		}
+
+		.guest-button span {
+			position: absolute;
+			inset: 3px;
+			box-sizing: border-box;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			min-width: 0;
+			padding: 0 4%;
+			color: #6b3f24;
+			font: inherit;
+			line-height: 1;
+			text-align: center;
+			text-transform: uppercase;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		.exercise-controls {
+			position: fixed;
+			top: clamp(0.75rem, 2vw, 1.5rem);
+			left: 50%;
+			z-index: 3;
+			display: flex;
+			gap: clamp(0.5rem, 1.5vw, 1rem);
+			transform: translateX(-50%);
+		}
+
+		.exercise-control {
+			display: grid;
+			place-items: center;
+			width: clamp(3rem, 8vmin, 5rem);
+			aspect-ratio: 1;
+			padding: 0;
+			border: 3px solid #2f8498;
+			border-radius: 50%;
+			background:
+				linear-gradient(150deg, rgba(255, 255, 255, 0.8) 0 8%, transparent 30%),
+				linear-gradient(180deg, #d6f8ff 0%, #a9e7f4 45%, #7bcfe3 75%, #5fb5cb 100%);
+			box-shadow:
+				inset 0 3px 0 rgba(255, 255, 255, 0.9),
+				inset 0 0 0 3px rgba(111, 210, 229, 0.65),
+				inset 0 -6px 0 rgba(38, 126, 149, 0.42),
+				0 3px 0 #286f84,
+				0 5px 6px rgba(0, 0, 0, 0.28);
+			color: #6b3f24;
+			font: 700 clamp(1.25rem, 3vmin, 2rem) Arial, Helvetica, sans-serif;
+			cursor: pointer;
+			transition: transform 180ms ease, filter 180ms ease;
+		}
+
+		.exercise-control:hover,
+		.exercise-control:focus-visible {
+			transform: translateY(-2px) scale(1.06);
+			filter: brightness(1.06) drop-shadow(0 0 7px rgba(0, 0, 0, 0.35));
+		}
+
+		.shuffle-control {
+			font-size: clamp(1.5rem, 4vmin, 2.5rem);
+			line-height: 1;
+		}
+
+		.selected-character {
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			z-index: 2;
+			padding: 0;
+			border: 0;
+			background: transparent;
+			cursor: pointer;
+			width: clamp(114px, 31.5vmin, 218.75px);
+			transform: translate(-50%, -50%);
+			animation: character-float 2.8s ease-in-out infinite;
+		}
+
+		@keyframes character-float {
+			0%,
+			100% {
+				transform: translate(-50%, -50%);
+			}
+			50% {
+				transform: translate(-50%, calc(-50% - 10px));
+			}
+		}
+
+		.selected-character[hidden],
+		.profile-modal[hidden] {
+			display: none;
+		}
+
+		.selected-character img {
+			display: block;
+			width: 100%;
+			height: auto;
+			filter: drop-shadow(0 0 14px rgba(0, 0, 0, 0.7));
+		}
+
+		.selected-character .character-mouth {
+			position: absolute;
+			top: 21%;
+			left: 50%;
+			width: 22%;
+			height: auto;
+			transform: translateX(-50%);
+			filter: none;
+		}
+
+		.selected-character .character-mouth.shifted-mouth {
+			left: 52%;
+            top: 23%;
+		}
+
+		.character-mouth[hidden] {
+			display: none;
+		}
+
+		.vowel-list {
+			position: fixed;
+			top: calc(50% + clamp(180px, 31vmin, 270px));
+			left: 50%;
+			z-index: 2;
+			display: flex;
+			gap: clamp(1rem, 3vmin, 2.25rem);
+			margin: 0;
+			padding: 0;
+			color: #fff;
+			font: 700 clamp(2rem, 6vmin, 4.5rem) Arial, Helvetica, sans-serif;
+			text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.45);
+			transform: translateX(-50%);
+		}
+
+		.vowel-list button {
+			display: block;
+			margin: 0;
+			padding: 0;
+			border: 0;
+			background: transparent;
+			color: inherit;
+			font: inherit;
+			text-shadow: inherit;
+			cursor: pointer;
+			min-width: 1ch;
+			text-align: center;
+			transition: transform 160ms ease, filter 160ms ease;
+		}
+
+		.vowel-list button.orange-vowel {
+			color: #f28c00;
+		}
+
+		.vowel-list button:hover,
+		.vowel-list button:focus-visible {
+			transform: translateY(-4px) scale(1.08);
+			filter: brightness(1.25) drop-shadow(0 0 6px rgba(255, 255, 255, 0.75));
+		}
+
+		.profile-modal {
+			position: fixed;
+			inset: 0;
+			z-index: 5;
+			display: grid;
+			place-items: center;
+			background: rgba(0, 0, 0, 0.35);
+		}
+
+		.profile-window {
+			position: relative;
+			width: min(92vw, 700px, 126dvh);
+			max-height: 90dvh;
+			aspect-ratio: 700 / 500;
+			background: url("assets/imagenes/ventanauser.png") center / 100% 100% no-repeat;
+		}
+
+		.profile-input {
+			position: absolute;
+			top: 54%;
+			left: 8%;
+			width: 81%;
+			box-sizing: border-box;
+			padding: 0.6rem 1rem;
+			border: 0;
+			outline: 0;
+			background: transparent;
+			color: #4b3529;
+			font: 700 clamp(1rem, 3.5vmin, 2rem) Arial, Helvetica, sans-serif;
+			text-transform: uppercase;
+		}
+
+		.profile-input::placeholder {
+			color: #888;
+			text-transform: none;
+		}
+
+		.profile-counter {
+			position: absolute;
+			right: 10%;
+			bottom: 27%;
+			color: #4b3529;
+			font: 700 clamp(0.75rem, 2vmin, 1.1rem) Arial, Helvetica, sans-serif;
+		}
+
+		.profile-actions {
+			position: absolute;
+			right: 7%;
+			bottom: 7%;
+			display: flex;
+			gap: 0.5rem;
+		}
+
+		.profile-actions button {
+			padding: 0;
+			border: 0;
+			background: transparent;
+			cursor: pointer;
+		}
+
+		.profile-actions img {
+			display: block;
+			width: min(18vw, 18vmin, 125px);
+			height: auto;
+		}
+	</style>
+</head>
+<body>
+	<nav aria-label="Navegacion y usuario">
+		<button class="corner-button back-button" type="button" aria-label="Volver">
+			<img src="assets/imagenes/volverbtn.png" alt="Volver">
+		</button>
+		<button class="corner-button guest-button" type="button" id="guest-button">
+			<span id="guest-name">USUARIO</span>
+		</button>
+	</nav>
+
+	<nav class="exercise-controls" aria-label="Controles de vocales">
+		<button class="exercise-control" id="case-toggle" type="button" aria-label="Cambiar mayúsculas y minúsculas" aria-pressed="false">A</button>
+		<button class="exercise-control shuffle-control" id="vowel-shuffle" type="button" aria-label="Mezclar vocales" aria-pressed="false">&#x21bb;</button>
+	</nav>
+
+	<button class="selected-character" id="selected-character" type="button" aria-label="Mostrar boca del personaje" aria-pressed="false" hidden>
+		<img id="selected-character-image" alt="">
+		<img class="character-mouth" id="character-mouth" src="assets/imagenes/bocasuper.png" alt="" hidden>
+	</button>
+
+	<div class="vowel-list" id="vowel-list" aria-label="Vocales">
+		<span>A</span>
+		<span>E</span>
+		<span>I</span>
+		<span>O</span>
+		<span>U</span>
+	</div>
+
+	<section class="profile-modal" id="profile-modal" role="dialog" aria-modal="true" aria-label="Configurar perfil" hidden>
+		<div class="profile-window">
+			<input class="profile-input" id="profile-input" type="text" maxlength="10" placeholder="Escribe tu nombre aqui..." autocomplete="name">
+			<span class="profile-counter" id="profile-counter">0/10</span>
+			<div class="profile-actions">
+				<button type="button" id="accept-name" aria-label="Aceptar">
+					<img src="assets/imagenes/aceptarbtn.png" alt="Aceptar">
+				</button>
+				<button type="button" id="cancel-name" aria-label="Cancelar">
+					<img src="assets/imagenes/cancelarbtn.png" alt="Cancelar">
+				</button>
+			</div>
+		</div>
+	</section>
+
+	<script>
+		const selectedCharacterKey = "superletras-character";
+		const guestNameKey = "superletras-guest-name";
+		const selectedCharacterElement = document.querySelector("#selected-character");
+		const selectedCharacterImage = document.querySelector("#selected-character-image");
+		const characterMouth = document.querySelector("#character-mouth");
+		const guestButton = document.querySelector("#guest-button");
+		const guestNameElement = document.querySelector("#guest-name");
+		const backButton = document.querySelector(".back-button");
+		const profileModal = document.querySelector("#profile-modal");
+		const profileInput = document.querySelector("#profile-input");
+		const profileCounter = document.querySelector("#profile-counter");
+		const acceptNameButton = document.querySelector("#accept-name");
+		const cancelNameButton = document.querySelector("#cancel-name");
+		const caseToggle = document.querySelector("#case-toggle");
+		const vowelShuffle = document.querySelector("#vowel-shuffle");
+		const vowelList = document.querySelector("#vowel-list");
+		const vowels = ["A", "E", "I", "O", "U"];
+		const vowelAudios = Object.fromEntries(vowels.map((vowel) => [vowel, new Audio(`assets/sonidos/${vowel}.m4a`)]));
+		const orangeVowels = new Set();
+		let displayedVowels = [...vowels];
+		let uppercaseVowels = true;
+		let shuffledVowels = false;
+		const syllablesAudio = new Audio("assets/sonidos/SilabasA.m4a");
+		const pressureAudio = new Audio("assets/sonidos/Presion.m4a");
+		const mouthImages = [
+			"assets/imagenes/bocasuper.png",
+			"assets/imagenes/bocasuper1.png",
+			"assets/imagenes/bocasuper2.png"
+		];
+		const mouthByVowel = {
+			A: "assets/imagenes/bocasuper1.png",
+			E: "assets/imagenes/bocasuper1.png",
+			I: "assets/imagenes/bocasuper2.png",
+			O: "assets/imagenes/bocasuper.png",
+			U: "assets/imagenes/bocasuper.png"
+		};
+		let mouthAnimationTimer;
+		let vowelMouthStartTimer;
+		let vowelMouthEndTimer;
+		let mouthImageIndex = 0;
+		let vowelSequenceActive = false;
+		let vowelSequenceIndex = 0;
+		const vowelMouthStart = 0.2;
+		const vowelMouthEnd = 0.4;
+		syllablesAudio.preload = "auto";
+		pressureAudio.preload = "auto";
+		Object.values(vowelAudios).forEach((audio) => {
+			audio.preload = "auto";
+		});
+
+		function requestFullscreen() {
+			if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
+				document.documentElement.requestFullscreen().catch(() => {});
+			}
+		}
+
+		function showSelectedCharacter() {
+			const selectedCharacter = localStorage.getItem(selectedCharacterKey);
+			const characterImages = {
+				supernena: "assets/imagenes/supernena.png",
+				supernene: "assets/imagenes/supernene.png"
+			};
+			const imageSource = characterImages[selectedCharacter];
+			if (!imageSource) {
+				return;
+			}
+			selectedCharacterImage.src = imageSource;
+			selectedCharacterImage.alt = selectedCharacter === "supernena" ? "Supernena" : "Supernene";
+			selectedCharacterElement.hidden = false;
+		}
+
+		function playSyllablesAudio() {
+			vowelSequenceActive = true;
+			vowelSequenceIndex = 0;
+			pressureAudio.pause();
+			pressureAudio.currentTime = 0;
+			clearTimeout(vowelMouthStartTimer);
+			clearTimeout(vowelMouthEndTimer);
+			Object.values(vowelAudios).forEach((vowelAudio) => {
+				vowelAudio.pause();
+				vowelAudio.currentTime = 0;
+				vowelAudio.onended = null;
+				vowelAudio.ontimeupdate = null;
+			});
+			syllablesAudio.pause();
+			syllablesAudio.currentTime = 0;
+			clearInterval(mouthAnimationTimer);
+			mouthImageIndex = 0;
+			characterMouth.src = mouthImages[mouthImageIndex];
+			characterMouth.classList.remove("shifted-mouth");
+			characterMouth.hidden = false;
+			selectedCharacterElement.setAttribute("aria-pressed", "true");
+			mouthAnimationTimer = setInterval(() => {
+				mouthImageIndex = (mouthImageIndex + 1) % mouthImages.length;
+				characterMouth.src = mouthImages[mouthImageIndex];
+				characterMouth.classList.toggle("shifted-mouth", mouthImageIndex > 0);
+			}, 220);
+			syllablesAudio.play().catch(() => {
+				vowelSequenceActive = false;
+				clearInterval(mouthAnimationTimer);
+				characterMouth.hidden = true;
+				selectedCharacterElement.setAttribute("aria-pressed", "false");
+			});
+		}
+
+		function playPressureAudio() {
+			clearInterval(mouthAnimationTimer);
+			mouthImageIndex = 0;
+			characterMouth.src = mouthImages[mouthImageIndex];
+			characterMouth.classList.remove("shifted-mouth");
+			characterMouth.hidden = false;
+			selectedCharacterElement.setAttribute("aria-pressed", "true");
+			mouthAnimationTimer = setInterval(() => {
+				mouthImageIndex = (mouthImageIndex + 1) % mouthImages.length;
+				characterMouth.src = mouthImages[mouthImageIndex];
+				characterMouth.classList.toggle("shifted-mouth", mouthImageIndex > 0);
+			}, 220);
+			pressureAudio.onended = () => {
+				clearInterval(mouthAnimationTimer);
+				characterMouth.hidden = true;
+				characterMouth.classList.remove("shifted-mouth");
+				selectedCharacterElement.setAttribute("aria-pressed", "false");
+			};
+			pressureAudio.play().catch(() => {
+				clearInterval(mouthAnimationTimer);
+				characterMouth.hidden = true;
+				selectedCharacterElement.setAttribute("aria-pressed", "false");
+			});
+		}
+
+		function updateProfileCounter() {
+			profileCounter.textContent = `${profileInput.value.length}/10`;
+		}
+
+		function renderVowels() {
+			vowelList.innerHTML = displayedVowels.map((vowel) => `<button class="${orangeVowels.has(vowel) ? "orange-vowel" : ""}" type="button" data-vowel="${vowel}" aria-label="Reproducir vocal ${vowel}">${uppercaseVowels ? vowel : vowel.toLowerCase()}</button>`).join("");
+			caseToggle.textContent = uppercaseVowels ? "A" : "a";
+			caseToggle.setAttribute("aria-pressed", String(!uppercaseVowels));
+			vowelShuffle.setAttribute("aria-pressed", String(shuffledVowels));
+		}
+
+		function shuffleVowels() {
+			if (shuffledVowels) {
+				displayedVowels = [...vowels];
+				shuffledVowels = false;
+				renderVowels();
+				return;
+			}
+
+			displayedVowels = [...vowels];
+			for (let index = displayedVowels.length - 1; index > 0; index -= 1) {
+				const randomIndex = Math.floor(Math.random() * (index + 1));
+				[displayedVowels[index], displayedVowels[randomIndex]] = [displayedVowels[randomIndex], displayedVowels[index]];
+			}
+			shuffledVowels = true;
+			renderVowels();
+		}
+
+		function clearVowelMouthTimers() {
+			clearTimeout(vowelMouthStartTimer);
+			clearTimeout(vowelMouthEndTimer);
+		}
+
+		function scheduleVowelMouth(audio) {
+			clearVowelMouthTimers();
+			const duration = Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : 1;
+			const startDelay = duration * vowelMouthStart * 1000;
+			const endDelay = duration * vowelMouthEnd * 1000;
+			characterMouth.hidden = true;
+			vowelMouthStartTimer = setTimeout(() => {
+				characterMouth.hidden = false;
+				selectedCharacterElement.setAttribute("aria-pressed", "true");
+			}, startDelay);
+			vowelMouthEndTimer = setTimeout(() => {
+				characterMouth.hidden = true;
+				selectedCharacterElement.setAttribute("aria-pressed", "false");
+			}, endDelay);
+		}
+
+		function playVowelAudio(vowel) {
+			const audio = vowelAudios[vowel];
+			vowelSequenceActive = false;
+			pressureAudio.pause();
+			pressureAudio.currentTime = 0;
+			clearVowelMouthTimers();
+			syllablesAudio.pause();
+			syllablesAudio.currentTime = 0;
+			clearInterval(mouthAnimationTimer);
+			characterMouth.hidden = true;
+			characterMouth.src = mouthByVowel[vowel];
+			characterMouth.classList.toggle("shifted-mouth", vowel === "A" || vowel === "E" || vowel === "I");
+			selectedCharacterElement.setAttribute("aria-pressed", "false");
+			Object.values(vowelAudios).forEach((vowelAudio) => {
+				vowelAudio.pause();
+				vowelAudio.currentTime = 0;
+				vowelAudio.onended = null;
+				vowelAudio.ontimeupdate = null;
+			});
+			audio.onended = () => {
+				clearVowelMouthTimers();
+				characterMouth.hidden = true;
+				characterMouth.classList.remove("shifted-mouth");
+				selectedCharacterElement.setAttribute("aria-pressed", "false");
+			};
+			audio?.play().then(() => scheduleVowelMouth(audio)).catch(() => {
+				clearVowelMouthTimers();
+				characterMouth.hidden = true;
+				characterMouth.classList.remove("shifted-mouth");
+				selectedCharacterElement.setAttribute("aria-pressed", "false");
+			});
+		}
+
+		function playNextDisplayedVowel() {
+			if (!vowelSequenceActive || vowelSequenceIndex >= displayedVowels.length) {
+				if (vowelSequenceActive) {
+					vowelSequenceActive = false;
+					clearVowelMouthTimers();
+					characterMouth.hidden = true;
+					characterMouth.classList.remove("shifted-mouth");
+					selectedCharacterElement.setAttribute("aria-pressed", "false");
+					pressureAudio.currentTime = 0;
+					playPressureAudio();
+				}
+				return;
+			}
+
+			const vowel = displayedVowels[vowelSequenceIndex];
+			const audio = vowelAudios[vowel];
+			vowelSequenceIndex += 1;
+			clearVowelMouthTimers();
+			characterMouth.src = mouthByVowel[vowel];
+			characterMouth.classList.toggle("shifted-mouth", vowel === "A" || vowel === "E" || vowel === "I");
+			characterMouth.hidden = true;
+			Object.values(vowelAudios).forEach((vowelAudio) => {
+				vowelAudio.pause();
+				vowelAudio.currentTime = 0;
+				vowelAudio.onended = null;
+				vowelAudio.ontimeupdate = null;
+			});
+			audio.onended = () => {
+				clearVowelMouthTimers();
+				characterMouth.hidden = true;
+				playNextDisplayedVowel();
+			};
+			audio.play().then(() => scheduleVowelMouth(audio)).catch(() => {
+				clearVowelMouthTimers();
+				audio.onended = null;
+				characterMouth.hidden = true;
+				characterMouth.classList.remove("shifted-mouth");
+				selectedCharacterElement.setAttribute("aria-pressed", "false");
+				vowelSequenceActive = false;
+			});
+		}
+
+		function openProfileModal() {
+			profileInput.value = localStorage.getItem(guestNameKey) || "";
+			updateProfileCounter();
+			profileModal.hidden = false;
+			profileInput.focus();
+		}
+
+		function closeProfileModal() {
+			profileModal.hidden = true;
+		}
+
+		function saveGuestName() {
+			const guestName = profileInput.value.trim().slice(0, 10).toUpperCase();
+			if (!guestName) {
+				guestNameElement.textContent = "USUARIO";
+				localStorage.removeItem(guestNameKey);
+				closeProfileModal();
+				return;
+			}
+			guestNameElement.textContent = guestName;
+			localStorage.setItem(guestNameKey, guestName);
+			closeProfileModal();
+		}
+
+		requestFullscreen();
+		backButton.addEventListener("click", () => {
+			requestFullscreen();
+			window.history.back();
+		});
+		guestNameElement.textContent = localStorage.getItem(guestNameKey) || "USUARIO";
+		guestButton.addEventListener("click", () => {
+			requestFullscreen();
+			openProfileModal();
+		});
+		profileInput.addEventListener("input", updateProfileCounter);
+		acceptNameButton.addEventListener("click", saveGuestName);
+		cancelNameButton.addEventListener("click", closeProfileModal);
+		caseToggle.addEventListener("click", () => {
+			orangeVowels.clear();
+			uppercaseVowels = !uppercaseVowels;
+			renderVowels();
+		});
+		vowelShuffle.addEventListener("click", () => {
+			orangeVowels.clear();
+			shuffleVowels();
+		});
+		vowelList.addEventListener("click", (event) => {
+			const vowelButton = event.target.closest("[data-vowel]");
+			if (vowelButton) {
+				orangeVowels.add(vowelButton.dataset.vowel);
+				renderVowels();
+				playVowelAudio(vowelButton.dataset.vowel);
+			}
+		});
+		syllablesAudio.addEventListener("ended", () => {
+			clearInterval(mouthAnimationTimer);
+			characterMouth.hidden = true;
+			characterMouth.classList.remove("shifted-mouth");
+			selectedCharacterElement.setAttribute("aria-pressed", "false");
+			playNextDisplayedVowel();
+		});
+		selectedCharacterElement.addEventListener("click", playSyllablesAudio);
+		renderVowels();
+		showSelectedCharacter();
+	</script>
+</body>
+</html>
