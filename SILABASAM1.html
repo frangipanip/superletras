@@ -94,11 +94,11 @@
 		.exercise-controls {
 			position: fixed;
 			top: clamp(0.75rem, 2vw, 1.5rem);
-			left: 50%;
+			right: calc(clamp(0.75rem, 2vw, 1.5rem) + clamp(100px, 18vmin, 190px) + clamp(0.5rem, 1.5vw, 1rem));
 			z-index: 3;
 			display: flex;
 			gap: clamp(0.5rem, 1.5vw, 1rem);
-			transform: translateX(-50%);
+			transform: none;
 		}
 
 		.exercise-control {
@@ -135,6 +135,70 @@
 			line-height: 1;
 		}
 
+		.activity-buttons {
+			position: fixed;
+			inset: 0;
+			z-index: 2;
+			pointer-events: none;
+		}
+
+		.activity-button {
+			position: absolute;
+			width: clamp(3rem, 8vmin, 5rem);
+			aspect-ratio: 1;
+			padding: 0;
+			border: 3px solid #2f8498;
+			border-radius: 50%;
+			background:
+				linear-gradient(150deg, rgba(255, 255, 255, 0.8) 0 8%, transparent 30%),
+				linear-gradient(180deg, #d6f8ff 0%, #a9e7f4 45%, #7bcfe3 75%, #5fb5cb 100%);
+			box-shadow:
+				inset 0 3px 0 rgba(255, 255, 255, 0.9),
+				inset 0 0 0 3px rgba(111, 210, 229, 0.65),
+				inset 0 -6px 0 rgba(38, 126, 149, 0.42),
+				0 3px 0 #286f84,
+				0 5px 6px rgba(0, 0, 0, 0.28);
+			cursor: pointer;
+			pointer-events: auto;
+			transition: transform 180ms ease, filter 180ms ease;
+		}
+
+		.activity-button:hover,
+		.activity-button:focus-visible {
+			transform: scale(1.08);
+			filter: brightness(1.08) drop-shadow(0 0 7px rgba(0, 0, 0, 0.35));
+		}
+
+		.activity-button:nth-child(1) {
+			top: 24%;
+			left: 34%;
+		}
+
+		.activity-button:nth-child(2) {
+			top: 38%;
+			left: 25%;
+		}
+
+		.activity-button:nth-child(3) {
+			top: 52%;
+			left: 29%;
+		}
+
+		.activity-button:nth-child(4) {
+			top: 24%;
+			right: 34%;
+		}
+
+		.activity-button:nth-child(5) {
+			top: 38%;
+			right: 25%;
+		}
+
+		.activity-button:nth-child(6) {
+			top: 52%;
+			right: 29%;
+		}
+
 		.selected-character {
 			position: fixed;
 			top: 50%;
@@ -149,6 +213,34 @@
 			animation: character-float 2.8s ease-in-out infinite;
 		}
 
+		.selected-character.celebrating {
+			animation: character-celebrate 700ms ease-in-out forwards;
+		}
+
+		.confetti-layer {
+			position: fixed;
+			inset: 0;
+			z-index: 4;
+			pointer-events: none;
+			overflow: hidden;
+		}
+
+		.confetti-piece {
+			position: absolute;
+			top: -8vh;
+			width: clamp(0.35rem, 1vmin, 0.7rem);
+			height: clamp(0.7rem, 2vmin, 1.2rem);
+			background: var(--confetti-color);
+			transform: translate3d(0, 0, 0) rotate(0deg);
+			animation: confetti-fall var(--confetti-duration) linear forwards;
+		}
+
+		@keyframes confetti-fall {
+			to {
+				transform: translate3d(var(--confetti-drift), 115vh, 0) rotate(720deg);
+			}
+		}
+
 		@keyframes character-float {
 			0%,
 			100% {
@@ -156,6 +248,15 @@
 			}
 			50% {
 				transform: translate(-50%, calc(-50% - 10px));
+			}
+		}
+
+		@keyframes character-celebrate {
+			0% {
+				transform: translate(-50%, -50%) scale(1);
+			}
+			100% {
+				transform: translate(-50%, -50%) scale(1.35);
 			}
 		}
 
@@ -312,6 +413,16 @@
 		<button class="exercise-control shuffle-control" id="vowel-shuffle" type="button" aria-label="Mezclar vocales" aria-pressed="false">&#x21bb;</button>
 	</nav>
 
+	<nav class="activity-buttons" aria-label="Actividades">
+		<button class="activity-button" type="button" aria-label="Actividad 1"></button>
+		<button class="activity-button" type="button" aria-label="Actividad 2"></button>
+		<button class="activity-button" type="button" aria-label="Actividad 3"></button>
+		<button class="activity-button" type="button" aria-label="Actividad 4"></button>
+		<button class="activity-button" type="button" aria-label="Actividad 5"></button>
+		<button class="activity-button" type="button" aria-label="Actividad 6"></button>
+	</nav>
+	<div class="confetti-layer" id="confetti-layer" aria-hidden="true"></div>
+
 	<button class="selected-character" id="selected-character" type="button" aria-label="Mostrar boca del personaje" aria-pressed="false" hidden>
 		<img id="selected-character-image" alt="">
 		<img class="character-mouth" id="character-mouth" src="assets/imagenes/bocasuper.png" alt="" hidden>
@@ -365,6 +476,8 @@
 		let shuffledVowels = false;
 		const syllablesAudio = new Audio("assets/sonidos/SilabasA.m4a");
 		const pressureAudio = new Audio("assets/sonidos/Presion.m4a");
+		const congratulationsAudio = new Audio("assets/sonidos/Felicitaciones.m4a");
+		const confettiLayer = document.querySelector("#confetti-layer");
 		const mouthImages = [
 			"assets/imagenes/bocasuper.png",
 			"assets/imagenes/bocasuper1.png",
@@ -383,10 +496,14 @@
 		let mouthImageIndex = 0;
 		let vowelSequenceActive = false;
 		let vowelSequenceIndex = 0;
+		let congratulationsActive = false;
+		let celebrationPending = false;
+		let celebrationTimer;
 		const vowelMouthStart = 0.2;
 		const vowelMouthEnd = 0.4;
 		syllablesAudio.preload = "auto";
 		pressureAudio.preload = "auto";
+		congratulationsAudio.preload = "auto";
 		Object.values(vowelAudios).forEach((audio) => {
 			audio.preload = "auto";
 		});
@@ -471,6 +588,79 @@
 			});
 		}
 
+		function stopAllAudio() {
+			syllablesAudio.pause();
+			pressureAudio.pause();
+			congratulationsAudio.pause();
+			Object.values(vowelAudios).forEach((audio) => audio.pause());
+		}
+
+		function finishCelebration(resetVowels = true) {
+			clearTimeout(celebrationTimer);
+			clearInterval(mouthAnimationTimer);
+			congratulationsAudio.pause();
+			congratulationsAudio.currentTime = 0;
+			characterMouth.hidden = true;
+			characterMouth.classList.remove("shifted-mouth");
+			selectedCharacterElement.classList.remove("celebrating");
+			selectedCharacterElement.setAttribute("aria-pressed", "false");
+			congratulationsActive = false;
+			if (resetVowels) {
+				celebrationPending = false;
+				orangeVowels.clear();
+				renderVowels();
+			}
+			confettiLayer.replaceChildren();
+		}
+
+		function startConfetti() {
+			confettiLayer.replaceChildren();
+			const colors = ["#f28c00", "#cfacd6", "#aad8bb", "#d0ab5b", "#f28c80", "#a0cce7"];
+			for (let index = 0; index < 70; index += 1) {
+				const piece = document.createElement("span");
+				piece.className = "confetti-piece";
+				piece.style.left = `${Math.random() * 100}%`;
+				piece.style.setProperty("--confetti-color", colors[index % colors.length]);
+				piece.style.setProperty("--confetti-drift", `${Math.round(Math.random() * 160 - 80)}px`);
+				piece.style.setProperty("--confetti-duration", `${2.4 + Math.random() * 1.8}s`);
+				piece.style.animationDelay = `${Math.random() * 0.35}s`;
+				confettiLayer.appendChild(piece);
+			}
+		}
+
+		function playCongratulationsAudio() {
+			clearInterval(mouthAnimationTimer);
+			mouthImageIndex = 0;
+			characterMouth.src = mouthImages[mouthImageIndex];
+			characterMouth.classList.remove("shifted-mouth");
+			characterMouth.hidden = false;
+			selectedCharacterElement.setAttribute("aria-pressed", "true");
+			mouthAnimationTimer = setInterval(() => {
+				mouthImageIndex = (mouthImageIndex + 1) % mouthImages.length;
+				characterMouth.src = mouthImages[mouthImageIndex];
+				characterMouth.classList.toggle("shifted-mouth", mouthImageIndex > 0);
+			}, 220);
+			congratulationsAudio.onended = finishCelebration;
+			congratulationsAudio.play().catch(finishCelebration);
+		}
+
+		function startCelebration() {
+			if (congratulationsActive) {
+				return;
+			}
+
+			congratulationsActive = true;
+			vowelSequenceActive = false;
+			clearVowelMouthTimers();
+			stopAllAudio();
+			clearInterval(mouthAnimationTimer);
+			characterMouth.hidden = true;
+			selectedCharacterElement.setAttribute("aria-pressed", "false");
+			selectedCharacterElement.classList.add("celebrating");
+			startConfetti();
+			celebrationTimer = setTimeout(playCongratulationsAudio, 700);
+		}
+
 		function updateProfileCounter() {
 			profileCounter.textContent = `${profileInput.value.length}/10`;
 		}
@@ -522,6 +712,7 @@
 
 		function playVowelAudio(vowel) {
 			const audio = vowelAudios[vowel];
+			finishCelebration(false);
 			vowelSequenceActive = false;
 			pressureAudio.pause();
 			pressureAudio.currentTime = 0;
@@ -544,9 +735,14 @@
 				characterMouth.hidden = true;
 				characterMouth.classList.remove("shifted-mouth");
 				selectedCharacterElement.setAttribute("aria-pressed", "false");
+				if (celebrationPending) {
+					celebrationPending = false;
+					startCelebration();
+				}
 			};
 			audio?.play().then(() => scheduleVowelMouth(audio)).catch(() => {
 				clearVowelMouthTimers();
+				celebrationPending = false;
 				characterMouth.hidden = true;
 				characterMouth.classList.remove("shifted-mouth");
 				selectedCharacterElement.setAttribute("aria-pressed", "false");
@@ -633,11 +829,13 @@
 		acceptNameButton.addEventListener("click", saveGuestName);
 		cancelNameButton.addEventListener("click", closeProfileModal);
 		caseToggle.addEventListener("click", () => {
+			finishCelebration();
 			orangeVowels.clear();
 			uppercaseVowels = !uppercaseVowels;
 			renderVowels();
 		});
 		vowelShuffle.addEventListener("click", () => {
+			finishCelebration();
 			orangeVowels.clear();
 			shuffleVowels();
 		});
@@ -645,6 +843,7 @@
 			const vowelButton = event.target.closest("[data-vowel]");
 			if (vowelButton) {
 				orangeVowels.add(vowelButton.dataset.vowel);
+				celebrationPending = orangeVowels.size === vowels.length;
 				renderVowels();
 				playVowelAudio(vowelButton.dataset.vowel);
 			}
