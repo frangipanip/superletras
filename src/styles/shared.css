@@ -1,0 +1,141 @@
+/* Nav de esquina + ventana de perfil: compartidos por Mundos y Mundo 1. */
+.corner-button {
+	position: fixed;
+	top: clamp(0.75rem, 2vw, 1.5rem);
+	z-index: 2;
+	border: 0;
+	background: transparent;
+	cursor: pointer;
+	transition: transform 180ms ease, filter 180ms ease;
+}
+
+.back-button {
+	left: clamp(0.75rem, 2vw, 1.5rem);
+	padding: 0;
+}
+
+.back-button:hover,
+.back-button:focus-visible {
+	transform: translateY(-3px) scale(1.05);
+	filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.45));
+}
+
+.back-button img {
+	display: block;
+	width: clamp(52px, 10vmin, 90px);
+	height: auto;
+}
+
+.guest-button {
+	right: clamp(0.75rem, 2vw, 1.5rem);
+	box-sizing: border-box;
+	width: clamp(100px, 18vmin, 190px);
+	aspect-ratio: 1080 / 354;
+	padding: 0 4%;
+	border: 3px solid #2f8498;
+	border-radius: 22% / 42%;
+	background:
+		linear-gradient(178deg, rgba(255, 255, 255, 0.78) 0 7%, transparent 20%),
+		linear-gradient(180deg, #d6f8ff 0%, #a9e7f4 43%, #7bcfe3 72%, #5fb5cb 100%);
+	color: #6b3f24;
+	font: 700 clamp(0.8rem, 2vmin, 1.25rem) Arial, Helvetica, sans-serif;
+	box-shadow:
+		inset 0 3px 0 rgba(255, 255, 255, 0.9),
+		inset 0 0 0 3px rgba(111, 210, 229, 0.65),
+		inset 0 -7px 0 rgba(38, 126, 149, 0.42),
+		0 3px 0 #286f84,
+		0 5px 6px rgba(0, 0, 0, 0.28);
+	transition: transform 180ms ease, filter 180ms ease, box-shadow 180ms ease;
+}
+
+.guest-button:hover,
+.guest-button:focus-visible {
+	transform: translateY(-2px) scale(1.04);
+	filter: brightness(1.06) drop-shadow(0 0 7px rgba(0, 0, 0, 0.35));
+}
+
+.guest-button span {
+	position: absolute;
+	inset: 3px;
+	box-sizing: border-box;
+	min-width: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0 4%;
+	color: #6b3f24;
+	line-height: 1;
+	text-align: center;
+	text-transform: uppercase;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.profile-modal {
+	position: fixed;
+	inset: 0;
+	z-index: 5;
+	display: grid;
+	place-items: center;
+	background: rgba(0, 0, 0, 0.35);
+}
+
+.profile-window {
+	position: relative;
+	width: min(92vw, 700px, 126dvh);
+	max-height: 90dvh;
+	aspect-ratio: 700 / 500;
+	background: url("/assets/imagenes/ventanauser.png") center / 100% 100% no-repeat;
+}
+
+.profile-input {
+	position: absolute;
+	top: 54%;
+	left: 8%;
+	width: 81%;
+	box-sizing: border-box;
+	padding: 0.6rem 1rem;
+	border: 0;
+	outline: 0;
+	background: transparent;
+	color: #4b3529;
+	font: 700 clamp(1rem, 3.5vmin, 2rem) Arial, Helvetica, sans-serif;
+	text-align: left;
+	text-transform: uppercase;
+}
+
+.profile-input::placeholder {
+	color: #888;
+	opacity: 1;
+	text-transform: none;
+}
+
+.profile-counter {
+	position: absolute;
+	right: 10%;
+	bottom: 27%;
+	color: #4b3529;
+	font: 700 clamp(0.75rem, 2vmin, 1.1rem) Arial, Helvetica, sans-serif;
+}
+
+.profile-actions {
+	position: absolute;
+	right: 7%;
+	bottom: 7%;
+	display: flex;
+	gap: 0.5rem;
+}
+
+.profile-actions button {
+	padding: 0;
+	border: 0;
+	background: transparent;
+	cursor: pointer;
+}
+
+.profile-actions img {
+	display: block;
+	width: min(18vw, 18vmin, 125px);
+	height: auto;
+}

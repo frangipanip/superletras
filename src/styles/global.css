@@ -1,0 +1,62 @@
+html,
+body,
+#root {
+	width: 100%;
+	height: 100%;
+	min-height: 100%;
+	margin: 0;
+	overflow: hidden;
+	background-color: #000;
+}
+
+body {
+	overscroll-behavior: none;
+	-webkit-tap-highlight-color: transparent;
+	-webkit-touch-callout: none;
+	user-select: none;
+}
+
+.screen {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
+}
+
+/* Pantalla que pide girar el dispositivo cuando no se puede bloquear la orientacion. */
+.rotate-overlay {
+	position: fixed;
+	inset: 0;
+	z-index: 100;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 1.5rem;
+	padding: 2rem;
+	background: #06131c;
+	color: #fff;
+	font: 700 clamp(1rem, 5vw, 1.6rem) Arial, Helvetica, sans-serif;
+	text-align: center;
+	text-transform: uppercase;
+}
+
+.rotate-overlay svg {
+	width: clamp(80px, 28vw, 160px);
+	height: auto;
+	animation: rotate-hint 2.2s ease-in-out infinite;
+}
+
+@keyframes rotate-hint {
+	0%, 40% { transform: rotate(0deg); }
+	60%, 100% { transform: rotate(-90deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.rotate-overlay svg {
+		animation: none;
+		transform: rotate(-90deg);
+	}
+}

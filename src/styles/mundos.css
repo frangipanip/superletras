@@ -1,0 +1,142 @@
+.mundos-screen {
+	background-image: url("/assets/imagenes/FONDOmundos.jpg");
+	font-family: Arial, Helvetica, sans-serif;
+	text-transform: uppercase;
+}
+
+.mundos-screen .guest-button span {
+	padding: 0 15%;
+}
+
+.worlds-row {
+	position: relative;
+	min-height: 100dvh;
+	padding: clamp(1rem, 4vh, 3rem) 1rem 0;
+}
+
+.levels-layout {
+	position: absolute;
+	top: 65%;
+	left: 50%;
+	display: flex;
+	flex-direction: column;
+	gap: clamp(0.75rem, 3vmin, 2rem);
+	width: min(90vw, 1100px);
+	transform: translate(-50%, -50%);
+}
+
+.level-row {
+	display: flex;
+	justify-content: center;
+	gap: clamp(0.75rem, 3vmin, 2rem);
+}
+
+.level-button {
+	flex: 1 1 0;
+	max-width: 330px;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	cursor: pointer;
+	transition: transform 180ms ease, filter 180ms ease;
+}
+
+.level-button:hover,
+.level-button:focus-visible {
+	z-index: 1;
+	transform: translateY(-5px) scale(1.06);
+	filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.55));
+}
+
+.level-button img {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+.hero-button {
+	position: absolute;
+	top: clamp(1rem, 4vh, 3rem);
+	--hero-gap: clamp(0.25rem, 1.5vmin, 1rem);
+	padding: 0;
+	border: 0;
+	background: transparent;
+	cursor: pointer;
+	transition: transform 220ms ease;
+}
+
+.hero-button:hover,
+.hero-button:focus-visible {
+	transform: translateY(-8px) scale(1.08);
+}
+
+.hero-button img {
+	display: block;
+	width: clamp(71.5px, 19.8vmin, 137.5px);
+	height: auto;
+	transition: filter 220ms ease;
+	filter: drop-shadow(0 0 14px rgba(0, 0, 0, 0.7));
+}
+
+.hero-button:hover img,
+.hero-button:focus-visible img {
+	filter: none;
+}
+
+.worlds-row.has-selection .hero-button:not(.selected) img {
+	filter: grayscale(1) drop-shadow(0 0 14px rgba(0, 0, 0, 0.7));
+}
+
+.worlds-row.has-selection .hero-button:not(.selected):hover img,
+.worlds-row.has-selection .hero-button:not(.selected):focus-visible img {
+	filter: grayscale(1);
+}
+
+.hero-button[data-character="supernena"] {
+	left: 50%;
+	transform: translateX(calc(-100% - var(--hero-gap)));
+}
+
+.hero-button[data-character="supernene"] {
+	left: 50%;
+	transform: translateX(var(--hero-gap));
+}
+
+.hero-button[data-character="supernena"]:hover,
+.hero-button[data-character="supernena"]:focus-visible {
+	transform: translateX(calc(-100% - var(--hero-gap))) translateY(-8px) scale(1.08);
+}
+
+.hero-button[data-character="supernene"]:hover,
+.hero-button[data-character="supernene"]:focus-visible {
+	transform: translateX(var(--hero-gap)) translateY(-8px) scale(1.08);
+}
+
+@media (max-width: 900px) {
+	.worlds-row {
+		min-height: 100dvh;
+	}
+
+	.levels-layout,
+	.mobile-layout .levels-layout {
+		width: min(92vw, 560px);
+		gap: 2vmin;
+	}
+
+	.level-row {
+		gap: 2vmin;
+	}
+
+	.hero-button img {
+		width: 19.8vmin;
+	}
+
+	.mundos-screen .guest-button span {
+		padding: 0 2%;
+		font-size: clamp(0.35rem, 1.4vmin, 0.7rem);
+	}
+}
+
+.mobile-layout .levels-layout {
+	width: min(92vw, 560px);
+}
