@@ -1,0 +1,26 @@
+{
+  "name": "superletras",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "vite build",
+    "start": "node server.js",
+    "preview": "vite preview --host",
+    "icons": "node scripts/generate-icons.mjs",
+    "optimize:imagenes": "node scripts/optimize-images.mjs"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "react-router-dom": "^7.8.2"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^5.0.2",
+    "sharp": "^0.34.3",
+    "vite": "^7.1.4",
+    "vite-plugin-pwa": "^1.0.3"
+  }
+}

@@ -1,0 +1,119 @@
+.home-screen {
+	background-image: url("/assets/imagenes/FONDO.jpeg");
+}
+
+.characters-row {
+	position: absolute;
+	top: 65dvh;
+	left: 50%;
+	display: flex;
+	align-items: flex-end;
+	justify-content: center;
+	gap: clamp(0.5rem, 5vw, 4rem);
+	width: min(94vw, 1000px);
+	transform: translate(-50%, -50%);
+}
+
+.character-button,
+.play-button {
+	position: relative;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	font: inherit;
+	transition: transform 220ms ease;
+}
+
+.character-button,
+.play-button:not(:disabled) {
+	cursor: pointer;
+}
+
+.play-button:disabled {
+	cursor: not-allowed;
+	opacity: 0.55;
+	filter: grayscale(1);
+}
+
+.play-button::after {
+	content: "";
+	position: absolute;
+	z-index: -1;
+	inset: 5%;
+	border-radius: 50%;
+	box-shadow: 0 0 24px 12px rgba(0, 0, 0, 0.5);
+	filter: blur(8px);
+	opacity: 1;
+	transform: scale(1);
+	transition: opacity 220ms ease, transform 220ms ease;
+}
+
+.character-button:hover,
+.character-button:focus-visible,
+.play-button:not(:disabled):hover,
+.play-button:not(:disabled):focus-visible {
+	transform: translateY(-8px) scale(1.08);
+}
+
+.play-button:not(:disabled):hover::after,
+.play-button:not(:disabled):focus-visible::after {
+	opacity: 0;
+	transform: scale(0.8);
+}
+
+.play-button:not(:disabled):active {
+	transform: translateY(-2px) scale(1.02);
+}
+
+.character-button img,
+.play-button img {
+	display: block;
+	height: auto;
+}
+
+.character-button img {
+	transition: filter 220ms ease;
+	filter: drop-shadow(0 0 14px rgba(0, 0, 0, 0.7));
+}
+
+.character-button.selected img {
+	filter: drop-shadow(0 0 14px rgba(0, 0, 0, 0.7));
+}
+
+.characters-row.has-selection .character-button:not(.selected) img {
+	filter: grayscale(1) drop-shadow(0 0 14px rgba(0, 0, 0, 0.7));
+}
+
+.character-button:hover img,
+.character-button:focus-visible img {
+	filter: none;
+}
+
+.characters-row.has-selection .character-button:not(.selected):hover img,
+.characters-row.has-selection .character-button:not(.selected):focus-visible img {
+	filter: grayscale(1);
+}
+
+.character-button img {
+	width: clamp(120px, 28vmin, 250px);
+}
+
+.play-button img {
+	width: clamp(55px, 12vmin, 110px);
+}
+
+@media (max-width: 600px) {
+	.characters-row {
+		top: 68dvh;
+		gap: 2vw;
+		width: 96vw;
+	}
+
+	.character-button img {
+		width: 28vmin;
+	}
+
+	.play-button img {
+		width: 12vmin;
+	}
+}

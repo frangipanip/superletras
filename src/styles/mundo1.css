@@ -1,0 +1,183 @@
+.mundo1-screen {
+	background-image: url("/assets/imagenes/FONDOM1.jpg");
+	--menu-left: 5%;
+	--menu-width: clamp(168px, 36.75vmin, 367.5px);
+}
+
+.menu-panel {
+	position: fixed;
+	top: 55%;
+	left: var(--menu-left);
+	z-index: 1;
+	width: var(--menu-width);
+	transform: translateY(-50%);
+}
+
+.menu-panel > img {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+.selected-character {
+	position: fixed;
+	top: clamp(0.75rem, 3vh, 2rem);
+	z-index: 2;
+	width: clamp(65px, 18vmin, 125px);
+	left: calc(var(--menu-left) + var(--menu-width) + clamp(1.25rem, 3vw, 3rem) + clamp(3rem, 9vmin, 7.5rem));
+	transform: translateX(-50%);
+}
+
+.selected-character img {
+	display: block;
+	width: 100%;
+	height: auto;
+	filter: drop-shadow(0 0 14px rgba(0, 0, 0, 0.7));
+}
+
+.background-option {
+	position: fixed;
+	z-index: 1;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	cursor: pointer;
+}
+
+.background-option[data-option="syllables"] {
+	top: 39%;
+	left: 39%;
+	width: 15%;
+	height: 9%;
+}
+
+.background-option[data-option="words"] {
+	top: 52%;
+	left: 39%;
+	width: 16%;
+	height: 9%;
+}
+
+.background-option[data-option="sentences"] {
+	top: 66%;
+	left: 38%;
+	width: 18%;
+	height: 10%;
+}
+
+.menu-option {
+	position: absolute;
+	left: 50%;
+	width: 24%;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	cursor: pointer;
+	transform: translate(-50%, -50%);
+	transition: transform 180ms ease;
+}
+
+.menu-option:hover,
+.menu-option:focus-visible {
+	z-index: 1;
+	transform: translate(-50%, -50%) scale(1.12);
+}
+
+.menu-option img {
+	display: block;
+	width: 100%;
+	height: auto;
+	transition: filter 180ms ease;
+}
+
+.menu-option:hover img,
+.menu-option:focus-visible img,
+.menu-option.selected img {
+	filter:
+		brightness(1.35)
+		saturate(1.2)
+		drop-shadow(1px 0 0 var(--outline-color))
+		drop-shadow(-1px 0 0 var(--outline-color))
+		drop-shadow(0 1px 0 var(--outline-color))
+		drop-shadow(0 -1px 0 var(--outline-color))
+		drop-shadow(0 0 8px rgba(255, 255, 255, 0.9));
+}
+
+.menu-option[data-option="a"] {
+	top: 14%;
+	--outline-color: #410a4a;
+}
+
+.menu-option[data-option="l"] {
+	top: 29%;
+	left: 44%;
+	width: 19.2%;
+	--outline-color: #006633;
+}
+
+.menu-option[data-option="m"] {
+	top: 42%;
+	width: 31.2%;
+	--outline-color: #b48b18;
+}
+
+.menu-option[data-option="s"] {
+	top: 55%;
+	width: 18%;
+	--outline-color: #910b0b;
+}
+
+.menu-option[data-option="t"] {
+	top: 70%;
+	width: 31.2%;
+	--outline-color: #17547f;
+}
+
+.letter-panel {
+	position: absolute;
+	top: 50%;
+	left: calc(100% + clamp(1.25rem, 3vw, 3rem));
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: clamp(0.15rem, 1vmin, 0.75rem);
+	width: max-content;
+	transform: translateY(-50%);
+}
+
+.letter-panel span {
+	display: block;
+	color: #fff;
+	font-size: clamp(6rem, 18vmin, 15rem);
+	line-height: 0.95;
+}
+
+.letter-panel[data-option="a"] span {
+	color: #cfacd6;
+}
+
+.letter-panel[data-option="l"] span {
+	color: #aad8bb;
+}
+
+.letter-panel[data-option="m"] span {
+	color: #d0ab5b;
+}
+
+.letter-panel[data-option="s"] span {
+	color: #f28c80;
+}
+
+.letter-panel[data-option="t"] span {
+	color: #a0cce7;
+}
+
+.letter-panel .uppercase-letter {
+	font-family: Arial, Helvetica, sans-serif;
+	font-weight: 700;
+}
+
+.letter-panel .lowercase-letter {
+	font-family: Arial, Helvetica, sans-serif;
+	font-weight: 400;
+}
