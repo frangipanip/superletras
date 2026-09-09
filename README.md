@@ -61,5 +61,9 @@ Cloudflare del `docker-compose.yml` ya sirve por HTTPS.
 ## Deploy
 
 `docker compose up -d --build` construye la imagen (Dockerfile multi-stage: build
-de Vite + nginx) y levanta el tunel de Cloudflare. `deploy.sh` y el workflow de
-GitHub Actions siguen funcionando igual.
+de Vite + servidor Node/Express que sirve `dist/`) y levanta el tunel de
+Cloudflare. El contenedor escucha en el puerto 80 (`PORT`), asi que `deploy.sh` y
+el workflow de GitHub Actions siguen funcionando igual.
+
+Para probar el server de produccion sin Docker: `npm run build && npm start`
+(usa `PORT=3000 npm start` para no pedir el puerto 80).

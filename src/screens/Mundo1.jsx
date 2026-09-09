@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { BackButton } from "../components/BackButton.jsx";
 import { GuestProfile } from "../components/GuestProfile.jsx";
 import { CHARACTER_KEY, CHARACTERS, readStorage } from "../lib/storage.js";
@@ -13,12 +14,14 @@ const MENU_OPTIONS = [
 ];
 
 const BACKGROUND_OPTIONS = [
-	{ id: "syllables", label: "Sílabas" },
+	// Por ahora solo las silabas tienen pantalla propia.
+	{ id: "syllables", label: "Sílabas", to: "/mundo1/silabas-a" },
 	{ id: "words", label: "Palabras" },
 	{ id: "sentences", label: "Oraciones" }
 ];
 
 export default function Mundo1() {
+	const navigate = useNavigate();
 	const [selectedOption, setSelectedOption] = useState("a");
 	const audiosRef = useRef(null);
 
@@ -73,13 +76,18 @@ export default function Mundo1() {
 				<GuestProfile />
 			</nav>
 
-			{BACKGROUND_OPTIONS.map(({ id, label }) => (
+			{BACKGROUND_OPTIONS.map(({ id, label, to }) => (
 				<button
 					key={id}
 					className="background-option"
 					type="button"
 					data-option={id}
 					aria-label={label}
+					onClick={() => {
+						if (to) {
+							navigate(to);
+						}
+					}}
 				/>
 			))}
 

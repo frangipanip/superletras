@@ -439,6 +439,7 @@
 		const selectedCharacterElement = document.querySelector("#selected-character");
 		const selectedCharacterImage = document.querySelector("#selected-character-image");
 		const selectedCharacterKey = "superletras-character";
+		const syllablesButton = document.querySelector('[data-option="syllables"]');
 		function requestFullscreen() {
 			if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
 				document.documentElement.requestFullscreen().catch(() => {});
@@ -554,6 +555,10 @@
 		profileInput.addEventListener("input", updateProfileCounter);
 		acceptNameButton.addEventListener("click", saveGuestName);
 		cancelNameButton.addEventListener("click", closeProfileModal);
+		syllablesButton.addEventListener("click", () => {
+			requestFullscreen();
+			window.location.href = "SILABASAM1.html";
+		});
 		selectMenuOption(document.querySelector('.menu-option[data-option="a"]'));
 		playMenuAudio("a");
 		showSelectedCharacter();
