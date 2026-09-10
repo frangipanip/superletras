@@ -3,8 +3,11 @@ set -Eeuo pipefail
 
 cd -- "$(dirname -- "${BASH_SOURCE[0]}")"
 
+echo "Cambiando a la rama master..."
+git checkout master
+
 echo "Obteniendo los ultimos cambios..."
-git pull --ff-only
+git pull --ff-only origin master
 
 WEB_PORT="$(python3 - <<'PY'
 import socket
