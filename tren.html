@@ -8,6 +8,10 @@
 </head>
 <body>
 	<button class="corner-button" type="button" aria-label="Volver"><img src="assets/imagenes/volverbtn.png" alt="Volver"></button>
+	<div class="activity-controls" aria-label="Controles de actividad">
+		<button class="case-button" id="case-button" type="button" aria-label="Cambiar a minúsculas" aria-pressed="false">A</button>
+		<button class="restart-button" id="restart-button" type="button" aria-label="Reiniciar actividad">&#x21bb; Reiniciar</button>
+	</div>
 	<main class="train-activity" aria-live="polite">
 		<div class="activity-heading">
 			<h1 class="activity-title">Completa la secuencia</h1>
@@ -18,7 +22,10 @@
 			<div class="train-convoy" id="train-convoy"></div>
 		</section>
 	</main>
-	<button class="selected-character" id="selected-character" type="button" aria-label="Personaje" hidden><img id="selected-character-image" alt=""></button>
+	<button class="selected-character" id="selected-character" type="button" aria-label="Escuchar al personaje" hidden>
+		<img id="selected-character-image" alt="">
+		<img class="character-mouth" id="character-mouth" src="assets/imagenes/bocasuper.png" alt="" hidden>
+	</button>
 	<script src="src/scripts/actividad.js"></script>
 	<script>
 		const sequences = ["OE", "EA", "AA", "OIA", "UAU"];
@@ -28,11 +35,70 @@
 		const trainConvoy = document.querySelector("#train-convoy");
 		const roundCounter = document.querySelector("#round-counter");
 		const character = document.querySelector("#selected-character");
+		const caseButton = document.querySelector("#case-button");
+		const restartButton = document.querySelector("#restart-button");
+		const characterMouth = document.querySelector("#character-mouth");
+		const mouthImages = [
+			"assets/imagenes/bocasuper.png",
+			"assets/imagenes/bocasuper1.png",
+			"assets/imagenes/bocasuper2.png"
+		];
+		const speechAudios = {
+			vagones: new Audio("assets/sonidos/Vagones.m4a"),
+			OE: new Audio("assets/sonidos/Oe.m4a"),
+			EA: new Audio("assets/sonidos/Ea.m4a"),
+			AA: new Audio("assets/sonidos/Aa.m4a"),
+			OIA: new Audio("assets/sonidos/Oia.m4a"),
+			UAU: new Audio("assets/sonidos/Uau.m4a"),
+			fabuloso: new Audio("assets/sonidos/Fabuloso.m4a")
+		};
+		let mouthAnimationTimer;
+		let activeSpeechAudio;
 		let roundIndex = 0;
 		let completedSlots = 0;
 		let currentSequence = "";
 		let draggingToken = null;
 		let draggingPlaceholder = null;
+		let activityFinished = false;
+		let uppercaseLetters = true;
+
+		Object.values(speechAudios).forEach((audio) => {
+			audio.preload = "auto";
+		});
+
+		function stopSpeech() {
+			if (activeSpeechAudio) {
+				activeSpeechAudio.pause();
+				activeSpeechAudio.currentTime = 0;
+				activeSpeechAudio.onended = null;
+			}
+			activeSpeechAudio = null;
+			clearInterval(mouthAnimationTimer);
+			characterMouth.hidden = true;
+			characterMouth.classList.remove("shifted-mouth");
+			character.setAttribute("aria-pressed", "false");
+		}
+
+		function speak(audio, onEnded = null) {
+			stopSpeech();
+			activeSpeechAudio = audio;
+			let mouthImageIndex = 0;
+			characterMouth.src = mouthImages[mouthImageIndex];
+			characterMouth.classList.remove("shifted-mouth");
+			characterMouth.hidden = false;
+			character.setAttribute("aria-pressed", "true");
+			mouthAnimationTimer = window.setInterval(() => {
+				mouthImageIndex = (mouthImageIndex + 1) % mouthImages.length;
+				characterMouth.src = mouthImages[mouthImageIndex];
+				characterMouth.classList.toggle("shifted-mouth", mouthImageIndex > 0);
+			}, 220);
+			audio.onended = () => {
+				stopSpeech();
+				onEnded?.();
+			};
+			audio.currentTime = 0;
+			audio.play().catch(stopSpeech);
+		}
 
 		function shuffle(items) {
 			const shuffled = [...items];
@@ -48,7 +114,7 @@
 			[...currentSequence].forEach((vowel, index) => {
 				const slot = document.createElement("div");
 				slot.className = "sequence-slot";
-				slot.textContent = vowel;
+				slot.textContent = uppercaseLetters ? vowel : vowel.toLowerCase();
 				slot.dataset.index = String(index);
 				slot.dataset.vowel = vowel;
 				sequenceBoard.appendChild(slot);
@@ -59,7 +125,7 @@
 			const token = document.createElement("button");
 			token.className = "vowel-token";
 			token.type = "button";
-			token.textContent = vowel;
+			token.textContent = uppercaseLetters ? vowel : vowel.toLowerCase();
 			token.dataset.vowel = vowel;
 			token.setAttribute("aria-label", `Vocal ${vowel}`);
 			token.addEventListener("pointerdown", startDragging);
@@ -147,7 +213,7 @@
 				return event.clientX >= rect.left && event.clientX <= rect.right && event.clientY >= rect.top && event.clientY <= rect.bottom;
 			});
 			if (target && target.dataset.vowel === token.dataset.vowel && !target.classList.contains("filled")) {
-				target.textContent = token.dataset.vowel;
+				target.textContent = token.textContent;
 				target.classList.add("filled");
 				token.disabled = true;
 				completedSlots += 1;
@@ -162,25 +228,63 @@
 			roundIndex += 1;
 			trainConvoy.classList.add("departing");
 			if (roundIndex === sequences.length) {
+				activityFinished = true;
 				window.setTimeout(() => {
 					trainConvoy.replaceChildren();
-					character.classList.add("celebrating");
 					character.hidden = false;
+					requestAnimationFrame(() => {
+						character.classList.add("celebrating");
+						speak(speechAudios.fabuloso);
+					});
 				}, 1500);
 				return;
 			}
 			window.setTimeout(loadRound, 1500);
 		}
 
-		function loadRound() {
+		function loadRound(announce = true) {
 			currentSequence = sequences[roundIndex];
 			completedSlots = 0;
 			roundCounter.textContent = `${roundIndex + 1} / ${sequences.length}`;
 			renderSequence();
 			createConvoy();
+			if (announce) {
+				speak(speechAudios[currentSequence]);
+			}
 		}
 
-		loadRound();
+		function announceCurrentRound() {
+			speak(speechAudios.vagones, () => speak(speechAudios[currentSequence]));
+		}
+
+		function restartActivity() {
+			stopSpeech();
+			activityFinished = false;
+			roundIndex = 0;
+			completedSlots = 0;
+			character.classList.remove("celebrating");
+			character.hidden = false;
+			trainConvoy.classList.remove("departing");
+			loadRound(false);
+			announceCurrentRound();
+		}
+
+		caseButton.addEventListener("click", () => {
+			uppercaseLetters = !uppercaseLetters;
+			caseButton.textContent = uppercaseLetters ? "A" : "a";
+			caseButton.setAttribute("aria-label", uppercaseLetters ? "Cambiar a minúsculas" : "Cambiar a mayúsculas");
+			caseButton.setAttribute("aria-pressed", String(!uppercaseLetters));
+			restartActivity();
+		});
+
+		character.addEventListener("click", () => {
+			if (!activityFinished) {
+				speak(speechAudios.vagones);
+			}
+		});
+		restartButton.addEventListener("click", restartActivity);
+		loadRound(false);
+		window.addEventListener("load", announceCurrentRound, { once: true });
 		window.addEventListener("pointermove", dragToken);
 		window.addEventListener("pointerup", finishDragging);
 		window.addEventListener("pointercancel", finishDragging);

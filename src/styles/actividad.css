@@ -32,12 +32,52 @@ body {
 	height: auto;
 }
 
+.activity-controls {
+	position: fixed;
+	top: clamp(0.75rem, 2vw, 1.5rem);
+	right: clamp(0.75rem, 2vw, 1.5rem);
+	z-index: 3;
+	display: flex;
+	align-items: center;
+	gap: clamp(0.4rem, 1vw, 0.75rem);
+}
+
+.restart-button,
+.case-button {
+	padding: 0.55rem 0.85rem;
+	border: 3px solid #2f8498;
+	border-radius: 12px;
+	background: linear-gradient(180deg, #d6f8ff 0%, #7bcfe3 75%, #5fb5cb 100%);
+	box-shadow: 0 3px 0 #286f84, 0 5px 6px rgba(0, 0, 0, 0.28);
+	color: #6b3f24;
+	font: 700 clamp(0.75rem, 2vmin, 1rem) Arial, Helvetica, sans-serif;
+	cursor: pointer;
+	transition: transform 180ms ease, filter 180ms ease;
+}
+
+.case-button {
+	display: grid;
+	place-items: center;
+	width: clamp(2.5rem, 6vmin, 3.5rem);
+	aspect-ratio: 1;
+	padding: 0;
+	font-size: clamp(1rem, 3vmin, 1.5rem);
+}
+
+.restart-button:hover,
+.restart-button:focus-visible,
+.case-button:hover,
+.case-button:focus-visible {
+	transform: translateY(-2px) scale(1.04);
+	filter: brightness(1.06) drop-shadow(0 0 7px rgba(0, 0, 0, 0.35));
+}
+
 .selected-character {
 	position: fixed;
 	top: 50%;
 	right: clamp(0.75rem, 4vw, 4rem);
 	z-index: 2;
-	width: clamp(57px, 15.75vmin, 109px);
+	width: clamp(85.5px, 23.625vmin, 163.5px);
 	padding: 0;
 	border: 0;
 	background: transparent;
@@ -59,6 +99,25 @@ body {
 	width: 100%;
 	height: auto;
 	filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.65));
+}
+
+.selected-character .character-mouth {
+	position: absolute;
+	top: 23%;
+	left: 50%;
+	width: 22%;
+	height: auto;
+	filter: none;
+	transform: translateX(-50%);
+}
+
+.selected-character .character-mouth.shifted-mouth {
+	left: 52%;
+	top: 26%;
+}
+
+.character-mouth[hidden] {
+	display: none;
 }
 
 .train-activity {
@@ -138,7 +197,7 @@ body {
 	display: flex;
 	align-items: flex-end;
 	gap: clamp(0.05rem, 0.6vw, 0.5rem);
-	transform: translate(-50%, -50%);
+	transform: translate(-50%, -50%) scale(1.5);
 }
 
 .train-convoy.arriving {
@@ -203,16 +262,16 @@ body {
 
 @keyframes train-arrival {
 	from {
-		transform: translate(calc(-50% - 100vw), -50%);
+		transform: translate(calc(-50% - 100vw), -50%) scale(1.5);
 	}
 	to {
-		transform: translate(-50%, -50%);
+		transform: translate(-50%, -50%) scale(1.5);
 	}
 }
 
 @keyframes train-departure {
 	to {
-		transform: translate(calc(50% + 100vw), -50%);
+		transform: translate(calc(50% + 100vw), -50%) scale(1.5);
 	}
 }
 
