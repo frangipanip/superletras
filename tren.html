@@ -8,9 +8,182 @@
 </head>
 <body>
 	<button class="corner-button" type="button" aria-label="Volver"><img src="assets/imagenes/volverbtn.png" alt="Volver"></button>
-	<h1 class="activity-title">Tren</h1>
+	<main class="train-activity" aria-live="polite">
+		<div class="activity-heading">
+			<h1 class="activity-title">Completa la secuencia</h1>
+			<p class="round-counter" id="round-counter">1 / 5</p>
+		</div>
+		<section class="sequence-board" id="sequence-board" aria-label="Secuencia de vocales"></section>
+		<section class="train-yard" aria-label="Vagones con vocales">
+			<div class="train-convoy" id="train-convoy"></div>
+		</section>
+	</main>
 	<button class="selected-character" id="selected-character" type="button" aria-label="Personaje" hidden><img id="selected-character-image" alt=""></button>
-	<img class="train" src="assets/imagenes/tren.svg" alt="Tren">
 	<script src="src/scripts/actividad.js"></script>
+	<script>
+		const sequences = ["OE", "EA", "AA", "OIA", "UAU"];
+		const vowels = ["A", "E", "I", "O", "U"];
+		const wagonImages = ["vagon1.svg", "vagon2.svg", "vagon3.svg", "vagon4.svg"];
+		const sequenceBoard = document.querySelector("#sequence-board");
+		const trainConvoy = document.querySelector("#train-convoy");
+		const roundCounter = document.querySelector("#round-counter");
+		const character = document.querySelector("#selected-character");
+		let roundIndex = 0;
+		let completedSlots = 0;
+		let currentSequence = "";
+		let draggingToken = null;
+		let draggingPlaceholder = null;
+
+		function shuffle(items) {
+			const shuffled = [...items];
+			for (let index = shuffled.length - 1; index > 0; index -= 1) {
+				const randomIndex = Math.floor(Math.random() * (index + 1));
+				[shuffled[index], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[index]];
+			}
+			return shuffled;
+		}
+
+		function renderSequence() {
+			sequenceBoard.replaceChildren();
+			[...currentSequence].forEach((vowel, index) => {
+				const slot = document.createElement("div");
+				slot.className = "sequence-slot";
+				slot.textContent = vowel;
+				slot.dataset.index = String(index);
+				slot.dataset.vowel = vowel;
+				sequenceBoard.appendChild(slot);
+			});
+		}
+
+		function createToken(vowel, index) {
+			const token = document.createElement("button");
+			token.className = "vowel-token";
+			token.type = "button";
+			token.textContent = vowel;
+			token.dataset.vowel = vowel;
+			token.setAttribute("aria-label", `Vocal ${vowel}`);
+			token.addEventListener("pointerdown", startDragging);
+			return token;
+		}
+
+		function createWagon(vowel, index) {
+			const wagon = document.createElement("div");
+			wagon.className = "wagon";
+			const image = document.createElement("img");
+			image.src = `assets/imagenes/${wagonImages[index % wagonImages.length]}`;
+			image.alt = "Vagon";
+			image.draggable = false;
+			wagon.append(image, createToken(vowel, index));
+			return wagon;
+		}
+
+		function createConvoy() {
+			trainConvoy.replaceChildren();
+			const extraVowel = vowels[Math.floor(Math.random() * vowels.length)];
+			const convoyVowels = shuffle([...currentSequence, extraVowel]);
+			const locomotive = document.createElement("img");
+			locomotive.className = "locomotive";
+			locomotive.src = "assets/imagenes/tren.svg";
+			locomotive.alt = "Locomotora";
+			locomotive.draggable = false;
+			convoyVowels.forEach((vowel, index) => trainConvoy.appendChild(createWagon(vowel, index)));
+			trainConvoy.appendChild(locomotive);
+			trainConvoy.classList.remove("departing");
+			void trainConvoy.offsetWidth;
+			trainConvoy.classList.add("arriving");
+			window.setTimeout(() => trainConvoy.classList.remove("arriving"), 1800);
+		}
+
+		function startDragging(event) {
+			if (roundIndex >= sequences.length || trainConvoy.classList.contains("departing")) {
+				return;
+			}
+			draggingToken = event.currentTarget;
+			const tokenRect = draggingToken.getBoundingClientRect();
+			draggingPlaceholder = document.createComment("vocal-placeholder");
+			draggingToken.parentNode.insertBefore(draggingPlaceholder, draggingToken);
+			document.body.appendChild(draggingToken);
+			draggingToken.dataset.pointerOffsetX = String(event.clientX - tokenRect.left);
+			draggingToken.dataset.pointerOffsetY = String(event.clientY - tokenRect.top);
+			draggingToken.style.width = `${tokenRect.width}px`;
+			draggingToken.style.height = `${tokenRect.height}px`;
+			draggingToken.style.position = "fixed";
+			draggingToken.style.left = `${tokenRect.left}px`;
+			draggingToken.style.top = `${tokenRect.top}px`;
+			draggingToken.style.transform = "none";
+			draggingToken.classList.add("dragging");
+			event.preventDefault();
+		}
+
+		function dragToken(event) {
+			if (!draggingToken) {
+				return;
+			}
+			const offsetX = Number(draggingToken.dataset.pointerOffsetX);
+			const offsetY = Number(draggingToken.dataset.pointerOffsetY);
+			draggingToken.style.left = `${event.clientX - offsetX}px`;
+			draggingToken.style.top = `${event.clientY - offsetY}px`;
+		}
+
+		function finishDragging(event) {
+			if (!draggingToken) {
+				return;
+			}
+			const token = draggingToken;
+			token.classList.remove("dragging");
+			draggingPlaceholder.parentNode.insertBefore(token, draggingPlaceholder);
+			draggingPlaceholder.remove();
+			draggingPlaceholder = null;
+			token.style.width = "";
+			token.style.height = "";
+			token.style.position = "";
+			token.style.left = "";
+			token.style.top = "";
+			token.style.transform = "";
+			delete token.dataset.pointerOffsetX;
+			delete token.dataset.pointerOffsetY;
+			const target = [...document.querySelectorAll(".sequence-slot")].find((slot) => {
+				const rect = slot.getBoundingClientRect();
+				return event.clientX >= rect.left && event.clientX <= rect.right && event.clientY >= rect.top && event.clientY <= rect.bottom;
+			});
+			if (target && target.dataset.vowel === token.dataset.vowel && !target.classList.contains("filled")) {
+				target.textContent = token.dataset.vowel;
+				target.classList.add("filled");
+				token.disabled = true;
+				completedSlots += 1;
+				if (completedSlots === currentSequence.length) {
+					completeRound();
+				}
+			}
+			draggingToken = null;
+		}
+
+		function completeRound() {
+			roundIndex += 1;
+			trainConvoy.classList.add("departing");
+			if (roundIndex === sequences.length) {
+				window.setTimeout(() => {
+					trainConvoy.replaceChildren();
+					character.classList.add("celebrating");
+					character.hidden = false;
+				}, 1500);
+				return;
+			}
+			window.setTimeout(loadRound, 1500);
+		}
+
+		function loadRound() {
+			currentSequence = sequences[roundIndex];
+			completedSlots = 0;
+			roundCounter.textContent = `${roundIndex + 1} / ${sequences.length}`;
+			renderSequence();
+			createConvoy();
+		}
+
+		loadRound();
+		window.addEventListener("pointermove", dragToken);
+		window.addEventListener("pointerup", finishDragging);
+		window.addEventListener("pointercancel", finishDragging);
+	</script>
 </body>
 </html>
