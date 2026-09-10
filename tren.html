@@ -29,6 +29,7 @@
 	<script src="src/scripts/actividad.js"></script>
 	<script>
 		const sequences = ["OE", "EA", "AA", "OIA", "UAU"];
+		let sequenceOrder = [...sequences];
 		const vowels = ["A", "E", "I", "O", "U"];
 		const wagonImages = ["vagon1.svg", "vagon2.svg", "vagon3.svg", "vagon4.svg"];
 		const sequenceBoard = document.querySelector("#sequence-board");
@@ -243,7 +244,7 @@
 		}
 
 		function loadRound(announce = true) {
-			currentSequence = sequences[roundIndex];
+			currentSequence = sequenceOrder[roundIndex];
 			completedSlots = 0;
 			roundCounter.textContent = `${roundIndex + 1} / ${sequences.length}`;
 			renderSequence();
@@ -258,10 +259,14 @@
 		}
 
 		function restartActivity() {
+			const previousSequence = currentSequence;
 			stopSpeech();
 			activityFinished = false;
 			roundIndex = 0;
 			completedSlots = 0;
+			do {
+				sequenceOrder = shuffle(sequences);
+			} while (sequenceOrder[0] === previousSequence);
 			character.classList.remove("celebrating");
 			character.hidden = false;
 			trainConvoy.classList.remove("departing");
