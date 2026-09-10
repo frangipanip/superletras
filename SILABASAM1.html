@@ -163,6 +163,11 @@
 			transition: transform 180ms ease, filter 180ms ease;
 		}
 
+		.activity-button:focus-visible {
+			outline: 4px solid #fff;
+			outline-offset: 4px;
+		}
+
 		.activity-button img {
 			display: block;
 			width: 80%;
@@ -470,12 +475,12 @@
 		<button class="exercise-control shuffle-control" id="vowel-shuffle" type="button" aria-label="Mezclar vocales" aria-pressed="false">&#x21bb;</button>
 	</nav>
 
-	<nav class="activity-buttons" aria-label="Actividades">
-		<button class="activity-button" type="button" aria-label="Actividad 1"><img src="assets/imagenes/INICIALESbtn.png" alt=""></button>
-		<button class="activity-button" type="button" aria-label="Actividad 2"><img src="assets/imagenes/MARIPOSAbtn.png" alt=""></button>
-		<button class="activity-button" type="button" aria-label="Actividad 3"><img src="assets/imagenes/GLOBOSbtn.png" alt=""></button>
-		<button class="activity-button" type="button" aria-label="Actividad 4"><img src="assets/imagenes/TRENbtn.png" alt=""></button>
-		<button class="activity-button" type="button" aria-label="Actividad 5"><img src="assets/imagenes/PELUCHESbtn.png" alt=""></button>
+		<nav class="activity-buttons" aria-label="Actividades">
+			<button class="activity-button" type="button" aria-label="Actividad de iniciales" data-page="iniciales.html"><img src="assets/imagenes/INICIALESbtn.png" alt=""></button>
+			<button class="activity-button" type="button" aria-label="Actividad de mariposas" data-page="mariposas.html"><img src="assets/imagenes/MARIPOSAbtn.png" alt=""></button>
+			<button class="activity-button" type="button" aria-label="Actividad de globos" data-page="globos.html"><img src="assets/imagenes/GLOBOSbtn.png" alt=""></button>
+			<button class="activity-button" type="button" aria-label="Actividad de tren" data-page="tren.html"><img src="assets/imagenes/TRENbtn.png" alt=""></button>
+			<button class="activity-button" type="button" aria-label="Actividad de peluches" data-page="peluches.html"><img src="assets/imagenes/PELUCHESbtn.png" alt=""></button>
 	</nav>
 	<div class="confetti-layer" id="confetti-layer" aria-hidden="true"></div>
 
@@ -912,6 +917,11 @@
 			playNextDisplayedVowel();
 		});
 		selectedCharacterElement.addEventListener("click", playSyllablesAudio);
+		document.querySelectorAll(".activity-button").forEach((activityButton) => {
+			activityButton.addEventListener("click", () => {
+				window.location.href = activityButton.dataset.page;
+			});
+		});
 		renderVowels();
 		showSelectedCharacter();
 	</script>
