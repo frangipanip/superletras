@@ -144,10 +144,10 @@
 
 		.activity-button {
 			position: absolute;
-			width: clamp(3rem, 8vmin, 5rem);
+			width: clamp(4.8rem, 12.8vmin, 8rem);
 			aspect-ratio: 1;
 			padding: 0;
-			border: 3px solid #2f8498;
+			border: 3px solid rgba(47, 132, 152, 0.9);
 			border-radius: 50%;
 			background:
 				linear-gradient(150deg, rgba(255, 255, 255, 0.8) 0 8%, transparent 30%),
@@ -163,6 +163,14 @@
 			transition: transform 180ms ease, filter 180ms ease;
 		}
 
+		.activity-button img {
+			display: block;
+			width: 80%;
+			height: 80%;
+			object-fit: contain;
+			margin: auto;
+		}
+
 		.activity-button:hover,
 		.activity-button:focus-visible {
 			transform: scale(1.08);
@@ -170,33 +178,79 @@
 		}
 
 		.activity-button:nth-child(1) {
-			top: 24%;
-			left: 34%;
+			top: 5%;
+			left: 50%;
+			transform: translateX(-50%);
+			border-color: #0a9ab0;
+			background:
+				linear-gradient(150deg, rgba(255, 255, 255, 0.8) 0 8%, transparent 30%),
+				linear-gradient(180deg, #affaff 0%, #5ae0fd 45%, #1ab5de 75%, #0f8eb2 100%);
+			box-shadow:
+				inset 0 3px 0 rgba(255, 255, 255, 0.92),
+				inset 0 0 0 3px rgba(162, 248, 255, 0.78),
+				inset 0 -6px 0 rgba(0, 114, 138, 0.48),
+				0 3px 0 #145670,
+				0 5px 6px rgba(0, 0, 0, 0.28);
 		}
 
 		.activity-button:nth-child(2) {
-			top: 38%;
-			left: 25%;
+			top: 22%;
+			left: 30%;
+			border-color: #bd1d7b;
+			background:
+				linear-gradient(150deg, rgba(255, 255, 255, 0.8) 0 8%, transparent 30%),
+				linear-gradient(180deg, #ffd2ee 0%, #ff66cc 45%, #d43a98 75%, #a42e73 100%);
+			box-shadow:
+				inset 0 3px 0 rgba(255, 255, 255, 0.95),
+				inset 0 0 0 3px rgba(255, 171, 230, 0.76),
+				inset 0 -6px 0 rgba(141, 30, 94, 0.45),
+				0 3px 0 #8b235d,
+				0 5px 6px rgba(0, 0, 0, 0.28);
 		}
 
 		.activity-button:nth-child(3) {
-			top: 52%;
-			left: 29%;
+			top: 56%;
+			left: 31%;
+			border-color: #4a8b1d;
+			background:
+				linear-gradient(150deg, rgba(255, 255, 255, 0.8) 0 8%, transparent 30%),
+				linear-gradient(180deg, #d8ffa2 0%, #80e041 45%, #5aa529 75%, #356d0c 100%);
+			box-shadow:
+				inset 0 3px 0 rgba(255, 255, 255, 0.95),
+				inset 0 0 0 3px rgba(180, 250, 117, 0.76),
+				inset 0 -6px 0 rgba(61, 124, 31, 0.45),
+				0 3px 0 #305e14,
+				0 5px 6px rgba(0, 0, 0, 0.28);
 		}
 
 		.activity-button:nth-child(4) {
-			top: 24%;
-			right: 34%;
+			top: 22%;
+			right: 30%;
+			border-color: #6628a2;
+			background:
+				linear-gradient(150deg, rgba(255, 255, 255, 0.8) 0 8%, transparent 30%),
+				linear-gradient(180deg, #d9b7ff 0%, #9933ff 45%, #6e22b0 75%, #462077 100%);
+			box-shadow:
+				inset 0 3px 0 rgba(255, 255, 255, 0.95),
+				inset 0 0 0 3px rgba(194, 151, 255, 0.78),
+				inset 0 -6px 0 rgba(84, 26, 135, 0.45),
+				0 3px 0 #44206e,
+				0 5px 6px rgba(0, 0, 0, 0.28);
 		}
 
 		.activity-button:nth-child(5) {
-			top: 38%;
-			right: 25%;
-		}
-
-		.activity-button:nth-child(6) {
-			top: 52%;
-			right: 29%;
+			top: 56%;
+			right: 31%;
+			border-color: #b16a00;
+			background:
+				linear-gradient(150deg, rgba(255, 255, 255, 0.8) 0 8%, transparent 30%),
+				linear-gradient(180deg, #ffe0b0 0%, #ff9900 45%, #d66d00 75%, #8c4804 100%);
+			box-shadow:
+				inset 0 3px 0 rgba(255, 255, 255, 0.95),
+				inset 0 0 0 3px rgba(255, 203, 143, 0.78),
+				inset 0 -6px 0 rgba(134, 71, 3, 0.45),
+				0 3px 0 #754100,
+				0 5px 6px rgba(0, 0, 0, 0.28);
 		}
 
 		.selected-character {
@@ -274,7 +328,7 @@
 
 		.selected-character .character-mouth {
 			position: absolute;
-			top: 21%;
+			top: 23%;
 			left: 50%;
 			width: 22%;
 			height: auto;
@@ -284,7 +338,7 @@
 
 		.selected-character .character-mouth.shifted-mouth {
 			left: 52%;
-            top: 23%;
+            top: 26%;
 		}
 
 		.character-mouth[hidden] {
@@ -293,7 +347,7 @@
 
 		.vowel-list {
 			position: fixed;
-			top: calc(50% + clamp(180px, 31vmin, 270px));
+			top: 85vh;
 			left: 50%;
 			z-index: 2;
 			display: flex;
@@ -301,7 +355,10 @@
 			margin: 0;
 			padding: 0;
 			color: #fff;
-			font: 700 clamp(2rem, 6vmin, 4.5rem) Arial, Helvetica, sans-serif;
+			font-family: Arial, Helvetica, sans-serif;
+			font-weight: 700;
+			font-size: clamp(2rem, 6vmin, 4.5rem);
+			line-height: 1;
 			text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.45);
 			transform: translateX(-50%);
 		}
@@ -414,12 +471,11 @@
 	</nav>
 
 	<nav class="activity-buttons" aria-label="Actividades">
-		<button class="activity-button" type="button" aria-label="Actividad 1"></button>
-		<button class="activity-button" type="button" aria-label="Actividad 2"></button>
-		<button class="activity-button" type="button" aria-label="Actividad 3"></button>
-		<button class="activity-button" type="button" aria-label="Actividad 4"></button>
-		<button class="activity-button" type="button" aria-label="Actividad 5"></button>
-		<button class="activity-button" type="button" aria-label="Actividad 6"></button>
+		<button class="activity-button" type="button" aria-label="Actividad 1"><img src="assets/imagenes/INICIALESbtn.png" alt=""></button>
+		<button class="activity-button" type="button" aria-label="Actividad 2"><img src="assets/imagenes/MARIPOSAbtn.png" alt=""></button>
+		<button class="activity-button" type="button" aria-label="Actividad 3"><img src="assets/imagenes/GLOBOSbtn.png" alt=""></button>
+		<button class="activity-button" type="button" aria-label="Actividad 4"><img src="assets/imagenes/TRENbtn.png" alt=""></button>
+		<button class="activity-button" type="button" aria-label="Actividad 5"><img src="assets/imagenes/PELUCHESbtn.png" alt=""></button>
 	</nav>
 	<div class="confetti-layer" id="confetti-layer" aria-hidden="true"></div>
 
