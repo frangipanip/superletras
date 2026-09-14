@@ -1,33 +1,4 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Tren - Mundo 1</title>
-	<link rel="stylesheet" href="src/styles/actividad.css">
-</head>
-<body>
-	<button class="corner-button" type="button" aria-label="Volver"><img src="assets/imagenes/volverbtn.png" alt="Volver"></button>
-	<div class="activity-controls" aria-label="Controles de actividad">
-		<button class="case-button" id="case-button" type="button" aria-label="Cambiar a minúsculas" aria-pressed="false">A</button>
-		<button class="restart-button" id="restart-button" type="button" aria-label="Reiniciar actividad">&#x21bb; Reiniciar</button>
-	</div>
-	<main class="train-activity" aria-live="polite">
-		<div class="activity-heading">
-			<h1 class="activity-title">Completa la secuencia</h1>
-			<p class="round-counter" id="round-counter">1 / 5</p>
-		</div>
-		<section class="sequence-board" id="sequence-board" aria-label="Secuencia de vocales"></section>
-		<section class="train-yard" aria-label="Vagones con vocales">
-			<div class="train-convoy" id="train-convoy"></div>
-		</section>
-	</main>
-	<button class="selected-character" id="selected-character" type="button" aria-label="Escuchar al personaje" hidden>
-		<img id="selected-character-image" alt="">
-		<img class="character-mouth" id="character-mouth" src="assets/imagenes/bocasuper.png" alt="" hidden>
-	</button>
-	<script src="src/scripts/actividad.js"></script>
-	<script>
+
 		const selectedMenuOption = (localStorage.getItem("superletras-mundo1-menu-option") || "a").toLowerCase();
 		const activityConfig = {
 			a: {
@@ -345,6 +316,4 @@
 		window.addEventListener("pointermove", dragToken);
 		window.addEventListener("pointerup", finishDragging);
 		window.addEventListener("pointercancel", finishDragging);
-	</script>
-</body>
-</html>
+	

@@ -439,6 +439,7 @@
 		const selectedCharacterElement = document.querySelector("#selected-character");
 		const selectedCharacterImage = document.querySelector("#selected-character-image");
 		const selectedCharacterKey = "superletras-character";
+		const menuOptionKey = "superletras-mundo1-menu-option";
 		const syllablesButton = document.querySelector('[data-option="syllables"]');
 		function requestFullscreen() {
 			if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
@@ -465,10 +466,11 @@
 		};
 
 		function selectMenuOption(option) {
-			const letter = lettersByOption[option.dataset.option];
+			const optionKey = option.dataset.option;
+			const letter = lettersByOption[optionKey];
 			uppercaseLetter.textContent = letter.toUpperCase();
 			lowercaseLetter.textContent = letter;
-			letterPanel.dataset.option = option.dataset.option;
+			letterPanel.dataset.option = optionKey;
 			letterPanel.hidden = false;
 
 			menuOptions.forEach((button) => {
@@ -476,6 +478,8 @@
 				button.classList.toggle("selected", isSelected);
 				button.setAttribute("aria-pressed", String(isSelected));
 			});
+
+			localStorage.setItem(menuOptionKey, optionKey);
 		}
 
 		function openProfileModal() {
@@ -559,8 +563,11 @@
 			requestFullscreen();
 			window.location.href = "SILABASAM1.html";
 		});
-		selectMenuOption(document.querySelector('.menu-option[data-option="a"]'));
-		playMenuAudio("a");
+
+		const storedOption = localStorage.getItem(menuOptionKey);
+		const storedMenuOption = Array.from(menuOptions).find((button) => button.dataset.option === storedOption) || document.querySelector('.menu-option[data-option="a"]');
+		selectMenuOption(storedMenuOption);
+		playMenuAudio(storedMenuOption.dataset.option);
 		showSelectedCharacter();
 	</script>
 </body>

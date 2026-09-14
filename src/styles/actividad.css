@@ -176,6 +176,12 @@ body {
 	text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.35);
 }
 
+.sequence-slot.double-token {
+	width: clamp(4.6rem, 10vmin, 7rem);
+	aspect-ratio: 1.6 / 1;
+	font: 700 clamp(1.45rem, 4.3vmin, 2.8rem) Arial, Helvetica, sans-serif;
+}
+
 .sequence-slot.filled {
 	background: rgba(128, 222, 155, 0.8);
 	border-color: #fff6a4;
@@ -247,6 +253,13 @@ body {
 	cursor: grab;
 	touch-action: none;
 	transform: translateX(-50%);
+}
+
+.vowel-token.double-token {
+	width: clamp(44%, 4.2vw, 58%);
+	aspect-ratio: 1.8 / 1;
+	font: 700 clamp(0.78rem, 2.5vmin, 1.4rem) Arial, Helvetica, sans-serif;
+	line-height: 1;
 }
 
 .vowel-token:disabled {
