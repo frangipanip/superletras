@@ -1,0 +1,17 @@
+html,
+body,
+#root {
+	width: 100%;
+	height: 100%;
+	min-height: 100%;
+	margin: 0;
+	overflow: hidden;
+}
+
+/* Cada pantalla vive dentro de un .page que ocupa toda la ventana (antes era el body). */
+.page {
+	width: 100%;
+	height: 100%;
+	min-height: 100%;
+	overflow: hidden;
+}
