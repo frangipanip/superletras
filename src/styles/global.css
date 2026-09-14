@@ -28,3 +28,55 @@ body,
 	pointer-events: none;
 	user-select: none;
 }
+
+/* La app se usa solo en horizontal: en vertical este cartel tapa todo y bloquea los toques. */
+.rotate-device {
+	display: none;
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	z-index: 1000;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 1.5rem;
+	background: #1b1464;
+	color: #ffffff;
+	text-align: center;
+	user-select: none;
+	touch-action: none;
+}
+
+@media (orientation: portrait) {
+	.rotate-device {
+		display: flex;
+	}
+}
+
+.rotate-device__phone {
+	width: 5rem;
+	height: 8.5rem;
+	border: 0.5rem solid #ffffff;
+	border-radius: 1rem;
+	box-sizing: border-box;
+	animation: rotate-device-turn 2s ease-in-out infinite;
+}
+
+.rotate-device__text {
+	margin: 2.5rem 0 0;
+	font: 700 1.6rem Arial, Helvetica, sans-serif;
+	text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes rotate-device-turn {
+	0%,
+	20% {
+		transform: rotate(0deg);
+	}
+	60%,
+	100% {
+		transform: rotate(-90deg);
+	}
+}

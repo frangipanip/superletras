@@ -16,6 +16,15 @@ export function requestFullscreen({ toggle = false } = {}) {
 	}
 
 	if (enterFullscreen) {
-		Promise.resolve(enterFullscreen.call(root)).catch(() => {});
+		Promise.resolve(enterFullscreen.call(root)).then(lockLandscape).catch(() => {});
+	}
+}
+
+// Solo funciona en pantalla completa y en navegadores que lo soportan (Android); en iOS
+// falla y queda el cartel de "girá el dispositivo" como respaldo.
+function lockLandscape() {
+	const orientation = window.screen && window.screen.orientation;
+	if (orientation && orientation.lock) {
+		Promise.resolve(orientation.lock("landscape")).catch(() => {});
 	}
 }
