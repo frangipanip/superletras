@@ -12,6 +12,21 @@
 			background: url("assets/imagenes/FONDOejerciciosM1.jpg") center / cover no-repeat;
 		}
 
+		.butterfly-top-controls {
+			position: fixed;
+			top: clamp(0.75rem, 2vw, 1.5rem);
+			left: clamp(0.75rem, 2vw, 1.5rem);
+			z-index: 4;
+			display: flex;
+			align-items: flex-start;
+			gap: 0.5rem;
+		}
+
+		.butterfly-top-controls .corner-button,
+		.butterfly-top-controls .fullscreen-button {
+			position: static;
+		}
+
 		:root {
 			--butterfly-size: clamp(72px, 12vw, 150px);
 		}
@@ -230,8 +245,10 @@
 	</style>
 </head>
 <body>
-	<button class="corner-button" type="button" aria-label="Volver"><img src="assets/imagenes/volverbtn.png" alt="Volver"></button>
-	<button class="fullscreen-button" id="fullscreen-button" type="button" aria-label="Pantalla completa">⛶</button>
+	<div class="butterfly-top-controls" aria-label="Navegación">
+		<button class="corner-button" type="button" aria-label="Volver"><img src="assets/imagenes/volverbtn.png" alt="Volver"></button>
+		<button class="fullscreen-button" id="fullscreen-button" type="button" aria-label="Pantalla completa">⛶</button>
+	</div>
 	<div class="activity-controls" aria-label="Controles de actividad">
 		<button class="restart-button" id="restart-button" type="button" aria-label="Reiniciar actividad">&#x21bb; Reiniciar</button>
 	</div>
