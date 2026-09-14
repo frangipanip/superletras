@@ -6,6 +6,7 @@ import Silabas from "./pages/Silabas";
 import Mariposas from "./pages/Mariposas";
 import Tren from "./pages/Tren";
 import Flores from "./pages/Flores";
+import Iniciales from "./pages/Iniciales";
 import PlaceholderActivity from "./pages/PlaceholderActivity";
 
 // Las URLs viejas (*.html) redirigen a las rutas nuevas para no romper accesos guardados.
@@ -33,7 +34,7 @@ export default function App() {
 			<Route path="/tren" element={<Tren />} />
 			<Route path="/flores" element={<Flores />} />
 			<Route path="/globos" element={<PlaceholderActivity key="globos" title="Globos" />} />
-			<Route path="/iniciales" element={<PlaceholderActivity key="iniciales" title="Iniciales" />} />
+			<Route path="/iniciales" element={<Iniciales />} />
 			<Route path="/peluches" element={<PlaceholderActivity key="peluches" title="Peluches" />} />
 			{Object.entries(LEGACY_REDIRECTS).map(([from, to]) => (
 				<Route key={from} path={from} element={<Navigate to={to} replace />} />

@@ -1,0 +1,105 @@
+.page-iniciales {
+	background: url("/assets/imagenes/FONDOejerciciosM1.jpg") center / cover no-repeat;
+
+	.initials-activity {
+		width: 100vw;
+		height: 100vh;
+		height: 100dvh;
+		overflow: hidden;
+	}
+
+	.initials-heading {
+		position: fixed;
+		top: clamp(1rem, 4vh, 2rem);
+		left: 50%;
+		z-index: 2;
+		width: min(92vw, 48rem);
+		transform: translateX(-50%);
+		text-align: center;
+	}
+
+	.initials-heading h1 {
+		margin: 0;
+		color: #fff;
+		font: 700 clamp(1.7rem, 4vmin, 2.8rem) Arial, Helvetica, sans-serif;
+		text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.45);
+		text-transform: uppercase;
+	}
+
+	.initials-heading p {
+		margin: 0.4rem 0 0;
+		color: #fff;
+		font: 700 clamp(1rem, 2.8vmin, 1.6rem) Arial, Helvetica, sans-serif;
+		text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
+	}
+
+	.initials-grid {
+		position: fixed;
+		top: 24%;
+		left: 50%;
+		display: grid;
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+		gap: clamp(0.5rem, 1.5vw, 1.2rem);
+		width: min(82vw, 58rem);
+		transform: translateX(-50%);
+	}
+
+	.initials-option {
+		min-width: 0;
+		padding: 0;
+		border: 4px solid rgba(255, 255, 255, 0.8);
+		border-radius: 14px;
+		background: rgba(255, 255, 255, 0.25);
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.28);
+		cursor: pointer;
+		transition: transform 180ms ease, filter 180ms ease, border-color 180ms ease;
+	}
+
+	.initials-option img {
+		display: block;
+		width: 100%;
+		aspect-ratio: 1;
+		object-fit: contain;
+	}
+
+	.initials-option:hover,
+	.initials-option:focus-visible {
+		transform: translateY(-4px) scale(1.03);
+		filter: brightness(1.08);
+	}
+
+	.initials-option.selected {
+		border-color: #fff6a4;
+		box-shadow: 0 0 0 4px rgba(133, 237, 150, 0.65), 0 5px 10px rgba(0, 0, 0, 0.3);
+	}
+
+	.initials-option.vibrating {
+		animation: initials-vibrate 350ms ease-in-out;
+	}
+}
+
+@keyframes initials-vibrate {
+	0%,
+	100% {
+		transform: translateX(0);
+	}
+	25% {
+		transform: translateX(-8px);
+	}
+	75% {
+		transform: translateX(8px);
+	}
+}
+
+@media (max-width: 700px) {
+	.page-iniciales .initials-grid {
+		top: 27%;
+		width: min(90vw, 34rem);
+		gap: 0.4rem;
+	}
+
+	.page-iniciales .initials-option {
+		border-width: 2px;
+		border-radius: 8px;
+	}
+}
