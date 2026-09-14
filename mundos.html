@@ -44,6 +44,28 @@
 			padding: 0;
 		}
 
+		.fullscreen-button {
+			position: fixed;
+			top: clamp(0.75rem, 2vw, 1.5rem);
+			left: calc(clamp(0.75rem, 2vw, 1.5rem) + clamp(52px, 10vmin, 90px) + 0.5rem);
+			z-index: 2;
+			padding: 0.3rem 0.7rem;
+			border: 3px solid #2f8498;
+			border-radius: 12px;
+			background: linear-gradient(180deg, #d6f8ff 0%, #7bcfe3 75%, #5fb5cb 100%);
+			box-shadow: 0 3px 0 #286f84, 0 5px 6px rgba(0, 0, 0, 0.28);
+			color: #6b3f24;
+			font: 700 clamp(0.9rem, 2.2vmin, 1.25rem) Arial, Helvetica, sans-serif;
+			cursor: pointer;
+			transition: transform 180ms ease, filter 180ms ease;
+		}
+
+		.fullscreen-button:hover,
+		.fullscreen-button:focus-visible {
+			transform: translateY(-2px) scale(1.04);
+			filter: brightness(1.06) drop-shadow(0 0 7px rgba(0, 0, 0, 0.35));
+		}
+
 		.back-button img {
 			display: block;
 			width: clamp(52px, 10vmin, 90px);
@@ -313,6 +335,7 @@
 		<button class="corner-button back-button" type="button" aria-label="Volver">
 			<img src="assets/imagenes/volverbtn.png" alt="Volver">
 		</button>
+		<button class="fullscreen-button" id="fullscreen-button" type="button" aria-label="Pantalla completa">⛶</button>
 		<button class="corner-button guest-button" type="button" id="guest-button">
 			<span id="guest-name">USUARIO</span>
 		</button>
@@ -384,6 +407,7 @@
 		const cancelNameButton = document.querySelector("#cancel-name");
 		const profileCounter = document.querySelector("#profile-counter");
 		const levelOneButton = document.querySelector("#level-one-button");
+		const fullscreenButton = document.querySelector("#fullscreen-button");
 		document.body.classList.toggle("mobile-layout", isMobileLayout);
 
 		function selectCharacter(character) {
@@ -432,7 +456,9 @@
 			profileCounter.textContent = `${profileInput.value.length}/10`;
 		}
 
-		requestFullscreen();
+		if (fullscreenButton) {
+			fullscreenButton.addEventListener("click", requestFullscreen);
+		}
 		backButton.addEventListener("click", () => {
 			window.history.back();
 		});
@@ -447,7 +473,6 @@
 
 		heroButtons.forEach((button) => {
 			button.addEventListener("click", () => {
-				requestFullscreen();
 				selectCharacter(button.dataset.character);
 			});
 		});

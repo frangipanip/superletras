@@ -231,6 +231,7 @@
 </head>
 <body>
 	<button class="corner-button" type="button" aria-label="Volver"><img src="assets/imagenes/volverbtn.png" alt="Volver"></button>
+	<button class="fullscreen-button" id="fullscreen-button" type="button" aria-label="Pantalla completa">⛶</button>
 	<div class="activity-controls" aria-label="Controles de actividad">
 		<button class="restart-button" id="restart-button" type="button" aria-label="Reiniciar actividad">&#x21bb; Reiniciar</button>
 	</div>
@@ -241,7 +242,10 @@
 		</section>
 		<section class="butterfly-field" id="butterfly-field" aria-label="Mariposas"></section>
 	</main>
-	<button class="selected-character" id="selected-character" type="button" aria-label="Personaje" hidden><img id="selected-character-image" alt=""></button>
+	<button class="selected-character" id="selected-character" type="button" aria-label="Personaje" hidden>
+		<img id="selected-character-image" alt="">
+		<img class="character-mouth" id="character-mouth" src="assets/imagenes/bocasuper.png" alt="" hidden>
+	</button>
 	<script src="src/scripts/actividad.js"></script>
 	<script>
 		const selectedOption = (localStorage.getItem("superletras-mundo1-menu-option") || "a").toLowerCase();
@@ -250,21 +254,42 @@
 		const targetLine = document.querySelector("#target-line");
 		const targetToken = document.querySelector("#target-token");
 		const restartButton = document.querySelector("#restart-button");
+		const characterElement = document.querySelector("#selected-character");
+		const characterMouth = document.querySelector("#character-mouth");
+		const celebrationAudio = new Audio("assets/sonidos/Fabuloso.m4a");
+		let activeButterflyAudio;
+		let feedbackAudioContext;
+		const mouthImages = [
+			"assets/imagenes/bocasuper.png",
+			"assets/imagenes/bocasuper1.png",
+			"assets/imagenes/bocasuper2.png"
+		];
 		const butterflyImages = [
 			"assets/imagenes/MARIPOSA.svg",
 			"assets/imagenes/MARIPOSA1.svg",
 			"assets/imagenes/MARIPOSA2.svg"
 		];
 		const vowels = ["A", "E", "I", "O", "U"];
-		const syllables = ["LA", "LE", "LI", "LO", "LU", "MA", "ME", "MI", "MO", "MU"];
+		const lSyllables = ["LA", "LE", "LI", "LO", "LU"];
+		const mSyllables = ["MA", "ME", "MI", "MO", "MU"];
 		const targetVowel = "A";
 		const targetSyllable = "LA";
-		const totalButterflies = 8;
 		let currentMode = selectedOption === "l" ? "l" : "a";
 		let targetValue = currentMode === "l" ? targetSyllable : targetVowel;
+		const totalButterflies = 8;
 		let butterflies = [];
 		let correctClicked = 0;
-		let totalCorrect = 5;
+		const totalCorrect = 5;
+		const totalInstructions = 5;
+		let instructionSequenceId = 0;
+		let instructionAudios = [];
+		let roundTransitionPending = false;
+		let mouthAnimationTimer;
+		let celebrationActive = false;
+		let instructionOrder = currentMode === "l" ? Array(totalInstructions).fill("L") : shuffle(vowels);
+		let instructionIndex = 0;
+		let instructionsCompleted = 0;
+		targetValue = instructionOrder[0];
 
 		function shuffle(items) {
 			const clone = [...items];
@@ -285,21 +310,214 @@
 			document.documentElement.style.setProperty("--butterfly-size", `${size}px`);
 		}
 
+		function startInstructionSet() {
+			const previousOption = currentMode === "l" ? "L" : targetValue;
+			instructionOrder = currentMode === "l" ? Array(totalInstructions).fill("L") : shuffle(vowels);
+			if (currentMode !== "l" && instructionOrder[0] === previousOption) {
+				const replacementIndex = instructionOrder.findIndex((option) => option !== previousOption);
+				[instructionOrder[0], instructionOrder[replacementIndex]] = [instructionOrder[replacementIndex], instructionOrder[0]];
+			}
+			instructionIndex = 0;
+			instructionsCompleted = 0;
+			targetValue = currentMode === "l" ? "L" : instructionOrder[0];
+		}
+
+		function stopInstructionAudio() {
+			instructionSequenceId += 1;
+			instructionAudios.forEach((audio) => {
+				audio.pause();
+				audio.currentTime = 0;
+				audio.onended = null;
+			});
+			instructionAudios = [];
+		}
+
+		function stopFeedbackSound() {
+			if (feedbackAudioContext) {
+				feedbackAudioContext.close().catch(() => {});
+				feedbackAudioContext = null;
+			}
+		}
+
+		function playFeedbackSound(isCorrect) {
+			if (instructionAudios.length > 0) {
+				return;
+			}
+			stopFeedbackSound();
+			const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+			if (!AudioContextClass) {
+				return;
+			}
+
+			const audioContext = new AudioContextClass();
+			feedbackAudioContext = audioContext;
+			const startTime = audioContext.currentTime;
+			const masterGain = audioContext.createGain();
+			masterGain.gain.setValueAtTime(0.0001, startTime);
+			masterGain.connect(audioContext.destination);
+
+			if (isCorrect) {
+				const noiseBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.12, audioContext.sampleRate);
+				const noiseData = noiseBuffer.getChannelData(0);
+				for (let index = 0; index < noiseData.length; index += 1) {
+					noiseData[index] = (Math.random() * 2 - 1) * (1 - index / noiseData.length);
+				}
+				for (let burst = 0; burst < 3; burst += 1) {
+					const source = audioContext.createBufferSource();
+					const filter = audioContext.createBiquadFilter();
+					const gain = audioContext.createGain();
+					const burstStart = startTime + burst * 0.11;
+					source.buffer = noiseBuffer;
+					filter.type = "bandpass";
+					filter.frequency.value = 1800 + burst * 350;
+					filter.Q.value = 0.8;
+					gain.gain.setValueAtTime(0.0001, burstStart);
+					gain.gain.exponentialRampToValueAtTime(0.22, burstStart + 0.025);
+					gain.gain.exponentialRampToValueAtTime(0.0001, burstStart + 0.1);
+					source.connect(filter).connect(gain).connect(masterGain);
+					source.start(burstStart);
+					source.stop(burstStart + 0.12);
+				}
+			} else {
+				[220, 150].forEach((frequency, index) => {
+					const oscillator = audioContext.createOscillator();
+					const gain = audioContext.createGain();
+					const toneStart = startTime + index * 0.14;
+					oscillator.type = "triangle";
+					oscillator.frequency.value = frequency;
+					gain.gain.setValueAtTime(0.0001, toneStart);
+					gain.gain.exponentialRampToValueAtTime(0.42, toneStart + 0.015);
+					gain.gain.exponentialRampToValueAtTime(0.0001, toneStart + 0.11);
+					oscillator.connect(gain).connect(masterGain);
+					oscillator.start(toneStart);
+					oscillator.stop(toneStart + 0.12);
+				});
+			}
+
+			masterGain.gain.exponentialRampToValueAtTime(1, startTime + 0.01);
+			window.setTimeout(() => {
+				if (feedbackAudioContext === audioContext) {
+					feedbackAudioContext = null;
+					audioContext.close().catch(() => {});
+				}
+			}, isCorrect ? 430 : 340);
+		}
+
+		function playButterflyLabelAudio(label, onEnded) {
+			stopFeedbackSound();
+			stopInstructionAudio();
+			if (activeButterflyAudio) {
+				activeButterflyAudio.onended = null;
+				activeButterflyAudio.pause();
+				activeButterflyAudio.currentTime = 0;
+			}
+			const audioFile = currentMode === "l"
+				? `assets/sonidos/${label.toLowerCase()}.wav`
+				: `assets/sonidos/${label}.wav`;
+			activeButterflyAudio = new Audio(audioFile);
+			activeButterflyAudio.onended = onEnded;
+			activeButterflyAudio.play().catch(() => onEnded?.());
+		}
+
+		function playInstructionAudio() {
+			stopInstructionAudio();
+			const sequenceId = ++instructionSequenceId;
+			const optionFile = `assets/sonidos/${currentMode === "l" ? targetValue[0] : targetValue}.wav`;
+			const sequence = [
+				new Audio(optionFile),
+				new Audio("assets/sonidos/Pulsa.m4a"),
+				new Audio(optionFile)
+			];
+			instructionAudios = sequence;
+			let audioIndex = 0;
+
+			function playNextAudio() {
+				if (sequenceId !== instructionSequenceId || audioIndex >= sequence.length) {
+					return;
+				}
+
+				const audio = sequence[audioIndex];
+				audioIndex += 1;
+				audio.currentTime = 0;
+				audio.onended = () => {
+					audio.onended = null;
+					playNextAudio();
+				};
+				audio.play().catch(() => {
+					audio.onended = null;
+				});
+			}
+
+			playNextAudio();
+		}
+
+		function repeatInstruction() {
+			if (!celebrationActive && !roundTransitionPending && instructionsCompleted < totalInstructions) {
+				playInstructionAudio();
+			}
+		}
+
+		function finishCelebration() {
+			clearInterval(mouthAnimationTimer);
+			stopFeedbackSound();
+			if (activeButterflyAudio) {
+				activeButterflyAudio.pause();
+				activeButterflyAudio.currentTime = 0;
+			}
+			celebrationAudio.pause();
+			celebrationAudio.currentTime = 0;
+			celebrationAudio.onended = null;
+			characterMouth.hidden = true;
+			characterMouth.classList.remove("shifted-mouth");
+			characterElement.classList.remove("celebrating");
+			characterElement.setAttribute("aria-pressed", "false");
+			celebrationActive = false;
+		}
+
+		function startCelebration() {
+			if (celebrationActive) {
+				return;
+			}
+			celebrationActive = true;
+			stopInstructionAudio();
+			characterElement.hidden = false;
+			window.requestAnimationFrame(() => {
+				if (!celebrationActive) {
+					return;
+				}
+				characterElement.classList.add("celebrating");
+				characterMouth.src = mouthImages[0];
+				characterMouth.classList.remove("shifted-mouth");
+				characterMouth.hidden = false;
+				characterElement.setAttribute("aria-pressed", "true");
+				let mouthImageIndex = 0;
+				clearInterval(mouthAnimationTimer);
+				mouthAnimationTimer = window.setInterval(() => {
+					mouthImageIndex = (mouthImageIndex + 1) % mouthImages.length;
+					characterMouth.src = mouthImages[mouthImageIndex];
+					characterMouth.classList.toggle("shifted-mouth", mouthImageIndex > 0);
+				}, 220);
+				celebrationAudio.onended = finishCelebration;
+				celebrationAudio.currentTime = 0;
+				celebrationAudio.play().catch(finishCelebration);
+			});
+		}
+
 		function buildButterflies() {
 			field.replaceChildren();
 			correctClicked = 0;
 			const array = [];
 			if (currentMode === "l") {
 				title.textContent = "Mariposas";
-				targetLine.innerHTML = `Pulsar las mariposas con la sílaba <span class="target-token" id="target-token">${targetValue}</span>`;
+				targetLine.innerHTML = `Pulsar las mariposas con la letra <span class="target-token" id="target-token">L</span>`;
 				const targetElement = document.querySelector("#target-token");
-				targetElement.textContent = targetValue;
+				targetElement.textContent = "L";
 				for (let index = 0; index < totalCorrect; index += 1) {
-					array.push({ syllable: targetValue, vowel: targetValue[0], image: butterflyImages[index % butterflyImages.length] });
+					array.push({ syllable: lSyllables[index % lSyllables.length], vowel: "L", image: butterflyImages[index % butterflyImages.length] });
 				}
 				for (let index = totalCorrect; index < totalButterflies; index += 1) {
-					const other = shuffle(syllables.filter((syllable) => syllable !== targetValue))[0];
-					array.push({ syllable: other, vowel: other[0], image: butterflyImages[index % butterflyImages.length] });
+					const other = mSyllables[(index - totalCorrect) % mSyllables.length];
+					array.push({ syllable: other, vowel: "M", image: butterflyImages[index % butterflyImages.length] });
 				}
 			} else {
 				title.textContent = "Mariposas";
@@ -317,14 +535,14 @@
 
 			butterflies = shuffle(array);
 			const positions = [
-				[12, 22], [21, 30], [30, 21], [40, 34], [50, 26], [60, 37], [69, 24], [78, 34], [30, 50], [58, 52]
+				[12, 22], [21, 30], [30, 21], [40, 34], [50, 26], [60, 37], [69, 24], [78, 34], [30, 50], [58, 52], [82, 54]
 			];
 
 			butterflies.forEach((butterfly, index) => {
 				const btn = document.createElement("button");
 				btn.type = "button";
 				btn.className = currentMode === "l" ? "butterfly-button l-butterfly" : "butterfly-button a-butterfly";
-				btn.dataset.correct = String(currentMode === "l" ? butterfly.syllable === targetValue : butterfly.vowel === targetValue);
+				btn.dataset.correct = String(currentMode === "l" ? butterfly.vowel === "L" : butterfly.vowel === targetValue);
 				btn.dataset.value = currentMode === "l" ? butterfly.syllable : butterfly.vowel;
 				btn.style.left = `${positions[index][0]}vw`;
 				btn.style.top = `${positions[index][1]}vh`;
@@ -340,10 +558,12 @@
 				btn.addEventListener("click", () => handleButterflyClick(btn, butterfly));
 				field.appendChild(btn);
 			});
+			playInstructionAudio();
 		}
 
 		function handleButterflyClick(button, butterfly) {
-			const isCorrect = currentMode === "l" ? butterfly.syllable === targetValue : butterfly.vowel === targetValue;
+			const isCorrect = currentMode === "l" ? butterfly.vowel === "L" : butterfly.vowel === targetValue;
+			playButterflyLabelAudio(button.dataset.value, () => playFeedbackSound(isCorrect));
 			if (!isCorrect) {
 				button.classList.add("vibration");
 				button.animate([
@@ -373,12 +593,16 @@
 		}
 
 		function nextTargetValue() {
-			const targetPool = currentMode === "l" ? syllables : vowels;
-			const currentIndex = targetPool.indexOf(targetValue);
-			return targetPool[(currentIndex + 1) % targetPool.length];
+			return currentMode === "l" ? "L" : vowels[(vowels.indexOf(targetValue) + 1) % vowels.length];
 		}
 
 		function finishRound() {
+			if (roundTransitionPending) {
+				return;
+			}
+			roundTransitionPending = true;
+			instructionsCompleted += 1;
+			stopInstructionAudio();
 			const remaining = Array.from(field.querySelectorAll(".butterfly-button:not(.correct)"));
 			remaining.forEach((button) => {
 				button.animate([
@@ -390,15 +614,28 @@
 			});
 
 			window.setTimeout(() => {
-				targetValue = nextTargetValue();
+				if (instructionsCompleted >= totalInstructions) {
+					roundTransitionPending = false;
+					startCelebration();
+					return;
+				}
+				instructionIndex += 1;
+				targetValue = instructionOrder[instructionIndex];
+				roundTransitionPending = false;
 				buildButterflies();
-			}, 740);
+			}, instructionsCompleted >= totalInstructions ? 1500 : 740);
 		}
 
 		restartButton.addEventListener("click", () => {
+			roundTransitionPending = false;
+			finishCelebration();
+			stopInstructionAudio();
+			startInstructionSet();
 			buildButterflies();
 			updateButterflySize();
 		});
+
+		document.querySelector("#selected-character").addEventListener("click", repeatInstruction);
 
 		window.addEventListener("resize", updateButterflySize);
 		window.addEventListener("orientationchange", updateButterflySize);

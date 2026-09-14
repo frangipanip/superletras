@@ -32,6 +32,28 @@ body {
 	height: auto;
 }
 
+.fullscreen-button {
+	position: fixed;
+	top: clamp(0.75rem, 2vw, 1.5rem);
+	left: calc(clamp(0.75rem, 2vw, 1.5rem) + clamp(52px, 10vmin, 90px) + 0.5rem);
+	z-index: 3;
+	padding: 0.55rem 0.85rem;
+	border: 3px solid #2f8498;
+	border-radius: 12px;
+	background: linear-gradient(180deg, #d6f8ff 0%, #7bcfe3 75%, #5fb5cb 100%);
+	box-shadow: 0 3px 0 #286f84, 0 5px 6px rgba(0, 0, 0, 0.28);
+	color: #6b3f24;
+	font: 700 clamp(0.75rem, 2vmin, 1rem) Arial, Helvetica, sans-serif;
+	cursor: pointer;
+	transition: transform 180ms ease, filter 180ms ease;
+}
+
+.fullscreen-button:hover,
+.fullscreen-button:focus-visible {
+	transform: translateY(-2px) scale(1.04);
+	filter: brightness(1.06) drop-shadow(0 0 7px rgba(0, 0, 0, 0.35));
+}
+
 .activity-controls {
 	position: fixed;
 	top: clamp(0.75rem, 2vw, 1.5rem);
@@ -86,8 +108,9 @@ body {
 }
 
 .selected-character.celebrating {
-	right: 50%;
-	transform: translate(50%, -50%) scale(2);
+	right: auto;
+	left: 50%;
+	transform: translate(-50%, -50%) scale(2);
 }
 
 .selected-character[hidden] {

@@ -19,9 +19,10 @@ if (imageSource) {
 	characterButton.hidden = false;
 }
 
-window.addEventListener("load", requestFullscreen, { once: true });
-document.addEventListener("pointerdown", requestFullscreen, { once: true });
-document.addEventListener("touchstart", requestFullscreen, { once: true, passive: true });
+const fullscreenButton = document.querySelector("#fullscreen-button");
+if (fullscreenButton) {
+	fullscreenButton.addEventListener("click", requestFullscreen);
+}
 
 document.querySelector(".corner-button").addEventListener("click", () => {
 		window.history.back();

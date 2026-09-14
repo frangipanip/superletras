@@ -177,17 +177,13 @@
 			}
 		}
 
-		requestFullscreen();
-
 		characterButtons.forEach((button) => {
 			button.addEventListener("click", () => {
-				requestFullscreen();
 				selectCharacter(button.dataset.character);
 			});
 		});
 
 		playButton.addEventListener("click", () => {
-			requestFullscreen();
 			window.location.href = "mundos.html";
 		});
 

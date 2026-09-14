@@ -32,6 +32,28 @@
 			padding: 0;
 		}
 
+		.fullscreen-button {
+			position: fixed;
+			top: clamp(0.75rem, 2vw, 1.5rem);
+			left: calc(clamp(0.75rem, 2vw, 1.5rem) + clamp(52px, 10vmin, 90px) + 0.5rem);
+			z-index: 3;
+			padding: 0.3rem 0.7rem;
+			border: 3px solid #2f8498;
+			border-radius: 12px;
+			background: linear-gradient(180deg, #d6f8ff 0%, #7bcfe3 75%, #5fb5cb 100%);
+			box-shadow: 0 3px 0 #286f84, 0 5px 6px rgba(0, 0, 0, 0.28);
+			color: #6b3f24;
+			font: 700 clamp(0.9rem, 2.2vmin, 1.25rem) Arial, Helvetica, sans-serif;
+			cursor: pointer;
+			transition: transform 180ms ease, filter 180ms ease;
+		}
+
+		.fullscreen-button:hover,
+		.fullscreen-button:focus-visible {
+			transform: translateY(-2px) scale(1.04);
+			filter: brightness(1.06) drop-shadow(0 0 7px rgba(0, 0, 0, 0.35));
+		}
+
 		.back-button:hover,
 		.back-button:focus-visible {
 			transform: translateY(-3px) scale(1.05);
@@ -465,6 +487,7 @@
 		<button class="corner-button back-button" type="button" aria-label="Volver">
 			<img src="assets/imagenes/volverbtn.png" alt="Volver">
 		</button>
+		<button class="fullscreen-button" id="fullscreen-button" type="button" aria-label="Pantalla completa">⛶</button>
 		<button class="corner-button guest-button" type="button" id="guest-button">
 			<span id="guest-name">USUARIO</span>
 		</button>
@@ -530,7 +553,14 @@
 		const vowelShuffle = document.querySelector("#vowel-shuffle");
 		const vowelList = document.querySelector("#vowel-list");
 		const vowels = ["A", "E", "I", "O", "U"];
-		const vowelAudios = Object.fromEntries(vowels.map((vowel) => [vowel, new Audio(`assets/sonidos/${vowel}.m4a`)]));
+		const vowelAudioFiles = {
+			A: "assets/sonidos/A.wav",
+			E: "assets/sonidos/E.wav",
+			I: "assets/sonidos/I.wav",
+			O: "assets/sonidos/O.wav",
+			U: "assets/sonidos/U.wav"
+		};
+		const vowelAudios = Object.fromEntries(vowels.map((vowel) => [vowel, new Audio(vowelAudioFiles[vowel])]));
 		const orangeVowels = new Set();
 		let displayedVowels = [...vowels];
 		let uppercaseVowels = true;
@@ -569,6 +599,7 @@
 			audio.preload = "auto";
 		});
 
+		const fullscreenButton = document.querySelector("#fullscreen-button");
 		function requestFullscreen() {
 			if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
 				document.documentElement.requestFullscreen().catch(() => {});
@@ -755,16 +786,18 @@
 			clearTimeout(vowelMouthEndTimer);
 		}
 
-		function scheduleVowelMouth(audio) {
+		function scheduleVowelMouth(audio, keepVisible = false) {
 			clearVowelMouthTimers();
 			const duration = Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : 1;
 			const startDelay = duration * vowelMouthStart * 1000;
 			const endDelay = duration * vowelMouthEnd * 1000;
-			characterMouth.hidden = true;
-			vowelMouthStartTimer = setTimeout(() => {
-				characterMouth.hidden = false;
-				selectedCharacterElement.setAttribute("aria-pressed", "true");
-			}, startDelay);
+			characterMouth.hidden = !keepVisible;
+			if (!keepVisible) {
+				vowelMouthStartTimer = setTimeout(() => {
+					characterMouth.hidden = false;
+					selectedCharacterElement.setAttribute("aria-pressed", "true");
+				}, startDelay);
+			}
 			vowelMouthEndTimer = setTimeout(() => {
 				characterMouth.hidden = true;
 				selectedCharacterElement.setAttribute("aria-pressed", "false");
@@ -781,10 +814,10 @@
 			syllablesAudio.pause();
 			syllablesAudio.currentTime = 0;
 			clearInterval(mouthAnimationTimer);
-			characterMouth.hidden = true;
+			characterMouth.hidden = vowel !== "A";
 			characterMouth.src = mouthByVowel[vowel];
 			characterMouth.classList.toggle("shifted-mouth", vowel === "A" || vowel === "E" || vowel === "I");
-			selectedCharacterElement.setAttribute("aria-pressed", "false");
+			selectedCharacterElement.setAttribute("aria-pressed", String(vowel === "A"));
 			Object.values(vowelAudios).forEach((vowelAudio) => {
 				vowelAudio.pause();
 				vowelAudio.currentTime = 0;
@@ -801,7 +834,7 @@
 					startCelebration();
 				}
 			};
-			audio?.play().then(() => scheduleVowelMouth(audio)).catch(() => {
+			audio?.play().then(() => scheduleVowelMouth(audio, vowel === "A")).catch(() => {
 				clearVowelMouthTimers();
 				celebrationPending = false;
 				characterMouth.hidden = true;
@@ -876,14 +909,14 @@
 			closeProfileModal();
 		}
 
-		requestFullscreen();
+		if (fullscreenButton) {
+			fullscreenButton.addEventListener("click", requestFullscreen);
+		}
 		backButton.addEventListener("click", () => {
-			requestFullscreen();
 			window.history.back();
 		});
 		guestNameElement.textContent = localStorage.getItem(guestNameKey) || "USUARIO";
 		guestButton.addEventListener("click", () => {
-			requestFullscreen();
 			openProfileModal();
 		});
 		profileInput.addEventListener("input", updateProfileCounter);
