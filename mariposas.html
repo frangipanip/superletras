@@ -82,7 +82,7 @@
 		.butterfly-field {
 			position: fixed;
 			left: 0;
-			top: 12%;
+			top: 15%;
 			width: 100vw;
 			height: 78vh;
 			overflow: hidden;
@@ -168,7 +168,7 @@
 
 		@media (max-width: 768px) and (orientation: portrait) {
 			.butterfly-field {
-				top: 14%;
+				top: 17%;
 				height: 76vh;
 			}
 
@@ -194,7 +194,7 @@
 			}
 
 			.butterfly-field {
-				top: 12%;
+				top: 15%;
 				height: 86vh;
 			}
 
@@ -278,7 +278,7 @@
 		const characterMouth = document.querySelector("#character-mouth");
 		const celebrationAudio = new Audio("assets/sonidos/Fabuloso.m4a");
 		let activeButterflyAudio;
-		let feedbackAudioContext;
+		let feedbackAudio;
 		const mouthImages = [
 			"assets/imagenes/bocasuper.png",
 			"assets/imagenes/bocasuper1.png",
@@ -353,9 +353,11 @@
 		}
 
 		function stopFeedbackSound() {
-			if (feedbackAudioContext) {
-				feedbackAudioContext.close().catch(() => {});
-				feedbackAudioContext = null;
+			if (feedbackAudio) {
+				feedbackAudio.pause();
+				feedbackAudio.currentTime = 0;
+				feedbackAudio.onended = null;
+				feedbackAudio = null;
 			}
 		}
 
@@ -364,63 +366,8 @@
 				return;
 			}
 			stopFeedbackSound();
-			const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-			if (!AudioContextClass) {
-				return;
-			}
-
-			const audioContext = new AudioContextClass();
-			feedbackAudioContext = audioContext;
-			const startTime = audioContext.currentTime;
-			const masterGain = audioContext.createGain();
-			masterGain.gain.setValueAtTime(0.0001, startTime);
-			masterGain.connect(audioContext.destination);
-
-			if (isCorrect) {
-				const noiseBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.12, audioContext.sampleRate);
-				const noiseData = noiseBuffer.getChannelData(0);
-				for (let index = 0; index < noiseData.length; index += 1) {
-					noiseData[index] = (Math.random() * 2 - 1) * (1 - index / noiseData.length);
-				}
-				for (let burst = 0; burst < 3; burst += 1) {
-					const source = audioContext.createBufferSource();
-					const filter = audioContext.createBiquadFilter();
-					const gain = audioContext.createGain();
-					const burstStart = startTime + burst * 0.11;
-					source.buffer = noiseBuffer;
-					filter.type = "bandpass";
-					filter.frequency.value = 1800 + burst * 350;
-					filter.Q.value = 0.8;
-					gain.gain.setValueAtTime(0.0001, burstStart);
-					gain.gain.exponentialRampToValueAtTime(0.22, burstStart + 0.025);
-					gain.gain.exponentialRampToValueAtTime(0.0001, burstStart + 0.1);
-					source.connect(filter).connect(gain).connect(masterGain);
-					source.start(burstStart);
-					source.stop(burstStart + 0.12);
-				}
-			} else {
-				[220, 150].forEach((frequency, index) => {
-					const oscillator = audioContext.createOscillator();
-					const gain = audioContext.createGain();
-					const toneStart = startTime + index * 0.14;
-					oscillator.type = "triangle";
-					oscillator.frequency.value = frequency;
-					gain.gain.setValueAtTime(0.0001, toneStart);
-					gain.gain.exponentialRampToValueAtTime(0.42, toneStart + 0.015);
-					gain.gain.exponentialRampToValueAtTime(0.0001, toneStart + 0.11);
-					oscillator.connect(gain).connect(masterGain);
-					oscillator.start(toneStart);
-					oscillator.stop(toneStart + 0.12);
-				});
-			}
-
-			masterGain.gain.exponentialRampToValueAtTime(1, startTime + 0.01);
-			window.setTimeout(() => {
-				if (feedbackAudioContext === audioContext) {
-					feedbackAudioContext = null;
-					audioContext.close().catch(() => {});
-				}
-			}, isCorrect ? 430 : 340);
+			feedbackAudio = new Audio(isCorrect ? "assets/sonidos/aleteo.mp3" : "assets/sonidos/error.mp3");
+			feedbackAudio.play().catch(() => {});
 		}
 
 		function playButterflyLabelAudio(label, onEnded) {

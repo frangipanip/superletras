@@ -206,7 +206,7 @@
 
 		.activity-button:nth-child(1) {
 			top: 5%;
-			left: 50%;
+			left: 45%;
 			transform: translateX(-50%);
 			border-color: #0a9ab0;
 			background:
@@ -268,6 +268,21 @@
 		.activity-button:nth-child(5) {
 			top: 56%;
 			right: 31%;
+			border-color: #b16a00;
+			background:
+				linear-gradient(150deg, rgba(255, 255, 255, 0.8) 0 8%, transparent 30%),
+				linear-gradient(180deg, #ffe0b0 0%, #ff9900 45%, #d66d00 75%, #8c4804 100%);
+			box-shadow:
+				inset 0 3px 0 rgba(255, 255, 255, 0.95),
+				inset 0 0 0 3px rgba(255, 203, 143, 0.78),
+				inset 0 -6px 0 rgba(134, 71, 3, 0.45),
+				0 3px 0 #754100,
+				0 5px 6px rgba(0, 0, 0, 0.28);
+		}
+
+		.flowers-button {
+			top: 5%;
+			left: calc(50% + clamp(2.4rem, 6.4vmin, 4rem) + 0.75rem);
 			border-color: #b16a00;
 			background:
 				linear-gradient(150deg, rgba(255, 255, 255, 0.8) 0 8%, transparent 30%),
@@ -504,6 +519,7 @@
 			<button class="activity-button" type="button" aria-label="Actividad de globos" data-page="globos.html"><img src="assets/imagenes/GLOBOSbtn.png" alt=""></button>
 			<button class="activity-button" type="button" aria-label="Actividad de tren" data-page="tren.html"><img src="assets/imagenes/TRENbtn.png" alt=""></button>
 			<button class="activity-button" type="button" aria-label="Actividad de peluches" data-page="peluches.html"><img src="assets/imagenes/PELUCHESbtn.png" alt=""></button>
+			<button class="activity-button flowers-button" type="button" aria-label="Actividad de flores" data-page="flores.html"><img src="assets/imagenes/FLORbtn.png" alt=""></button>
 	</nav>
 	<div class="confetti-layer" id="confetti-layer" aria-hidden="true"></div>
 
