@@ -147,10 +147,6 @@ export default function Mundo1() {
 							<img src={img(image)} alt={key.toUpperCase()} />
 						</button>
 					))}
-					<section className="letter-panel" data-option={selectedOption} aria-label="Letras del mundo">
-						<span className="uppercase-letter">{selectedOption.toUpperCase()}</span>
-						<span className="lowercase-letter">{selectedOption}</span>
-					</section>
 				</aside>
 			</div>
 		</div>

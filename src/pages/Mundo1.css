@@ -6,7 +6,7 @@
 }
 
 .page-mundo1 {
-	--menu-left: 30%;
+	--menu-left: 10%;
 	--menu-width: clamp(168px, 36.75vmin, 367.5px);
 	position: relative;
 	background: #8ed7f5;
@@ -38,7 +38,7 @@
 
 	.menu-panel {
 		position: absolute;
-		top: 63%;
+		top: 55%;
 		left: var(--menu-left);
 		z-index: 1;
 		width: var(--menu-width);
@@ -53,10 +53,10 @@
 
 	.mundo1-character {
 		position: absolute;
-		bottom: 20%;
+		bottom: 10%;
 		z-index: 2;
-		width: clamp(130px, 36vmin, 250px);
-		left: 20%;
+		width: clamp(156px, 43vmin, 300px);
+		left: 6%;
 		transform: translateX(-50%);
 	}
 
@@ -165,52 +165,4 @@
 		--outline-color: #17547f;
 	}
 
-	.letter-panel {
-		position: absolute;
-		top: 50%;
-		left: calc(100% + clamp(1.25rem, 3vw, 3rem));
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: clamp(0.15rem, 1vmin, 0.75rem);
-		width: max-content;
-		transform: translateY(-50%);
-	}
-
-	.letter-panel span {
-		display: block;
-		color: #fff;
-		font-size: clamp(6rem, 18vmin, 15rem);
-		line-height: 0.95;
-	}
-
-	.letter-panel[data-option="a"] span {
-		color: #cfacd6;
-	}
-
-	.letter-panel[data-option="l"] span {
-		color: #aad8bb;
-	}
-
-	.letter-panel[data-option="m"] span {
-		color: #d0ab5b;
-	}
-
-	.letter-panel[data-option="s"] span {
-		color: #f28c80;
-	}
-
-	.letter-panel[data-option="t"] span {
-		color: #a0cce7;
-	}
-
-	.letter-panel .uppercase-letter {
-		font-family: Arial, Helvetica, sans-serif;
-		font-weight: 700;
-	}
-
-	.letter-panel .lowercase-letter {
-		font-family: Arial, Helvetica, sans-serif;
-		font-weight: 400;
-	}
 }
