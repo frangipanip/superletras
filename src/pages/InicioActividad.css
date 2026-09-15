@@ -8,9 +8,9 @@
 		width: 65vw;
 		height: 75vh;
 		box-sizing: border-box;
-		border: clamp(10px, 1.4vmin, 18px) solid #ed6f9f;
+		border: clamp(10px, 1.4vmin, 18px) solid #be35d6;
 		border-radius: clamp(1rem, 3vmin, 2.5rem);
-		background: #fff;
+		background: #be35d6;
 		transform: translate(-50%, -50%);
 		overflow: visible;
 	}
@@ -18,17 +18,20 @@
 	.inicio-vowels {
 		position: absolute;
 		top: 50%;
-		left: 54%;
+		left: 52%;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		gap: clamp(0.5rem, 3vw, 2.5rem);
+		gap: clamp(0.25rem, 1.5vw, 1.5rem);
+		width: 78%;
 		transform: translate(-50%, -50%);
 	}
 
 	.inicio-vowel-button {
 		box-sizing: border-box;
-		width: clamp(5.5rem, 12vmin, 9rem);
+		min-width: 0;
+		width: auto;
+		flex: 1 1 0;
 		aspect-ratio: 1;
 		padding: 0;
 		border: clamp(3px, 0.45vmin, 5px) solid #202633;
@@ -36,7 +39,7 @@
 		background: #fff;
 		box-shadow: 0 clamp(5px, 1vmin, 10px) 0 #202633;
 		font-family: "Comic Sans MS", "Trebuchet MS", sans-serif;
-		font-size: clamp(3rem, 8vmin, 6rem);
+		font-size: clamp(3rem, 11vmin, 12rem);
 		font-weight: 900;
 		line-height: 1;
 		text-shadow: 3px 4px 0 rgba(91, 55, 104, 0.18), 0 0 10px rgba(255, 255, 255, 0.9);
@@ -78,11 +81,6 @@
 
 	.inicio-vowel-u {
 		color: #9b6bd6;
-	}
-
-	/* Los botones mantienen su tamaño al cambiar de estado para no desplazar la fila. */
-	.inicio-vowels .inicio-vowel-button {
-		flex: 0 0 auto;
 	}
 
 	.inicio-activity-character {
