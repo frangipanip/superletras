@@ -90,6 +90,61 @@
 		filter: drop-shadow(0 0 14px rgba(0, 0, 0, 0.7));
 	}
 
+	.path-button {
+		position: absolute;
+		z-index: 3;
+		width: clamp(108px, 18vmin, 156px);
+		padding: 0;
+		border: 0;
+		background: transparent;
+		cursor: pointer;
+		transform: translate(-50%, -50%);
+		transition: transform 180ms ease, filter 180ms ease;
+	}
+
+	.path-button-disabled {
+		filter: grayscale(1) opacity(0.62);
+		cursor: not-allowed;
+	}
+
+	.path-button-a {
+		filter: hue-rotate(125deg) saturate(1.5);
+	}
+
+	.path-button-l {
+		filter: saturate(1.35) hue-rotate(-10deg);
+	}
+
+	.path-button-s {
+		filter: hue-rotate(210deg) saturate(1.65);
+	}
+
+	.path-button-m {
+		filter: hue-rotate(245deg) saturate(1.55) brightness(1.08);
+	}
+
+	.path-button-t {
+		filter: hue-rotate(42deg) saturate(1.4);
+	}
+
+	.path-button:hover,
+	.path-button:focus-visible {
+		z-index: 2;
+		transform: translate(-50%, -50%) scale(1.12);
+	}
+
+	.path-button:disabled:hover,
+	.path-button:disabled:focus-visible {
+		filter: grayscale(1) opacity(0.62);
+		transform: translate(-50%, -50%);
+	}
+
+	.path-button img {
+		display: block;
+		width: 100%;
+		height: auto;
+	}
+
 	.background-option {
 		position: absolute;
 		z-index: 1;

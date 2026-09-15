@@ -1,11 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import UserNav from "../components/UserNav";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { CHARACTERS, img, sound } from "../lib/assets";
-import { readStorage, STORAGE_KEYS, writeStorage } from "../lib/storage";
 import "./Mundo1.css";
 
 const MENU_OPTIONS = [
@@ -16,22 +15,30 @@ const MENU_OPTIONS = [
 	{ key: "t", image: "Tbtn.png", audio: "Te.m4a" }
 ];
 
+const PATH_BUTTONS = [
+	{ left: 23.5, top: 80 },
+	{ left: 35.9, top: 67 },
+	{ left: 45, top: 81 },
+	{ left: 50.9, top: 54 },
+	{ left: 57.4, top: 54 },
+	{ left: 60, top: 76 },
+	{ left: 69, top: 73 },
+	{ left: 76.8, top: 80 },
+	{ left: 85.6, top: 68 },
+	{ left: 94, top: 80 }
+];
+
 // Desplazamiento con el mouse: al acercarse a un borde la escena avanza sola,
 // más rápido cuanto más pegado al borde.
 const EDGE_ZONE = 0.15; // fracción del ancho de la pantalla
 const EDGE_MAX_SPEED = 900; // px por segundo en el borde mismo
-
-function readStoredOption() {
-	const stored = readStorage(STORAGE_KEYS.mundo1MenuOption);
-	return MENU_OPTIONS.some((option) => option.key === stored) ? stored : "a";
-}
 
 export default function Mundo1() {
 	usePageTitle("Botón 1");
 	const navigate = useNavigate();
 	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
-	const [selectedOption, setSelectedOption] = useState(readStoredOption);
+	const [selectedOption, setSelectedOption] = useState(null);
 	const pageRef = useRef(null);
 	// Estado del auto-scroll por borde; lo leen callbacks de requestAnimationFrame.
 	const edge = useRef({ speed: 0, running: false, position: 0, lastFrame: 0 }).current;
@@ -49,13 +56,8 @@ export default function Mundo1() {
 
 	function selectMenuOption(optionKey) {
 		setSelectedOption(optionKey);
-		writeStorage(STORAGE_KEYS.mundo1MenuOption, optionKey);
 		playMenuAudio(optionKey);
 	}
-
-	useEffect(() => {
-		selectMenuOption(readStoredOption());
-	}, []);
 
 	function stepEdgeScroll() {
 		const page = pageRef.current;
@@ -122,6 +124,18 @@ export default function Mundo1() {
 
 			<div className="mundo1-scene">
 				<img className="mundo1-background" src={img("FONDOM1.jpg")} alt="" draggable={false} />
+				{PATH_BUTTONS.map(({ left, top }, index) => (
+					<button
+						key={`${left}-${top}`}
+						className={`path-button path-button-${selectedOption || "disabled"}`}
+						type="button"
+						disabled={!selectedOption}
+						style={{ left: `${left}%`, top: `${top}%` }}
+						aria-label={`Actividad del camino ${index + 1}`}
+					>
+						<img src={img("boton.svg")} alt="" draggable={false} />
+					</button>
+				))}
 				<button className="background-option" type="button" data-option="syllables" aria-label="Sílabas" onClick={() => navigate("/silabas")}></button>
 				<button className="background-option" type="button" data-option="words" aria-label="Palabras"></button>
 				<button className="background-option" type="button" data-option="sentences" aria-label="Oraciones"></button>
