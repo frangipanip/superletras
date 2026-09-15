@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from "react-router";
 import Inicio from "./pages/Inicio";
 import Mundos from "./pages/Mundos";
 import Mundo1 from "./pages/Mundo1";
+import InicioActividad from "./pages/InicioActividad";
 import Silabas from "./pages/Silabas";
 import Mariposas from "./pages/Mariposas";
 import Tren from "./pages/Tren";
@@ -29,6 +30,7 @@ export default function App() {
 			<Route path="/" element={<Inicio />} />
 			<Route path="/mundos" element={<Mundos />} />
 			<Route path="/mundo1" element={<Mundo1 />} />
+			<Route path="/inicio" element={<InicioActividad />} />
 			<Route path="/silabas" element={<Silabas />} />
 			<Route path="/mariposas" element={<Mariposas />} />
 			<Route path="/tren" element={<Tren />} />

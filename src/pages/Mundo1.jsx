@@ -132,6 +132,7 @@ export default function Mundo1() {
 						disabled={!selectedOption}
 						style={{ left: `${left}%`, top: `${top}%` }}
 						aria-label={`Actividad del camino ${index + 1}`}
+						onClick={index === 0 ? () => navigate("/inicio", { state: { menuOption: selectedOption } }) : undefined}
 					>
 						<img src={img("boton.svg")} alt="" draggable={false} />
 					</button>

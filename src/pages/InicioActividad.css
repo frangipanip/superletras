@@ -1,0 +1,122 @@
+.page-inicio-actividad {
+	position: relative;
+
+	.inicio-activity-panel {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		width: 65vw;
+		height: 75vh;
+		box-sizing: border-box;
+		border: clamp(10px, 1.4vmin, 18px) solid #ed6f9f;
+		border-radius: clamp(1rem, 3vmin, 2.5rem);
+		background: #fff;
+		transform: translate(-50%, -50%);
+		overflow: visible;
+	}
+
+	.inicio-vowels {
+		position: absolute;
+		top: 50%;
+		left: 54%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: clamp(0.5rem, 3vw, 2.5rem);
+		transform: translate(-50%, -50%);
+	}
+
+	.inicio-vowel-button {
+		box-sizing: border-box;
+		width: clamp(5.5rem, 12vmin, 9rem);
+		aspect-ratio: 1;
+		padding: 0;
+		border: clamp(3px, 0.45vmin, 5px) solid #202633;
+		border-radius: clamp(1rem, 2.5vmin, 1.8rem);
+		background: #fff;
+		box-shadow: 0 clamp(5px, 1vmin, 10px) 0 #202633;
+		font-family: "Comic Sans MS", "Trebuchet MS", sans-serif;
+		font-size: clamp(3rem, 8vmin, 6rem);
+		font-weight: 900;
+		line-height: 1;
+		text-shadow: 3px 4px 0 rgba(91, 55, 104, 0.18), 0 0 10px rgba(255, 255, 255, 0.9);
+		cursor: pointer;
+		transform: scale(1);
+		transition: transform 180ms ease, filter 180ms ease;
+	}
+
+	.inicio-vowel-button:hover,
+	.inicio-vowel-button:focus-visible {
+		filter: brightness(1.04) drop-shadow(0 0 8px rgba(237, 111, 159, 0.5));
+		transform: translateY(-4px) scale(1.04);
+	}
+
+	.inicio-vowel-button.active {
+		transform: scale(1.18);
+	}
+
+	.inicio-vowel-button.active:hover,
+	.inicio-vowel-button.active:focus-visible {
+		transform: translateY(-4px) scale(1.22);
+	}
+
+	.inicio-vowel-a {
+		color: #d84d9b;
+	}
+
+	.inicio-vowel-e {
+		color: #f08a36;
+	}
+
+	.inicio-vowel-i {
+		color: #55b96c;
+	}
+
+	.inicio-vowel-o {
+		color: #4d9ed8;
+	}
+
+	.inicio-vowel-u {
+		color: #9b6bd6;
+	}
+
+	/* Los botones mantienen su tamaño al cambiar de estado para no desplazar la fila. */
+	.inicio-vowels .inicio-vowel-button {
+		flex: 0 0 auto;
+	}
+
+	.inicio-activity-character {
+		position: absolute;
+		top: 50%;
+		left: 0;
+		z-index: 1;
+		width: clamp(225px, 37.5vmin, 420px);
+		transform: translate(-50%, -50%);
+		pointer-events: none;
+	}
+
+	.inicio-activity-character img {
+		display: block;
+		width: 100%;
+		height: auto;
+		filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.45));
+	}
+
+	.inicio-activity-character .inicio-activity-mouth {
+		position: absolute;
+		top: 23%;
+		left: 50%;
+		width: 22%;
+		filter: none;
+		transform: translateX(-50%);
+	}
+
+	.inicio-activity-character .inicio-activity-mouth.shifted-mouth {
+		top: 26%;
+		left: 52%;
+	}
+
+	.inicio-activity-mouth[hidden] {
+		display: none;
+	}
+}
