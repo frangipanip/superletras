@@ -1,21 +1,39 @@
+/* global.css se carga después y su ".page { overflow: hidden }" pisaba el scroll:
+   el selector doble le gana por especificidad. */
+.page.page-mundo1 {
+	overflow-x: auto;
+	overflow-y: hidden;
+}
+
 .page-mundo1 {
 	--menu-left: 30%;
 	--menu-width: clamp(168px, 36.75vmin, 367.5px);
 	position: relative;
-	overflow-x: scroll;
-	overflow-y: hidden;
 	background: #8ed7f5;
 	touch-action: pan-x;
 	-webkit-overflow-scrolling: touch;
-	scroll-behavior: smooth;
+	scrollbar-width: none;
 
+	&::-webkit-scrollbar {
+		display: none;
+	}
+
+	/* El ancho de la escena lo da la imagen de fondo a toda la altura. */
 	.mundo1-scene {
 		position: relative;
-		width: 300vh;
+		display: inline-block;
+		vertical-align: top;
 		min-width: 100vw;
 		height: 100%;
-		min-height: 100%;
-		background: url("/assets/imagenes/FONDOM1.jpg") left top / auto 100% no-repeat;
+		user-select: none;
+		-webkit-user-select: none;
+	}
+
+	.mundo1-background {
+		display: block;
+		width: auto;
+		max-width: none;
+		height: 100%;
 	}
 
 	.menu-panel {

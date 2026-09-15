@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import UserNav from "../components/UserNav";
 import { usePageRuntime } from "../hooks/usePageRuntime";
@@ -16,6 +16,11 @@ const MENU_OPTIONS = [
 	{ key: "t", image: "Tbtn.png", audio: "Te.m4a" }
 ];
 
+// Desplazamiento con el mouse: al acercarse a un borde la escena avanza sola,
+// más rápido cuanto más pegado al borde.
+const EDGE_ZONE = 0.15; // fracción del ancho de la pantalla
+const EDGE_MAX_SPEED = 900; // px por segundo en el borde mismo
+
 function readStoredOption() {
 	const stored = readStorage(STORAGE_KEYS.mundo1MenuOption);
 	return MENU_OPTIONS.some((option) => option.key === stored) ? stored : "a";
@@ -27,6 +32,9 @@ export default function Mundo1() {
 	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
 	const [selectedOption, setSelectedOption] = useState(readStoredOption);
+	const pageRef = useRef(null);
+	// Estado del auto-scroll por borde; lo leen callbacks de requestAnimationFrame.
+	const edge = useRef({ speed: 0, running: false, position: 0, lastFrame: 0 }).current;
 	const [menuAudios] = useState(() =>
 		Object.fromEntries(MENU_OPTIONS.map(({ key, audio }) => [key, runtime.audio(sound(audio), { preload: true })]))
 	);
@@ -49,11 +57,71 @@ export default function Mundo1() {
 		selectMenuOption(readStoredOption());
 	}, []);
 
+	function stepEdgeScroll() {
+		const page = pageRef.current;
+		const now = performance.now();
+		const elapsed = Math.min(now - edge.lastFrame, 50) / 1000;
+		edge.lastFrame = now;
+		if (!page || edge.speed === 0) {
+			edge.running = false;
+			return;
+		}
+		// La posición se acumula con decimales: scrollLeft redondea y a baja velocidad no avanzaría.
+		const maxScroll = page.scrollWidth - page.clientWidth;
+		edge.position = Math.max(0, Math.min(maxScroll, edge.position + edge.speed * elapsed));
+		page.scrollLeft = edge.position;
+		// Llegó al final de la escena: se frena hasta que el mouse se vuelva a mover.
+		if ((edge.speed < 0 && edge.position === 0) || (edge.speed > 0 && edge.position === maxScroll)) {
+			edge.running = false;
+			return;
+		}
+		runtime.requestAnimationFrame(stepEdgeScroll);
+	}
+
+	function handlePointerMove(event) {
+		// En touch se arrastra con el scroll nativo; el borde es solo para el mouse.
+		if (event.pointerType !== "mouse" || event.target.closest(".top-nav")) {
+			edge.speed = 0;
+			return;
+		}
+		const width = window.innerWidth;
+		const zone = width * EDGE_ZONE;
+		const x = event.clientX;
+		if (x > width - zone) {
+			edge.speed = (EDGE_MAX_SPEED * (x - (width - zone))) / zone;
+		} else if (x < zone) {
+			edge.speed = (-EDGE_MAX_SPEED * (zone - x)) / zone;
+		} else {
+			edge.speed = 0;
+		}
+		if (edge.speed !== 0 && !edge.running) {
+			edge.running = true;
+			edge.position = pageRef.current.scrollLeft;
+			edge.lastFrame = performance.now();
+			runtime.requestAnimationFrame(stepEdgeScroll);
+		}
+	}
+
+	function stopEdgeScroll() {
+		edge.speed = 0;
+	}
+
 	return (
-		<div className="page page-mundo1">
+		<div
+			ref={pageRef}
+			className="page page-mundo1"
+			onPointerMove={handlePointerMove}
+			onPointerLeave={stopEdgeScroll}
+			onScroll={() => {
+				if (!edge.running) {
+					edge.position = pageRef.current.scrollLeft;
+				}
+			}}
+		>
 			<UserNav />
 
 			<div className="mundo1-scene">
+				<img className="mundo1-background" src={img("FONDOM1.jpg")} alt="" draggable={false} />
 				<button className="background-option" type="button" data-option="syllables" aria-label="Sílabas" onClick={() => navigate("/silabas")}></button>
 				<button className="background-option" type="button" data-option="words" aria-label="Palabras"></button>
 				<button className="background-option" type="button" data-option="sentences" aria-label="Oraciones"></button>
