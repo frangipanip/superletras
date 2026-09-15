@@ -53,36 +53,38 @@ export default function Mundo1() {
 		<div className="page page-mundo1">
 			<UserNav />
 
-			<button className="background-option" type="button" data-option="syllables" aria-label="Sílabas" onClick={() => navigate("/silabas")}></button>
-			<button className="background-option" type="button" data-option="words" aria-label="Palabras"></button>
-			<button className="background-option" type="button" data-option="sentences" aria-label="Oraciones"></button>
+			<div className="mundo1-scene">
+				<button className="background-option" type="button" data-option="syllables" aria-label="Sílabas" onClick={() => navigate("/silabas")}></button>
+				<button className="background-option" type="button" data-option="words" aria-label="Palabras"></button>
+				<button className="background-option" type="button" data-option="sentences" aria-label="Oraciones"></button>
 
-			{character && (
-				<div className="mundo1-character" aria-label="Personaje seleccionado">
-					<img src={CHARACTERS[character].image} alt={CHARACTERS[character].alt} />
-				</div>
-			)}
+				{character && (
+					<div className="mundo1-character" aria-label="Personaje seleccionado">
+						<img src={CHARACTERS[character].image} alt={CHARACTERS[character].alt} />
+					</div>
+				)}
 
-			<aside className="menu-panel" aria-label="Menú del mundo 1">
-				<img src={img("MENUM1.png")} alt="" />
-				{MENU_OPTIONS.map(({ key, image }) => (
-					<button
-						key={key}
-						className={selectedOption === key ? "menu-option selected" : "menu-option"}
-						type="button"
-						data-option={key}
-						aria-label={key.toUpperCase()}
-						aria-pressed={selectedOption === key}
-						onClick={() => selectMenuOption(key)}
-					>
-						<img src={img(image)} alt={key.toUpperCase()} />
-					</button>
-				))}
-				<section className="letter-panel" data-option={selectedOption} aria-label="Letras del mundo">
-					<span className="uppercase-letter">{selectedOption.toUpperCase()}</span>
-					<span className="lowercase-letter">{selectedOption}</span>
-				</section>
-			</aside>
+				<aside className="menu-panel" aria-label="Menú del mundo 1">
+					<img src={img("MENUM1.png")} alt="" />
+					{MENU_OPTIONS.map(({ key, image }) => (
+						<button
+							key={key}
+							className={selectedOption === key ? "menu-option selected" : "menu-option"}
+							type="button"
+							data-option={key}
+							aria-label={key.toUpperCase()}
+							aria-pressed={selectedOption === key}
+							onClick={() => selectMenuOption(key)}
+						>
+							<img src={img(image)} alt={key.toUpperCase()} />
+						</button>
+					))}
+					<section className="letter-panel" data-option={selectedOption} aria-label="Letras del mundo">
+						<span className="uppercase-letter">{selectedOption.toUpperCase()}</span>
+						<span className="lowercase-letter">{selectedOption}</span>
+					</section>
+				</aside>
+			</div>
 		</div>
 	);
 }

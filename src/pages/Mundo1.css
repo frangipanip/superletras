@@ -1,11 +1,26 @@
 .page-mundo1 {
-	--menu-left: 5%;
+	--menu-left: 30%;
 	--menu-width: clamp(168px, 36.75vmin, 367.5px);
-	background: url("/assets/imagenes/FONDOM1.jpg") center / cover no-repeat;
+	position: relative;
+	overflow-x: scroll;
+	overflow-y: hidden;
+	background: #8ed7f5;
+	touch-action: pan-x;
+	-webkit-overflow-scrolling: touch;
+	scroll-behavior: smooth;
+
+	.mundo1-scene {
+		position: relative;
+		width: 300vh;
+		min-width: 100vw;
+		height: 100%;
+		min-height: 100%;
+		background: url("/assets/imagenes/FONDOM1.jpg") left top / auto 100% no-repeat;
+	}
 
 	.menu-panel {
-		position: fixed;
-		top: 55%;
+		position: absolute;
+		top: 63%;
 		left: var(--menu-left);
 		z-index: 1;
 		width: var(--menu-width);
@@ -19,11 +34,11 @@
 	}
 
 	.mundo1-character {
-		position: fixed;
-		top: clamp(0.75rem, 3vh, 2rem);
+		position: absolute;
+		bottom: 20%;
 		z-index: 2;
-		width: clamp(65px, 18vmin, 125px);
-		left: calc(var(--menu-left) + var(--menu-width) + clamp(1.25rem, 3vw, 3rem) + clamp(3rem, 9vmin, 7.5rem));
+		width: clamp(130px, 36vmin, 250px);
+		left: 20%;
 		transform: translateX(-50%);
 	}
 
@@ -35,7 +50,7 @@
 	}
 
 	.background-option {
-		position: fixed;
+		position: absolute;
 		z-index: 1;
 		padding: 0;
 		border: 0;
