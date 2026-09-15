@@ -1,5 +1,26 @@
 /* global.css se carga después y su ".page { overflow: hidden }" pisaba el scroll:
    el selector doble le gana por especificidad. */
+
+@keyframes menu-panel-glow {
+	0%,
+	100% {
+		filter: drop-shadow(0 0 5px rgba(255, 248, 190, 0.12)) drop-shadow(0 0 14px rgba(255, 210, 90, 0.1)) drop-shadow(0 0 26px rgba(255, 214, 102, 0.07));
+	}
+	50% {
+		filter: drop-shadow(0 0 12px rgba(255, 248, 190, 0.34)) drop-shadow(0 0 25px rgba(255, 210, 90, 0.28)) drop-shadow(0 0 44px rgba(255, 214, 102, 0.18));
+	}
+}
+
+@keyframes mundo1-character-float {
+	0%,
+	100% {
+		transform: translateX(-50%) translateY(0);
+	}
+	50% {
+		transform: translateX(-50%) translateY(-10px);
+	}
+}
+
 .page.page-mundo1 {
 	overflow-x: auto;
 	overflow-y: hidden;
@@ -49,6 +70,7 @@
 		display: block;
 		width: 100%;
 		height: auto;
+		animation: menu-panel-glow 2.2s ease-in-out infinite;
 	}
 
 	.mundo1-character {
@@ -58,6 +80,7 @@
 		width: clamp(156px, 43vmin, 300px);
 		left: 6%;
 		transform: translateX(-50%);
+		animation: mundo1-character-float 2.8s ease-in-out infinite;
 	}
 
 	.mundo1-character img {
