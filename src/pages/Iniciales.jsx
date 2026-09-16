@@ -14,39 +14,35 @@ const ACTIVITIES = [
 		letter: "A",
 		options: [
 			{ name: "abeja", label: "Abeja", byn: "abejabyn.png", color: "abejacolor.png", correct: true },
-			{ name: "escoba-a", label: "Escoba", byn: "escobabyn.jpg", color: "escobacolor.jpg", correct: false },
-			{ name: "arbol", label: "Arbol", byn: "arbolbyn.jpg", color: "arbolcolor.jpg", correct: true },
-			{ name: "auto", label: "Auto", byn: "autobyn.jpg", color: "autocolor.jpg", correct: true },
-			{ name: "elefante-a", label: "Elefante", byn: "elefantebyn.jpg", color: "elefantecolor.jpg", correct: false },
-			{ name: "avion", label: "Avion", byn: "avionbyn.jpg", color: "avioncolor.jpg", correct: true },
-			{ name: "sol", label: "Sol", byn: "solbyn.jpg", color: "solcolor.jpg", correct: false },
-			{ name: "anillo", label: "Anillo", byn: "anillobyn.jpg", color: "anillocolor.jpg", correct: true }
+			{ name: "escoba-a", label: "Escoba", byn: "escobabyn.jpg", color: "escobacolor.jpg", correct: false }
 		]
 	},
 	{
 		letter: "E",
 		options: [
 			{ name: "escalera", label: "Escalera", byn: "escalerabyn.jpg", color: "escaleracolor.jpg", correct: true },
-			{ name: "auto-e", label: "Auto", byn: "autobyn.jpg", color: "autocolor.jpg", correct: false },
-			{ name: "elefante", label: "Elefante", byn: "elefantebyn.jpg", color: "elefantecolor.jpg", correct: true },
-			{ name: "escoba", label: "Escoba", byn: "escobabyn.jpg", color: "escobacolor.jpg", correct: true },
-			{ name: "abeja-e", label: "Abeja", byn: "abejabyn.png", color: "abejacolor.png", correct: false },
-			{ name: "espejo", label: "Espejo", byn: "espejobyn.jpg", color: "espejocolor.jpg", correct: true },
-			{ name: "perro-e", label: "Perro", byn: "perrobyn.jpg", color: "perrocolor.jpg", correct: false },
-			{ name: "estrella", label: "Estrella", byn: "estrellabyn.jpg", color: "estrellacolor.jpg", correct: true }
+			{ name: "auto-e", label: "Auto", byn: "autobyn.jpg", color: "autocolor.jpg", correct: false }
 		]
 	},
 	{
 		letter: "I",
 		options: [
 			{ name: "indio", label: "Indio", byn: "indiobyn.jpg", color: "indiocolor.jpg", correct: true },
-			{ name: "abeja-i", label: "Abeja", byn: "abejabyn.png", color: "abejacolor.png", correct: false },
-			{ name: "iguana", label: "Iguana", byn: "iguanabyn.jpg", color: "iguanacolor.jpg", correct: true },
-			{ name: "iglú", label: "Iglu", byn: "iglubyn.jpg", color: "iglucolor.jpg", correct: true },
-			{ name: "escoba-i", label: "Escoba", byn: "escobabyn.jpg", color: "escobacolor.jpg", correct: false },
-			{ name: "isla", label: "Isla", byn: "islabyn.jpg", color: "islacolor.jpg", correct: true },
-			{ name: "auto-i", label: "Auto", byn: "autobyn.jpg", color: "autocolor.jpg", correct: false },
-			{ name: "iman", label: "Iman", byn: "imanbyn.jpg", color: "imancolor.jpg", correct: true }
+			{ name: "abeja-i", label: "Abeja", byn: "abejabyn.png", color: "abejacolor.png", correct: false }
+		]
+	},
+	{
+		letter: "O",
+		options: [
+			{ name: "objeto-o", label: "Objeto O", byn: "arbolbyn.jpg", color: "arbolcolor.jpg", correct: true },
+			{ name: "abeja-o", label: "Abeja", byn: "abejabyn.png", color: "abejacolor.png", correct: false }
+		]
+	},
+	{
+		letter: "U",
+		options: [
+			{ name: "objeto-u", label: "Objeto U", byn: "iglubyn.jpg", color: "iglucolor.jpg", correct: true },
+			{ name: "escoba-u", label: "Escoba", byn: "escobabyn.jpg", color: "escobacolor.jpg", correct: false }
 		]
 	}
 ];

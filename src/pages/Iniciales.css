@@ -38,9 +38,9 @@
 		top: 24%;
 		left: 50%;
 		display: grid;
-		grid-template-columns: repeat(4, minmax(0, 1fr));
+		grid-template-columns: repeat(2, minmax(0, 1fr));
 		gap: clamp(0.5rem, 1.5vw, 1.2rem);
-		width: min(82vw, 58rem);
+		width: min(48vw, 30rem);
 		transform: translateX(-50%);
 	}
 

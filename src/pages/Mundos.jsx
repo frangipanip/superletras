@@ -49,8 +49,9 @@ export default function Mundos() {
 							{row.map((level) => (
 								<button
 									key={level}
-									className="level-button"
+									className={LEVEL_ROUTES[level] ? "level-button" : "level-button unavailable"}
 									type="button"
+									disabled={!LEVEL_ROUTES[level]}
 									aria-label={`Nivel ${level}`}
 									onClick={LEVEL_ROUTES[level] ? () => navigate(LEVEL_ROUTES[level]) : undefined}
 								>

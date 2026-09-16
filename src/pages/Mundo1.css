@@ -135,6 +135,15 @@
 		position: static;
 	}
 
+	.path-activity-unavailable .path-activity-sign {
+		filter: grayscale(1);
+		opacity: 0.62;
+	}
+
+	.path-activity-hidden {
+		display: none;
+	}
+
 	.path-activity-sign {
 		position: absolute;
 		z-index: 2;
@@ -187,36 +196,6 @@
 		display: block;
 		width: 100%;
 		height: auto;
-	}
-
-	.background-option {
-		position: absolute;
-		z-index: 1;
-		padding: 0;
-		border: 0;
-		background: transparent;
-		cursor: pointer;
-	}
-
-	.background-option[data-option="syllables"] {
-		top: 39%;
-		left: 39%;
-		width: 15%;
-		height: 9%;
-	}
-
-	.background-option[data-option="words"] {
-		top: 52%;
-		left: 39%;
-		width: 16%;
-		height: 9%;
-	}
-
-	.background-option[data-option="sentences"] {
-		top: 66%;
-		left: 38%;
-		width: 18%;
-		height: 10%;
 	}
 
 	.menu-option {

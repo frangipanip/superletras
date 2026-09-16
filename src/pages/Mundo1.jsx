@@ -180,7 +180,10 @@ export default function Mundo1() {
 			<div className="mundo1-scene">
 				<img className="mundo1-background" src={img("FONDOM1.jpg")} alt="" draggable={false} />
 				{PATH_BUTTONS.map(({ left, top }, index) => (
-					<div className="path-activity" key={`${left}-${top}`}>
+					<div
+						className={`${selectedOption && selectedOption !== "a" ? "path-activity path-activity-unavailable" : "path-activity"}${selectedOption === "a" && index >= 5 ? " path-activity-hidden" : ""}`}
+						key={`${left}-${top}`}
+					>
 						<img
 							className="path-activity-sign"
 							src={img(ACTIVITY_SIGN_IMAGES[index] || "GLOBOSbtn.png")}
@@ -189,9 +192,9 @@ export default function Mundo1() {
 							style={{ left: `${left}%`, top: `${top - 12}%` }}
 						/>
 						<button
-							className={`path-button path-button-${selectedOption || "disabled"}`}
+							className={selectedOption === "a" ? "path-button path-button-a" : "path-button path-button-disabled"}
 							type="button"
-							disabled={!selectedOption}
+							disabled={selectedOption !== "a"}
 							style={{ left: `${left}%`, top: `${top}%` }}
 							aria-label={`Actividad del camino ${index + 1}`}
 							onClick={() => openPathActivity(index)}
@@ -200,10 +203,6 @@ export default function Mundo1() {
 						</button>
 					</div>
 				))}
-				<button className="background-option" type="button" data-option="syllables" aria-label="Sílabas" onClick={() => navigate("/silabas")}></button>
-				<button className="background-option" type="button" data-option="words" aria-label="Palabras"></button>
-				<button className="background-option" type="button" data-option="sentences" aria-label="Oraciones"></button>
-
 				{character && (
 					<button className="mundo1-character" type="button" aria-label="Reproducir presentación" onClick={playIntroAudio}>
 						<img src={CHARACTERS[character].image} alt={CHARACTERS[character].alt} />
