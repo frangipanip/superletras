@@ -27,11 +27,10 @@ const VOWEL_MOUTH_START = 0.2;
 const VOWEL_MOUTH_END = 0.4;
 
 const ACTIVITIES = [
-	{ label: "Actividad de iniciales", route: "/iniciales", image: "INICIALESbtn.png" },
+	{ label: "Actividad de peluche", route: "/peluches", image: "PELUCHESbtn.png" },
 	{ label: "Actividad de mariposas", route: "/mariposas", image: "MARIPOSAbtn.png" },
 	{ label: "Actividad de globos", route: "/globos", image: "GLOBOSbtn.png" },
 	{ label: "Actividad de tren", route: "/tren", image: "TRENbtn.png" },
-	{ label: "Actividad de peluches", route: "/peluches", image: "PELUCHESbtn.png" },
 	{ label: "Actividad de flores", route: "/flores", image: "FLORbtn.png", className: "flowers-button" }
 ];
 

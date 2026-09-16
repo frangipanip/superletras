@@ -69,8 +69,8 @@ function shuffleOptions(options, previousOptions = []) {
 	return shuffledOptions;
 }
 
-export default function Iniciales() {
-	usePageTitle("Iniciales - Mundo 1");
+export default function Peluche() {
+	usePageTitle("Peluche - Mundo 1");
 	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
 	const [activityIndex, setActivityIndex] = useState(0);
@@ -115,12 +115,12 @@ export default function Iniciales() {
 	}
 
 	return (
-		<div className="page activity-page page-iniciales">
+		<div className="page activity-page page-peluche">
 			<BackButton />
 			<FullscreenButton toggle />
 			<main className="initials-activity">
 				<header className="initials-heading">
-					<h1>Iniciales</h1>
+					<h1>Peluche</h1>
 					<p>Pulsa todas las imágenes que comienzan con la letra {activity.letter}</p>
 				</header>
 				<section className="initials-grid" aria-label="Imágenes para elegir">

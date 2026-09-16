@@ -6,6 +6,7 @@ import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
 import { CHARACTERS, img, sound } from "../lib/assets";
+import { STORAGE_KEYS, readStorage, writeStorage } from "../lib/storage";
 import "./Mundo1.css";
 
 const MENU_OPTIONS = [
@@ -29,6 +30,17 @@ const PATH_BUTTONS = [
 	{ left: 94, top: 80 }
 ];
 
+const ACTIVITY_SIGN_IMAGES = [
+	"INICIALESbtn.png",
+	"MARIPOSAbtn.png",
+	"FLORbtn.png",
+	"PELUCHESbtn.png",
+	"TRENbtn.png",
+	"GLOBOSbtn.png"
+];
+
+const PATH_ROUTES = ["/inicio", "/mariposas", "/flores", "/peluches", "/tren", "/globos", "/iniciales", null, null, null];
+
 // Desplazamiento con el mouse: al acercarse a un borde la escena avanza sola,
 // más rápido cuanto más pegado al borde.
 const EDGE_ZONE = 0.15; // fracción del ancho de la pantalla
@@ -40,7 +52,7 @@ export default function Mundo1() {
 	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
 	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime);
-	const [selectedOption, setSelectedOption] = useState(null);
+	const [selectedOption, setSelectedOption] = useState(() => readStorage(STORAGE_KEYS.mundo1MenuOption));
 	const pageRef = useRef(null);
 	const [introAudio] = useState(() => runtime.audio(sound("Inicio Mundos.mp4"), { preload: true }));
 	// Estado del auto-scroll por borde; lo leen callbacks de requestAnimationFrame.
@@ -89,7 +101,17 @@ export default function Mundo1() {
 
 	function selectMenuOption(optionKey) {
 		setSelectedOption(optionKey);
+		writeStorage(STORAGE_KEYS.mundo1MenuOption, optionKey);
 		playMenuAudio(optionKey);
+	}
+
+	function openPathActivity(index) {
+		const route = PATH_ROUTES[index];
+		if (!route || !selectedOption) {
+			return;
+		}
+		writeStorage(STORAGE_KEYS.mundo1MenuOption, selectedOption);
+		navigate(route, { state: { menuOption: selectedOption } });
 	}
 
 	function stepEdgeScroll() {
@@ -158,17 +180,25 @@ export default function Mundo1() {
 			<div className="mundo1-scene">
 				<img className="mundo1-background" src={img("FONDOM1.jpg")} alt="" draggable={false} />
 				{PATH_BUTTONS.map(({ left, top }, index) => (
-					<button
-						key={`${left}-${top}`}
-						className={`path-button path-button-${selectedOption || "disabled"}`}
-						type="button"
-						disabled={!selectedOption}
-						style={{ left: `${left}%`, top: `${top}%` }}
-						aria-label={`Actividad del camino ${index + 1}`}
-						onClick={index === 0 ? () => navigate("/inicio", { state: { menuOption: selectedOption } }) : undefined}
-					>
-						<img src={img("boton.svg")} alt="" draggable={false} />
-					</button>
+					<div className="path-activity" key={`${left}-${top}`}>
+						<img
+							className="path-activity-sign"
+							src={img(ACTIVITY_SIGN_IMAGES[index] || "GLOBOSbtn.png")}
+							alt=""
+							draggable={false}
+							style={{ left: `${left}%`, top: `${top - 12}%` }}
+						/>
+						<button
+							className={`path-button path-button-${selectedOption || "disabled"}`}
+							type="button"
+							disabled={!selectedOption}
+							style={{ left: `${left}%`, top: `${top}%` }}
+							aria-label={`Actividad del camino ${index + 1}`}
+							onClick={() => openPathActivity(index)}
+						>
+							<img src={img("boton.svg")} alt="" draggable={false} />
+						</button>
+					</div>
 				))}
 				<button className="background-option" type="button" data-option="syllables" aria-label="Sílabas" onClick={() => navigate("/silabas")}></button>
 				<button className="background-option" type="button" data-option="words" aria-label="Palabras"></button>
