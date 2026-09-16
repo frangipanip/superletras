@@ -90,21 +90,23 @@
 
 	.selected-character {
 		position: fixed;
-		top: 50%;
-		right: clamp(0.75rem, 4vw, 4rem);
+		top: 70%;
+		--selected-character-width: clamp(145.35px, 40.1625vmin, 277.95px);
+		left: calc(100% - clamp(0.75rem, 4vw, 4rem) - var(--selected-character-width));
 		z-index: 2;
-		width: clamp(85.5px, 23.625vmin, 163.5px);
+		width: var(--selected-character-width);
 		padding: 0;
 		border: 0;
 		background: transparent;
 		transform: translateY(-50%);
-		transition: right 1.2s ease, transform 1.2s ease;
+		transition: left 1.2s ease, top 1.2s ease, transform 1.2s ease;
 	}
 
 	.selected-character.celebrating {
-		right: auto;
+		top: 47%;
 		left: 50%;
 		transform: translate(-50%, -50%) scale(2);
+		transform-origin: center center;
 	}
 
 	.selected-character img {
@@ -287,6 +289,11 @@
 	}
 
 	@media (max-width: 520px), (max-height: 520px) {
+		.selected-character.celebrating {
+			top: 43%;
+			transform: translate(-50%, -50%) scale(1.5);
+		}
+
 		.activity-heading {
 			top: 5%;
 		}

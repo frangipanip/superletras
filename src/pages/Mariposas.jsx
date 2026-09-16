@@ -20,7 +20,7 @@ const TOTAL_BUTTERFLIES = 8;
 const TOTAL_CORRECT = 5;
 const TOTAL_INSTRUCTIONS = 5;
 const POSITIONS = [
-	[12, 22], [21, 30], [30, 21], [40, 34], [50, 26], [60, 37], [69, 24], [78, 34], [30, 50], [58, 52], [82, 54]
+	[24, 18], [47, 20], [70, 18], [34, 48], [57, 45], [78, 47], [27, 76], [52, 75], [72, 74], [42, 62], [88, 62]
 ];
 
 function createInstructionOrder(mode) {
@@ -98,10 +98,10 @@ export default function Mariposas() {
 	function updateButterflySize() {
 		const isMobileLandscape = window.matchMedia("(max-width: 768px) and (orientation: landscape)").matches;
 		const bounds = fieldRef.current.getBoundingClientRect();
-		const maxByWidth = bounds.width / 7.2;
-		const maxByHeight = bounds.height / 3.4;
-		const preferred = Math.min(maxByWidth, maxByHeight, isMobileLandscape ? 72 : 150);
-		const size = Math.max(isMobileLandscape ? 42 : 64, Math.min(preferred, isMobileLandscape ? 72 : 150));
+		const maxByWidth = bounds.width / 4.8;
+		const maxByHeight = bounds.height / 2.27;
+		const preferred = Math.min(maxByWidth, maxByHeight, isMobileLandscape ? 108 : 225);
+		const size = Math.max(isMobileLandscape ? 63 : 96, Math.min(preferred, isMobileLandscape ? 108 : 225));
 		pageRef.current.style.setProperty("--butterfly-size", `${size}px`);
 	}
 
@@ -125,6 +125,7 @@ export default function Mariposas() {
 			audio.onended = null;
 		});
 		state.instructionAudios = [];
+		stopTalking();
 	}
 
 	function stopFeedbackSound() {
@@ -161,6 +162,7 @@ export default function Mariposas() {
 
 	function playInstructionAudio() {
 		stopInstructionAudio();
+		startTalking();
 		const sequenceId = ++state.instructionSequenceId;
 		const optionFile = sound(`${mode === "l" ? state.targetValue[0] : state.targetValue}.wav`);
 		const sequence = [runtime.audio(optionFile), runtime.audio(sound("Pulsa.m4a")), runtime.audio(optionFile)];
@@ -168,7 +170,11 @@ export default function Mariposas() {
 		let audioIndex = 0;
 
 		function playNextAudio() {
-			if (sequenceId !== state.instructionSequenceId || audioIndex >= sequence.length) {
+			if (sequenceId !== state.instructionSequenceId) {
+				return;
+			}
+			if (audioIndex >= sequence.length) {
+				stopTalking();
 				return;
 			}
 			const audio = sequence[audioIndex];
@@ -180,6 +186,7 @@ export default function Mariposas() {
 			};
 			audio.play().catch(() => {
 				audio.onended = null;
+				stopTalking();
 			});
 		}
 
@@ -327,13 +334,6 @@ export default function Mariposas() {
 				</button>
 			</div>
 			<main className="butterfly-activity">
-				<section className="activity-heading">
-					<h1>Mariposas</h1>
-					<p className="target-line">
-						{mode === "l" ? "Pulsar las mariposas con la letra " : "Pulsar las mariposas con la vocal "}
-						<span className="target-token">{mode === "l" ? "L" : targetValue}</span>
-					</p>
-				</section>
 				<section className="butterfly-field" ref={fieldRef} aria-label="Mariposas">
 					{butterflies.map((butterfly) => {
 						const classNames = ["butterfly-button", mode === "l" ? "l-butterfly" : "a-butterfly"];
@@ -350,8 +350,8 @@ export default function Mariposas() {
 								className={classNames.join(" ")}
 								disabled={butterfly.flying}
 								style={{
-									left: `${butterfly.left}vw`,
-									top: `${butterfly.top}vh`,
+									left: `${butterfly.left}%`,
+									top: `${butterfly.top}%`,
 									transform: `translate(-50%, -50%) rotate(${butterfly.rotation}deg)`
 								}}
 								onClick={(event) => handleButterflyClick(event, butterfly)}
