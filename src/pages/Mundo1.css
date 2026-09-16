@@ -78,9 +78,13 @@
 		bottom: 10%;
 		z-index: 2;
 		width: clamp(156px, 43vmin, 300px);
+		padding: 0;
+		border: 0;
+		background: transparent;
 		left: 6%;
 		transform: translateX(-50%);
 		animation: mundo1-character-float 2.8s ease-in-out infinite;
+		cursor: pointer;
 	}
 
 	.mundo1-character img {
@@ -88,6 +92,21 @@
 		width: 100%;
 		height: auto;
 		filter: drop-shadow(0 0 14px rgba(0, 0, 0, 0.7));
+	}
+
+	.mundo1-character .character-mouth {
+		position: absolute;
+		top: 23%;
+		left: 50%;
+		width: 22%;
+		height: auto;
+		filter: none;
+		transform: translateX(-50%);
+	}
+
+	.mundo1-character .character-mouth.shifted-mouth {
+		left: 52%;
+		top: 26%;
 	}
 
 	.path-button {
@@ -108,7 +127,7 @@
 	}
 
 	.path-button-a {
-		filter: hue-rotate(125deg) saturate(1.5);
+		filter: hue-rotate(125deg) saturate(1);
 	}
 
 	.path-button-l {

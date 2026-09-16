@@ -1,9 +1,10 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import UserNav from "../components/UserNav";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
+import { useTalkingMouth } from "../hooks/useTalkingMouth";
 import { CHARACTERS, img, sound } from "../lib/assets";
 import "./Mundo1.css";
 
@@ -38,20 +39,52 @@ export default function Mundo1() {
 	const navigate = useNavigate();
 	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
+	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime);
 	const [selectedOption, setSelectedOption] = useState(null);
 	const pageRef = useRef(null);
+	const [introAudio] = useState(() => runtime.audio(sound("Inicio Mundos.mp4"), { preload: true }));
 	// Estado del auto-scroll por borde; lo leen callbacks de requestAnimationFrame.
 	const edge = useRef({ speed: 0, running: false, position: 0, lastFrame: 0 }).current;
 	const [menuAudios] = useState(() =>
 		Object.fromEntries(MENU_OPTIONS.map(({ key, audio }) => [key, runtime.audio(sound(audio), { preload: true })]))
 	);
 
-	function playMenuAudio(optionKey) {
+	function stopMenuAudios() {
 		Object.values(menuAudios).forEach((audio) => {
+			audio.onended = null;
 			audio.pause();
 			audio.currentTime = 0;
 		});
-		menuAudios[optionKey].play().catch(() => {});
+	}
+
+	function playIntroAudio() {
+		stopMenuAudios();
+		introAudio.pause();
+		introAudio.currentTime = 0;
+		startTalking();
+		introAudio.onended = stopTalking;
+		introAudio.play().catch(stopTalking);
+	}
+
+	useEffect(() => {
+		playIntroAudio();
+		return () => {
+			introAudio.onended = null;
+			introAudio.pause();
+			introAudio.currentTime = 0;
+			stopMenuAudios();
+			stopTalking();
+		};
+	}, []);
+
+	function playMenuAudio(optionKey) {
+		introAudio.pause();
+		introAudio.currentTime = 0;
+		introAudio.onended = null;
+		stopMenuAudios();
+		startTalking();
+		menuAudios[optionKey].onended = stopTalking;
+		menuAudios[optionKey].play().catch(stopTalking);
 	}
 
 	function selectMenuOption(optionKey) {
@@ -142,9 +175,10 @@ export default function Mundo1() {
 				<button className="background-option" type="button" data-option="sentences" aria-label="Oraciones"></button>
 
 				{character && (
-					<div className="mundo1-character" aria-label="Personaje seleccionado">
+					<button className="mundo1-character" type="button" aria-label="Reproducir presentación" onClick={playIntroAudio}>
 						<img src={CHARACTERS[character].image} alt={CHARACTERS[character].alt} />
-					</div>
+						{mouth.visible && <img className={mouth.shifted ? "character-mouth shifted-mouth" : "character-mouth"} src={mouth.src} alt="" />}
+					</button>
 				)}
 
 				<aside className="menu-panel" aria-label="Menú del mundo 1">

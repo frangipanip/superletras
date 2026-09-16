@@ -20,7 +20,9 @@ export default function InicioActividad() {
 	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime);
 	const [audios] = useState(() => ({
 		syllables: runtime.audio(sound("SilabasA.m4a"), { preload: true }),
-		vowels: Object.fromEntries(VOWELS.map((vowel) => [vowel, runtime.audio(sound(`${vowel}largo.m4a`), { preload: true })]))
+		pressure: runtime.audio(sound("Presion.m4a"), { preload: true }),
+		vowelsLong: Object.fromEntries(VOWELS.map((vowel) => [vowel, runtime.audio(sound(`${vowel}largo.m4a`), { preload: true })])),
+		vowelsShort: Object.fromEntries(VOWELS.map((vowel) => [vowel, runtime.audio(sound(`${vowel}.wav`), { preload: true })]))
 	}));
 	const [activeVowel, setActiveVowel] = useState(null);
 	const sequenceTimer = useRef(0);
@@ -30,12 +32,14 @@ export default function InicioActividad() {
 		runtime.clearTimeout(sequenceTimer.current);
 		audios.syllables.onended = null;
 		audios.syllables.pause();
-		Object.values(audios.vowels).forEach((vowelAudio) => {
+		audios.pressure.onended = null;
+		audios.pressure.pause();
+		[...Object.values(audios.vowelsLong), ...Object.values(audios.vowelsShort)].forEach((vowelAudio) => {
 			vowelAudio.onended = null;
 			vowelAudio.pause();
 			vowelAudio.currentTime = 0;
 		});
-		const vowelAudio = audios.vowels[vowel];
+		const vowelAudio = audios.vowelsShort[vowel];
 		setActiveVowel(vowel);
 		startTalking();
 		vowelAudio.onended = () => {
@@ -63,7 +67,7 @@ export default function InicioActividad() {
 				return;
 			}
 			const vowel = VOWELS[vowelIndex];
-			const vowelAudio = audios.vowels[vowel];
+			const vowelAudio = audios.vowelsLong[vowel];
 			vowelIndex += 1;
 			setActiveVowel(vowel);
 			startTalking();
@@ -72,7 +76,16 @@ export default function InicioActividad() {
 				vowelAudio.onended = null;
 				stopTalking();
 				setActiveVowel(null);
-				sequenceTimer.current = runtime.setTimeout(playNextVowel, 180);
+				sequenceTimer.current = runtime.setTimeout(() => {
+					if (vowel === "U") {
+						audios.pressure.currentTime = 0;
+						audios.pressure.onended = stopTalking;
+						startTalking();
+						audios.pressure.play().catch(stopTalking);
+						return;
+					}
+					playNextVowel();
+				}, 180);
 			};
 			vowelAudio.play().catch(() => {
 				vowelAudio.onended = null;
@@ -92,7 +105,10 @@ export default function InicioActividad() {
 			audios.syllables.onended = null;
 			audios.syllables.pause();
 			audios.syllables.currentTime = 0;
-			Object.values(audios.vowels).forEach((vowelAudio) => {
+			audios.pressure.onended = null;
+			audios.pressure.pause();
+			audios.pressure.currentTime = 0;
+			[...Object.values(audios.vowelsLong), ...Object.values(audios.vowelsShort)].forEach((vowelAudio) => {
 				vowelAudio.onended = null;
 				vowelAudio.pause();
 				vowelAudio.currentTime = 0;
