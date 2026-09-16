@@ -8,6 +8,7 @@ import Mariposas from "./pages/Mariposas";
 import Tren from "./pages/Tren";
 import Flores from "./pages/Flores";
 import Peluche from "./pages/Iniciales";
+import Dibujar from "./pages/Dibujar";
 import PlaceholderActivity from "./pages/PlaceholderActivity";
 
 // Las URLs viejas (*.html) redirigen a las rutas nuevas para no romper accesos guardados.
@@ -35,6 +36,7 @@ export default function App() {
 			<Route path="/mariposas" element={<Mariposas />} />
 			<Route path="/tren" element={<Tren />} />
 			<Route path="/flores" element={<Flores />} />
+			<Route path="/dibujar" element={<Dibujar />} />
 			<Route path="/globos" element={<PlaceholderActivity key="globos" title="Globos" />} />
 			<Route path="/iniciales" element={<Navigate to="/peluches" replace />} />
 			<Route path="/peluches" element={<Peluche />} />

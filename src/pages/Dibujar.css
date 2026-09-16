@@ -1,0 +1,122 @@
+.page-dibujar {
+	background: url("/assets/imagenes/FONDOejerciciosM1.jpg") center / cover no-repeat;
+	
+	.dibujar-layout {
+		display: grid;
+		place-items: center;
+		width: 100%;
+		height: 100%;
+		padding: 5rem 18vw 2rem 8vw;
+		box-sizing: border-box;
+	}
+
+	.dibujar-board {
+		position: relative;
+		touch-action: none;
+		height: min(72vh, 620px);
+		width: min(58vw, calc(72vh * 322 / 317), 620px);
+		min-width: 280px;
+		min-height: 280px;
+		aspect-ratio: 322 / 317;
+		border: clamp(8px, 1.2vmin, 14px) solid #8c4b97;
+		border-radius: clamp(1rem, 3vmin, 2.2rem);
+		background: rgba(255, 248, 229, 0.88);
+		box-shadow: 0 10px 0 rgba(75, 42, 92, 0.32), 0 18px 35px rgba(32, 58, 70, 0.25);
+		overflow: hidden;
+		user-select: none;
+	}
+
+	.dibujar-guide-image {
+		position: absolute;
+		inset: 0;
+		display: block;
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+		user-select: none;
+		pointer-events: none;
+	}
+
+	.dibujar-step {
+		position: absolute;
+		top: 1rem;
+		left: 50%;
+		z-index: 3;
+		padding: 0.35rem 0.75rem;
+		border-radius: 999px;
+		background: rgba(140, 75, 151, 0.12);
+		color: #70457d;
+		font: 700 clamp(0.7rem, 1.6vmin, 1rem) Arial, sans-serif;
+		transform: translateX(-50%);
+		pointer-events: none;
+	}
+
+	.dibujar-point {
+		position: absolute;
+		z-index: 4;
+		display: grid;
+		place-items: center;
+		width: clamp(1.6rem, 4vmin, 2.4rem);
+		height: clamp(1.6rem, 4vmin, 2.4rem);
+		border-radius: 50%;
+		background: rgba(255, 255, 255, 0.9);
+		border: 3px solid #3a2a63;
+		box-shadow: 0 3px 10px rgba(0, 0, 0, 0.18);
+		color: #3a2a63;
+		font: 900 clamp(0.9rem, 2vmin, 1.2rem) Arial, sans-serif;
+		transform: translate(-50%, -50%);
+		pointer-events: none;
+	}
+
+	.dibujar-trace {
+		position: absolute;
+		inset: 0;
+		z-index: 3;
+		display: block;
+		width: 100%;
+		height: 100%;
+		pointer-events: none;
+	}
+
+	.dibujar-cursor {
+		position: absolute;
+		z-index: 5;
+		display: block;
+		width: clamp(2rem, 5vmin, 3.5rem);
+		height: clamp(2rem, 5vmin, 3.5rem);
+		object-fit: contain;
+		background: none;
+		transform: translate(-50%, -52%);
+		pointer-events: none;
+		transition: left 80ms linear, top 80ms linear;
+		filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2));
+	}
+
+	.dibujar-clear {
+		position: fixed;
+		top: clamp(0.75rem, 2vw, 1.5rem);
+		right: clamp(0.75rem, 2vw, 1.5rem);
+		z-index: 3;
+		padding: 0.55rem 0.85rem;
+		border: 3px solid #2f8498;
+		border-radius: 12px;
+		background: linear-gradient(180deg, #d6f8ff 0%, #7bcfe3 75%, #5fb5cb 100%);
+		box-shadow: 0 3px 0 #286f84, 0 5px 6px rgba(0, 0, 0, 0.28);
+		color: #6b3f24;
+		font: 700 clamp(0.75rem, 2vmin, 1rem) Arial, Helvetica, sans-serif;
+		cursor: pointer;
+	}
+
+	@media (max-width: 700px) {
+		.dibujar-layout {
+			padding: 5rem 4vw 2rem;
+		}
+
+		.dibujar-board {
+			height: min(68vh, 520px);
+			width: min(82vw, calc(68vh * 322 / 317), 520px);
+			min-width: 240px;
+			min-height: 240px;
+		}
+	}
+}
