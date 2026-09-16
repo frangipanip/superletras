@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import BackButton from "../components/BackButton";
 import Character from "../components/Character";
 import FullscreenButton from "../components/FullscreenButton";
@@ -81,14 +81,67 @@ function toOption([name, label, byn, color], correct) {
 	return { name, label, byn, color, correct };
 }
 
-function createOptions(letter) {
-	const pool = OPTIONS_BY_LETTER[letter];
-	const correct = pool.correct[Math.floor(Math.random() * pool.correct.length)];
-	const incorrect = pool.incorrect[Math.floor(Math.random() * pool.incorrect.length)];
-	return shuffle([toOption(correct, true), toOption(incorrect, false)]);
+const UNIQUE_CORRECT_OPTIONS = {
+	A: [
+		["abeja", "Abeja", "abejabyn.png", "abejacolor.png"],
+		["arbol", "Arbol", "arbolbyn.jpg", "arbolcolor.jpg"]
+	],
+	E: [
+		["escalera", "Escalera", "escalerabyn.jpg", "escaleracolor.jpg"],
+		["elefante", "Elefante", "elefantebyn.jpg", "elefantecolor.jpg"]
+	],
+	I: [
+		["indio", "Indio", "indiobyn.jpg", "indiocolor.jpg"],
+		["iguana", "Iguana", "iguanabyn.jpg", "iguanacolor.jpg"]
+	],
+	O: [
+		["oso", "Oso", "osobyn.jpg", "osocolor.jpg"],
+		["ojo", "Ojo", "ojobyn.jpg", "ojocolor.jpg"]
+	],
+	U: [
+		["uva", "Uva", "uvabyn.jpg", "uvacolor.jpg"],
+		["uno", "Uno", "unobyn.jpg", "unocolor.jpg"]
+	]
+};
+
+const UNIQUE_INCORRECT_OPTIONS = {
+	A: [
+		["guitarra", "Guitarra", "guitarrabyn.jpg", "guitarrabyn.jpg"],
+		["escoba", "Escoba", "escobabyn.jpg", "escobabyn.jpg"]
+	],
+	E: [
+		["perro", "Perro", "perrobyn.jpg", "perrobyn.jpg"],
+		["sol", "Sol", "solbyn.jpg", "solbyn.jpg"]
+	],
+	I: [
+		["frutilla", "Frutilla", "frutillabyn.jpg", "frutillabyn.jpg"],
+		["oruga", "Oruga", "orugabyn.jpg", "orugabyn.jpg"]
+	],
+	O: [
+		["isla", "Isla", "islabyn.jpg", "islabyn.jpg"],
+		["iman", "Iman", "imanbyn.jpg", "imanbyn.jpg"]
+	],
+	U: [
+		["oveja", "Oveja", "ovejabyn.jpg", "ovejabyn.jpg"],
+		["estrella", "Estrella", "estrellabyn.jpg", "estrellabyn.jpg"]
+	]
+};
+
+function createOptions(correctOption, incorrectOption) {
+	return shuffle([toOption(correctOption, true), toOption(incorrectOption, false)]);
 }
 
-const ACTIVITIES = ROUND_LETTERS.map((letter) => ({ letter, options: createOptions(letter) }));
+function createActivities() {
+	const correctOrder = Object.fromEntries(Object.entries(UNIQUE_CORRECT_OPTIONS).map(([letter, options]) => [letter, shuffle(options)]));
+	const incorrectOrder = Object.fromEntries(Object.entries(UNIQUE_INCORRECT_OPTIONS).map(([letter, options]) => [letter, shuffle(options)]));
+	return ROUND_LETTERS.map((letter, roundIndex) => {
+		const correctOption = correctOrder[letter][roundIndex >= 5 ? 1 : 0];
+		const incorrectOption = incorrectOrder[letter][roundIndex >= 5 ? 1 : 0];
+		return { letter, options: createOptions(correctOption, incorrectOption) };
+	});
+}
+
+const ACTIVITIES = createActivities();
 
 export default function Peluche() {
 	usePageTitle("Peluche - Mundo 1");
@@ -99,7 +152,24 @@ export default function Peluche() {
 	const [selected, setSelected] = useState(() => new Set());
 	const [vibrating, setVibrating] = useState(() => new Set());
 	const [errorAudio] = useState(() => runtime.audio(sound("error.mp3")));
+	const [vowelAudios] = useState(() =>
+		Object.fromEntries(ROUND_LETTERS.slice(0, 5).map((letter) => [letter, runtime.audio(sound(`${letter}.wav`), { preload: true })]))
+	);
 	const activity = ACTIVITIES[activityIndex];
+
+	useEffect(() => {
+		Object.values(vowelAudios).forEach((audio) => {
+			audio.pause();
+			audio.currentTime = 0;
+		});
+		const instructionAudio = vowelAudios[activity.letter];
+		instructionAudio.currentTime = 0;
+		instructionAudio.play().catch(() => {});
+		return () => {
+			instructionAudio.pause();
+			instructionAudio.currentTime = 0;
+		};
+	}, [activity.letter, vowelAudios]);
 
 	function handleImageClick(option) {
 		if (selected.has(option.name)) {
@@ -112,7 +182,7 @@ export default function Peluche() {
 				const correctCount = activity.options.filter((item) => item.correct).length;
 				if (next.size === correctCount && activityIndex < ACTIVITIES.length - 1) {
 					runtime.setTimeout(() => {
-						setOptions(() => createOptions(ACTIVITIES[activityIndex + 1].letter));
+						setOptions(() => ACTIVITIES[activityIndex + 1].options);
 						setActivityIndex((currentIndex) => currentIndex + 1);
 						setSelected(new Set());
 					}, 700);
@@ -140,10 +210,6 @@ export default function Peluche() {
 			<BackButton />
 			<FullscreenButton toggle />
 			<main className="initials-activity">
-				<header className="initials-heading">
-					<h1>Peluche</h1>
-					<p>Pulsa todas las imágenes que comienzan con la letra {activity.letter}</p>
-				</header>
 				<section className="initials-grid" aria-label="Imágenes para elegir">
 					{options.map((option) => {
 						const classNames = ["initials-option"];

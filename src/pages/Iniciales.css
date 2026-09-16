@@ -8,31 +8,6 @@
 		overflow: hidden;
 	}
 
-	.initials-heading {
-		position: fixed;
-		top: clamp(1rem, 4vh, 2rem);
-		left: 50%;
-		z-index: 2;
-		width: min(92vw, 48rem);
-		transform: translateX(-50%);
-		text-align: center;
-	}
-
-	.initials-heading h1 {
-		margin: 0;
-		color: #fff;
-		font: 700 clamp(1.7rem, 4vmin, 2.8rem) Arial, Helvetica, sans-serif;
-		text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.45);
-		text-transform: uppercase;
-	}
-
-	.initials-heading p {
-		margin: 0.4rem 0 0;
-		color: #fff;
-		font: 700 clamp(1rem, 2.8vmin, 1.6rem) Arial, Helvetica, sans-serif;
-		text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
-	}
-
 	.initials-grid {
 		position: fixed;
 		top: 24%;
