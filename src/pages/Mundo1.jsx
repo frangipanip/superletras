@@ -183,19 +183,18 @@ export default function Mundo1() {
 					<div
 						className={`${selectedOption && selectedOption !== "a" ? "path-activity path-activity-unavailable" : "path-activity"}${selectedOption === "a" && index >= 5 ? " path-activity-hidden" : ""}`}
 						key={`${left}-${top}`}
+						style={{ left: `${left}%`, top: `${top}%` }}
 					>
 						<img
 							className="path-activity-sign"
 							src={img(ACTIVITY_SIGN_IMAGES[index] || "GLOBOSbtn.png")}
 							alt=""
 							draggable={false}
-							style={{ left: `${left}%`, top: `${top - 12}%` }}
 						/>
 						<button
 							className={selectedOption === "a" ? "path-button path-button-a" : "path-button path-button-disabled"}
 							type="button"
 							disabled={selectedOption !== "a"}
-							style={{ left: `${left}%`, top: `${top}%` }}
 							aria-label={`Actividad del camino ${index + 1}`}
 							onClick={() => openPathActivity(index)}
 						>
