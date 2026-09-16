@@ -35,7 +35,7 @@ export default function Flores() {
 	const [isLetterMode] = useState(() => readMenuOption() === "l");
 	const [round, setRound] = useState({ generation: 0, activityIndex: 0, target: "", flowers: [] });
 	const [celebrating, setCelebrating] = useState(false);
-	const [instructionAudio] = useState(() => runtime.audio(sound("Pulsa silaba.m4a")));
+	const [instructionAudio] = useState(() => runtime.audio(sound("Pulsavocal.m4a")));
 	const [celebrationAudio] = useState(() => runtime.audio(sound("Fabuloso.m4a")));
 	const audioRef = useRef({ option: null, feedback: null });
 	const game = useRef({ activityIndex: 0, instructionOrder: [], transitionPending: false, celebrationActive: false });
@@ -54,16 +54,31 @@ export default function Flores() {
 		const audios = audioRef.current;
 		stopAudio(instructionAudio);
 		stopAudio(audios.option);
+		startTalking();
 		const optionAudio = runtime.audio(audioPath(targetValue));
 		audios.option = optionAudio;
-		instructionAudio.onended = () => optionAudio.play().catch(() => {});
-		instructionAudio.play().catch(() => {});
+		instructionAudio.onended = () => {
+			instructionAudio.onended = null;
+			optionAudio.onended = () => {
+				optionAudio.onended = null;
+				stopTalking();
+			};
+			optionAudio.play().catch(() => {
+				optionAudio.onended = null;
+				stopTalking();
+			});
+		};
+		instructionAudio.play().catch(() => {
+			instructionAudio.onended = null;
+			stopTalking();
+		});
 	}
 
 	function playLabelAudio(label, onEnded) {
 		const audios = audioRef.current;
 		stopAudio(instructionAudio);
 		stopAudio(audios.option);
+		stopTalking();
 		stopAudio(audios.feedback);
 		const audio = runtime.audio(audioPath(label));
 		audio.onended = onEnded;
@@ -172,13 +187,6 @@ export default function Flores() {
 				</button>
 			</div>
 			<main className="flower-activity">
-				<section className="flower-heading">
-					<h1>Flores</h1>
-					<p className="round-counter">Actividad {round.activityIndex + 1} de {TOTAL_ACTIVITIES}</p>
-					<p>
-						Pulsa <span className="target-token">{round.target}</span>
-					</p>
-				</section>
 				<section className="flower-field" aria-label="Flores">
 					{round.flowers.map((flower, index) => (
 						<button
