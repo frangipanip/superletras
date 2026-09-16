@@ -122,7 +122,8 @@ export default function InicioActividad() {
 		<div className="page activity-page page-inicio-actividad">
 			<BackButton />
 			<FullscreenButton toggle />
-			<main className="inicio-activity-panel">
+			<main className="inicio-activity-stage">
+				<img className="inicio-activity-background" src="/assets/imagenes/rectangulo.svg" alt="" draggable={false} />
 				<div className="inicio-vowels" aria-label="Vocales">
 					{VOWELS.map((vowel) => (
 						<button
