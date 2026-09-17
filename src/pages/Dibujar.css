@@ -6,8 +6,16 @@
 		place-items: center;
 		width: 100%;
 		height: 100%;
-		padding: 5rem 18vw 2rem 8vw;
+		padding: 5rem 8vw 2rem;
 		box-sizing: border-box;
+	}
+
+	.dibujar-workspace {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: clamp(1rem, 2vw, 2rem);
+		width: 100%;
 	}
 
 	.dibujar-board {
@@ -49,6 +57,41 @@
 		font: 700 clamp(0.7rem, 1.6vmin, 1rem) Arial, sans-serif;
 		transform: translateX(-50%);
 		pointer-events: none;
+	}
+
+	.dibujar-vowel-picker {
+		position: relative;
+		z-index: 6;
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		padding: 0.75rem 0.5rem;
+		border: 3px solid rgba(140, 75, 151, 0.7);
+		border-radius: 1.25rem;
+		background: rgba(255, 248, 229, 0.82);
+		box-shadow: 0 8px 18px rgba(32, 58, 70, 0.18);
+	}
+
+	.dibujar-vowel-button {
+		width: clamp(2.2rem, 4vmin, 3rem);
+		height: clamp(2.2rem, 4vmin, 3rem);
+		border: 3px solid #3a2a63;
+		border-radius: 50%;
+		background: rgba(255, 255, 255, 0.9);
+		color: #3a2a63;
+		font: 900 clamp(0.9rem, 1.8vmin, 1.2rem) Arial, sans-serif;
+		cursor: pointer;
+		box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+	}
+
+	.dibujar-vowel-button.selected {
+		background: #ffd95c;
+		transform: scale(1.05);
+	}
+
+	.dibujar-vowel-button:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
 	}
 
 	.dibujar-point {
