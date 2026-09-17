@@ -1,0 +1,100 @@
+@keyframes tornado-wobble {
+	0%,
+	100% {
+		transform: skewX(-5deg);
+	}
+	50% {
+		transform: skewX(5deg);
+	}
+}
+
+@keyframes tornado-sway {
+	0% {
+		transform: translateX(-7px);
+	}
+	100% {
+		transform: translateX(7px);
+	}
+}
+
+@keyframes tornado-swirl {
+	to {
+		stroke-dashoffset: -120;
+	}
+}
+
+@keyframes tornado-orbit {
+	0% {
+		transform: translateX(-62px) scale(0.7);
+		opacity: 0.6;
+	}
+	50% {
+		transform: translateX(0) scale(1.15);
+		opacity: 1;
+	}
+	100% {
+		transform: translateX(62px) scale(0.7);
+		opacity: 0.6;
+	}
+}
+
+@keyframes tornado-dust-pulse {
+	0%,
+	100% {
+		transform: scaleX(0.85);
+		opacity: 0.45;
+	}
+	50% {
+		transform: scaleX(1.15);
+		opacity: 0.7;
+	}
+}
+
+.tornado {
+	display: block;
+	overflow: visible;
+	pointer-events: none;
+
+	.tornado-funnel {
+		transform-box: fill-box;
+		transform-origin: 50% 100%;
+		animation: tornado-wobble 0.9s ease-in-out infinite;
+	}
+
+	.tornado-ring {
+		transform-box: fill-box;
+		transform-origin: center;
+		animation: tornado-sway 0.35s ease-in-out infinite alternate;
+	}
+
+	.tornado-ring-fill {
+		fill: rgba(206, 216, 228, 0.55);
+		stroke: #6f7f92;
+		stroke-width: 3;
+	}
+
+	.tornado-ring-swirl {
+		fill: none;
+		stroke: #ffffff;
+		stroke-width: 3;
+		stroke-linecap: round;
+		stroke-dasharray: 26 34;
+		animation: tornado-swirl 0.45s linear infinite;
+	}
+
+	.tornado-debris {
+		transform-box: fill-box;
+		transform-origin: center;
+		animation-name: tornado-orbit;
+		animation-timing-function: ease-in-out;
+		animation-iteration-count: infinite;
+		animation-direction: alternate;
+	}
+
+	.tornado-dust {
+		fill: #b59b7c;
+		transform-box: fill-box;
+		transform-origin: center;
+		animation: tornado-dust-pulse 0.6s ease-in-out infinite;
+	}
+}
