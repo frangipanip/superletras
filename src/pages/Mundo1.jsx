@@ -6,7 +6,7 @@ import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
-import { CHARACTERS, img, sound } from "../lib/assets";
+import { CHARACTERS, MOUTH_IMAGES, img, sound } from "../lib/assets";
 import { STORAGE_KEYS, readStorage, writeStorage } from "../lib/storage";
 import "./Mundo1.css";
 
@@ -41,7 +41,18 @@ const ACTIVITY_SIGN_IMAGES = [
 	"MEMOTESTbtn.png"
 ];
 
-const PATH_ROUTES = ["/inicio", "/mariposas", "/flores", "/peluches", "/tren", "/dibujar", "/memotest", null, null, null];
+// Todo lo que muestra la pantalla al entrar; Mundos lo precarga para que no aparezca de a partes.
+export const MUNDO1_IMAGES = [
+	img("FONDOM1.jpg"),
+	img("MENUM1.png"),
+	img("boton.svg"),
+	img("GLOBOSbtn.png"),
+	...ACTIVITY_SIGN_IMAGES.map(img),
+	...MENU_OPTIONS.map(({ image }) => img(image)),
+	...MOUTH_IMAGES
+];
+
+const PATH_ROUTES =["/inicio", "/mariposas", "/flores", "/peluches", "/tren", "/dibujar", "/memotest", null, null, null];
 
 // Desplazamiento con el mouse: al acercarse a un borde la escena avanza sola,
 // más rápido cuanto más pegado al borde.

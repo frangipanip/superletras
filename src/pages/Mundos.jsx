@@ -1,8 +1,10 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router";
 import UserNav from "../components/UserNav";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
-import { CHARACTERS, img } from "../lib/assets";
+import { CHARACTERS, img, preloadImages } from "../lib/assets";
+import { MUNDO1_IMAGES } from "./Mundo1";
 import "./Mundos.css";
 
 const LEVEL_ROWS = [
@@ -17,6 +19,11 @@ export default function Mundos() {
 	usePageTitle("Superletras - Mundos");
 	const navigate = useNavigate();
 	const [character, selectCharacter] = useSelectedCharacter();
+
+	// Mientras se elige personaje y nivel, se van bajando las imágenes del Mundo 1.
+	useEffect(() => {
+		preloadImages(MUNDO1_IMAGES);
+	}, []);
 
 	return (
 		<div className="page page-mundos">
