@@ -36,10 +36,11 @@ const ACTIVITY_SIGN_IMAGES = [
 	"FLORbtn.png",
 	"PELUCHESbtn.png",
 	"TRENbtn.png",
-	"GLOBOSbtn.png"
+	"DIBUJARbtn.png",
+	"MEMOTESTbtn.png"
 ];
 
-const PATH_ROUTES = ["/inicio", "/mariposas", "/flores", "/peluches", "/tren", "/dibujar", "/iniciales", null, null, null];
+const PATH_ROUTES = ["/inicio", "/mariposas", "/flores", "/peluches", "/tren", "/dibujar", "/memotest", null, null, null];
 
 // Desplazamiento con el mouse: al acercarse a un borde la escena avanza sola,
 // más rápido cuanto más pegado al borde.
@@ -181,7 +182,7 @@ export default function Mundo1() {
 				<img className="mundo1-background" src={img("FONDOM1.jpg")} alt="" draggable={false} />
 				{PATH_BUTTONS.map(({ left, top }, index) => (
 					<div
-						className={`${selectedOption && selectedOption !== "a" ? "path-activity path-activity-unavailable" : "path-activity"}${selectedOption === "a" && index >= 6 ? " path-activity-hidden" : ""}`}
+						className={`${selectedOption && selectedOption !== "a" ? "path-activity path-activity-unavailable" : "path-activity"}${selectedOption === "a" && index >= 7 ? " path-activity-hidden" : ""}`}
 						key={`${left}-${top}`}
 						style={{ left: `${left}%`, top: `${top}%` }}
 					>
