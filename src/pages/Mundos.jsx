@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useNavigate } from "react-router";
 import UserNav from "../components/UserNav";
 import { usePageTitle } from "../hooks/usePageTitle";
@@ -14,18 +13,13 @@ const LEVEL_ROWS = [
 // Solo el nivel 1 tiene contenido por ahora.
 const LEVEL_ROUTES = { 1: "/mundo1" };
 
-function detectMobileLayout() {
-	return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || window.innerWidth <= 600;
-}
-
 export default function Mundos() {
 	usePageTitle("Superletras - Mundos");
 	const navigate = useNavigate();
 	const [character, selectCharacter] = useSelectedCharacter();
-	const [isMobileLayout] = useState(detectMobileLayout);
 
 	return (
-		<div className={isMobileLayout ? "page page-mundos mobile-layout" : "page page-mundos"}>
+		<div className="page page-mundos">
 			<UserNav />
 
 			<main className={character ? "worlds-row has-selection" : "worlds-row"} aria-label="Selección de mundo">

@@ -1,7 +1,8 @@
 export const STORAGE_KEYS = {
 	character: "superletras-character",
 	guestName: "superletras-guest-name",
-	mundo1MenuOption: "superletras-mundo1-menu-option"
+	mundo1MenuOption: "superletras-mundo1-menu-option",
+	installPromptDismissedAt: "superletras-install-dismissed-at"
 };
 
 export function readStorage(key) {

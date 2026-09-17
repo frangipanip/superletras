@@ -80,3 +80,54 @@ body,
 		transform: rotate(-90deg);
 	}
 }
+
+/* Cartel de instalar la app / versión nueva: abajo al centro, por encima de los menús. */
+.app-banner {
+	position: fixed;
+	bottom: 0.75rem;
+	left: 50%;
+	z-index: 20;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	box-sizing: border-box;
+	max-width: calc(100vw - 1.5rem);
+	padding: 0.5rem 0.75rem;
+	border: 3px solid #2f8498;
+	border-radius: 14px;
+	background: #1b1464;
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.45);
+	color: #ffffff;
+	font: 700 clamp(0.8rem, 2.4vmin, 1.1rem) Arial, Helvetica, sans-serif;
+	transform: translateX(-50%);
+}
+
+.app-banner__icon {
+	width: 2.5rem;
+	height: 2.5rem;
+	border-radius: 8px;
+}
+
+.app-banner__button {
+	flex: none;
+	padding: 0.4rem 0.9rem;
+	border: 3px solid #2f8498;
+	border-radius: 12px;
+	background: linear-gradient(180deg, #d6f8ff 0%, #7bcfe3 75%, #5fb5cb 100%);
+	color: #6b3f24;
+	font: inherit;
+	cursor: pointer;
+}
+
+.app-banner__button--secondary {
+	border-color: rgba(255, 255, 255, 0.5);
+	background: transparent;
+	color: #ffffff;
+}
+
+/* Instalada ya abre en pantalla completa: el botón sobra (se oculta sin mover el resto). */
+@media (display-mode: fullscreen), (display-mode: standalone) {
+	.fullscreen-button {
+		visibility: hidden;
+	}
+}
