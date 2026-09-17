@@ -23,7 +23,7 @@ const PATH_BUTTONS = [
 	{ left: 45, top: 81 },
 	{ left: 50.9, top: 54 },
 	{ left: 57.4, top: 54 },
-	{ left: 60, top: 76 },
+	{ left: 62, top: 73 },
 	{ left: 69, top: 73 },
 	{ left: 76.8, top: 80 },
 	{ left: 85.6, top: 68 },
