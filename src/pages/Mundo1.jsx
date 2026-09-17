@@ -54,6 +54,13 @@ export const MUNDO1_IMAGES = [
 
 const PATH_ROUTES =["/inicio", "/mariposas", "/flores", "/peluches", "/tren", "/dibujar", "/memotest", null, null, null];
 
+// Índices de PATH_ROUTES habilitados por letra: el resto del camino queda apagado
+// hasta que la actividad tenga los audios de esa letra. Sin entrada, la letra no abre nada.
+const AVAILABLE_ACTIVITIES = {
+	a: [0, 1, 2, 3, 4, 5, 6],
+	l: [0]
+};
+
 // Desplazamiento con el mouse: al acercarse a un borde la escena avanza sola,
 // más rápido cuanto más pegado al borde.
 const EDGE_ZONE = 0.15; // fracción del ancho de la pantalla
@@ -90,6 +97,11 @@ export default function Mundo1() {
 	const [menuAudios] = useState(() =>
 		Object.fromEntries(MENU_OPTIONS.map(({ key, audio }) => [key, runtime.audio(sound(audio), { preload: true })]))
 	);
+	const availableActivities = AVAILABLE_ACTIVITIES[selectedOption] || null;
+
+	function isActivityAvailable(index) {
+		return Boolean(availableActivities && availableActivities.indexOf(index) !== -1);
+	}
 
 	function stopMenuAudios() {
 		Object.values(menuAudios).forEach((audio) => {
@@ -157,7 +169,7 @@ export default function Mundo1() {
 
 	function openPathActivity(index) {
 		const route = PATH_ROUTES[index];
-		if (!route || !selectedOption || travel) {
+		if (!route || !isActivityAvailable(index) || travel) {
 			return;
 		}
 		writeStorage(STORAGE_KEYS.mundo1MenuOption, selectedOption);
@@ -246,7 +258,7 @@ export default function Mundo1() {
 				<img className="mundo1-background" src={img("FONDOM1.jpg")} alt="" draggable={false} onLoad={scrollToPerch} />
 				{PATH_BUTTONS.map(({ left, top }, index) => (
 					<div
-						className={`${selectedOption && selectedOption !== "a" ? "path-activity path-activity-unavailable" : "path-activity"}${selectedOption === "a" && index >= 7 ? " path-activity-hidden" : ""}${index === perchIndex ? " path-activity-current" : ""}`}
+						className={`${selectedOption && !isActivityAvailable(index) ? "path-activity path-activity-unavailable" : "path-activity"}${availableActivities && index >= 7 ? " path-activity-hidden" : ""}${index === perchIndex ? " path-activity-current" : ""}`}
 						key={`${left}-${top}`}
 						style={{ left: `${left}%`, top: `${top}%` }}
 					>
@@ -258,9 +270,9 @@ export default function Mundo1() {
 							draggable={false}
 						/>
 						<button
-							className={selectedOption === "a" ? "path-button path-button-a" : "path-button path-button-disabled"}
+							className={isActivityAvailable(index) ? `path-button path-button-${selectedOption}` : "path-button path-button-disabled"}
 							type="button"
-							disabled={selectedOption !== "a"}
+							disabled={!isActivityAvailable(index)}
 							aria-label={`Actividad del camino ${index + 1}`}
 							onClick={() => openPathActivity(index)}
 						>

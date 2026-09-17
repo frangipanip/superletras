@@ -12,7 +12,31 @@ import "./actividad.css";
 import "./InicioActividad.css";
 
 const VOWELS = ["A", "E", "I", "O", "U"];
+const L_SYLLABLES = ["LA", "LE", "LI", "LO", "LU"];
 const CONFETTI_COLORS = ["#f04f78", "#f6c945", "#55b96c", "#4d9ed8", "#9b6bd6", "#f08a36"];
+
+// Cada letra del menú de Mundo 1 trae su propia presentación: los carteles que se pulsan,
+// los audios con los que arranca y la consigna con la que después se piden de a uno.
+const MODES = {
+	a: {
+		items: VOWELS,
+		intro: ["SilabasA.m4a"],
+		prompt: "Pulsavocal.m4a",
+		longAudio: (item) => `${item}largo.m4a`,
+		shortAudio: (item) => `${item}.wav`,
+		itemName: (item) => `vocal ${item}`,
+		listName: "Vocales"
+	},
+	l: {
+		items: L_SYLLABLES,
+		intro: ["EstaEsLaLetra.m4a", "Ele.m4a", "ConLasVocales.m4a"],
+		prompt: "Pulsa silaba.m4a",
+		longAudio: (item) => `${item}largo.m4a`,
+		shortAudio: (item) => `${item.toLowerCase()}.wav`,
+		itemName: (item) => `sílaba ${item}`,
+		listName: "Sílabas con L"
+	}
+};
 
 export default function InicioActividad() {
 	usePageTitle("Inicio - Mundo 1");
@@ -20,86 +44,92 @@ export default function InicioActividad() {
 	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
 	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime);
+	const menuOption = location.state?.menuOption;
+	// Entrar directo por URL (sin pasar por el menú) muestra las vocales, pero sin presentación.
+	const [mode] = useState(() => MODES[menuOption] || MODES.a);
 	const [audios] = useState(() => ({
-		syllables: runtime.audio(sound("SilabasA.m4a"), { preload: true }),
+		intro: mode.intro.map((file) => runtime.audio(sound(file), { preload: true })),
 		pressure: runtime.audio(sound("Presion.m4a"), { preload: true }),
 		shuffle: runtime.audio(sound("Mezclarvocales.m4a"), { preload: true }),
-		vowelPrompt: runtime.audio(sound("Pulsavocal.m4a"), { preload: true }),
+		itemPrompt: runtime.audio(sound(mode.prompt), { preload: true }),
 		celebration: runtime.audio(sound("Felicitaciones.m4a"), { preload: true }),
 		error: runtime.audio(sound("error.mp3"), { preload: true }),
-		vowelsLong: Object.fromEntries(VOWELS.map((vowel) => [vowel, runtime.audio(sound(`${vowel}largo.m4a`), { preload: true })])),
-		vowelsShort: Object.fromEntries(VOWELS.map((vowel) => [vowel, runtime.audio(sound(`${vowel}.wav`), { preload: true })]))
+		itemsLong: Object.fromEntries(mode.items.map((item) => [item, runtime.audio(sound(mode.longAudio(item)), { preload: true })])),
+		itemsShort: Object.fromEntries(mode.items.map((item) => [item, runtime.audio(sound(mode.shortAudio(item)), { preload: true })]))
 	}));
-	const [activeVowel, setActiveVowel] = useState(null);
-	const [selectedVowels, setSelectedVowels] = useState(() => new Set());
-	const [activitySelectedVowels, setActivitySelectedVowels] = useState(() => new Set());
-	const [vowelOrder, setVowelOrder] = useState(VOWELS);
+	const [activeItem, setActiveItem] = useState(null);
+	const [selectedItems, setSelectedItems] = useState(() => new Set());
+	const [activitySelectedItems, setActivitySelectedItems] = useState(() => new Set());
+	const [itemOrder, setItemOrder] = useState(mode.items);
 	const [isShuffling, setIsShuffling] = useState(false);
-	const [requestedVowel, setRequestedVowel] = useState(null);
-	const [incorrectVowel, setIncorrectVowel] = useState(null);
+	const [requestedItem, setRequestedItem] = useState(null);
+	const [incorrectItem, setIncorrectItem] = useState(null);
 	const [showConfetti, setShowConfetti] = useState(false);
 	const sequenceTimer = useRef(0);
 	const shuffleTimer = useRef(0);
 	const errorTimer = useRef(0);
-	const requestedVowelIndex = useRef(0);
-	const menuOption = location.state?.menuOption;
+	const requestedItemIndex = useRef(0);
 
-	function stopShortVowelAudios() {
-		audios.vowelPrompt.onended = null;
-		audios.vowelPrompt.pause();
-		audios.vowelPrompt.currentTime = 0;
-		Object.values(audios.vowelsShort).forEach((vowelAudio) => {
-			vowelAudio.onended = null;
-			vowelAudio.pause();
-			vowelAudio.currentTime = 0;
+	function allItemAudios() {
+		return [...Object.values(audios.itemsLong), ...Object.values(audios.itemsShort)];
+	}
+
+	function stopShortAudios() {
+		audios.itemPrompt.onended = null;
+		audios.itemPrompt.pause();
+		audios.itemPrompt.currentTime = 0;
+		Object.values(audios.itemsShort).forEach((itemAudio) => {
+			itemAudio.onended = null;
+			itemAudio.pause();
+			itemAudio.currentTime = 0;
 		});
 	}
 
-	function playRequestedVowel(vowel) {
-		stopShortVowelAudios();
-		const vowelAudio = audios.vowelsShort[vowel];
-		setActiveVowel(null);
+	function playRequestedItem(item) {
+		stopShortAudios();
+		const itemAudio = audios.itemsShort[item];
+		setActiveItem(null);
 		startTalking();
-		audios.vowelPrompt.onended = () => {
-			audios.vowelPrompt.onended = null;
-			vowelAudio.currentTime = 0;
-			vowelAudio.onended = () => {
-				vowelAudio.onended = null;
-				setActiveVowel(null);
+		audios.itemPrompt.onended = () => {
+			audios.itemPrompt.onended = null;
+			itemAudio.currentTime = 0;
+			itemAudio.onended = () => {
+				itemAudio.onended = null;
+				setActiveItem(null);
 				stopTalking();
 			};
-			vowelAudio.play().catch(() => {
-				vowelAudio.onended = null;
-				setActiveVowel(null);
+			itemAudio.play().catch(() => {
+				itemAudio.onended = null;
+				setActiveItem(null);
 				stopTalking();
 			});
 		};
-		audios.vowelPrompt.currentTime = 0;
-		audios.vowelPrompt.play().catch(() => {
-			audios.vowelPrompt.onended = null;
-			setActiveVowel(null);
+		audios.itemPrompt.currentTime = 0;
+		audios.itemPrompt.play().catch(() => {
+			audios.itemPrompt.onended = null;
+			setActiveItem(null);
 			stopTalking();
 		});
 	}
 
-	function handleVowelPress(vowel) {
-		if (requestedVowel) {
-			if (vowel !== requestedVowel) {
+	function handleItemPress(item) {
+		if (requestedItem) {
+			if (item !== requestedItem) {
 				runtime.clearTimeout(errorTimer.current);
-				setIncorrectVowel(vowel);
+				setIncorrectItem(item);
 				audios.error.currentTime = 0;
 				audios.error.play().catch(() => {});
-				errorTimer.current = runtime.setTimeout(() => setIncorrectVowel(null), 500);
+				errorTimer.current = runtime.setTimeout(() => setIncorrectItem(null), 500);
 				return;
 			}
-			stopShortVowelAudios();
-			setIncorrectVowel(null);
-			setActivitySelectedVowels((current) => new Set(current).add(vowel));
-			setActiveVowel(vowel);
+			stopShortAudios();
+			setIncorrectItem(null);
+			setActivitySelectedItems((current) => new Set(current).add(item));
+			setActiveItem(item);
 			stopTalking();
-			if (requestedVowelIndex.current >= VOWELS.length - 1) {
-				setRequestedVowel(null);
-				setActiveVowel(null);
+			if (requestedItemIndex.current >= mode.items.length - 1) {
+				setRequestedItem(null);
+				setActiveItem(null);
 				setShowConfetti(true);
 				audios.celebration.onended = () => {
 					audios.celebration.onended = null;
@@ -114,143 +144,132 @@ export default function InicioActividad() {
 				});
 				return;
 			}
-			requestedVowelIndex.current += 1;
+			requestedItemIndex.current += 1;
 			runtime.setTimeout(() => {
-				const nextVowel = VOWELS[requestedVowelIndex.current];
-				setRequestedVowel(nextVowel);
-				playRequestedVowel(nextVowel);
+				const nextItem = mode.items[requestedItemIndex.current];
+				setRequestedItem(nextItem);
+				playRequestedItem(nextItem);
 			}, 180);
 			return;
 		}
-		playVowel(vowel);
+		playItem(item);
 	}
 
-	function completeVowelSelection() {
-		[...Object.values(audios.vowelsLong), ...Object.values(audios.vowelsShort)].forEach((vowelAudio) => {
-			vowelAudio.onended = null;
-			vowelAudio.pause();
-			vowelAudio.currentTime = 0;
+	function completeItemSelection() {
+		allItemAudios().forEach((itemAudio) => {
+			itemAudio.onended = null;
+			itemAudio.pause();
+			itemAudio.currentTime = 0;
 		});
-		setActiveVowel(null);
+		setActiveItem(null);
 		setIsShuffling(false);
 		startTalking();
 		audios.shuffle.currentTime = 0;
-		audios.shuffle.onended = () => {
-			audios.shuffle.onended = null;
-			stopTalking();
-			setSelectedVowels(new Set());
-			setVowelOrder(shuffle(VOWELS));
+		const startRequests = () => {
+			setSelectedItems(new Set());
+			setItemOrder(shuffle(mode.items));
 			setIsShuffling(true);
 			shuffleTimer.current = runtime.setTimeout(() => {
 				setIsShuffling(false);
-				requestedVowelIndex.current = 0;
-				setActivitySelectedVowels(new Set());
-				setRequestedVowel(VOWELS[0]);
-				playRequestedVowel(VOWELS[0]);
+				requestedItemIndex.current = 0;
+				setActivitySelectedItems(new Set());
+				setRequestedItem(mode.items[0]);
+				playRequestedItem(mode.items[0]);
 			}, 1200);
+		};
+		audios.shuffle.onended = () => {
+			audios.shuffle.onended = null;
+			stopTalking();
+			startRequests();
 		};
 		audios.shuffle.play().catch(() => {
 			audios.shuffle.onended = null;
 			stopTalking();
-			setSelectedVowels(new Set());
-			setVowelOrder(shuffle(VOWELS));
-			setIsShuffling(true);
-			shuffleTimer.current = runtime.setTimeout(() => {
-				setIsShuffling(false);
-				requestedVowelIndex.current = 0;
-				setActivitySelectedVowels(new Set());
-				setRequestedVowel(VOWELS[0]);
-				playRequestedVowel(VOWELS[0]);
-			}, 1200);
+			startRequests();
 		});
 	}
 
-	function playVowel(vowel) {
+	function playItem(item) {
 		runtime.clearTimeout(sequenceTimer.current);
-		audios.syllables.onended = null;
-		audios.syllables.pause();
+		audios.intro.forEach((introAudio) => {
+			introAudio.onended = null;
+			introAudio.pause();
+		});
 		audios.pressure.onended = null;
 		audios.pressure.pause();
-		[...Object.values(audios.vowelsLong), ...Object.values(audios.vowelsShort)].forEach((vowelAudio) => {
-			vowelAudio.onended = null;
-			vowelAudio.pause();
-			vowelAudio.currentTime = 0;
+		allItemAudios().forEach((itemAudio) => {
+			itemAudio.onended = null;
+			itemAudio.pause();
+			itemAudio.currentTime = 0;
 		});
-		const vowelAudio = audios.vowelsShort[vowel];
-		setSelectedVowels((current) => {
-			if (current.has(vowel)) {
+		const itemAudio = audios.itemsShort[item];
+		setSelectedItems((current) => {
+			if (current.has(item)) {
 				return current;
 			}
 			const next = new Set(current);
-			next.add(vowel);
+			next.add(item);
 			return next;
 		});
-		setActiveVowel(vowel);
+		setActiveItem(item);
 		startTalking();
-		vowelAudio.onended = () => {
-			vowelAudio.onended = null;
-			setActiveVowel(null);
+		itemAudio.onended = () => {
+			itemAudio.onended = null;
+			setActiveItem(null);
 			stopTalking();
 		};
-		vowelAudio.play().catch(() => {
-			vowelAudio.onended = null;
-			setActiveVowel(null);
+		itemAudio.play().catch(() => {
+			itemAudio.onended = null;
+			setActiveItem(null);
 			stopTalking();
 		});
 	}
 
 	useEffect(() => {
-		if (selectedVowels.size === VOWELS.length && activeVowel === null) {
-			completeVowelSelection();
+		if (selectedItems.size === mode.items.length && activeItem === null) {
+			completeItemSelection();
 		}
-	}, [selectedVowels, activeVowel]);
+	}, [selectedItems, activeItem]);
 
 	useEffect(() => {
-		if (menuOption !== "a") {
+		if (!MODES[menuOption]) {
 			return undefined;
 		}
-		let vowelIndex = 0;
+		// Presentación: primero los audios de la letra y después cada cartel con su audio largo.
+		const steps = [
+			...audios.intro.map((audio) => ({ audio, item: null })),
+			...mode.items.map((item) => ({ audio: audios.itemsLong[item], item }))
+		];
+		let stepIndex = 0;
 
-		function playNextVowel() {
-			if (vowelIndex >= VOWELS.length) {
-				setActiveVowel(null);
-				stopTalking();
+		function playNextStep() {
+			if (stepIndex >= steps.length) {
+				setActiveItem(null);
+				audios.pressure.currentTime = 0;
+				audios.pressure.onended = stopTalking;
+				startTalking();
+				audios.pressure.play().catch(stopTalking);
 				return;
 			}
-			const vowel = VOWELS[vowelIndex];
-			const vowelAudio = audios.vowelsLong[vowel];
-			vowelIndex += 1;
-			setActiveVowel(vowel);
+			const step = steps[stepIndex];
+			stepIndex += 1;
+			setActiveItem(step.item);
 			startTalking();
-			vowelAudio.currentTime = 0;
-			vowelAudio.onended = () => {
-				vowelAudio.onended = null;
+			step.audio.currentTime = 0;
+			step.audio.onended = () => {
+				step.audio.onended = null;
 				stopTalking();
-				setActiveVowel(null);
-				sequenceTimer.current = runtime.setTimeout(() => {
-					if (vowel === "U") {
-						audios.pressure.currentTime = 0;
-						audios.pressure.onended = stopTalking;
-						startTalking();
-						audios.pressure.play().catch(stopTalking);
-						return;
-					}
-					playNextVowel();
-				}, 180);
+				setActiveItem(null);
+				sequenceTimer.current = runtime.setTimeout(playNextStep, 180);
 			};
-			vowelAudio.play().catch(() => {
-				vowelAudio.onended = null;
+			step.audio.play().catch(() => {
+				step.audio.onended = null;
 				stopTalking();
-				setActiveVowel(null);
+				setActiveItem(null);
 			});
 		}
 
-		audios.syllables.onended = playNextVowel;
-		audios.syllables.currentTime = 0;
-		startTalking();
-		audios.syllables.play().catch(() => {
-			stopTalking();
-		});
+		playNextStep();
 		return () => {
 			runtime.clearTimeout(sequenceTimer.current);
 			runtime.clearTimeout(shuffleTimer.current);
@@ -261,23 +280,24 @@ export default function InicioActividad() {
 			audios.celebration.onended = null;
 			audios.celebration.pause();
 			audios.celebration.currentTime = 0;
-				setShowConfetti(false);
 			audios.shuffle.onended = null;
 			audios.shuffle.pause();
 			audios.shuffle.currentTime = 0;
-			stopShortVowelAudios();
-			audios.syllables.onended = null;
-			audios.syllables.pause();
-			audios.syllables.currentTime = 0;
+			stopShortAudios();
+			audios.intro.forEach((introAudio) => {
+				introAudio.onended = null;
+				introAudio.pause();
+				introAudio.currentTime = 0;
+			});
 			audios.pressure.onended = null;
 			audios.pressure.pause();
 			audios.pressure.currentTime = 0;
-			[...Object.values(audios.vowelsLong), ...Object.values(audios.vowelsShort)].forEach((vowelAudio) => {
-				vowelAudio.onended = null;
-				vowelAudio.pause();
-				vowelAudio.currentTime = 0;
+			allItemAudios().forEach((itemAudio) => {
+				itemAudio.onended = null;
+				itemAudio.pause();
+				itemAudio.currentTime = 0;
 			});
-			setActiveVowel(null);
+			setActiveItem(null);
 			stopTalking();
 		};
 	}, [audios, menuOption]);
@@ -287,17 +307,19 @@ export default function InicioActividad() {
 			<BackButton />
 			<FullscreenButton toggle />
 			<main className="inicio-activity-stage">
-				<img className="inicio-activity-background" src="/assets/imagenes/rectangulo.svg" alt="" draggable={false} />
-				<div className="inicio-vowels" aria-label="Vocales">
-					{vowelOrder.map((vowel) => (
+				<div className="inicio-activity-panel" aria-hidden="true">
+					<span className="inicio-activity-panel-dots" />
+				</div>
+				<div className={mode.items[0].length > 1 ? "inicio-vowels inicio-syllables" : "inicio-vowels"} aria-label={mode.listName}>
+					{itemOrder.map((item) => (
 						<button
-							key={vowel}
-							className={`inicio-vowel-button inicio-vowel-${vowel.toLowerCase()}${selectedVowels.has(vowel) || activitySelectedVowels.has(vowel) ? " selected" : ""}${activeVowel === vowel ? " active" : ""}${incorrectVowel === vowel ? " incorrect" : ""}${isShuffling ? " shuffling" : ""}`}
+							key={item}
+							className={`inicio-vowel-button inicio-vowel-${item.toLowerCase()}${selectedItems.has(item) || activitySelectedItems.has(item) ? " selected" : ""}${activeItem === item ? " active" : ""}${incorrectItem === item ? " incorrect" : ""}${isShuffling ? " shuffling" : ""}`}
 							type="button"
-							aria-label={`Reproducir vocal ${vowel}`}
-							onClick={() => handleVowelPress(vowel)}
+							aria-label={`Reproducir ${mode.itemName(item)}`}
+							onClick={() => handleItemPress(item)}
 						>
-							{vowel}
+							{item}
 						</button>
 					))}
 				</div>

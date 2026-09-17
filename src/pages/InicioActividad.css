@@ -54,14 +54,32 @@
 		overflow: visible;
 	}
 
-	.inicio-activity-background {
+	/* Panel de la actividad: tarjeta clara con marco blanco y borde turquesa,
+	   para que los carteles y el personaje resalten sobre el fondo del mundo. */
+	.inicio-activity-panel {
 		position: absolute;
 		top: 0;
 		left: 0;
-		display: block;
 		width: 100%;
 		height: 100%;
-		object-fit: fill;
+		border-radius: clamp(1.2rem, 3vmin, 2.6rem);
+		background: linear-gradient(165deg, #fffdfa 0%, #fdf1fb 45%, #eaf7fb 100%);
+		box-shadow: 0 clamp(6px, 1.2vmin, 16px) clamp(16px, 3vmin, 34px) rgba(88, 48, 110, 0.28),
+			inset 0 0 0 clamp(4px, 0.8vmin, 9px) #fff,
+			inset 0 0 0 clamp(8px, 1.5vmin, 16px) #89cdce,
+			inset 0 clamp(-30px, -4vmin, -14px) clamp(20px, 4vmin, 44px) rgba(140, 75, 151, 0.12);
+		overflow: hidden;
+	}
+
+	/* Lunares pastel apenas visibles: dan textura sin competir con las letras. */
+	.inicio-activity-panel-dots {
+		position: absolute;
+		inset: clamp(8px, 1.5vmin, 16px);
+		border-radius: clamp(0.8rem, 2vmin, 1.8rem);
+		background-image: radial-gradient(#e7c9f2 22%, transparent 23%), radial-gradient(#bfe6ea 22%, transparent 23%);
+		background-position: 0 0, clamp(15px, 2vw, 30px) clamp(15px, 2vw, 30px);
+		background-size: clamp(30px, 4vw, 60px) clamp(30px, 4vw, 60px);
+		opacity: 0.3;
 	}
 
 	.inicio-vowels {
@@ -84,10 +102,10 @@
 		flex: 1 1 0;
 		aspect-ratio: 1;
 		padding: 0;
-		border: clamp(3px, 0.45vmin, 5px) solid #202633;
+		border: clamp(3px, 0.45vmin, 5px) solid #5d3a6b;
 		border-radius: clamp(1rem, 2.5vmin, 1.8rem);
 		background: #fff;
-		box-shadow: 0 clamp(5px, 1vmin, 10px) 0 #202633;
+		box-shadow: 0 clamp(5px, 1vmin, 10px) 0 #5d3a6b;
 		font-family: "Comic Sans MS", "Trebuchet MS", sans-serif;
 		font-size: clamp(3rem, 11vmin, 12rem);
 		font-weight: 900;
@@ -179,6 +197,32 @@
 		color: #9b6bd6;
 	}
 
+	/* Las sílabas ocupan dos letras: mismo cartel con la tipografía más chica. */
+	.inicio-syllables .inicio-vowel-button {
+		border-radius: clamp(0.8rem, 2vmin, 1.5rem);
+		font-size: clamp(1.4rem, 5.2vmin, 5.5rem);
+	}
+
+	.inicio-vowel-la {
+		color: #d84d9b;
+	}
+
+	.inicio-vowel-le {
+		color: #f08a36;
+	}
+
+	.inicio-vowel-li {
+		color: #55b96c;
+	}
+
+	.inicio-vowel-lo {
+		color: #4d9ed8;
+	}
+
+	.inicio-vowel-lu {
+		color: #9b6bd6;
+	}
+
 	.inicio-vowel-button.selected {
 		background: #8c4b97;
 		color: #fff;
@@ -187,10 +231,10 @@
 
 	.inicio-activity-character {
 		position: absolute;
-		top: 50%;
+		top: 47%;
 		left: 50%;
 		z-index: 1;
-		width: 27%;
+		width: 32%;
 		transform: translate(-50%, -50%);
 		pointer-events: none;
 	}
@@ -199,7 +243,7 @@
 		display: block;
 		width: 100%;
 		height: auto;
-		filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.45));
+		filter: drop-shadow(0 6px 10px rgba(88, 48, 110, 0.3));
 	}
 
 	.inicio-activity-character .inicio-activity-mouth {
