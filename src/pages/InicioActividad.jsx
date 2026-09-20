@@ -103,7 +103,21 @@ export default function InicioActividad() {
 	const errorTimer = useRef(0);
 	const revealTimer = useRef(0);
 	const requestedItemIndex = useRef(0);
-	const bigLetterImage = menuOption === "l" ? img("letraL.png") : img("letraA.png");
+	const LETTER_IMAGES = {
+		a: "letraA.png",
+		l: "letraL.png",
+		m: "letraM.png",
+		s: "letraS.png",
+		t: "letraT.png"
+	};
+	const LETTER_LABELS = {
+		a: "Letra A",
+		l: "Letra L",
+		m: "Letra M",
+		s: "Letra S",
+		t: "Letra T"
+	};
+	const bigLetterImage = img(LETTER_IMAGES[menuOption] || "letraA.png");
 
 	function allItemAudios() {
 		return [...Object.values(audios.itemsLong), ...Object.values(audios.itemsShort)];
@@ -301,9 +315,7 @@ export default function InicioActividad() {
 			}
 			const step = steps[stepIndex];
 			stepIndex += 1;
-			const isLetterIntroStep =
-				(menuOption === "l" && step.audio === audios.intro[0]) ||
-				(menuOption === "a" && step.audio === audios.intro[0]);
+			const isLetterIntroStep = step.audio === audios.intro[0];
 			if (isLetterIntroStep) {
 				const introAudio = step.audio;
 				introAudio.ontimeupdate = () => {
@@ -417,7 +429,7 @@ export default function InicioActividad() {
 					className={`inicio-activity-letter-image-wrap${showBigLetter ? " is-visible" : ""}`}
 					aria-hidden="true"
 				>
-					<img className="inicio-activity-letter-image" src={bigLetterImage} alt={menuOption === "l" ? "Letra L" : "Letra A"} />
+					<img className="inicio-activity-letter-image" src={bigLetterImage} alt={LETTER_LABELS[menuOption] || "Letra A"} />
 				</div>
 			{character && (
 				<div className="inicio-activity-character" aria-label="Personaje seleccionado">
