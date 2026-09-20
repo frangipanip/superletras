@@ -30,26 +30,82 @@ const ACTIVITY_CONFIG = {
 		}
 	},
 	l: {
-		sequences: ["lola", "lula", "ola", "ala", "lio", "lee", "lila"],
+		sequences: ["LA", "LE", "LI", "LO", "LU"],
 		sequenceTokens: {
-			lola: ["LO", "LA"],
-			lula: ["LU", "LA"],
-			ola: ["O", "LA"],
-			ala: ["A", "LA"],
-			lio: ["LI", "O"],
-			lee: ["LE", "E"],
-			lila: ["LI", "LA"]
+			LA: ["L", "A"],
+			LE: ["L", "E"],
+			LI: ["L", "I"],
+			LO: ["L", "O"],
+			LU: ["L", "U"]
 		},
-		extraOptions: ["A", "E", "I", "O", "U", "LA", "LE", "LI", "LO", "LU"],
+		extraOptions: ["A", "E", "I", "O", "U", "L"],
 		speechAudios: {
 			vagones: "Vagones.m4a",
-			lola: "lola.m4a",
-			lula: "lula.m4a",
-			ola: "ola.m4a",
-			ala: "ala.m4a",
-			lio: "lio.m4a",
-			lee: "lee.m4a",
-			lila: "lila.m4a",
+			LA: "la.wav",
+			LE: "le.wav",
+			LI: "li.wav",
+			LO: "lo.wav",
+			LU: "lu.wav",
+			fabuloso: "Fabuloso.m4a"
+		}
+	},
+	m: {
+		sequences: ["MA", "ME", "MI", "MO", "MU"],
+		sequenceTokens: {
+			MA: ["M", "A"],
+			ME: ["M", "E"],
+			MI: ["M", "I"],
+			MO: ["M", "O"],
+			MU: ["M", "U"]
+		},
+		extraOptions: ["A", "E", "I", "O", "U", "M"],
+		speechAudios: {
+			vagones: "Vagones.m4a",
+			MA: "ma.wav",
+			ME: "me.wav",
+			MI: "mi.wav",
+			MO: "mo.wav",
+			MU: "mu.wav",
+			fabuloso: "Fabuloso.m4a"
+		}
+	},
+	s: {
+		sequences: ["SA", "SE", "SI", "SO", "SU"],
+		sequenceTokens: {
+			SA: ["S", "A"],
+			SE: ["S", "E"],
+			SI: ["S", "I"],
+			SO: ["S", "O"],
+			SU: ["S", "U"]
+		},
+		extraOptions: ["A", "E", "I", "O", "U", "S"],
+		speechAudios: {
+			vagones: "Vagones.m4a",
+			SA: "SA.m4a",
+			SE: "SE.m4a",
+			SI: "SI.m4a",
+			SO: "SO.m4a",
+			SU: "SU.m4a",
+			fabuloso: "Fabuloso.m4a"
+		}
+	},
+	t: {
+		sequences: ["TA", "TE", "TI", "TO", "TU"],
+		sequenceTokens: {
+			TA: ["T", "A"],
+			TE: ["T", "E"],
+			TI: ["T", "I"],
+			TO: ["T", "O"],
+			TU: ["T", "U"]
+		},
+		extraOptions: ["A", "E", "I", "O", "U", "T"],
+		speechAudios: {
+			vagones: "Vagones.m4a",
+			TA: "TA.m4a",
+			TE: "TE2.m4a",
+			TI: "TI.m4a",
+			TO: "TO.m4a",
+			TU: "TU.m4a",
 			fabuloso: "Fabuloso.m4a"
 		}
 	}
@@ -65,7 +121,7 @@ export default function Tren() {
 	const [character] = useSelectedCharacter();
 	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime);
 	const activityMenuOption = useActivityMenuOption();
-	const [menuOption] = useState(() => (activityMenuOption === "l" ? "l" : "a"));
+	const [menuOption] = useState(() => (ACTIVITY_CONFIG[activityMenuOption] ? activityMenuOption : "a"));
 	const config = ACTIVITY_CONFIG[menuOption];
 	const [speechAudios] = useState(() =>
 		Object.fromEntries(Object.entries(config.speechAudios).map(([key, file]) => [key, runtime.audio(sound(file), { preload: true })]))
@@ -83,7 +139,7 @@ export default function Tren() {
 
 	// Estado que leen los callbacks de audio/timers/puntero (siempre el valor actual).
 	const game = useRef({
-		sequenceOrder: [...config.sequences],
+		sequenceOrder: shuffle([...config.sequences]),
 		roundIndex: 0,
 		completedSlots: 0,
 		currentSequence: "",
