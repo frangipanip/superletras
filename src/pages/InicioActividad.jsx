@@ -98,6 +98,7 @@ export default function InicioActividad() {
 	const [showBigLetter, setShowBigLetter] = useState(false);
 	const [visibleItems, setVisibleItems] = useState(() => new Set());
 	const [revealingItem, setRevealingItem] = useState(null);
+	const [isPhaseTwo, setIsPhaseTwo] = useState(false);
 	const sequenceTimer = useRef(0);
 	const shuffleTimer = useRef(0);
 	const errorTimer = useRef(0);
@@ -230,6 +231,7 @@ export default function InicioActividad() {
 			setSelectedItems(new Set());
 			setItemOrder(shuffle(mode.items));
 			setIsShuffling(true);
+			setIsPhaseTwo(true);
 			shuffleTimer.current = runtime.setTimeout(() => {
 				setIsShuffling(false);
 				requestedItemIndex.current = 0;
@@ -392,7 +394,7 @@ export default function InicioActividad() {
 						return (
 							<div
 								key={item}
-								className={`inicio-vowel-button inicio-vowel-${item.toLowerCase()}${selectedItems.has(item) || activitySelectedItems.has(item) ? " selected" : ""}${activeItem === item ? " active" : ""}${incorrectItem === item ? " incorrect" : ""}${isShuffling ? " shuffling" : ""}${isHidden ? " hidden-balloon" : ""}${isRevealing ? " reveal-balloon" : ""}`}
+								className={`inicio-vowel-button inicio-vowel-${item.toLowerCase()}${selectedItems.has(item) || activitySelectedItems.has(item) ? " selected" : ""}${activeItem === item ? " active" : ""}${incorrectItem === item ? " incorrect" : ""}${isShuffling ? " shuffling" : ""}${isHidden ? " hidden-balloon" : ""}${isRevealing ? " reveal-balloon" : ""}${isPhaseTwo && !isShuffling && !activitySelectedItems.has(item) ? " flying" : ""}`}
 								role="button"
 								tabIndex={0}
 								aria-label={`Reproducir ${mode.itemName(item)}`}

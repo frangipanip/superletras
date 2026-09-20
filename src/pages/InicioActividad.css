@@ -214,6 +214,8 @@
 	background-color: transparent;
 	color: #fff;
 	text-shadow: 0 0.14em 0 rgba(78, 39, 81, 0.18), 0 0 0.6em rgba(255, 255, 255, 0.6);
+	user-select: none;
+	-webkit-user-select: none;
 }
 
 @media (max-width: 768px) {
@@ -341,4 +343,60 @@
 	border-radius: 2px;
 	background: var(--confetti-color);
 	animation: inicio-confetti-fall 1700ms ease-in var(--confetti-delay) forwards;
+}
+
+@keyframes balloon-fly-1 {
+	0%, 100% { translate: 0 0; }
+	20% { translate: 25vw 20vh; }
+	40% { translate: 45vw -10vh; }
+	60% { translate: 10vw 30vh; }
+	80% { translate: -5vw 10vh; }
+}
+
+@keyframes balloon-fly-2 {
+	0%, 100% { translate: 0 0; }
+	20% { translate: -20vw 25vh; }
+	40% { translate: 20vw -15vh; }
+	60% { translate: -15vw 15vh; }
+	80% { translate: 10vw 20vh; }
+}
+
+@keyframes balloon-fly-3 {
+	0%, 100% { translate: 0 0; }
+	20% { translate: -30vw 10vh; }
+	40% { translate: -10vw 25vh; }
+	60% { translate: -45vw -10vh; }
+	80% { translate: -20vw 15vh; }
+}
+
+@keyframes balloon-fly-4 {
+	0%, 100% { translate: 0 0; }
+	20% { translate: 20vw -25vh; }
+	40% { translate: -10vw -15vh; }
+	60% { translate: 30vw -30vh; }
+	80% { translate: -25vw -10vh; }
+}
+
+@keyframes balloon-fly-5 {
+	0%, 100% { translate: 0 0; }
+	20% { translate: -25vw -20vh; }
+	40% { translate: -40vw 5vh; }
+	60% { translate: 10vw -25vh; }
+	80% { translate: -15vw -5vh; }
+}
+
+.inicio-vowel-button.flying:nth-child(1) {
+	animation: balloon-fly-1 6s ease-in-out infinite;
+}
+.inicio-vowel-button.flying:nth-child(2) {
+	animation: balloon-fly-2 8s ease-in-out infinite;
+}
+.inicio-vowel-button.flying:nth-child(3) {
+	animation: balloon-fly-3 7s ease-in-out infinite;
+}
+.inicio-vowel-button.flying:nth-child(4) {
+	animation: balloon-fly-4 9s ease-in-out infinite;
+}
+.inicio-vowel-button.flying:nth-child(5) {
+	animation: balloon-fly-5 7.5s ease-in-out infinite;
 }
