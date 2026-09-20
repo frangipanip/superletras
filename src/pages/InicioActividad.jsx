@@ -81,6 +81,7 @@ export default function InicioActividad() {
 		intro: mode.intro.map((file) => runtime.audio(sound(file), { preload: true })),
 		pressure: runtime.audio(sound("Presion.m4a"), { preload: true }),
 		shuffle: runtime.audio(sound("Mezclarvocales.m4a"), { preload: true }),
+		movement: runtime.audio(sound("yahoraconmovimiento.mp4"), { preload: true }),
 		itemPrompt: runtime.audio(sound(mode.prompt), { preload: true }),
 		celebration: runtime.audio(sound("Felicitaciones.m4a"), { preload: true }),
 		error: runtime.audio(sound("error.mp3"), { preload: true }),
@@ -164,6 +165,9 @@ export default function InicioActividad() {
 	}
 
 	function handleItemPress(item) {
+		if (isShuffling) {
+			return;
+		}
 		if (visibleItems.size < mode.items.length) {
 			return;
 		}
@@ -233,7 +237,7 @@ export default function InicioActividad() {
 	function startPhaseThree() {
 		setIsPhaseThree(true);
 		startTalking();
-		audios.shuffle.currentTime = 0;
+		audios.movement.currentTime = 0;
 		const startRequests = () => {
 			setSelectedItems(new Set());
 			setItemOrder(shuffle(mode.items));
@@ -246,13 +250,13 @@ export default function InicioActividad() {
 				playRequestedItem(mode.items[0]);
 			}, 1200);
 		};
-		audios.shuffle.onended = () => {
-			audios.shuffle.onended = null;
+		audios.movement.onended = () => {
+			audios.movement.onended = null;
 			stopTalking();
 			startRequests();
 		};
-		audios.shuffle.play().catch(() => {
-			audios.shuffle.onended = null;
+		audios.movement.play().catch(() => {
+			audios.movement.onended = null;
 			stopTalking();
 			startRequests();
 		});
@@ -405,6 +409,9 @@ export default function InicioActividad() {
 			audios.shuffle.onended = null;
 			audios.shuffle.pause();
 			audios.shuffle.currentTime = 0;
+			audios.movement.onended = null;
+			audios.movement.pause();
+			audios.movement.currentTime = 0;
 			stopShortAudios();
 			audios.intro.forEach((introAudio) => {
 				introAudio.onended = null;
