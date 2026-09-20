@@ -51,7 +51,7 @@ const MODES = {
 	},
 	s: {
 		items: S_SYLLABLES,
-		intro: ["EstaEsLaLetra.m4a", "SE.m4a", "ConLasVocales.m4a"],
+		intro: ["EstaEsLaLetra.m4a", "Ese.m4a", "ConLasVocales.m4a"],
 		prompt: "Pulsa silaba.m4a",
 		longAudio: (item) => `${item}.m4a`,
 		shortAudio: (item) => `${item}.m4a`,
