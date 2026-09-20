@@ -125,19 +125,31 @@
 
 .inicio-activity-letter-image {
 	display: block;
-	width: clamp(10rem, 24vmin, 20rem);
+	width: clamp(11rem, 20vw, 28rem);
 	height: auto;
 	filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0.9));
+}
+
+@media (max-width: 768px) {
+	.inicio-activity-letter-image {
+		width: clamp(8rem, 30vw, 14rem);
+	}
 }
 
 /* Personaje grande, abajo a la izquierda */
 .inicio-activity-character {
 	position: absolute;
-	top: 58%;
-	left: 16%;
+	top: 45%;
+	left: 5%;
 	z-index: 1;
-	width: min(28vw, 18rem);
+	width: clamp(8rem, 22vw, 18rem);
 	pointer-events: none;
+}
+
+@media (max-width: 768px) {
+	.inicio-activity-character {
+		width: clamp(6rem, 30vw, 12rem);
+	}
 }
 
 .inicio-activity-character img {
@@ -179,9 +191,9 @@
 
 .inicio-vowel-button {
 	position: absolute;
-	width: clamp(10rem, 17vmin, 18rem);
-	height: clamp(12rem, 21vmin, 22rem);
-	font-size: clamp(2.2rem, 6.5vmin, 5rem);
+	width: clamp(6.5rem, 12vw, 15rem);
+	height: clamp(8.5rem, 15vw, 19rem);
+	font-size: clamp(2rem, 4vw, 4.5rem);
 	transition: opacity 350ms ease, transform 350ms ease, filter 180ms ease;
 	animation: balloon-float 3.5s ease-in-out infinite;
 	box-sizing: border-box;
@@ -202,6 +214,14 @@
 	background-color: transparent;
 	color: #fff;
 	text-shadow: 0 0.14em 0 rgba(78, 39, 81, 0.18), 0 0 0.6em rgba(255, 255, 255, 0.6);
+}
+
+@media (max-width: 768px) {
+	.inicio-vowel-button {
+		width: clamp(5rem, 20vw, 9rem);
+		height: clamp(6.5rem, 24vw, 11.5rem);
+		font-size: clamp(1.6rem, 5.8vw, 3.2rem);
+	}
 }
 
 .inicio-vowel-button::before {
@@ -236,36 +256,36 @@
    1: arriba-izq, 2: centro, 3: arriba-der, 4: abajo-izq, 5: abajo-der */
 
 .inicio-vowel-button:nth-child(1) {
-	top: 22%;
-	left: 35%;
+	top: 32%;
+	left: 25%;
 	animation-delay: 0s;
 	filter: none;
 }
 
 .inicio-vowel-button:nth-child(2) {
-	top: 22%;
-	left: 56%;
+	top: 32%;
+	left: 45%;
 	animation-delay: 0.6s;
 	filter: hue-rotate(-50deg) saturate(1.6) brightness(1.1);
 }
 
 .inicio-vowel-button:nth-child(3) {
-	top: 22%;
-	left: 75%;
+	top: 32%;
+	left: 65%;
 	animation-delay: 1.2s;
 	filter: hue-rotate(85deg) saturate(1.2) brightness(1.05);
 }
 
 .inicio-vowel-button:nth-child(4) {
-	top: 42%;
-	left: 46%;
+	top: 60%;
+	left: 36%;
 	animation-delay: 0.3s;
 	filter: hue-rotate(155deg) saturate(1.3) brightness(1.05);
 }
 
 .inicio-vowel-button:nth-child(5) {
-	top: 42%;
-	left: 67%;
+	top: 60%;
+	left: 56%;
 	animation-delay: 0.9s;
 	filter: hue-rotate(225deg) saturate(1.2);
 }
