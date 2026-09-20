@@ -99,6 +99,7 @@ export default function InicioActividad() {
 	const [visibleItems, setVisibleItems] = useState(() => new Set());
 	const [revealingItem, setRevealingItem] = useState(null);
 	const [isPhaseTwo, setIsPhaseTwo] = useState(false);
+	const [isPhaseThree, setIsPhaseThree] = useState(false);
 	const sequenceTimer = useRef(0);
 	const shuffleTimer = useRef(0);
 	const errorTimer = useRef(0);
@@ -191,12 +192,18 @@ export default function InicioActividad() {
 					audios.celebration.onended = null;
 					stopTalking();
 					setShowConfetti(false);
+					if (!isPhaseThree) {
+						startPhaseThree();
+					}
 				};
 				startTalking();
 				audios.celebration.currentTime = 0;
 				audios.celebration.play().catch(() => {
 					stopTalking();
 					setShowConfetti(false);
+					if (!isPhaseThree) {
+						startPhaseThree();
+					}
 				});
 				return;
 			}
@@ -221,6 +228,34 @@ export default function InicioActividad() {
 		setRevealingItem(item);
 		runtime.clearTimeout(revealTimer.current);
 		revealTimer.current = runtime.setTimeout(() => setRevealingItem(null), 550);
+	}
+
+	function startPhaseThree() {
+		setIsPhaseThree(true);
+		startTalking();
+		audios.shuffle.currentTime = 0;
+		const startRequests = () => {
+			setSelectedItems(new Set());
+			setItemOrder(shuffle(mode.items));
+			setIsShuffling(true);
+			shuffleTimer.current = runtime.setTimeout(() => {
+				setIsShuffling(false);
+				requestedItemIndex.current = 0;
+				setActivitySelectedItems(new Set());
+				setRequestedItem(mode.items[0]);
+				playRequestedItem(mode.items[0]);
+			}, 1200);
+		};
+		audios.shuffle.onended = () => {
+			audios.shuffle.onended = null;
+			stopTalking();
+			startRequests();
+		};
+		audios.shuffle.play().catch(() => {
+			audios.shuffle.onended = null;
+			stopTalking();
+			startRequests();
+		});
 	}
 
 	function completeItemSelection() {
@@ -401,7 +436,7 @@ export default function InicioActividad() {
 						return (
 							<div
 								key={item}
-								className={`inicio-vowel-button inicio-vowel-${item.toLowerCase()}${isExploded ? " selected" : ""}${activeItem === item ? " active" : ""}${incorrectItem === item ? " incorrect" : ""}${isShuffling ? " shuffling" : ""}${isHidden ? " hidden-balloon" : ""}${isRevealing ? " reveal-balloon" : ""}${isPhaseTwo && !isShuffling && !activitySelectedItems.has(item) ? " flying" : ""}`}
+								className={`inicio-vowel-button inicio-vowel-${item.toLowerCase()}${isExploded ? " selected" : ""}${activeItem === item ? " active" : ""}${incorrectItem === item ? " incorrect" : ""}${isShuffling ? " shuffling" : ""}${isHidden ? " hidden-balloon" : ""}${isRevealing ? " reveal-balloon" : ""}${isPhaseThree && !isShuffling && !activitySelectedItems.has(item) ? " flying" : ""}`}
 								role="button"
 								tabIndex={isExploded ? -1 : 0}
 								aria-disabled={isExploded}
