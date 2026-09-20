@@ -6,7 +6,7 @@ import { usePageTitle } from "../hooks/usePageTitle";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
-import { CHARACTERS, sound } from "../lib/assets";
+import { CHARACTERS, img, sound } from "../lib/assets";
 import { shuffle } from "../lib/shuffle";
 import "./actividad.css";
 import "./InicioActividad.css";
@@ -65,10 +65,12 @@ export default function InicioActividad() {
 	const [requestedItem, setRequestedItem] = useState(null);
 	const [incorrectItem, setIncorrectItem] = useState(null);
 	const [showConfetti, setShowConfetti] = useState(false);
+	const [showBigLetter, setShowBigLetter] = useState(false);
 	const sequenceTimer = useRef(0);
 	const shuffleTimer = useRef(0);
 	const errorTimer = useRef(0);
 	const requestedItemIndex = useRef(0);
+	const bigLetterImage = menuOption === "l" ? img("letraL.png") : img("letraA.png");
 
 	function allItemAudios() {
 		return [...Object.values(audios.itemsLong), ...Object.values(audios.itemsShort)];
@@ -244,6 +246,7 @@ export default function InicioActividad() {
 
 		function playNextStep() {
 			if (stepIndex >= steps.length) {
+				setShowBigLetter(true);
 				setActiveItem(null);
 				audios.pressure.currentTime = 0;
 				audios.pressure.onended = stopTalking;
@@ -253,6 +256,18 @@ export default function InicioActividad() {
 			}
 			const step = steps[stepIndex];
 			stepIndex += 1;
+			const isLetterIntroStep =
+				(menuOption === "l" && step.audio === audios.intro[0]) ||
+				(menuOption === "a" && step.audio === audios.intro[0]);
+			if (isLetterIntroStep) {
+				const introAudio = step.audio;
+				introAudio.ontimeupdate = () => {
+					if (introAudio.duration > 0 && introAudio.currentTime >= introAudio.duration * 0.05) {
+						setShowBigLetter(true);
+						introAudio.ontimeupdate = null;
+					}
+				};
+			}
 			setActiveItem(step.item);
 			startTalking();
 			step.audio.currentTime = 0;
@@ -269,6 +284,7 @@ export default function InicioActividad() {
 			});
 		}
 
+		setShowBigLetter(false);
 		playNextStep();
 		return () => {
 			runtime.clearTimeout(sequenceTimer.current);
@@ -306,11 +322,7 @@ export default function InicioActividad() {
 		<div className="page activity-page page-inicio-actividad">
 			<BackButton />
 			<FullscreenButton toggle />
-			<main className="inicio-activity-stage">
-				<div className="inicio-activity-panel" aria-hidden="true">
-					<span className="inicio-activity-panel-dots" />
-				</div>
-				<div className={mode.items[0].length > 1 ? "inicio-vowels inicio-syllables" : "inicio-vowels"} aria-label={mode.listName}>
+			<div className={mode.items[0].length > 1 ? "inicio-vowels inicio-syllables" : "inicio-vowels"} aria-label={mode.listName}>
 					{itemOrder.map((item) => (
 						<button
 							key={item}
@@ -339,18 +351,23 @@ export default function InicioActividad() {
 						))}
 					</div>
 				)}
-				{character && (
-					<div className="inicio-activity-character" aria-label="Personaje seleccionado">
-						<img src={CHARACTERS[character].image} alt={CHARACTERS[character].alt} />
-						<img
-							className={mouth.shifted ? "inicio-activity-mouth shifted-mouth" : "inicio-activity-mouth"}
-							src={mouth.src}
-							alt=""
-							hidden={!mouth.visible}
-						/>
-					</div>
-				)}
-			</main>
+				<div
+					className={`inicio-activity-letter-image-wrap${showBigLetter ? " is-visible" : ""}`}
+					aria-hidden="true"
+				>
+					<img className="inicio-activity-letter-image" src={bigLetterImage} alt={menuOption === "l" ? "Letra L" : "Letra A"} />
+				</div>
+			{character && (
+				<div className="inicio-activity-character" aria-label="Personaje seleccionado">
+					<img src={CHARACTERS[character].image} alt={CHARACTERS[character].alt} />
+					<img
+						className={mouth.shifted ? "inicio-activity-mouth shifted-mouth" : "inicio-activity-mouth"}
+						src={mouth.src}
+						alt=""
+						hidden={!mouth.visible}
+					/>
+				</div>
+			)}
 		</div>
 	);
 }

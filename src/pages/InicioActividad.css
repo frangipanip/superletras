@@ -43,74 +43,38 @@
 
 .page-inicio-actividad {
 	position: relative;
-
-	.inicio-activity-stage {
-		position: absolute;
-		top: 50%;
-		left: 50%;
-		width: 65vw;
-		height: 75vh;
-		transform: translate(-50%, -50%);
-		overflow: visible;
-	}
-
-	/* Panel de la actividad: tarjeta clara con marco blanco y borde turquesa,
-	   para que los carteles y el personaje resalten sobre el fondo del mundo. */
-	.inicio-activity-panel {
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		border-radius: clamp(1.2rem, 3vmin, 2.6rem);
-		background: linear-gradient(165deg, #fffdfa 0%, #fdf1fb 45%, #eaf7fb 100%);
-		box-shadow: 0 clamp(6px, 1.2vmin, 16px) clamp(16px, 3vmin, 34px) rgba(88, 48, 110, 0.28),
-			inset 0 0 0 clamp(4px, 0.8vmin, 9px) #fff,
-			inset 0 0 0 clamp(8px, 1.5vmin, 16px) #89cdce,
-			inset 0 clamp(-30px, -4vmin, -14px) clamp(20px, 4vmin, 44px) rgba(140, 75, 151, 0.12);
-		overflow: hidden;
-	}
-
-	/* Lunares pastel apenas visibles: dan textura sin competir con las letras. */
-	.inicio-activity-panel-dots {
-		position: absolute;
-		inset: clamp(8px, 1.5vmin, 16px);
-		border-radius: clamp(0.8rem, 2vmin, 1.8rem);
-		background-image: radial-gradient(#e7c9f2 22%, transparent 23%), radial-gradient(#bfe6ea 22%, transparent 23%);
-		background-position: 0 0, clamp(15px, 2vw, 30px) clamp(15px, 2vw, 30px);
-		background-size: clamp(30px, 4vw, 60px) clamp(30px, 4vw, 60px);
-		opacity: 0.3;
-	}
+	width: 100%;
+	height: 100%;
+	overflow: visible;
 
 	.inicio-vowels {
 		position: absolute;
-		top: 70%;
-		left: 50%;
+		top: 50%;
+		left: 52%;
 		z-index: 2;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		gap: clamp(0.25rem, 1.5vw, 1.5rem);
-		width: 70%;
-		transform: translate(-50%, -50%);
+		gap: clamp(0.35rem, 1.7vw, 1.8rem);
+		width: 52%;
+		transform: translateY(-50%);
 	}
 
 	.inicio-vowel-button {
 		box-sizing: border-box;
 		min-width: 0;
 		width: auto;
-		flex: 1 1 0;
-		aspect-ratio: 1;
+		flex: 0 0 auto;
 		padding: 0;
-		border: clamp(3px, 0.45vmin, 5px) solid #5d3a6b;
-		border-radius: clamp(1rem, 2.5vmin, 1.8rem);
-		background: #fff;
-		box-shadow: 0 clamp(5px, 1vmin, 10px) 0 #5d3a6b;
+		border: none;
+		border-radius: 0;
+		background: transparent;
+		box-shadow: none;
 		font-family: "Comic Sans MS", "Trebuchet MS", sans-serif;
 		font-size: clamp(3rem, 11vmin, 12rem);
 		font-weight: 900;
 		line-height: 1;
-		text-shadow: 3px 4px 0 rgba(91, 55, 104, 0.18), 0 0 10px rgba(255, 255, 255, 0.9);
+		text-shadow: 3px 4px 0 rgba(91, 55, 104, 0.12), 0 0 10px rgba(255, 255, 255, 0.7);
 		cursor: pointer;
 		transform: scale(1);
 		transition: transform 180ms ease, filter 180ms ease;
@@ -197,10 +161,24 @@
 		color: #9b6bd6;
 	}
 
-	/* Las sílabas ocupan dos letras: mismo cartel con la tipografía más chica. */
+	/* Las sílabas usan la imagen de globo como contenedor. */
 	.inicio-syllables .inicio-vowel-button {
-		border-radius: clamp(0.8rem, 2vmin, 1.5rem);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: clamp(7rem, 11vmin, 11rem);
+		height: clamp(8.5rem, 14vmin, 13.5rem);
+		padding: 0;
+		border: none;
+		border-radius: 0;
+		background-image: url("/assets/imagenes/globo.png");
+		background-repeat: no-repeat;
+		background-position: center;
+		background-size: contain;
 		font-size: clamp(1.4rem, 5.2vmin, 5.5rem);
+		line-height: 1;
+		color: #fff;
+		text-shadow: 0 0.14em 0 rgba(78, 39, 81, 0.18), 0 0 0.6em rgba(255, 255, 255, 0.6);
 	}
 
 	.inicio-vowel-la {
@@ -224,17 +202,41 @@
 	}
 
 	.inicio-vowel-button.selected {
-		background: #8c4b97;
-		color: #fff;
-		text-shadow: 3px 4px 0 rgba(55, 24, 66, 0.28);
+		background: transparent;
+		color: inherit;
+		text-shadow: 3px 4px 0 rgba(91, 55, 104, 0.12), 0 0 10px rgba(255, 255, 255, 0.7);
+	}
+
+	.inicio-activity-letter-image-wrap {
+		position: absolute;
+		top: 25%;
+		left: 40%;
+		z-index: 3;
+		transform: translateY(-50%) scale(0.25);
+		opacity: 0;
+		pointer-events: none;
+		filter: drop-shadow(0 18px 22px rgba(13, 90, 148, 0.28));
+		transition: opacity 220ms ease, transform 350ms ease;
+	}
+
+	.inicio-activity-letter-image-wrap.is-visible {
+		opacity: 1;
+		transform: translateY(-50%) scale(1);
+	}
+
+	.inicio-activity-letter-image {
+		display: block;
+		width: clamp(18rem, 36vmin, 39rem);
+		height: auto;
+		filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0.9));
 	}
 
 	.inicio-activity-character {
 		position: absolute;
-		top: 47%;
-		left: 50%;
+		top: 50%;
+		left: 25%;
 		z-index: 1;
-		width: 32%;
+		width: min(33.8vw, 20.8rem);
 		transform: translate(-50%, -50%);
 		pointer-events: none;
 	}
