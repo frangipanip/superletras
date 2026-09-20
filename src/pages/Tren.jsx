@@ -137,6 +137,8 @@ export default function Tren() {
 	const [drag, setDrag] = useState(null);
 	const sequenceBoardRef = useRef(null);
 
+	const [isHintHidden, setIsHintHidden] = useState(false);
+
 	// Estado que leen los callbacks de audio/timers/puntero (siempre el valor actual).
 	const game = useRef({
 		sequenceOrder: shuffle([...config.sequences]),
@@ -146,7 +148,8 @@ export default function Tren() {
 		activeSpeechAudio: null,
 		activityFinished: false,
 		departing: false,
-		drag: null
+		drag: null,
+		isHintHidden: false
 	}).current;
 
 	function formatToken(token, uppercase = uppercaseLetters) {
@@ -211,6 +214,19 @@ export default function Tren() {
 		speak(speechAudios.vagones, () => speak(speechAudios[game.currentSequence]));
 	}
 
+	function startPhaseTwo() {
+		setCelebrating(false);
+		game.activityFinished = false;
+		game.roundIndex = 0;
+		game.completedSlots = 0;
+		game.isHintHidden = true;
+		setIsHintHidden(true);
+		game.sequenceOrder = shuffle(config.sequences);
+		updateDeparting(false);
+		loadRound(false);
+		announceCurrentRound();
+	}
+
 	function completeRound() {
 		game.roundIndex += 1;
 		updateDeparting(true);
@@ -220,7 +236,11 @@ export default function Tren() {
 				setConvoy((current) => ({ ...current, tokens: null }));
 				runtime.requestAnimationFrame(() => {
 					setCelebrating(true);
-					speak(speechAudios.fabuloso);
+					speak(speechAudios.fabuloso, () => {
+						if (!game.isHintHidden) {
+							startPhaseTwo();
+						}
+					});
 				});
 			}, 1500);
 			return;
@@ -234,6 +254,8 @@ export default function Tren() {
 		game.activityFinished = false;
 		game.roundIndex = 0;
 		game.completedSlots = 0;
+		game.isHintHidden = false;
+		setIsHintHidden(false);
 		do {
 			game.sequenceOrder = shuffle(config.sequences);
 		} while (game.sequenceOrder[0] === previousSequence);
@@ -352,7 +374,7 @@ export default function Tren() {
 							className={["sequence-slot", slot.value.length > 1 && "double-token", slot.filled && "filled"].filter(Boolean).join(" ")}
 							data-vowel={slot.value}
 						>
-							{formatToken(slot.value)}
+							{isHintHidden && !slot.filled ? "_" : formatToken(slot.value)}
 						</div>
 					))}
 				</section>
@@ -402,7 +424,7 @@ export default function Tren() {
 				label="Escuchar al personaje"
 				onClick={() => {
 					if (!game.activityFinished) {
-						speak(speechAudios.vagones);
+						announceCurrentRound();
 					}
 				}}
 			/>
