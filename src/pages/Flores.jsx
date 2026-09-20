@@ -22,6 +22,15 @@ const SYLLABLES = {
 const FLOWER_IMAGES = [img("FLOR.svg"), img("FLOR1.svg")];
 const TOTAL_ACTIVITIES = 5;
 
+function getAudioFileName(label) {
+	const upper = label.toUpperCase();
+	if (["A", "E", "I", "O", "U"].includes(upper)) return `${upper}.wav`;
+	if (upper.startsWith("S")) return `${upper}.m4a`;
+	if (upper === "TE") return "TE2.m4a";
+	if (upper.startsWith("T")) return `${upper}.m4a`;
+	return `${label.toLowerCase()}.wav`;
+}
+
 function stopAudio(audio) {
 	if (!audio) {
 		return;
@@ -40,7 +49,7 @@ export default function Flores() {
 	const [mode] = useState(() => (["l", "m", "s", "t"].includes(activityMenuOption) ? activityMenuOption : "a"));
 	const [round, setRound] = useState({ generation: 0, activityIndex: 0, target: "", flowers: [] });
 	const [celebrating, setCelebrating] = useState(false);
-	const [instructionAudio] = useState(() => runtime.audio(sound("Pulsavocal.m4a")));
+	const [instructionAudio] = useState(() => runtime.audio(sound(mode === "a" ? "Pulsavocal.m4a" : "Pulsa silaba.m4a")));
 	const [celebrationAudio] = useState(() => runtime.audio(sound("Fabuloso.m4a")));
 	const audioRef = useRef({ option: null, feedback: null });
 	const game = useRef({ activityIndex: 0, instructionOrder: [], transitionPending: false, celebrationActive: false });
@@ -52,7 +61,7 @@ export default function Flores() {
 	}
 
 	function audioPath(label) {
-		return sound(mode !== "a" ? `${label.toLowerCase()}.wav` : `${label}.wav`);
+		return sound(getAudioFileName(label));
 	}
 
 	function playInstruction(targetValue) {

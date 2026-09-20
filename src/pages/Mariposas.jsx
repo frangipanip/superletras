@@ -27,6 +27,19 @@ const POSITIONS = [
 	[24, 18], [47, 20], [70, 18], [34, 48], [57, 45], [78, 47], [27, 76], [52, 75], [72, 74], [42, 62], [88, 62]
 ];
 
+function getAudioFileName(label, type = "syllable") {
+	if (type === "letter") {
+		const letterMap = { a: "A.wav", e: "E.wav", i: "I.wav", o: "O.wav", u: "U.wav", l: "Ele.m4a", m: "Eme.m4a", s: "Ese.m4a", t: "Te.m4a" };
+		return letterMap[label.toLowerCase()] || `${label}.wav`;
+	}
+	const upper = label.toUpperCase();
+	if (["A", "E", "I", "O", "U"].includes(upper)) return `${upper}.wav`;
+	if (upper.startsWith("S")) return `${upper}.m4a`;
+	if (upper === "TE") return "TE2.m4a";
+	if (upper.startsWith("T")) return `${upper}.m4a`;
+	return `${label.toLowerCase()}.wav`;
+}
+
 function createInstructionOrder(mode) {
 	return mode !== "a" ? Array(TOTAL_INSTRUCTIONS).fill(mode.toUpperCase()) : shuffle(VOWELS);
 }
@@ -164,7 +177,7 @@ export default function Mariposas() {
 			state.activeButterflyAudio.pause();
 			state.activeButterflyAudio.currentTime = 0;
 		}
-		const audioFile = mode !== "a" ? `${label.toLowerCase()}.wav` : `${label}.wav`;
+		const audioFile = getAudioFileName(label, "syllable");
 		state.activeButterflyAudio = runtime.audio(sound(audioFile));
 		state.activeButterflyAudio.onended = onEnded;
 		state.activeButterflyAudio.play().catch(() => onEnded?.());
@@ -174,7 +187,7 @@ export default function Mariposas() {
 		stopInstructionAudio();
 		startTalking();
 		const sequenceId = ++state.instructionSequenceId;
-		const optionFile = sound(`${mode !== "a" ? state.targetValue.toLowerCase() : state.targetValue}.wav`);
+		const optionFile = sound(getAudioFileName(state.targetValue, mode === "a" ? "vowel" : "letter"));
 		const sequence = [runtime.audio(optionFile), runtime.audio(sound("Pulsa.m4a")), runtime.audio(optionFile)];
 		state.instructionAudios = sequence;
 		let audioIndex = 0;
