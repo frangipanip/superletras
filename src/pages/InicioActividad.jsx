@@ -225,13 +225,13 @@ export default function InicioActividad() {
 		});
 		setActiveItem(null);
 		setIsShuffling(false);
+		setIsPhaseTwo(true);
 		startTalking();
 		audios.shuffle.currentTime = 0;
 		const startRequests = () => {
 			setSelectedItems(new Set());
 			setItemOrder(shuffle(mode.items));
 			setIsShuffling(true);
-			setIsPhaseTwo(true);
 			shuffleTimer.current = runtime.setTimeout(() => {
 				setIsShuffling(false);
 				requestedItemIndex.current = 0;

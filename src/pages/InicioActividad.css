@@ -386,17 +386,17 @@
 }
 
 .inicio-vowel-button.flying:nth-child(1) {
-	animation: balloon-fly-1 6s ease-in-out infinite;
+	animation: balloon-fly-1 15s linear infinite;
 }
 .inicio-vowel-button.flying:nth-child(2) {
-	animation: balloon-fly-2 8s ease-in-out infinite;
+	animation: balloon-fly-2 18s linear infinite;
 }
 .inicio-vowel-button.flying:nth-child(3) {
-	animation: balloon-fly-3 7s ease-in-out infinite;
+	animation: balloon-fly-3 16s linear infinite;
 }
 .inicio-vowel-button.flying:nth-child(4) {
-	animation: balloon-fly-4 9s ease-in-out infinite;
+	animation: balloon-fly-4 20s linear infinite;
 }
 .inicio-vowel-button.flying:nth-child(5) {
-	animation: balloon-fly-5 7.5s ease-in-out infinite;
+	animation: balloon-fly-5 17s linear infinite;
 }
