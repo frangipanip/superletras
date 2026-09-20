@@ -8,7 +8,7 @@ import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
 import { CHARACTERS, img, sound } from "../lib/assets";
 import { shuffle } from "../lib/shuffle";
-import { STORAGE_KEYS, readStorage } from "../lib/storage";
+import { readMenuOption } from "../lib/storage";
 import "./actividad.css";
 import "./InicioActividad.css";
 
@@ -75,7 +75,7 @@ export default function InicioActividad() {
 	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
 	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime);
-	const menuOption = location.state?.menuOption || readStorage(STORAGE_KEYS.mundo1MenuOption) || "a";
+	const menuOption = location.state?.menuOption?.toLowerCase() || readMenuOption();
 	const [mode] = useState(() => MODES[menuOption] || MODES.a);
 	const [audios] = useState(() => ({
 		intro: mode.intro.map((file) => runtime.audio(sound(file), { preload: true })),
@@ -164,6 +164,9 @@ export default function InicioActividad() {
 
 	function handleItemPress(item) {
 		if (visibleItems.size < mode.items.length) {
+			return;
+		}
+		if (selectedItems.has(item) || activitySelectedItems.has(item)) {
 			return;
 		}
 		if (requestedItem) {
@@ -394,12 +397,14 @@ export default function InicioActividad() {
 					{itemOrder.map((item) => {
 						const isHidden = !visibleItems.has(item);
 						const isRevealing = revealingItem === item;
+						const isExploded = selectedItems.has(item) || activitySelectedItems.has(item);
 						return (
 							<div
 								key={item}
-								className={`inicio-vowel-button inicio-vowel-${item.toLowerCase()}${selectedItems.has(item) || activitySelectedItems.has(item) ? " selected" : ""}${activeItem === item ? " active" : ""}${incorrectItem === item ? " incorrect" : ""}${isShuffling ? " shuffling" : ""}${isHidden ? " hidden-balloon" : ""}${isRevealing ? " reveal-balloon" : ""}${isPhaseTwo && !isShuffling && !activitySelectedItems.has(item) ? " flying" : ""}`}
+								className={`inicio-vowel-button inicio-vowel-${item.toLowerCase()}${isExploded ? " selected" : ""}${activeItem === item ? " active" : ""}${incorrectItem === item ? " incorrect" : ""}${isShuffling ? " shuffling" : ""}${isHidden ? " hidden-balloon" : ""}${isRevealing ? " reveal-balloon" : ""}${isPhaseTwo && !isShuffling && !activitySelectedItems.has(item) ? " flying" : ""}`}
 								role="button"
-								tabIndex={0}
+								tabIndex={isExploded ? -1 : 0}
+								aria-disabled={isExploded}
 								aria-label={`Reproducir ${mode.itemName(item)}`}
 								onClick={() => handleItemPress(item)}
 								onKeyDown={(e) => {
