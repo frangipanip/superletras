@@ -8,11 +8,15 @@ import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
 import { CHARACTERS, img, sound } from "../lib/assets";
 import { shuffle } from "../lib/shuffle";
+import { STORAGE_KEYS, readStorage } from "../lib/storage";
 import "./actividad.css";
 import "./InicioActividad.css";
 
 const VOWELS = ["A", "E", "I", "O", "U"];
 const L_SYLLABLES = ["LA", "LE", "LI", "LO", "LU"];
+const M_SYLLABLES = ["MA", "ME", "MI", "MO", "MU"];
+const S_SYLLABLES = ["SA", "SE", "SI", "SO", "SU"];
+const T_SYLLABLES = ["TA", "TE", "TI", "TO", "TU"];
 const CONFETTI_COLORS = ["#f04f78", "#f6c945", "#55b96c", "#4d9ed8", "#9b6bd6", "#f08a36"];
 
 // Cada letra del menú de Mundo 1 trae su propia presentación: los carteles que se pulsan,
@@ -35,6 +39,33 @@ const MODES = {
 		shortAudio: (item) => `${item.toLowerCase()}.wav`,
 		itemName: (item) => `sílaba ${item}`,
 		listName: "Sílabas con L"
+	},
+	m: {
+		items: M_SYLLABLES,
+		intro: ["EstaEsLaLetra.m4a", "Eme.m4a", "ConLasVocales.m4a"],
+		prompt: "Pulsa silaba.m4a",
+		longAudio: (item) => `${item.toLowerCase()}.wav`,
+		shortAudio: (item) => `${item.toLowerCase()}.wav`,
+		itemName: (item) => `sílaba ${item}`,
+		listName: "Sílabas con M"
+	},
+	s: {
+		items: S_SYLLABLES,
+		intro: ["EstaEsLaLetra.m4a", "Ese.m4a", "ConLasVocales.m4a"],
+		prompt: "Pulsa silaba.m4a",
+		longAudio: (item) => `${item.toLowerCase()}.wav`,
+		shortAudio: (item) => `${item.toLowerCase()}.wav`,
+		itemName: (item) => `sílaba ${item}`,
+		listName: "Sílabas con S"
+	},
+	t: {
+		items: T_SYLLABLES,
+		intro: ["EstaEsLaLetra.m4a", "Te.m4a", "ConLasVocales.m4a"],
+		prompt: "Pulsa silaba.m4a",
+		longAudio: (item) => `${item.toLowerCase()}.wav`,
+		shortAudio: (item) => `${item.toLowerCase()}.wav`,
+		itemName: (item) => `sílaba ${item}`,
+		listName: "Sílabas con T"
 	}
 };
 
@@ -44,8 +75,7 @@ export default function InicioActividad() {
 	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
 	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime);
-	const menuOption = location.state?.menuOption;
-	// Entrar directo por URL (sin pasar por el menú) muestra las vocales, pero sin presentación.
+	const menuOption = location.state?.menuOption || readStorage(STORAGE_KEYS.mundo1MenuOption) || "a";
 	const [mode] = useState(() => MODES[menuOption] || MODES.a);
 	const [audios] = useState(() => ({
 		intro: mode.intro.map((file) => runtime.audio(sound(file), { preload: true })),
@@ -66,9 +96,12 @@ export default function InicioActividad() {
 	const [incorrectItem, setIncorrectItem] = useState(null);
 	const [showConfetti, setShowConfetti] = useState(false);
 	const [showBigLetter, setShowBigLetter] = useState(false);
+	const [visibleItems, setVisibleItems] = useState(() => new Set());
+	const [revealingItem, setRevealingItem] = useState(null);
 	const sequenceTimer = useRef(0);
 	const shuffleTimer = useRef(0);
 	const errorTimer = useRef(0);
+	const revealTimer = useRef(0);
 	const requestedItemIndex = useRef(0);
 	const bigLetterImage = menuOption === "l" ? img("letraL.png") : img("letraA.png");
 
@@ -155,6 +188,18 @@ export default function InicioActividad() {
 			return;
 		}
 		playItem(item);
+	}
+
+	function revealBalloon(item) {
+		setVisibleItems((current) => {
+			if (current.has(item)) return current;
+			const next = new Set(current);
+			next.add(item);
+			return next;
+		});
+		setRevealingItem(item);
+		runtime.clearTimeout(revealTimer.current);
+		revealTimer.current = runtime.setTimeout(() => setRevealingItem(null), 550);
 	}
 
 	function completeItemSelection() {
@@ -268,6 +313,10 @@ export default function InicioActividad() {
 					}
 				};
 			}
+			// Revelar el globo justo antes de reproducir su audio
+			if (step.item) {
+				revealBalloon(step.item);
+			}
 			setActiveItem(step.item);
 			startTalking();
 			step.audio.currentTime = 0;
@@ -285,10 +334,12 @@ export default function InicioActividad() {
 		}
 
 		setShowBigLetter(false);
+		setVisibleItems(new Set());
 		playNextStep();
 		return () => {
 			runtime.clearTimeout(sequenceTimer.current);
 			runtime.clearTimeout(shuffleTimer.current);
+			runtime.clearTimeout(revealTimer.current);
 			runtime.clearTimeout(errorTimer.current);
 			audios.error.pause();
 			audios.error.currentTime = 0;
@@ -322,18 +373,29 @@ export default function InicioActividad() {
 		<div className="page activity-page page-inicio-actividad">
 			<BackButton />
 			<FullscreenButton toggle />
-			<div className={mode.items[0].length > 1 ? "inicio-vowels inicio-syllables" : "inicio-vowels"} aria-label={mode.listName}>
-					{itemOrder.map((item) => (
-						<button
-							key={item}
-							className={`inicio-vowel-button inicio-vowel-${item.toLowerCase()}${selectedItems.has(item) || activitySelectedItems.has(item) ? " selected" : ""}${activeItem === item ? " active" : ""}${incorrectItem === item ? " incorrect" : ""}${isShuffling ? " shuffling" : ""}`}
-							type="button"
-							aria-label={`Reproducir ${mode.itemName(item)}`}
-							onClick={() => handleItemPress(item)}
-						>
-							{item}
-						</button>
-					))}
+			<div className="inicio-vowels inicio-syllables" aria-label={mode.listName}>
+					{itemOrder.map((item) => {
+						const isHidden = !visibleItems.has(item);
+						const isRevealing = revealingItem === item;
+						return (
+							<div
+								key={item}
+								className={`inicio-vowel-button inicio-vowel-${item.toLowerCase()}${selectedItems.has(item) || activitySelectedItems.has(item) ? " selected" : ""}${activeItem === item ? " active" : ""}${incorrectItem === item ? " incorrect" : ""}${isShuffling ? " shuffling" : ""}${isHidden ? " hidden-balloon" : ""}${isRevealing ? " reveal-balloon" : ""}`}
+								role="button"
+								tabIndex={0}
+								aria-label={`Reproducir ${mode.itemName(item)}`}
+								onClick={() => handleItemPress(item)}
+								onKeyDown={(e) => {
+									if (e.key === "Enter" || e.key === " ") {
+										e.preventDefault();
+										handleItemPress(item);
+									}
+								}}
+							>
+								<span>{item}</span>
+							</div>
+						);
+					})}
 				</div>
 				{showConfetti && (
 					<div className="inicio-confetti" aria-hidden="true">
