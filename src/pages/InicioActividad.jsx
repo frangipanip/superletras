@@ -163,6 +163,9 @@ export default function InicioActividad() {
 	}
 
 	function handleItemPress(item) {
+		if (visibleItems.size < mode.items.length) {
+			return;
+		}
 		if (requestedItem) {
 			if (item !== requestedItem) {
 				runtime.clearTimeout(errorTimer.current);
