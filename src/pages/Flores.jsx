@@ -153,6 +153,12 @@ export default function Flores() {
 		buildFlowers(0);
 	}
 
+	function repeatInstruction() {
+		if (!game.current.celebrationActive && !game.current.transitionPending && round.target) {
+			playInstruction(round.target);
+		}
+	}
+
 	function handleFlowerClick(index) {
 		const currentRound = roundRef.current;
 		const flower = currentRound.flowers[index];
@@ -219,7 +225,7 @@ export default function Flores() {
 					))}
 				</section>
 			</main>
-			<Character character={character} mouth={mouth} celebrating={celebrating} />
+			<Character character={character} mouth={mouth} celebrating={celebrating} onClick={repeatInstruction} />
 		</div>
 	);
 }
