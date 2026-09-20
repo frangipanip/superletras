@@ -14,8 +14,12 @@ import "./Mariposas.css";
 
 const BUTTERFLY_IMAGES = [img("MARIPOSA.svg"), img("MARIPOSA1.svg"), img("MARIPOSA2.svg")];
 const VOWELS = ["A", "E", "I", "O", "U"];
-const L_SYLLABLES = ["LA", "LE", "LI", "LO", "LU"];
-const M_SYLLABLES = ["MA", "ME", "MI", "MO", "MU"];
+const SYLLABLES = {
+	l: ["LA", "LE", "LI", "LO", "LU"],
+	m: ["MA", "ME", "MI", "MO", "MU"],
+	s: ["SA", "SE", "SI", "SO", "SU"],
+	t: ["TA", "TE", "TI", "TO", "TU"]
+};
 const TOTAL_BUTTERFLIES = 8;
 const TOTAL_CORRECT = 5;
 const TOTAL_INSTRUCTIONS = 5;
@@ -24,17 +28,22 @@ const POSITIONS = [
 ];
 
 function createInstructionOrder(mode) {
-	return mode === "l" ? Array(TOTAL_INSTRUCTIONS).fill("L") : shuffle(VOWELS);
+	return mode !== "a" ? Array(TOTAL_INSTRUCTIONS).fill(mode.toUpperCase()) : shuffle(VOWELS);
 }
 
 function createButterflies(mode, targetValue, generation) {
 	const items = [];
-	if (mode === "l") {
+	if (mode !== "a") {
+		const targetSyllables = SYLLABLES[mode];
 		for (let index = 0; index < TOTAL_CORRECT; index += 1) {
-			items.push({ value: L_SYLLABLES[index % L_SYLLABLES.length], correct: true, image: BUTTERFLY_IMAGES[index % BUTTERFLY_IMAGES.length] });
+			items.push({ value: targetSyllables[index % targetSyllables.length], correct: true, image: BUTTERFLY_IMAGES[index % BUTTERFLY_IMAGES.length] });
 		}
+		const allOtherSyllables = Object.keys(SYLLABLES)
+			.filter(k => k !== mode)
+			.flatMap(k => SYLLABLES[k]);
+		const incorrectSyllables = shuffle(allOtherSyllables);
 		for (let index = TOTAL_CORRECT; index < TOTAL_BUTTERFLIES; index += 1) {
-			items.push({ value: M_SYLLABLES[(index - TOTAL_CORRECT) % M_SYLLABLES.length], correct: false, image: BUTTERFLY_IMAGES[index % BUTTERFLY_IMAGES.length] });
+			items.push({ value: incorrectSyllables[index - TOTAL_CORRECT], correct: false, image: BUTTERFLY_IMAGES[index % BUTTERFLY_IMAGES.length] });
 		}
 	} else {
 		for (let index = 0; index < TOTAL_CORRECT; index += 1) {
@@ -63,7 +72,7 @@ export default function Mariposas() {
 	const [character] = useSelectedCharacter();
 	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime);
 	const activityMenuOption = useActivityMenuOption();
-	const [mode] = useState(() => (activityMenuOption === "l" ? "l" : "a"));
+	const [mode] = useState(() => (["l", "m", "s", "t"].includes(activityMenuOption) ? activityMenuOption : "a"));
 	const [targetValue, setTargetValue] = useState("");
 	const [butterflies, setButterflies] = useState([]);
 	const [celebrating, setCelebrating] = useState(false);
@@ -107,15 +116,15 @@ export default function Mariposas() {
 	}
 
 	function startInstructionSet() {
-		const previousOption = mode === "l" ? "L" : state.targetValue;
+		const previousOption = mode !== "a" ? mode.toUpperCase() : state.targetValue;
 		state.instructionOrder = createInstructionOrder(mode);
-		if (mode !== "l" && state.instructionOrder[0] === previousOption) {
+		if (mode !== "a" && state.instructionOrder[0] === previousOption) {
 			const replacementIndex = state.instructionOrder.findIndex((option) => option !== previousOption);
 			[state.instructionOrder[0], state.instructionOrder[replacementIndex]] = [state.instructionOrder[replacementIndex], state.instructionOrder[0]];
 		}
 		state.instructionIndex = 0;
 		state.instructionsCompleted = 0;
-		state.targetValue = mode === "l" ? "L" : state.instructionOrder[0];
+		state.targetValue = mode !== "a" ? mode.toUpperCase() : state.instructionOrder[0];
 	}
 
 	function stopInstructionAudio() {
@@ -155,7 +164,7 @@ export default function Mariposas() {
 			state.activeButterflyAudio.pause();
 			state.activeButterflyAudio.currentTime = 0;
 		}
-		const audioFile = mode === "l" ? `${label.toLowerCase()}.wav` : `${label}.wav`;
+		const audioFile = mode !== "a" ? `${label.toLowerCase()}.wav` : `${label}.wav`;
 		state.activeButterflyAudio = runtime.audio(sound(audioFile));
 		state.activeButterflyAudio.onended = onEnded;
 		state.activeButterflyAudio.play().catch(() => onEnded?.());
@@ -165,7 +174,7 @@ export default function Mariposas() {
 		stopInstructionAudio();
 		startTalking();
 		const sequenceId = ++state.instructionSequenceId;
-		const optionFile = sound(`${mode === "l" ? state.targetValue[0] : state.targetValue}.wav`);
+		const optionFile = sound(`${mode !== "a" ? state.targetValue.toLowerCase() : state.targetValue}.wav`);
 		const sequence = [runtime.audio(optionFile), runtime.audio(sound("Pulsa.m4a")), runtime.audio(optionFile)];
 		state.instructionAudios = sequence;
 		let audioIndex = 0;
@@ -337,7 +346,7 @@ export default function Mariposas() {
 			<main className="butterfly-activity">
 				<section className="butterfly-field" ref={fieldRef} aria-label="Mariposas">
 					{butterflies.map((butterfly) => {
-						const classNames = ["butterfly-button", mode === "l" ? "l-butterfly" : "a-butterfly"];
+						const classNames = ["butterfly-button", mode !== "a" ? "l-butterfly" : "a-butterfly"];
 						if (butterfly.flying) {
 							classNames.push("flying", "correct");
 						}
@@ -359,7 +368,7 @@ export default function Mariposas() {
 							>
 								<img
 									src={butterfly.image}
-									alt={mode === "l" ? `Mariposa con sílaba ${butterfly.value}` : `Mariposa con vocal ${butterfly.value}`}
+									alt={mode !== "a" ? `Mariposa con sílaba ${butterfly.value}` : `Mariposa con vocal ${butterfly.value}`}
 								/>
 								<span className="badge">{butterfly.value}</span>
 							</button>

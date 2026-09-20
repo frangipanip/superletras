@@ -13,8 +13,12 @@ import "./actividad.css";
 import "./Flores.css";
 
 const VOWELS = ["A", "E", "I", "O", "U"];
-const L_SYLLABLES = ["LA", "LE", "LI", "LO", "LU"];
-const M_SYLLABLES = ["MA", "ME", "MI", "MO", "MU"];
+const SYLLABLES = {
+	l: ["LA", "LE", "LI", "LO", "LU"],
+	m: ["MA", "ME", "MI", "MO", "MU"],
+	s: ["SA", "SE", "SI", "SO", "SU"],
+	t: ["TA", "TE", "TI", "TO", "TU"]
+};
 const FLOWER_IMAGES = [img("FLOR.svg"), img("FLOR1.svg")];
 const TOTAL_ACTIVITIES = 5;
 
@@ -33,7 +37,7 @@ export default function Flores() {
 	const [character] = useSelectedCharacter();
 	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime);
 	const activityMenuOption = useActivityMenuOption();
-	const [isLetterMode] = useState(() => activityMenuOption === "l");
+	const [mode] = useState(() => (["l", "m", "s", "t"].includes(activityMenuOption) ? activityMenuOption : "a"));
 	const [round, setRound] = useState({ generation: 0, activityIndex: 0, target: "", flowers: [] });
 	const [celebrating, setCelebrating] = useState(false);
 	const [instructionAudio] = useState(() => runtime.audio(sound("Pulsavocal.m4a")));
@@ -44,11 +48,11 @@ export default function Flores() {
 	roundRef.current = round;
 
 	if (game.current.instructionOrder.length === 0) {
-		game.current.instructionOrder = shuffle(isLetterMode ? L_SYLLABLES : VOWELS);
+		game.current.instructionOrder = shuffle(mode !== "a" ? SYLLABLES[mode] : VOWELS);
 	}
 
 	function audioPath(label) {
-		return sound(isLetterMode ? `${label.toLowerCase()}.wav` : `${label}.wav`);
+		return sound(mode !== "a" ? `${label.toLowerCase()}.wav` : `${label}.wav`);
 	}
 
 	function playInstruction(targetValue) {
@@ -88,8 +92,11 @@ export default function Flores() {
 
 	function buildFlowers(activityIndex = game.current.activityIndex) {
 		const target = game.current.instructionOrder[activityIndex];
-		const incorrect = isLetterMode
-			? [shuffle(L_SYLLABLES.filter((item) => item !== target))[0], ...shuffle(M_SYLLABLES).slice(0, 2)]
+		const incorrect = mode !== "a"
+			? [
+					shuffle(SYLLABLES[mode].filter((item) => item !== target))[0],
+					...shuffle(Object.keys(SYLLABLES).filter(k => k !== mode).flatMap(k => SYLLABLES[k])).slice(0, 2)
+			  ]
 			: shuffle(VOWELS.filter((item) => item !== target)).slice(0, 3);
 		const labels = shuffle([target, ...incorrect]);
 		setRound((current) => ({
@@ -132,7 +139,7 @@ export default function Flores() {
 	function restart() {
 		finishCelebration();
 		game.current.activityIndex = 0;
-		game.current.instructionOrder = shuffle(isLetterMode ? L_SYLLABLES : VOWELS);
+		game.current.instructionOrder = shuffle(mode !== "a" ? SYLLABLES[mode] : VOWELS);
 		game.current.transitionPending = false;
 		buildFlowers(0);
 	}
