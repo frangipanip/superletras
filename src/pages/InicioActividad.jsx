@@ -8,7 +8,7 @@ import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
 import { CHARACTERS, img, sound } from "../lib/assets";
 import { shuffle } from "../lib/shuffle";
-import { readMenuOption } from "../lib/storage";
+import { useActivityMenuOption } from "../hooks/useActivityMenuOption";
 import "./actividad.css";
 import "./InicioActividad.css";
 
@@ -75,8 +75,8 @@ export default function InicioActividad() {
 	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
 	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime);
-	const menuOption = location.state?.menuOption?.toLowerCase() || readMenuOption();
-	const [mode] = useState(() => MODES[menuOption] || MODES.a);
+	const menuOption = useActivityMenuOption();
+	const [mode] = useState(() => MODES[menuOption || "a"] || MODES.a);
 	const [audios] = useState(() => ({
 		intro: mode.intro.map((file) => runtime.audio(sound(file), { preload: true })),
 		pressure: runtime.audio(sound("Presion.m4a"), { preload: true }),
@@ -389,6 +389,7 @@ export default function InicioActividad() {
 				step.audio.onended = null;
 				stopTalking();
 				setActiveItem(null);
+				sequenceTimer.current = runtime.setTimeout(playNextStep, 180);
 			});
 		}
 

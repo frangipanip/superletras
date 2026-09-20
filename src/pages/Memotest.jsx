@@ -8,7 +8,7 @@ import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
 import { sound } from "../lib/assets";
-import { readMenuOption } from "../lib/storage";
+import { useActivityMenuOption } from "../hooks/useActivityMenuOption";
 import "./actividad.css";
 import "./Memotest.css";
 
@@ -42,7 +42,7 @@ export default function Memotest() {
 	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
 	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime);
-	const selectedOption = location.state?.menuOption ?? readMenuOption();
+	const selectedOption = useActivityMenuOption();
 	const mode = selectedOption === "l" ? "l" : "a";
 	const [cards, setCards] = useState(() => buildDeck(mode));
 	const [selectedIndices, setSelectedIndices] = useState([]);

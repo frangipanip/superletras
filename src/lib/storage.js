@@ -2,6 +2,7 @@ export const STORAGE_KEYS = {
 	character: "superletras-character",
 	guestName: "superletras-guest-name",
 	mundo1MenuOption: "superletras-mundo1-menu-option",
+	selectedWorld: "superletras-selected-world",
 	installPromptDismissedAt: "superletras-install-dismissed-at"
 };
 
@@ -30,5 +31,10 @@ export function removeStorage(key) {
 }
 
 export function readMenuOption() {
-	return (readStorage(STORAGE_KEYS.mundo1MenuOption) || "a").toLowerCase();
+	const val = readStorage(STORAGE_KEYS.mundo1MenuOption);
+	return val ? val.toLowerCase() : null;
+}
+
+export function readSelectedWorld() {
+	return readStorage(STORAGE_KEYS.selectedWorld);
 }

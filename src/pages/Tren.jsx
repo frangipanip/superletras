@@ -6,9 +6,9 @@ import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
-import { img, sound } from "../lib/assets";
+import { CHARACTERS, img, sound } from "../lib/assets";
 import { shuffle } from "../lib/shuffle";
-import { readMenuOption } from "../lib/storage";
+import { useActivityMenuOption } from "../hooks/useActivityMenuOption";
 import "./actividad.css";
 
 const VOWELS = ["A", "E", "I", "O", "U"];
@@ -64,7 +64,8 @@ export default function Tren() {
 	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
 	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime);
-	const [menuOption] = useState(() => (readMenuOption() === "l" ? "l" : "a"));
+	const activityMenuOption = useActivityMenuOption();
+	const [menuOption] = useState(() => (activityMenuOption === "l" ? "l" : "a"));
 	const config = ACTIVITY_CONFIG[menuOption];
 	const [speechAudios] = useState(() =>
 		Object.fromEntries(Object.entries(config.speechAudios).map(([key, file]) => [key, runtime.audio(sound(file), { preload: true })]))

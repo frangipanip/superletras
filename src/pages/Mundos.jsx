@@ -4,6 +4,7 @@ import UserNav from "../components/UserNav";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { CHARACTERS, img, preloadImages } from "../lib/assets";
+import { writeStorage, STORAGE_KEYS } from "../lib/storage";
 import { MUNDO1_IMAGES } from "./Mundo1";
 import "./Mundos.css";
 
@@ -54,7 +55,10 @@ export default function Mundos() {
 									type="button"
 									disabled={!LEVEL_ROUTES[level]}
 									aria-label={`Nivel ${level}`}
-									onClick={LEVEL_ROUTES[level] ? () => navigate(LEVEL_ROUTES[level]) : undefined}
+									onClick={LEVEL_ROUTES[level] ? () => {
+										writeStorage(STORAGE_KEYS.selectedWorld, level);
+										navigate(LEVEL_ROUTES[level]);
+									} : undefined}
 								>
 									<img src={img(`${level}btn.png`)} alt={`Nivel ${level}`} />
 								</button>

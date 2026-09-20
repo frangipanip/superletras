@@ -8,7 +8,7 @@ import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
 import { img, sound } from "../lib/assets";
 import { shuffle } from "../lib/shuffle";
-import { readMenuOption } from "../lib/storage";
+import { useActivityMenuOption } from "../hooks/useActivityMenuOption";
 import "./actividad.css";
 import "./Mariposas.css";
 
@@ -62,7 +62,8 @@ export default function Mariposas() {
 	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
 	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime);
-	const [mode] = useState(() => (readMenuOption() === "l" ? "l" : "a"));
+	const activityMenuOption = useActivityMenuOption();
+	const [mode] = useState(() => (activityMenuOption === "l" ? "l" : "a"));
 	const [targetValue, setTargetValue] = useState("");
 	const [butterflies, setButterflies] = useState([]);
 	const [celebrating, setCelebrating] = useState(false);

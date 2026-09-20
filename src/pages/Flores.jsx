@@ -8,7 +8,7 @@ import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
 import { img, sound } from "../lib/assets";
 import { shuffle } from "../lib/shuffle";
-import { readMenuOption } from "../lib/storage";
+import { useActivityMenuOption } from "../hooks/useActivityMenuOption";
 import "./actividad.css";
 import "./Flores.css";
 
@@ -32,7 +32,8 @@ export default function Flores() {
 	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
 	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime);
-	const [isLetterMode] = useState(() => readMenuOption() === "l");
+	const activityMenuOption = useActivityMenuOption();
+	const [isLetterMode] = useState(() => activityMenuOption === "l");
 	const [round, setRound] = useState({ generation: 0, activityIndex: 0, target: "", flowers: [] });
 	const [celebrating, setCelebrating] = useState(false);
 	const [instructionAudio] = useState(() => runtime.audio(sound("Pulsavocal.m4a")));
