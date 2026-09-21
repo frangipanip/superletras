@@ -5,13 +5,21 @@ import FullscreenButton from "../components/FullscreenButton";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
+import { useActivityMenuOption } from "../hooks/useActivityMenuOption";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
 import { img, sound } from "../lib/assets";
 import "./Dibujar.css";
 
 const LETTERS = ["A", "E", "I", "O", "U", "L", "S", "T", "M"];
 const ENABLED_LETTERS = ["A", "E", "I", "O", "U", "L", "S", "T", "M"];
-const LETTER_OPTIONS = ["A", "E", "I", "O", "U", "L", "S", "T", "M"];
+// Letras del selector según la opción elegida en el menú del Mundo 1: vocales o solo esa consonante.
+const LETTER_OPTIONS_BY_MENU = {
+	a: ["A", "E", "I", "O", "U"],
+	l: ["L"],
+	m: ["M"],
+	s: ["S"],
+	t: ["T"],
+};
 const TRACE_IMAGES = Object.fromEntries(LETTERS.map((letter) => [letter, img(`trazado${letter}.jpg`)]));
 const START_POINT = { x: 0.13, y: 0.90 };
 const MID_POINT = { x: 0.45, y: 0.14 };
@@ -237,6 +245,13 @@ function getCurveArcPoints(curve, progress) {
 	}).join(" ");
 }
 
+function getLetterStart(letter) {
+	const curve = CURVE_TRACES[letter];
+	if (curve) return curve.start;
+	const segmentStarts = { E: E_START_POINT, I: I_START_POINT, L: L_START_POINT, T: T_VERTICAL_START, M: M_START_POINT };
+	return segmentStarts[letter] ?? START_POINT;
+}
+
 function samePoint(first, second, tolerance = 0.08) {
 	return distance(first, second) <= tolerance;
 }
@@ -246,13 +261,16 @@ export default function Dibujar() {
 	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
 	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime);
-	const [pointerPosition, setPointerPosition] = useState(START_POINT);
+	const menuOption = useActivityMenuOption();
+	const [letterOptions] = useState(() => LETTER_OPTIONS_BY_MENU[menuOption] || LETTER_OPTIONS_BY_MENU.a);
+	const firstLetter = letterOptions[0];
+	const [pointerPosition, setPointerPosition] = useState(() => getLetterStart(firstLetter));
 	const [isDragging, setIsDragging] = useState(false);
 	const [completed, setCompleted] = useState(false);
 	const [phase, setPhase] = useState(1);
 	const [drawnSegments, setDrawnSegments] = useState([]);
 	const [draftSegment, setDraftSegment] = useState(null);
-	const [activeLetter, setActiveLetter] = useState("A");
+	const [activeLetter, setActiveLetter] = useState(firstLetter);
 	const [showTargets, setShowTargets] = useState(true);
 	const [curveProgress, setCurveProgress] = useState(0);
 	const curveProgressRef = useRef(0);
@@ -283,7 +301,7 @@ export default function Dibujar() {
 
 	function resetActivity() {
 		stopCelebration();
-		setPointerPosition(START_POINT);
+		setPointerPosition(getLetterStart(firstLetter));
 		setIsDragging(false);
 		setCompleted(false);
 		setPhase(1);
@@ -291,13 +309,13 @@ export default function Dibujar() {
 		setDraftSegment(null);
 		segmentProgressRef.current = 0;
 		updateCurveProgress(0);
-		setActiveLetter("A");
+		setActiveLetter(firstLetter);
 		setShowTargets(true);
 		stopTalking();
 	}
 
 	function switchLetter(nextLetter) {
-		if (!ENABLED_LETTERS.includes(nextLetter)) {
+		if (!ENABLED_LETTERS.includes(nextLetter) || !letterOptions.includes(nextLetter)) {
 			return;
 		}
 		stopCelebration();
@@ -311,9 +329,7 @@ export default function Dibujar() {
 		setPhase(1);
 		segmentProgressRef.current = 0;
 		updateCurveProgress(0);
-		const nextCurve = CURVE_TRACES[nextLetter];
-		const segmentStarts = { E: E_START_POINT, I: I_START_POINT, L: L_START_POINT, T: T_VERTICAL_START, M: M_START_POINT };
-		setPointerPosition(nextCurve ? nextCurve.start : segmentStarts[nextLetter] ?? START_POINT);
+		setPointerPosition(getLetterStart(nextLetter));
 	}
 
 	function updateCurveProgress(progress) {
@@ -655,7 +671,7 @@ export default function Dibujar() {
 			<main className="dibujar-layout">
 				<div className="dibujar-workspace">
 					<div className="dibujar-vowel-picker" aria-label="Selector de letras">
-						{LETTER_OPTIONS.map((letter) => {
+						{letterOptions.map((letter) => {
 							const enabled = ENABLED_LETTERS.includes(letter);
 							const selected = letter === activeLetter;
 							return (
