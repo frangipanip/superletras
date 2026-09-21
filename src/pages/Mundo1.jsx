@@ -52,16 +52,16 @@ export const MUNDO1_IMAGES = [
 	...MOUTH_IMAGES
 ];
 
-const PATH_ROUTES =["/inicio", "/mariposas", "/flores", "/peluches", "/tren", "/dibujar", "/memotest", null, null, null];
+const PATH_ROUTES = ["/inicio", "/mariposas", "/flores", "/peluches", "/tren", "/dibujar", "/memotest", null, null, null];
 
 // Índices de PATH_ROUTES habilitados por letra: el resto del camino queda apagado
 // hasta que la actividad tenga los audios de esa letra. Sin entrada, la letra no abre nada.
 const AVAILABLE_ACTIVITIES = {
 	a: [0, 1, 2, 3, 4, 5, 6],
-	l: [0, 1, 2, 4],
-	m: [0, 1, 2, 4],
-	s: [0, 1, 2, 4],
-	t: [0, 1, 2, 4]
+	l: [0, 1, 2, 4, 5],
+	m: [0, 1, 2, 4, 5],
+	s: [0, 1, 2, 4, 5],
+	t: [0, 1, 2, 4, 5]
 };
 
 // Desplazamiento con el mouse: al acercarse a un borde la escena avanza sola,

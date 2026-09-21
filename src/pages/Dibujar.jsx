@@ -9,9 +9,9 @@ import { useTalkingMouth } from "../hooks/useTalkingMouth";
 import { img, sound } from "../lib/assets";
 import "./Dibujar.css";
 
-const LETTERS = ["A", "E", "I", "O", "U"];
-const ENABLED_LETTERS = ["A", "E", "I", "O", "U"];
-const VOWEL_OPTIONS = ["A", "E", "I", "O", "U"];
+const LETTERS = ["A", "E", "I", "O", "U", "L", "S", "T", "M"];
+const ENABLED_LETTERS = ["A", "E", "I", "O", "U", "L", "S", "T", "M"];
+const LETTER_OPTIONS = ["A", "E", "I", "O", "U", "L", "S", "T", "M"];
 const TRACE_IMAGES = Object.fromEntries(LETTERS.map((letter) => [letter, img(`trazado${letter}.jpg`)]));
 const START_POINT = { x: 0.13, y: 0.90 };
 const MID_POINT = { x: 0.45, y: 0.14 };
@@ -29,6 +29,25 @@ const E_SEVENTH_POINT = { x: 0.73, y: 0.48 };
 const I_START_POINT = { x: 0.5, y: 0.467 };
 const I_END_POINT = { x: 0.5, y: 0.826 };
 const I_DOT_POINT = { x: 0.5, y: 0.189 };
+// La L (trazadoL.jpg): un solo trazo en dos tramos sin soltar, baja el palo y dobla hacia la derecha.
+const L_START_POINT = { x: 0.273, y: 0.13 };
+const L_CORNER_POINT = { x: 0.273, y: 0.868 };
+const L_END_POINT = { x: 0.78, y: 0.868 };
+// La T (trazadoT.jpg): dos tramos sueltos, primero el palo vertical y después la barra de arriba.
+// El palo arranca pegado a la barra (no en el corazón) para que los dos trazos se toquen.
+const T_VERTICAL_START = { x: 0.499, y: 0.16 };
+const T_VERTICAL_END = { x: 0.499, y: 0.89 };
+const T_HORIZONTAL_START = { x: 0.21, y: 0.129 };
+const T_HORIZONTAL_END = { x: 0.77, y: 0.129 };
+// La M (trazadoM.jpg): cuatro tramos (sube, baja, sube, baja). En la imagen cada tramo arranca
+// un poco corrido del final del anterior, así que al terminar uno el puntero salta al inicio del siguiente.
+const M_SEGMENTS = [
+	[{ x: 0.142, y: 0.9 }, { x: 0.221, y: 0.13 }],
+	[{ x: 0.281, y: 0.16 }, { x: 0.503, y: 0.86 }],
+	[{ x: 0.536, y: 0.86 }, { x: 0.748, y: 0.18 }],
+	[{ x: 0.822, y: 0.13 }, { x: 0.889, y: 0.9 }],
+];
+const M_START_POINT = M_SEGMENTS[0][0];
 // La O se traza sobre la elipse punteada de trazadoO.jpg, en sentido antihorario desde arriba.
 const O_ELLIPSE = { cx: 0.499, cy: 0.52, rx: 0.327, ry: 0.361 };
 const O_START_POINT = { x: O_ELLIPSE.cx, y: O_ELLIPSE.cy - O_ELLIPSE.ry };
@@ -106,11 +125,12 @@ function buildUPath() {
 	return points.map((point, index) => ({ ...point, progress: lengths[index] / length }));
 }
 
-function getUPoint(progress) {
-	const nextIndex = U_PATH.findIndex((point) => point.progress >= progress);
-	if (nextIndex <= 0) return nextIndex === 0 ? U_PATH[0] : U_PATH[U_PATH.length - 1];
-	const previous = U_PATH[nextIndex - 1];
-	const next = U_PATH[nextIndex];
+// Interpola un punto a lo largo de un camino muestreado (lista de puntos con .progress de 0 a 1).
+function getPathPoint(path, progress) {
+	const nextIndex = path.findIndex((point) => point.progress >= progress);
+	if (nextIndex <= 0) return nextIndex === 0 ? path[0] : path[path.length - 1];
+	const previous = path[nextIndex - 1];
+	const next = path[nextIndex];
 	const ratio = (progress - previous.progress) / (next.progress - previous.progress);
 	return {
 		x: previous.x + (next.x - previous.x) * ratio,
@@ -119,12 +139,12 @@ function getUPoint(progress) {
 }
 
 // Toma el punto del camino más cercano al dedo, mirando solo un poco atrás y adelante del avance actual.
-function advanceU(progress, point) {
+function advancePath(path, progress, point, tolerance) {
 	let best = null;
-	for (const pathPoint of U_PATH) {
+	for (const pathPoint of path) {
 		if (Math.abs(pathPoint.progress - progress) > CURVE_MAX_STEP) continue;
 		const gap = distance(pathPoint, point);
-		if (gap <= U_TOLERANCE && (!best || gap < best.gap)) {
+		if (gap <= tolerance && (!best || gap < best.gap)) {
 			best = { progress: pathPoint.progress, gap };
 		}
 	}
@@ -132,10 +152,81 @@ function advanceU(progress, point) {
 	return best.progress;
 }
 
+function getUPoint(progress) {
+	return getPathPoint(U_PATH, progress);
+}
+
+function advanceU(progress, point) {
+	return advancePath(U_PATH, progress, point, U_TOLERANCE);
+}
+
+// La S sigue los centros de los guiones de trazadoS.jpg, desde el corazón hasta la flecha de abajo.
+const S_WAYPOINTS = [
+	{ x: 0.745, y: 0.245 },
+	{ x: 0.725, y: 0.205 },
+	{ x: 0.695, y: 0.178 },
+	{ x: 0.655, y: 0.152 },
+	{ x: 0.6, y: 0.126 },
+	{ x: 0.519, y: 0.117 },
+	{ x: 0.439, y: 0.125 },
+	{ x: 0.364, y: 0.156 },
+	{ x: 0.305, y: 0.213 },
+	{ x: 0.281, y: 0.29 },
+	{ x: 0.301, y: 0.37 },
+	{ x: 0.358, y: 0.426 },
+	{ x: 0.432, y: 0.459 },
+	{ x: 0.509, y: 0.48 },
+	{ x: 0.59, y: 0.5 },
+	{ x: 0.665, y: 0.528 },
+	{ x: 0.728, y: 0.579 },
+	{ x: 0.762, y: 0.653 },
+	{ x: 0.76, y: 0.734 },
+	{ x: 0.722, y: 0.804 },
+	{ x: 0.659, y: 0.853 },
+	{ x: 0.581, y: 0.88 },
+	{ x: 0.5, y: 0.885 },
+	{ x: 0.42, y: 0.869 },
+	{ x: 0.348, y: 0.832 },
+	{ x: 0.275, y: 0.735 },
+];
+const S_TOLERANCE = 0.1;
+
+// Subdivide cada tramo para que el avance y el dibujo sean continuos entre guion y guion.
+function buildSPath() {
+	const stepsPerSegment = 8;
+	const points = [S_WAYPOINTS[0]];
+	for (let index = 1; index < S_WAYPOINTS.length; index += 1) {
+		const from = S_WAYPOINTS[index - 1];
+		const to = S_WAYPOINTS[index];
+		for (let step = 1; step <= stepsPerSegment; step += 1) {
+			const ratio = step / stepsPerSegment;
+			points.push({ x: from.x + (to.x - from.x) * ratio, y: from.y + (to.y - from.y) * ratio });
+		}
+	}
+	let length = 0;
+	const lengths = points.map((point, index) => {
+		if (index > 0) length += distance(points[index - 1], point);
+		return length;
+	});
+	return points.map((point, index) => ({ ...point, progress: lengths[index] / length }));
+}
+
+const S_PATH = buildSPath();
+const S_START_POINT = S_PATH[0];
+
+function getSPoint(progress) {
+	return getPathPoint(S_PATH, progress);
+}
+
+function advanceS(progress, point) {
+	return advancePath(S_PATH, progress, point, S_TOLERANCE);
+}
+
 // Letras que se trazan siguiendo un camino curvo continuo en lugar de segmentos rectos.
 const CURVE_TRACES = {
 	O: { start: O_START_POINT, getPoint: getOPoint, advance: advanceO },
 	U: { start: U_START_POINT, getPoint: getUPoint, advance: advanceU },
+	S: { start: S_START_POINT, getPoint: getSPoint, advance: advanceS },
 };
 
 function getCurveArcPoints(curve, progress) {
@@ -221,7 +312,7 @@ export default function Dibujar() {
 		segmentProgressRef.current = 0;
 		updateCurveProgress(0);
 		const nextCurve = CURVE_TRACES[nextLetter];
-		const segmentStarts = { E: E_START_POINT, I: I_START_POINT };
+		const segmentStarts = { E: E_START_POINT, I: I_START_POINT, L: L_START_POINT, T: T_VERTICAL_START, M: M_START_POINT };
 		setPointerPosition(nextCurve ? nextCurve.start : segmentStarts[nextLetter] ?? START_POINT);
 	}
 
@@ -265,6 +356,49 @@ export default function Dibujar() {
 		});
 	}
 
+	// Muestra la celebración y, al terminar (o si el audio falla), aplica el reinicio de la letra.
+	function celebrateAndReset(onReset) {
+		setCompleted(true);
+		startTalking();
+		const finish = () => {
+			celebrationAudio.onended = null;
+			celebrationAudio.pause();
+			celebrationAudio.currentTime = 0;
+			stopTalking();
+			onReset();
+		};
+		celebrationAudio.onended = finish;
+		celebrationAudio.currentTime = 0;
+		celebrationAudio.play().catch(finish);
+	}
+
+	function restartL() {
+		setShowTargets(true);
+		setPointerPosition(L_START_POINT);
+		setDrawnSegments([]);
+		setDraftSegment(null);
+		setCompleted(false);
+		setPhase(1);
+	}
+
+	function restartT() {
+		setShowTargets(true);
+		setPointerPosition(T_VERTICAL_START);
+		setDrawnSegments([]);
+		setDraftSegment(null);
+		setCompleted(false);
+		setPhase(1);
+	}
+
+	function restartM() {
+		setShowTargets(true);
+		setPointerPosition(M_START_POINT);
+		setDrawnSegments([]);
+		setDraftSegment(null);
+		setCompleted(false);
+		setPhase(1);
+	}
+
 	function restartI() {
 		stopTalking();
 		setShowTargets(true);
@@ -304,6 +438,22 @@ export default function Dibujar() {
 				[E_SIXTH_POINT, E_SEVENTH_POINT],
 			];
 			const segment = eSegments[Math.min(Math.max(phase - 1, 0), eSegments.length - 1)];
+			return { start: segment[0], target: segment[1] };
+		}
+		if (activeLetter === "L") {
+			if (phase === 1) {
+				return { start: L_START_POINT, target: L_CORNER_POINT };
+			}
+			return { start: L_CORNER_POINT, target: L_END_POINT };
+		}
+		if (activeLetter === "T") {
+			if (phase === 1) {
+				return { start: T_VERTICAL_START, target: T_VERTICAL_END };
+			}
+			return { start: T_HORIZONTAL_START, target: T_HORIZONTAL_END };
+		}
+		if (activeLetter === "M") {
+			const segment = M_SEGMENTS[Math.min(Math.max(phase - 1, 0), M_SEGMENTS.length - 1)];
 			return { start: segment[0], target: segment[1] };
 		}
 
@@ -429,6 +579,32 @@ export default function Dibujar() {
 						setPhase(1);
 					});
 				}
+			} else if (activeLetter === "L") {
+				if (phase === 1) {
+					setPhase(2);
+					correctAudio.currentTime = 0;
+					correctAudio.play().catch(() => {});
+				} else {
+					celebrateAndReset(restartL);
+				}
+			} else if (activeLetter === "T") {
+				if (phase === 1) {
+					setPhase(2);
+					setPointerPosition(T_HORIZONTAL_START);
+					correctAudio.currentTime = 0;
+					correctAudio.play().catch(() => {});
+				} else {
+					celebrateAndReset(restartT);
+				}
+			} else if (activeLetter === "M") {
+				if (phase < M_SEGMENTS.length) {
+					setPhase(phase + 1);
+					setPointerPosition(M_SEGMENTS[phase][0]);
+					correctAudio.currentTime = 0;
+					correctAudio.play().catch(() => {});
+				} else {
+					celebrateAndReset(restartM);
+				}
 			} else if (phase === 1) {
 				setPhase(2);
 				correctAudio.currentTime = 0;
@@ -478,20 +654,20 @@ export default function Dibujar() {
 			<button className="dibujar-clear" type="button" onClick={resetActivity} aria-label="Reiniciar actividad">Limpiar</button>
 			<main className="dibujar-layout">
 				<div className="dibujar-workspace">
-					<div className="dibujar-vowel-picker" aria-label="Selector de vocales">
-						{VOWEL_OPTIONS.map((vowel) => {
-							const enabled = ENABLED_LETTERS.includes(vowel);
-							const selected = vowel === activeLetter;
+					<div className="dibujar-vowel-picker" aria-label="Selector de letras">
+						{LETTER_OPTIONS.map((letter) => {
+							const enabled = ENABLED_LETTERS.includes(letter);
+							const selected = letter === activeLetter;
 							return (
 								<button
-									key={vowel}
+									key={letter}
 									type="button"
 									className={selected ? "dibujar-vowel-button selected" : "dibujar-vowel-button"}
 									disabled={!enabled}
-									onClick={() => switchLetter(vowel)}
-									aria-label={`Seleccionar vocal ${vowel}`}
+									onClick={() => switchLetter(letter)}
+									aria-label={`Seleccionar letra ${letter}`}
 								>
-									{vowel}
+									{letter}
 								</button>
 							);
 						})}
@@ -537,6 +713,27 @@ export default function Dibujar() {
 								<div className="dibujar-point dibujar-point-end" style={{ left: `${I_DOT_POINT.x * 100}%`, top: `${I_DOT_POINT.y * 100}%` }}>2</div>
 							</>
 						)}
+						{showTargets && activeLetter === "L" && (
+							<>
+								<div className="dibujar-point dibujar-point-start" style={{ left: `${L_START_POINT.x * 100}%`, top: `${L_START_POINT.y * 100}%` }}>1</div>
+								<div className="dibujar-point dibujar-point-end" style={{ left: `${L_CORNER_POINT.x * 100}%`, top: `${L_CORNER_POINT.y * 100}%` }}>2</div>
+							</>
+						)}
+						{showTargets && activeLetter === "T" && (
+							<>
+								<div className="dibujar-point dibujar-point-start" style={{ left: `${T_VERTICAL_START.x * 100}%`, top: `${T_VERTICAL_START.y * 100}%` }}>1</div>
+								<div className="dibujar-point dibujar-point-end" style={{ left: `${T_HORIZONTAL_START.x * 100}%`, top: `${T_HORIZONTAL_START.y * 100}%` }}>2</div>
+							</>
+						)}
+						{showTargets && activeLetter === "M" && M_SEGMENTS.map(([segmentStart], index) => (
+							<div
+								key={index}
+								className={index === 0 ? "dibujar-point dibujar-point-start" : "dibujar-point dibujar-point-end"}
+								style={{ left: `${segmentStart.x * 100}%`, top: `${segmentStart.y * 100}%` }}
+							>
+								{index + 1}
+							</div>
+						))}
 						{showTargets && curve && (
 							<div className="dibujar-point dibujar-point-start" style={{ left: `${curve.start.x * 100}%`, top: `${curve.start.y * 100}%` }}>1</div>
 						)}
