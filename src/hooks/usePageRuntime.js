@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { createSpeechElement, textForSoundFile } from "../lib/tts";
 
 // Antes cada pantalla era un .html y al navegar el navegador cortaba audios y timers.
 // En la SPA eso hay que hacerlo a mano: todo audio/timer creado con este runtime
@@ -10,8 +11,13 @@ function createRuntime() {
 	const timers = new Set();
 
 	function audio(src, { preload = false } = {}) {
-		const element = new Audio(src);
-		if (preload) {
+		// Las consignas, letras y sílabas ya no vienen grabadas: se dicen con TTS local
+		// (ver src/lib/tts.js). Lo que no tiene texto asociado (ej. aleteo.mp3) sigue
+		// siendo un archivo de audio real.
+		const fileName = decodeURIComponent(src.split("/").pop());
+		const speechText = textForSoundFile(fileName);
+		const element = speechText ? createSpeechElement(speechText) : new Audio(src);
+		if (!speechText && preload) {
 			element.preload = "auto";
 		}
 		const nativePlay = element.play.bind(element);
@@ -84,6 +90,7 @@ function createRuntime() {
 			element.pause();
 		});
 		playing.clear();
+		window.speechSynthesis?.cancel();
 	}
 
 	return {
