@@ -126,13 +126,21 @@ const VOICE_NAME_HINTS = {
 	]
 };
 
-// Ajuste de tono/velocidad de respaldo cuando no hay dos voces distintas para
-// diferenciar: bastante marcado a propósito, porque el pitch de las voces "de red"
-// (las "Google español" que da Chrome) a veces se aplica muy débil.
-const FALLBACK_VOICE_STYLE = {
-	female: { pitch: 1.4, rate: 1 },
-	male: { pitch: 0.7, rate: 0.88 }
+// La supernena habla más rápido que el supernene, siempre, sea cual sea la voz
+// que termine usando cada una.
+const RATE_BY_GENDER = {
+	female: 1.15,
+	male: 0.88
 };
+
+// La supernena siempre habla con el tono un poco más agudo (menos grave), sea cual
+// sea la voz que termine usando.
+const FEMALE_PITCH = 1.25;
+
+// Tono de respaldo para el varón cuando no hay dos voces distintas para diferenciar:
+// bastante marcado a propósito, porque el pitch de las voces "de red" (las
+// "Google español" que da Chrome) a veces se aplica muy débil.
+const FALLBACK_MALE_PITCH = 0.7;
 
 let cachedSpanishVoices = null;
 let cachedNamedVoiceByGender = new Map();
@@ -194,22 +202,26 @@ function pickSpanishVoice() {
 	return cachedVoice;
 }
 
-// Devuelve la voz a usar y el pitch/rate a aplicar para el género pedido. Prioriza,
-// en orden: una voz con nombre reconocible > una voz distinta a la del otro género >
-// la voz genérica de siempre con el tono/velocidad de respaldo bien marcados.
+// Devuelve la voz a usar y el pitch/rate a aplicar para el género pedido. La
+// velocidad depende siempre del género (la supernena habla más rápido) y la
+// supernena siempre suma su tono más agudo; la voz prioriza, en orden: una con
+// nombre reconocible > una distinta a la del otro género > la voz genérica de
+// siempre con el tono de respaldo del varón bien marcado.
 function voiceStyleForGender(gender) {
 	if (typeof window === "undefined" || !window.speechSynthesis || !gender) {
 		return { voice: undefined, pitch: undefined, rate: undefined };
 	}
+	const rate = RATE_BY_GENDER[gender];
+	const pitch = gender === "female" ? FEMALE_PITCH : undefined;
 	const namedVoice = pickNamedVoiceForGender(gender);
 	if (namedVoice) {
-		return { voice: namedVoice, pitch: undefined, rate: undefined };
+		return { voice: namedVoice, pitch, rate };
 	}
 	const distinctVoice = pickDistinctVoiceForGender(gender);
 	if (distinctVoice) {
-		return { voice: distinctVoice, pitch: undefined, rate: undefined };
+		return { voice: distinctVoice, pitch, rate };
 	}
-	return { voice: pickSpanishVoice(), ...FALLBACK_VOICE_STYLE[gender] };
+	return { voice: pickSpanishVoice(), pitch: pitch ?? FALLBACK_MALE_PITCH, rate };
 }
 
 function currentCharacterGender() {
