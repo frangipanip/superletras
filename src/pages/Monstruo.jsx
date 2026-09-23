@@ -7,7 +7,7 @@ import Monstruo from "../components/Monstruo";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { sound } from "../lib/assets";
-import { cantidadComida, darComida, getRecompensas, sincronizar, subscribeRecompensas, usarCodigo } from "../lib/recompensas";
+import { cantidadComida, darComida, getRecompensas, sincronizar, subscribeRecompensas } from "../lib/recompensas";
 import { readMenuOption } from "../lib/storage";
 import "./actividad.css";
 import "./Monstruo.css";
@@ -15,16 +15,6 @@ import "./Monstruo.css";
 // Duración del vuelo de la comida hasta la boca (coincide con monstruo-vuelo en Monstruo.css).
 const VUELO_MS = 650;
 const MASTICAR_MS = 700;
-
-function copiarTexto(texto, respaldo) {
-	if (navigator.clipboard?.writeText) {
-		return navigator.clipboard.writeText(texto);
-	}
-	// Sin HTTPS no hay API del portapapeles: se copia seleccionando el texto.
-	respaldo.select();
-	document.execCommand("copy");
-	return Promise.resolve();
-}
 
 export default function MonstruoPage() {
 	const location = useLocation();
@@ -34,16 +24,10 @@ export default function MonstruoPage() {
 		return LETRAS.includes(elegida) ? elegida : "a";
 	});
 	usePageTitle(`Monstruo ${letra.toUpperCase()} - Mundo 1`);
-	const { codigo, letras } = useSyncExternalStore(subscribeRecompensas, getRecompensas);
+	const { letras } = useSyncExternalStore(subscribeRecompensas, getRecompensas);
 	const [vuelos, setVuelos] = useState([]);
 	const [comiendo, setComiendo] = useState(false);
-	const [copiado, setCopiado] = useState(false);
-	const [cambiando, setCambiando] = useState(false);
-	const [borrador, setBorrador] = useState("");
-	const [errorCodigo, setErrorCodigo] = useState("");
-	const [buscando, setBuscando] = useState(false);
 	const monstruoRef = useRef(null);
-	const codigoRef = useRef(null);
 	const masticarTimer = useRef(0);
 	const [audios] = useState(() => ({
 		comer: runtime.audio(sound("correcto.mp3"), { preload: true }),
@@ -87,27 +71,6 @@ export default function MonstruoPage() {
 			audio.currentTime = 0;
 			audio.play().catch(() => {});
 		}, VUELO_MS);
-	}
-
-	function copiarCodigo() {
-		copiarTexto(codigo, codigoRef.current)
-			.then(() => {
-				setCopiado(true);
-				runtime.setTimeout(() => setCopiado(false), 1800);
-			})
-			.catch(() => {});
-	}
-
-	async function aceptarCodigo(event) {
-		event.preventDefault();
-		setBuscando(true);
-		const error = await usarCodigo(borrador);
-		setBuscando(false);
-		setErrorCodigo(error || "");
-		if (!error) {
-			setCambiando(false);
-			setBorrador("");
-		}
 	}
 
 	return (
@@ -167,41 +130,6 @@ export default function MonstruoPage() {
 				</span>
 			))}
 
-			<footer className="monstruo-codigo">
-				{cambiando ? (
-					<form onSubmit={aceptarCodigo}>
-						<input
-							type="text"
-							value={borrador}
-							maxLength={12}
-							placeholder="Pegá tu código"
-							autoCapitalize="characters"
-							autoComplete="off"
-							spellCheck={false}
-							autoFocus
-							onChange={(event) => setBorrador(event.target.value)}
-						/>
-						<button type="submit" disabled={buscando}>
-							{buscando ? "Buscando..." : "Usar"}
-						</button>
-						<button type="button" onClick={() => { setCambiando(false); setErrorCodigo(""); }}>
-							Cancelar
-						</button>
-						{errorCodigo && <span className="monstruo-codigo-error">{errorCodigo}</span>}
-					</form>
-				) : (
-					<>
-						<span>Tu código:</span>
-						<input ref={codigoRef} className="monstruo-codigo-valor" readOnly value={codigo || "sin conexión"} onFocus={(event) => event.target.select()} />
-						<button type="button" disabled={!codigo} onClick={copiarCodigo}>
-							{copiado ? "¡Copiado!" : "Copiar"}
-						</button>
-						<button type="button" onClick={() => setCambiando(true)}>
-							Usar otro
-						</button>
-					</>
-				)}
-			</footer>
 		</div>
 	);
 }

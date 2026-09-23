@@ -27,7 +27,7 @@
 		gap: clamp(0.5rem, 2vw, 1.5rem);
 		box-sizing: border-box;
 		height: 100%;
-		padding: clamp(4.5rem, 14vmin, 7.5rem) clamp(0.75rem, 3vw, 2.5rem) clamp(3.5rem, 11vmin, 5rem);
+		padding: clamp(4.5rem, 14vmin, 7.5rem) clamp(0.75rem, 3vw, 2.5rem) clamp(1.5rem, 5vmin, 3rem);
 	}
 
 	.monstruo-panel {
@@ -190,72 +190,5 @@
 		font-size: clamp(1.3rem, 5.5vmin, 2.6rem);
 		pointer-events: none;
 		animation: monstruo-vuelo 650ms ease-in forwards;
-	}
-
-	/* Abajo: el código del dispositivo, para copiarlo o usar el de otro. */
-	.monstruo-codigo {
-		position: fixed;
-		bottom: clamp(0.5rem, 2vmin, 1rem);
-		left: 50%;
-		z-index: 3;
-		transform: translateX(-50%);
-		color: #ffffff;
-		font-size: clamp(0.75rem, 2.5vmin, 1.05rem);
-		font-weight: 700;
-		text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
-		white-space: nowrap;
-	}
-
-	.monstruo-codigo,
-	.monstruo-codigo form {
-		display: flex;
-		align-items: center;
-		gap: 0.4rem;
-	}
-
-	.monstruo-codigo form {
-		position: relative;
-	}
-
-	.monstruo-codigo input {
-		box-sizing: border-box;
-		width: 9.5em;
-		padding: 0.3em 0.5em;
-		border: 3px solid var(--monstruo-borde);
-		border-radius: 10px;
-		background: #ffffff;
-		color: var(--monstruo-texto);
-		font: 900 1em "Courier New", monospace;
-		letter-spacing: 0.08em;
-		text-align: center;
-		text-transform: uppercase;
-		user-select: text;
-		-webkit-user-select: text;
-	}
-
-	.monstruo-codigo button {
-		padding: 0.3em 0.7em;
-		border: 3px solid var(--monstruo-borde);
-		border-radius: 10px;
-		background: linear-gradient(180deg, #d6f8ff 0%, #7bcfe3 75%, #5fb5cb 100%);
-		box-shadow: 0 3px 0 #286f84;
-		color: var(--monstruo-texto);
-		font: 700 1em Arial, Helvetica, sans-serif;
-		cursor: pointer;
-	}
-
-	.monstruo-codigo button:disabled {
-		opacity: 0.6;
-		cursor: default;
-	}
-
-	.monstruo-codigo-error {
-		position: absolute;
-		bottom: calc(100% + 0.4rem);
-		left: 50%;
-		padding: 0.2em 0.6em;
-		border-radius: 8px;
-		background: #e2474a;
-		transform: translateX(-50%);
 	}
 }
