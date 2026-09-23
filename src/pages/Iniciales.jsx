@@ -6,199 +6,143 @@ import PremioComida, { useRecompensa } from "../components/PremioComida";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
-import { img, sound } from "../lib/assets";
+import { img, preloadImages, sound } from "../lib/assets";
 import { shuffle } from "../lib/shuffle";
 import { readMenuOption } from "../lib/storage";
 import "./Iniciales.css";
 
-const OPTIONS_BY_LETTER = {
-	A: {
-		correct: [
-			["abeja", "Abeja", "abejabyn.png", "abejacolor.png"],
-			["arbol", "Arbol", "arbolbyn.jpg", "arbolcolor.jpg"],
-			["auto", "Auto", "autobyn.jpg", "autocolor.jpg"],
-			["avion", "Avion", "avionbyn.jpg", "avioncolor.jpg"],
-			["anillo", "Anillo", "anillobyn.jpg", "anillocolor.jpg"]
-		],
-		incorrect: [
-			["escoba", "Escoba", "escobabyn.jpg", "escobacolor.jpg"],
-			["elefante", "Elefante", "elefantebyn.jpg", "elefantecolor.jpg"],
-			["sol", "Sol", "solbyn.jpg", "solcolor.jpg"]
-		]
-	},
-	E: {
-		correct: [
-			["escalera", "Escalera", "escalerabyn.jpg", "escaleracolor.jpg"],
-			["elefante", "Elefante", "elefantebyn.jpg", "elefantecolor.jpg"],
-			["escoba", "Escoba", "escobabyn.jpg", "escobacolor.jpg"],
-			["espejo", "Espejo", "espejobyn.jpg", "espejocolor.jpg"],
-			["estrella", "Estrella", "estrellabyn.jpg", "estrellacolor.jpg"]
-		],
-		incorrect: [
-			["auto", "Auto", "autobyn.jpg", "autocolor.jpg"],
-			["abeja", "Abeja", "abejabyn.png", "abejacolor.png"],
-			["perro", "Perro", "perrobyn.jpg", "perrocolor.jpg"]
-		]
-	},
-	I: {
-		correct: [
-			["indio", "Indio", "indiobyn.jpg", "indiocolor.jpg"],
-			["iguana", "Iguana", "iguanabyn.jpg", "iguanacolor.jpg"],
-			["iglu", "Iglu", "iglubyn.jpg", "iglucolor.jpg"],
-			["isla", "Isla", "islabyn.jpg", "islacolor.jpg"],
-			["iman", "Iman", "imanbyn.jpg", "imancolor.jpg"]
-		],
-		incorrect: [
-			["abeja", "Abeja", "abejabyn.png", "abejacolor.png"],
-			["escoba", "Escoba", "escobabyn.jpg", "escobacolor.jpg"],
-			["auto", "Auto", "autobyn.jpg", "autocolor.jpg"]
-		]
-	},
-	O: {
-		correct: [
-			["oso", "Oso", "osobyn.jpg", "osocolor.jpg"],
-			["oveja", "Oveja", "ovejabyn.jpg", "ovejacolor.jpg"]
-		],
-		incorrect: [
-			["abeja", "Abeja", "abejabyn.png", "abejacolor.png"],
-			["escoba", "Escoba", "escobabyn.jpg", "escobacolor.jpg"]
-		]
-	},
-	U: {
-		correct: [
-			["uva", "Uva", "uvabyn.jpg", "uvacolor.jpg"],
-			["uno", "Uno", "unobyn.jpg", "unocolor.jpg"],
-			["uña", "Uña", "uñabyn.jpg", "uñacolor.jpg"]
-		],
-		incorrect: [
-			["abeja", "Abeja", "abejabyn.png", "abejacolor.png"],
-			["escoba", "Escoba", "escobabyn.jpg", "escobacolor.jpg"]
-		]
+// Banco de imágenes (public/assets/imagenes/peluches/<palabra>.webp). El nombre del archivo es la
+// palabra: de ahí sale con qué vocal o sílaba empieza, así que no hay que renombrarlos.
+const BANCO = [
+	"avion", "frutilla", "arbol", "sol", "auto", "anillo",
+	"elefante", "estrella", "escalera", "espejo", "escoba", "perro",
+	"iguana", "iglu", "isla", "iman", "indio", "cartuchera",
+	"oruga", "oveja", "ojo", "oreja", "oso", "guitarra",
+	"uva", "uno", "unicornio", "uña", "urraca", "colectivo",
+	"lana", "lapiz", "lago", "lata", "bebe", "mano",
+	"leche", "leña", "lechuga", "leon", "limon", "libro",
+	"licuadora", "linterna", "lila", "loro", "lobo", "tren"
+];
+
+const VOCALES = ["a", "e", "i", "o", "u"];
+const SILABAS_L = ["la", "le", "li", "lo", "lu"];
+// Cada consigna se pide dos veces (con imágenes distintas).
+const VUELTAS = 2;
+const CORRECT_ANIMATION_MS = 900;
+
+function empiezaCon(palabra, consigna) {
+	return palabra.startsWith(consigna);
+}
+
+function consignaAudio(consigna) {
+	// Las vocales están como A.wav, E.wav...; las sílabas como la.wav, le.wav...
+	return consigna.length === 1 ? `${consigna.toUpperCase()}.wav` : `${consigna}.wav`;
+}
+
+function crearRondas(letra) {
+	// Con la L se piden sílabas; con cualquier otra letra, las vocales. Se saltean las
+	// consignas que todavía no tienen imágenes en el banco.
+	const consignas = (letra === "l" ? SILABAS_L : VOCALES).filter((consigna) =>
+		BANCO.some((palabra) => empiezaCon(palabra, consigna))
+	);
+	const correctas = Object.fromEntries(
+		consignas.map((consigna) => [consigna, shuffle(BANCO.filter((palabra) => empiezaCon(palabra, consigna)))])
+	);
+	const usadas = new Set();
+	const rondas = [];
+	for (let vuelta = 0; vuelta < VUELTAS; vuelta += 1) {
+		consignas.forEach((consigna) => {
+			const opcionesCorrectas = correctas[consigna];
+			const correcta = opcionesCorrectas[vuelta % opcionesCorrectas.length];
+			usadas.add(correcta);
+			const distractores = BANCO.filter((palabra) => !empiezaCon(palabra, consigna));
+			const noUsados = distractores.filter((palabra) => !usadas.has(palabra));
+			const incorrecta = shuffle(noUsados.length ? noUsados : distractores)[0];
+			usadas.add(incorrecta);
+			rondas.push({
+				consigna,
+				options: shuffle([
+					{ name: correcta, correct: true },
+					{ name: incorrecta, correct: false }
+				])
+			});
+		});
 	}
-};
-
-const ROUND_LETTERS = ["A", "E", "I", "O", "U", "A", "E", "I", "O", "U"];
-
-function toOption([name, label, byn, color], correct) {
-	return { name, label, byn, color, correct };
+	return rondas;
 }
 
-const UNIQUE_CORRECT_OPTIONS = {
-	A: [
-		["abeja", "Abeja", "abejabyn.png", "abejacolor.png"],
-		["arbol", "Arbol", "arbolbyn.jpg", "arbolcolor.jpg"]
-	],
-	E: [
-		["escalera", "Escalera", "escalerabyn.jpg", "escaleracolor.jpg"],
-		["elefante", "Elefante", "elefantebyn.jpg", "elefantecolor.jpg"]
-	],
-	I: [
-		["indio", "Indio", "indiobyn.jpg", "indiocolor.jpg"],
-		["iguana", "Iguana", "iguanabyn.jpg", "iguanacolor.jpg"]
-	],
-	O: [
-		["oso", "Oso", "osobyn.jpg", "osocolor.jpg"],
-		["ojo", "Ojo", "ojobyn.jpg", "ojocolor.jpg"]
-	],
-	U: [
-		["uva", "Uva", "uvabyn.jpg", "uvacolor.jpg"],
-		["uno", "Uno", "unobyn.jpg", "unocolor.jpg"]
-	]
-};
-
-const UNIQUE_INCORRECT_OPTIONS = {
-	A: [
-		["guitarra", "Guitarra", "guitarrabyn.jpg", "guitarrabyn.jpg"],
-		["escoba", "Escoba", "escobabyn.jpg", "escobabyn.jpg"]
-	],
-	E: [
-		["perro", "Perro", "perrobyn.jpg", "perrobyn.jpg"],
-		["sol", "Sol", "solbyn.jpg", "solbyn.jpg"]
-	],
-	I: [
-		["frutilla", "Frutilla", "frutillabyn.jpg", "frutillabyn.jpg"],
-		["oruga", "Oruga", "orugabyn.jpg", "orugabyn.jpg"]
-	],
-	O: [
-		["isla", "Isla", "islabyn.jpg", "islabyn.jpg"],
-		["iman", "Iman", "imanbyn.jpg", "imanbyn.jpg"]
-	],
-	U: [
-		["oveja", "Oveja", "ovejabyn.jpg", "ovejabyn.jpg"],
-		["estrella", "Estrella", "estrellabyn.jpg", "estrellabyn.jpg"]
-	]
-};
-
-function createOptions(correctOption, incorrectOption) {
-	return shuffle([toOption(correctOption, true), toOption(incorrectOption, false)]);
+function optionImage(name) {
+	return img(`peluches/${name}.webp`);
 }
-
-function createActivities() {
-	const correctOrder = Object.fromEntries(Object.entries(UNIQUE_CORRECT_OPTIONS).map(([letter, options]) => [letter, shuffle(options)]));
-	const incorrectOrder = Object.fromEntries(Object.entries(UNIQUE_INCORRECT_OPTIONS).map(([letter, options]) => [letter, shuffle(options)]));
-	return ROUND_LETTERS.map((letter, roundIndex) => {
-		const correctOption = correctOrder[letter][roundIndex >= 5 ? 1 : 0];
-		const incorrectOption = incorrectOrder[letter][roundIndex >= 5 ? 1 : 0];
-		return { letter, options: createOptions(correctOption, incorrectOption) };
-	});
-}
-
-const ACTIVITIES = createActivities();
 
 export default function Peluche() {
 	usePageTitle("Peluche - Mundo 1");
 	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
+	const [letra] = useState(() => readMenuOption() || "a");
+	const [rondas] = useState(() => crearRondas(letra));
 	const [activityIndex, setActivityIndex] = useState(0);
-	const [options, setOptions] = useState(() => ACTIVITIES[0].options);
-	const [selected, setSelected] = useState(() => new Set());
+	const [acertada, setAcertada] = useState(null);
 	const [vibrating, setVibrating] = useState(() => new Set());
 	const [errorAudio] = useState(() => runtime.audio(sound("error.mp3")));
-	const [vowelAudios] = useState(() =>
-		Object.fromEntries(ROUND_LETTERS.slice(0, 5).map((letter) => [letter, runtime.audio(sound(`${letter}.wav`), { preload: true })]))
+	const [correctAudio] = useState(() => runtime.audio(sound("correcto.mp3"), { preload: true }));
+	const [consignaAudios] = useState(() =>
+		Object.fromEntries(
+			[...new Set(rondas.map((ronda) => ronda.consigna))].map((consigna) => [
+				consigna,
+				runtime.audio(sound(consignaAudio(consigna)), { preload: true })
+			])
+		)
 	);
-	const activity = ACTIVITIES[activityIndex];
-	const [premio, otorgarPremio] = useRecompensa("peluches", readMenuOption() || "a");
-	// Imágenes equivocadas tocadas: definen cuántas comidas se ganan al terminar la última ronda.
-	const game = useRef({ errors: 0, rewarded: false }).current;
+	const activity = rondas[activityIndex];
+	const [premio, otorgarPremio] = useRecompensa("peluches", letra);
+	// errors: imágenes equivocadas tocadas (definen cuántas comidas se ganan al terminar la última ronda).
+	// locked: ya se acertó la ronda y se está animando antes de pasar a la siguiente.
+	const game = useRef({ errors: 0, rewarded: false, locked: false }).current;
 
 	useEffect(() => {
-		Object.values(vowelAudios).forEach((audio) => {
+		preloadImages(rondas.flatMap((ronda) => ronda.options.map((option) => optionImage(option.name))));
+	}, [rondas]);
+
+	useEffect(() => {
+		Object.values(consignaAudios).forEach((audio) => {
 			audio.pause();
 			audio.currentTime = 0;
 		});
-		const instructionAudio = vowelAudios[activity.letter];
+		const instructionAudio = consignaAudios[activity.consigna];
 		instructionAudio.currentTime = 0;
 		instructionAudio.play().catch(() => {});
 		return () => {
 			instructionAudio.pause();
 			instructionAudio.currentTime = 0;
 		};
-	}, [activity.letter, vowelAudios]);
+	}, [activity.consigna, consignaAudios]);
 
 	function handleImageClick(option) {
-		if (selected.has(option.name)) {
+		if (game.locked) {
 			return;
 		}
 
 		if (option.correct) {
-			const correctCount = activity.options.filter((item) => item.correct).length;
-			if (activityIndex === ACTIVITIES.length - 1 && selected.size + 1 === correctCount && !game.rewarded) {
+			game.locked = true;
+			consignaAudios[activity.consigna].pause();
+			correctAudio.pause();
+			correctAudio.currentTime = 0;
+			correctAudio.play().catch(() => {});
+			setAcertada(option.name);
+			const esUltima = activityIndex === rondas.length - 1;
+			if (esUltima && !game.rewarded) {
 				game.rewarded = true;
 				otorgarPremio(game.errors);
 			}
-			setSelected((current) => {
-				const next = new Set(current).add(option.name);
-				const correctCount = activity.options.filter((item) => item.correct).length;
-				if (next.size === correctCount && activityIndex < ACTIVITIES.length - 1) {
-					runtime.setTimeout(() => {
-						setOptions(() => ACTIVITIES[activityIndex + 1].options);
-						setActivityIndex((currentIndex) => currentIndex + 1);
-						setSelected(new Set());
-					}, 700);
-				}
-				return next;
-			});
+			if (!esUltima) {
+				runtime.setTimeout(() => {
+					setActivityIndex((currentIndex) => currentIndex + 1);
+					setAcertada(null);
+					setVibrating(new Set());
+					game.locked = false;
+				}, CORRECT_ANIMATION_MS);
+			}
 			return;
 		}
 
@@ -222,26 +166,26 @@ export default function Peluche() {
 			<FullscreenButton toggle />
 			<main className="initials-activity">
 				<section className="initials-grid" aria-label="Imágenes para elegir">
-					{options.map((option) => {
+					{activity.options.map((option) => {
 						const classNames = ["initials-option"];
-							if (selected.has(option.name)) {
-								classNames.push("selected");
-							}
-							if (vibrating.has(option.name)) {
-								classNames.push("vibrating");
-							}
-							return (
-								<button
-									key={option.name}
-									type="button"
-									className={classNames.join(" ")}
-									onClick={() => handleImageClick(option)}
-									aria-label={option.label}
-								>
-									<img src={img(selected.has(option.name) ? option.color : option.byn)} alt={option.label} />
-								</button>
-							);
-						})}
+						if (acertada === option.name) {
+							classNames.push("correct");
+						}
+						if (vibrating.has(option.name)) {
+							classNames.push("vibrating");
+						}
+						return (
+							<button
+								key={`${activityIndex}-${option.name}`}
+								type="button"
+								className={classNames.join(" ")}
+								onClick={() => handleImageClick(option)}
+								aria-label={option.name}
+							>
+								<img src={optionImage(option.name)} alt={option.name} />
+							</button>
+						);
+					})}
 				</section>
 			</main>
 			<Character character={character} />

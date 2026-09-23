@@ -32,6 +32,7 @@
 
 	.initials-option img {
 		display: block;
+		border-radius: 10px;
 		width: 100%;
 		aspect-ratio: 1;
 		object-fit: contain;
@@ -43,13 +44,26 @@
 		filter: brightness(1.08);
 	}
 
-	.initials-option.selected {
+	.initials-option.correct {
+		position: relative;
+		z-index: 1;
 		border-color: #fff6a4;
 		box-shadow: 0 0 0 4px rgba(133, 237, 150, 0.65), 0 5px 10px rgba(0, 0, 0, 0.3);
+		animation: initials-pulse 900ms ease-in-out;
 	}
 
 	.initials-option.vibrating {
 		animation: initials-vibrate 350ms ease-in-out;
+	}
+}
+
+@keyframes initials-pulse {
+	0%,
+	100% {
+		transform: scale(1);
+	}
+	45% {
+		transform: scale(1.18);
 	}
 }
 
