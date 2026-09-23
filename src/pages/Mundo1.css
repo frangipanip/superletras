@@ -183,13 +183,14 @@
 		transform: translateX(-50%);
 	}
 
-	/* Parado a la izquierda del botón (left/top vienen del botón), sin tapar el cartel de la actividad:
-	   el corrimiento es la mitad del ancho del cartel (82% de .path-activity). */
+	/* Parado a la izquierda del botón (left/top vienen del centro del botón): el corrimiento es
+	   medio ancho de .path-activity, así queda pegado a su borde izquierdo y con los pies a la
+	   altura de la base del botón. */
 	.mundo1-character-spot.perched {
 		bottom: auto;
 		z-index: 4;
 		width: clamp(108px, 27vmin, 198px);
-		transform: translate(calc(-100% - clamp(44px, 7.4vmin, 64px)), -100%);
+		transform: translate(calc(-100% - clamp(54px, 9vmin, 78px)), calc(-100% + clamp(54px, 9vmin, 78px)));
 	}
 
 	.mundo1-character-spot.arriving {
