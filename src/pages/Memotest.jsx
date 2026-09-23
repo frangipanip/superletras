@@ -21,6 +21,8 @@ const CARD_SETS = {
 	t: ["TA", "TE", "TI", "TO", "TU"],
 };
 
+const CONFETTI_COLORS = ["#f04f78", "#f6c945", "#55b96c", "#4d9ed8", "#9b6bd6", "#f08a36"];
+
 function shuffleCards(values) {
 	return [...values].sort(() => Math.random() - 0.5);
 }
@@ -47,14 +49,16 @@ export default function Memotest() {
 	const [character] = useSelectedCharacter();
 	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime);
 	const selectedOption = useActivityMenuOption();
-	const mode = selectedOption === "l" ? "l" : "a";
+	const mode = CARD_SETS[selectedOption] ? selectedOption : "a";
 	const [cards, setCards] = useState(() => buildDeck(mode));
 	const [selectedIndices, setSelectedIndices] = useState([]);
 	const [moves, setMoves] = useState(0);
 	const [matchedPairs, setMatchedPairs] = useState(0);
-	const [premio, otorgarPremio] = useRecompensa("memotest", CARD_SETS[selectedOption] ? selectedOption : "a");
+	const [premio, otorgarPremio] = useRecompensa("memotest", mode);
 	const [celebrating, setCelebrating] = useState(false);
-	const [celebrationAudio] = useState(() => runtime.audio(sound("Fabuloso.m4a"), { preload: true }));
+	// Todas las parejas encontradas: el cartel de felicitaciones queda hasta reiniciar.
+	const [finished, setFinished] = useState(false);
+	const [celebrationAudio] = useState(() => runtime.audio(sound("Felicitaciones.m4a"), { preload: true }));
 	const [successAudio] = useState(() => runtime.audio(sound("correcto.mp3"), { preload: true }));
 
 	useEffect(() => {
@@ -63,6 +67,7 @@ export default function Memotest() {
 		setMoves(0);
 		setMatchedPairs(0);
 		setCelebrating(false);
+		setFinished(false);
 		celebrationAudio.pause();
 		celebrationAudio.currentTime = 0;
 		successAudio.pause();
@@ -74,6 +79,7 @@ export default function Memotest() {
 		if (matchedPairs > 0 && matchedPairs === cards.length / 2) {
 			// Cada intento sin pareja cuenta como error.
 			otorgarPremio(moves - matchedPairs);
+			setFinished(true);
 			setCelebrating(true);
 			startTalking();
 			celebrationAudio.currentTime = 0;
@@ -96,6 +102,8 @@ export default function Memotest() {
 		setMoves(0);
 		setMatchedPairs(0);
 		setCelebrating(false);
+		setFinished(false);
+		celebrationAudio.onended = null;
 		celebrationAudio.pause();
 		celebrationAudio.currentTime = 0;
 		successAudio.pause();
@@ -104,7 +112,7 @@ export default function Memotest() {
 	}
 
 	function handleCardClick(index) {
-		if (celebrating || selectedIndices.length === 2) {
+		if (finished || selectedIndices.length === 2) {
 			return;
 		}
 
@@ -135,6 +143,11 @@ export default function Memotest() {
 					return item;
 				}));
 				setMatchedPairs((current) => current + 1);
+				// La última pareja no suena "correcto": enseguida arranca la felicitación.
+				if (matchedPairs + 1 === cards.length / 2) {
+					setSelectedIndices([]);
+					return;
+				}
 				startTalking();
 				successAudio.currentTime = 0;
 				successAudio.onended = () => {
@@ -171,7 +184,7 @@ export default function Memotest() {
 			<main className="memotest-container">
 				<header className="activity-heading">
 					<h1 className="activity-title">Memotest</h1>
-					<p className="round-counter">Modo: {mode === "l" ? "L" : "A"}</p>
+					<p className="round-counter">Modo: {mode.toUpperCase()}</p>
 					<p className="round-counter">Movimientos: {moves}</p>
 				</header>
 
@@ -192,6 +205,27 @@ export default function Memotest() {
 					))}
 				</section>
 			</main>
+
+			{finished && (
+				<div className="memotest-finished" role="status">
+					{celebrating && (
+						<div className="memotest-confetti" aria-hidden="true">
+							{Array.from({ length: 28 }, (_, index) => (
+								<span
+									key={index}
+									style={{
+										left: `${(index * 37) % 100}%`,
+										animationDelay: `${(index % 7) * 80}ms`,
+										background: CONFETTI_COLORS[index % CONFETTI_COLORS.length],
+										transform: `rotate(${(index * 53) % 360}deg)`
+									}}
+								/>
+							))}
+						</div>
+					)}
+					<p className="memotest-finished-message">¡Felicitaciones!</p>
+				</div>
+			)}
 
 			<Character character={character} mouth={mouth} celebrating={celebrating} />
 			<PremioComida premio={premio} />
