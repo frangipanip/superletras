@@ -143,3 +143,47 @@
 	border-radius: 3px;
 	animation: memotest-confetti-fall 2.4s linear infinite;
 }
+
+/* Celulares en horizontal: poco alto. El encabezado va en una línea arriba (entre "volver" y
+   "Reiniciar"), el personaje se achica y el tablero ocupa el espacio a su izquierda. */
+@media (max-height: 500px) {
+	.page-memotest .activity-heading {
+		top: clamp(0.75rem, 2vw, 1.5rem);
+		flex-direction: row;
+		align-items: baseline;
+		gap: 0.75rem;
+		white-space: nowrap;
+	}
+
+	.page-memotest .activity-title {
+		font-size: 1.2rem;
+	}
+
+	.page-memotest .round-counter {
+		font-size: 0.85rem;
+	}
+
+	.page-memotest .selected-character:not(.celebrating) {
+		--selected-character-width: 28vmin;
+		left: calc(100% - 0.75rem - var(--selected-character-width));
+	}
+
+	.page-memotest .memotest-container {
+		padding: 4.2rem calc(28vmin + 1.5rem) 0.5rem 0.75rem;
+	}
+
+	.page-memotest .memotest-board {
+		/* Ancho: lo que queda al lado del personaje. Alto: 2 filas de cartas de 1 x 1.2. */
+		grid-template-columns: repeat(5, min(calc((100vw - 28vmin - 5.5rem) / 5), calc((100vh - 6.5rem) / 2.45)));
+		gap: 0.5rem;
+		padding: 0.5rem;
+		border-radius: 16px;
+	}
+
+	.page-memotest .memory-card-front,
+	.page-memotest .memory-card-back {
+		border-width: 2px;
+		border-radius: 12px;
+		font-size: clamp(1.4rem, 7vmin, 2.4rem);
+	}
+}
