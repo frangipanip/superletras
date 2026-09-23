@@ -21,7 +21,7 @@ db.exec(`
 	-- código dos veces (por ejemplo, recargó antes de recibir la respuesta) recibe el mismo.
 	CREATE TABLE IF NOT EXISTS jugadores (
 		codigo TEXT PRIMARY KEY,
-		dispositivo TEXT UNIQUE,
+		dispositivo TEXT,
 		creado TEXT NOT NULL DEFAULT (datetime('now'))
 	);
 	CREATE TABLE IF NOT EXISTS comidas (
@@ -46,6 +46,11 @@ db.exec(`
 		fecha TEXT NOT NULL DEFAULT (datetime('now'))
 	);
 `);
+// Bases creadas antes de guardar el dispositivo: se agrega la columna.
+if (!db.prepare("PRAGMA table_info(jugadores)").all().some(({ name }) => name === "dispositivo")) {
+	db.exec("ALTER TABLE jugadores ADD COLUMN dispositivo TEXT");
+}
+db.exec("CREATE UNIQUE INDEX IF NOT EXISTS jugadores_dispositivo ON jugadores (dispositivo)");
 
 // Sin letras ni números que se confundan (0/O, 1/I): fácil de dictar, copiar y pegar.
 const ALFABETO = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";

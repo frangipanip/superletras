@@ -3,10 +3,10 @@ import { useLocation } from "react-router";
 import { COMIDAS, LETRAS } from "../../shared/comidas.js";
 import BackButton from "../components/BackButton";
 import FullscreenButton from "../components/FullscreenButton";
-import Monstruo from "../components/Monstruo";
+import Monstruo, { CUADROS_MONSTRUO, imagenesMonstruo } from "../components/Monstruo";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
-import { sound } from "../lib/assets";
+import { preloadImages, sound } from "../lib/assets";
 import { cantidadComida, darComida, getRecompensas, sincronizar, subscribeRecompensas } from "../lib/recompensas";
 import { readMenuOption } from "../lib/storage";
 import "./actividad.css";
@@ -14,7 +14,16 @@ import "./Monstruo.css";
 
 // Duración del vuelo de la comida hasta la boca (coincide con monstruo-vuelo en Monstruo.css).
 const VUELO_MS = 650;
-const MASTICAR_MS = 700;
+// Mientras vuela la comida tiene la boca abierta; al llegar pasa por estos cuadros (ms cada uno).
+const SECUENCIA_COMER = [
+	[CUADROS_MONSTRUO.mastica, 380],
+	[CUADROS_MONSTRUO.normal, 120],
+	[CUADROS_MONSTRUO.mastica, 380],
+	[CUADROS_MONSTRUO.relame, 650],
+	[CUADROS_MONSTRUO.feliz, 800]
+];
+// Dónde está la boca dentro de la imagen del monstruo (fracción del ancho y del alto).
+const BOCA = { x: 0.5, y: 0.54 };
 
 export default function MonstruoPage() {
 	const location = useLocation();
@@ -26,9 +35,10 @@ export default function MonstruoPage() {
 	usePageTitle(`Monstruo ${letra.toUpperCase()} - Mundo 1`);
 	const { letras } = useSyncExternalStore(subscribeRecompensas, getRecompensas);
 	const [vuelos, setVuelos] = useState([]);
-	const [comiendo, setComiendo] = useState(false);
+	const [cuadro, setCuadro] = useState(CUADROS_MONSTRUO.normal);
 	const monstruoRef = useRef(null);
-	const masticarTimer = useRef(0);
+	// Timers de la secuencia de comer en curso: si le dan otra comida, arranca de nuevo.
+	const comerTimers = useRef([]);
 	const [audios] = useState(() => ({
 		comer: runtime.audio(sound("correcto.mp3"), { preload: true }),
 		lleno: runtime.audio(sound("Fabuloso.m4a"), { preload: true })
@@ -42,31 +52,61 @@ export default function MonstruoPage() {
 
 	useEffect(() => {
 		sincronizar();
+		preloadImages(imagenesMonstruo(letra));
 	}, []);
+
+	function cancelarSecuencia() {
+		comerTimers.current.forEach((id) => runtime.clearTimeout(id));
+		comerTimers.current = [];
+	}
+
+	function comer() {
+		cancelarSecuencia();
+		let espera = 0;
+		for (const [siguiente, duracion] of SECUENCIA_COMER) {
+			comerTimers.current.push(runtime.setTimeout(() => setCuadro(siguiente), espera));
+			espera += duracion;
+		}
+		comerTimers.current.push(runtime.setTimeout(() => setCuadro(CUADROS_MONSTRUO.normal), espera));
+	}
+
+	// Punto de la boca en pantalla: la imagen se ajusta dentro de su caja (object-fit: contain).
+	function puntoBoca() {
+		const imagen = monstruoRef.current.querySelector("img");
+		const caja = imagen.getBoundingClientRect();
+		const proporcion = imagen.naturalWidth && imagen.naturalHeight ? imagen.naturalWidth / imagen.naturalHeight : 1;
+		const ancho = Math.min(caja.width, caja.height * proporcion);
+		const alto = ancho / proporcion;
+		return {
+			x: caja.left + (caja.width - ancho) / 2 + ancho * BOCA.x,
+			y: caja.top + (caja.height - alto) / 2 + alto * BOCA.y
+		};
+	}
 
 	function darAlMonstruo(event, comida) {
 		const boton = event.currentTarget.getBoundingClientRect();
 		if (!darComida(letra, comida.clave)) {
 			return;
 		}
-		const boca = monstruoRef.current.getBoundingClientRect();
+		const boca = puntoBoca();
+		const origen = { x: boton.left + boton.width / 2, y: boton.top + boton.height / 2 };
 		const vuelo = {
 			id: `${Date.now()}-${Math.random()}`,
 			emoji: comida.emoji,
 			style: {
-				left: `${boton.left + boton.width / 2}px`,
-				top: `${boton.top + boton.height / 2}px`,
-				"--vuelo-x": `${boca.left + boca.width / 2 - (boton.left + boton.width / 2)}px`,
-				"--vuelo-y": `${boca.top + boca.height * 0.52 - (boton.top + boton.height / 2)}px`
+				left: `${origen.x}px`,
+				top: `${origen.y}px`,
+				"--vuelo-x": `${boca.x - origen.x}px`,
+				"--vuelo-y": `${boca.y - origen.y}px`
 			}
 		};
 		setVuelos((actuales) => [...actuales, vuelo]);
+		cancelarSecuencia();
+		setCuadro(CUADROS_MONSTRUO.abre);
 		const quedaLleno = comidas.every(({ clave, dadas, necesarias }) => (clave === comida.clave ? dadas + 1 : dadas) >= necesarias);
 		runtime.setTimeout(() => {
 			setVuelos((actuales) => actuales.filter((item) => item.id !== vuelo.id));
-			setComiendo(true);
-			runtime.clearTimeout(masticarTimer.current);
-			masticarTimer.current = runtime.setTimeout(() => setComiendo(false), MASTICAR_MS);
+			comer();
 			const audio = quedaLleno ? audios.lleno : audios.comer;
 			audio.currentTime = 0;
 			audio.play().catch(() => {});
@@ -102,7 +142,7 @@ export default function MonstruoPage() {
 				<section className="monstruo-centro" aria-live="polite">
 					<h1>{lleno ? "¡Estoy lleno!" : `Monstruo de la ${letra.toUpperCase()}`}</h1>
 					<div ref={monstruoRef} className="monstruo-lugar">
-						<Monstruo letra={letra} comiendo={comiendo} lleno={lleno} />
+						<Monstruo letra={letra} cuadro={lleno && cuadro === CUADROS_MONSTRUO.normal ? CUADROS_MONSTRUO.feliz : cuadro} lleno={lleno} />
 					</div>
 				</section>
 

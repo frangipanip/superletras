@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
-import Monstruo from "../components/Monstruo";
+import Monstruo, { imagenMonstruo } from "../components/Monstruo";
 import Tornado from "../components/Tornado";
 import UserNav from "../components/UserNav";
 import { usePageRuntime } from "../hooks/usePageRuntime";
@@ -50,6 +50,7 @@ export const MUNDO1_IMAGES = [
 	img("GLOBOSbtn.png"),
 	...ACTIVITY_SIGN_IMAGES.map(img),
 	...MENU_OPTIONS.map(({ image }) => img(image)),
+	...MENU_OPTIONS.map(({ key }) => imagenMonstruo(key)),
 	...MOUTH_IMAGES
 ];
 
