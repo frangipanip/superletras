@@ -1,5 +1,6 @@
 import BackButton from "../components/BackButton";
 import FullscreenButton from "../components/FullscreenButton";
+import PremioComida, { useRecompensa } from "../components/PremioComida";
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router";
 import { usePageTitle } from "../hooks/usePageTitle";
@@ -106,6 +107,9 @@ export default function InicioActividad() {
 	const errorTimer = useRef(0);
 	const revealTimer = useRef(0);
 	const requestedItemIndex = useRef(0);
+	// Carteles equivocados tocados al pedirlos (fases 2 y 3): definen cuántas comidas se ganan.
+	const errorCount = useRef(0);
+	const [premio, otorgarPremio] = useRecompensa("inicio", MODES[menuOption] ? menuOption : "a");
 	const LETTER_IMAGES = {
 		a: "letraA.png",
 		l: "letraL.png",
@@ -176,6 +180,7 @@ export default function InicioActividad() {
 		}
 		if (requestedItem) {
 			if (item !== requestedItem) {
+				errorCount.current += 1;
 				runtime.clearTimeout(errorTimer.current);
 				setIncorrectItem(item);
 				audios.error.currentTime = 0;
@@ -192,6 +197,10 @@ export default function InicioActividad() {
 				setRequestedItem(null);
 				setActiveItem(null);
 				setShowConfetti(true);
+				// La actividad se completa al terminar la fase 3 (carteles en movimiento).
+				if (isPhaseThree) {
+					otorgarPremio(errorCount.current);
+				}
 				audios.celebration.onended = () => {
 					audios.celebration.onended = null;
 					stopTalking();
@@ -484,6 +493,7 @@ export default function InicioActividad() {
 				>
 					<img className="inicio-activity-letter-image" src={bigLetterImage} alt={LETTER_LABELS[menuOption] || "Letra A"} />
 				</div>
+			<PremioComida premio={premio} />
 			{character && (
 				<div className="inicio-activity-character" aria-label="Personaje seleccionado">
 					<img src={CHARACTERS[character].image} alt={CHARACTERS[character].alt} />

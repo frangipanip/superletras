@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import BackButton from "../components/BackButton";
 import Character from "../components/Character";
 import FullscreenButton from "../components/FullscreenButton";
+import PremioComida, { useRecompensa } from "../components/PremioComida";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
@@ -138,6 +139,7 @@ export default function Tren() {
 	const sequenceBoardRef = useRef(null);
 
 	const [isHintHidden, setIsHintHidden] = useState(false);
+	const [premio, otorgarPremio] = useRecompensa("tren", menuOption);
 
 	// Estado que leen los callbacks de audio/timers/puntero (siempre el valor actual).
 	const game = useRef({
@@ -149,7 +151,9 @@ export default function Tren() {
 		activityFinished: false,
 		departing: false,
 		drag: null,
-		isHintHidden: false
+		isHintHidden: false,
+		// Vagones soltados en el casillero equivocado (en las dos vueltas): definen cuántas comidas se ganan.
+		errors: 0
 	}).current;
 
 	function formatToken(token, uppercase = uppercaseLetters) {
@@ -232,6 +236,10 @@ export default function Tren() {
 		updateDeparting(true);
 		if (game.roundIndex === config.sequences.length) {
 			game.activityFinished = true;
+			// La actividad se completa al terminar la segunda vuelta (la que no muestra las letras).
+			if (game.isHintHidden) {
+				otorgarPremio(game.errors);
+			}
 			runtime.setTimeout(() => {
 				setConvoy((current) => ({ ...current, tokens: null }));
 				runtime.requestAnimationFrame(() => {
@@ -255,6 +263,7 @@ export default function Tren() {
 		game.roundIndex = 0;
 		game.completedSlots = 0;
 		game.isHintHidden = false;
+		game.errors = 0;
 		setIsHintHidden(false);
 		do {
 			game.sequenceOrder = shuffle(config.sequences);
@@ -306,7 +315,11 @@ export default function Tren() {
 			return event.clientX >= rect.left && event.clientX <= rect.right && event.clientY >= rect.top && event.clientY <= rect.bottom;
 		});
 		const target = slotElements[targetIndex];
-		if (!target || target.dataset.vowel !== value || target.classList.contains("filled")) {
+		if (!target || target.classList.contains("filled")) {
+			return;
+		}
+		if (target.dataset.vowel !== value) {
+			game.errors += 1;
 			return;
 		}
 
@@ -428,6 +441,7 @@ export default function Tren() {
 					}
 				}}
 			/>
+			<PremioComida premio={premio} />
 		</div>
 	);
 }

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
+import Monstruo from "../components/Monstruo";
 import Tornado from "../components/Tornado";
 import UserNav from "../components/UserNav";
 import { usePageRuntime } from "../hooks/usePageRuntime";
@@ -194,6 +195,13 @@ export default function Mundo1() {
 		runtime.setTimeout(goToActivity, TORNADO_OUT_MS + TORNADO_IN_MS + TORNADO_PAUSE_MS);
 	}
 
+	function openMonster() {
+		if (travel) return;
+		const letra = selectedOption || "a";
+		writeStorage(STORAGE_KEYS.mundo1MenuOption, letra);
+		navigate("/monstruo", { state: { letra } });
+	}
+
 	function stepEdgeScroll() {
 		const page = pageRef.current;
 		const now = performance.now();
@@ -256,6 +264,11 @@ export default function Mundo1() {
 			}}
 		>
 			<UserNav />
+
+			{/* Fijo arriba al centro: sigue ahí aunque se recorra el camino. */}
+			<button className="mundo1-monster-button" type="button" aria-label="Ver al monstruo y sus comidas" onClick={openMonster}>
+				<Monstruo letra={selectedOption || "a"} />
+			</button>
 
 			<div className="mundo1-scene">
 				<img className="mundo1-background" src={img("FONDOM1.jpg")} alt="" draggable={false} onLoad={scrollToPerch} />

@@ -3,6 +3,7 @@ import { useLocation } from "react-router";
 import BackButton from "../components/BackButton";
 import Character from "../components/Character";
 import FullscreenButton from "../components/FullscreenButton";
+import PremioComida, { useRecompensa } from "../components/PremioComida";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
@@ -13,8 +14,11 @@ import "./actividad.css";
 import "./Memotest.css";
 
 const CARD_SETS = {
-	a: ["A", "E", "I", "O"],
-	l: ["L", "M", "S", "T"]
+	a: ["A", "E", "I", "O", "U"],
+	l: ["LA", "LE", "LI", "LO", "LU"],
+	m: ["MA", "ME", "MI", "MO", "MU"],
+	s: ["SA", "SE", "SI", "SO", "SU"],
+	t: ["TA", "TE", "TI", "TO", "TU"],
 };
 
 function shuffleCards(values) {
@@ -48,6 +52,7 @@ export default function Memotest() {
 	const [selectedIndices, setSelectedIndices] = useState([]);
 	const [moves, setMoves] = useState(0);
 	const [matchedPairs, setMatchedPairs] = useState(0);
+	const [premio, otorgarPremio] = useRecompensa("memotest", CARD_SETS[selectedOption] ? selectedOption : "a");
 	const [celebrating, setCelebrating] = useState(false);
 	const [celebrationAudio] = useState(() => runtime.audio(sound("Fabuloso.m4a"), { preload: true }));
 	const [successAudio] = useState(() => runtime.audio(sound("correcto.mp3"), { preload: true }));
@@ -66,7 +71,9 @@ export default function Memotest() {
 	}, [mode]);
 
 	useEffect(() => {
-		if (matchedPairs === 4) {
+		if (matchedPairs > 0 && matchedPairs === cards.length / 2) {
+			// Cada intento sin pareja cuenta como error.
+			otorgarPremio(moves - matchedPairs);
 			setCelebrating(true);
 			startTalking();
 			celebrationAudio.currentTime = 0;
@@ -187,6 +194,7 @@ export default function Memotest() {
 			</main>
 
 			<Character character={character} mouth={mouth} celebrating={celebrating} />
+			<PremioComida premio={premio} />
 		</div>
 	);
 }

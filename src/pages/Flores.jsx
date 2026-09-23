@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import BackButton from "../components/BackButton";
 import Character from "../components/Character";
 import FullscreenButton from "../components/FullscreenButton";
+import PremioComida, { useRecompensa } from "../components/PremioComida";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
@@ -51,8 +52,10 @@ export default function Flores() {
 	const [celebrating, setCelebrating] = useState(false);
 	const [instructionAudio] = useState(() => runtime.audio(sound(mode === "a" ? "Pulsavocal.m4a" : "Pulsa silaba.m4a")));
 	const [celebrationAudio] = useState(() => runtime.audio(sound("Fabuloso.m4a")));
+	const [premio, otorgarPremio] = useRecompensa("flores", mode);
 	const audioRef = useRef({ option: null, feedback: null });
-	const game = useRef({ activityIndex: 0, instructionOrder: [], transitionPending: false, celebrationActive: false });
+	// errors: flores equivocadas tocadas, definen cuántas comidas se ganan.
+	const game = useRef({ activityIndex: 0, instructionOrder: [], transitionPending: false, celebrationActive: false, errors: 0 });
 	const roundRef = useRef(round);
 	roundRef.current = round;
 
@@ -136,6 +139,7 @@ export default function Flores() {
 			return;
 		}
 		game.current.celebrationActive = true;
+		otorgarPremio(game.current.errors);
 		stopAudio(instructionAudio);
 		stopAudio(audioRef.current.option);
 		startTalking();
@@ -148,6 +152,7 @@ export default function Flores() {
 	function restart() {
 		finishCelebration();
 		game.current.activityIndex = 0;
+		game.current.errors = 0;
 		game.current.instructionOrder = shuffle(mode !== "a" ? SYLLABLES[mode] : VOWELS);
 		game.current.transitionPending = false;
 		buildFlowers(0);
@@ -178,6 +183,9 @@ export default function Flores() {
 			)
 		}));
 
+		if (!flower.correct) {
+			game.current.errors += 1;
+		}
 		if (flower.correct) {
 			game.current.transitionPending = true;
 			const completedIndex = currentRound.activityIndex;
@@ -226,6 +234,7 @@ export default function Flores() {
 				</section>
 			</main>
 			<Character character={character} mouth={mouth} celebrating={celebrating} onClick={repeatInstruction} />
+			<PremioComida premio={premio} />
 		</div>
 	);
 }

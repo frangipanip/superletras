@@ -11,6 +11,7 @@ npm install
 npm run dev      # http://localhost:5173
 npm run build    # genera dist/
 npm run preview  # sirve dist/ localmente
+npm run api      # solo la API de recompensas en :3001 (dev y preview ya la levantan solos)
 docker compose up -d --build   # imagen de producción (build Node + nginx)
 ```
 
@@ -34,10 +35,11 @@ Al subir un número, los de la derecha vuelven a 0. `src/components/AppVersion.j
 - **localStorage**: siempre vía `src/lib/storage.js` (`STORAGE_KEYS`, wrappers con try/catch para modo privado). Cambiar claves o formatos rompe datos guardados → MAYOR.
 - **Assets**: `public/assets/imagenes` y `public/assets/sonidos` se sirven tal cual en `/assets/...`; referenciarlos con `img(name)` / `sound(name)` de `src/lib/assets.js`. Por eso Vite emite el bundle en `bundle/` (`assetsDir` en `vite.config.js`) en lugar de `assets/`.
 - **App instalable (PWA)**: `public/manifest.json` (fullscreen + landscape) y `public/sw.js` (no cachea: las navegaciones van a la red con `no-store`). `src/lib/pwa.js` captura `beforeinstallprompt`, registra el SW y compara la versión del bundle con `/version.json` (lo emite un plugin en `vite.config.js`) al abrir, al volver a la app y cada 10 min; `AppBanners` muestra el cartel de instalar y, si hay versión nueva, recarga al estar en un menú (`?actualizar=<versión>` evita bucles).
+- **Recompensas (comidas y monstruos)**: `shared/comidas.js` (usado por app y API) define la comida de cada actividad, lo que necesita cada monstruo (= tope por letra) y el premio según errores. Las actividades llaman `otorgar(errores)` de `useRecompensa` (`src/components/PremioComida.jsx`) al completarse. `src/lib/recompensas.js` guarda copia y cola de eventos en localStorage y sincroniza con la API. `server/index.js` (Node sin dependencias, `node:sqlite`) guarda jugadores (código `XXXX-XXXX` generado por la API), comidas ganadas/dadas por letra y eventos idempotentes. Pantalla: `/monstruo`.
 - **CSS**: cada pantalla importa su `.css` con todo anidado bajo su clase raíz (`.page-silabas`, `.page-tren`, ...) para no pisar a otras; `src/pages/actividad.css` es el estilo compartido de actividades y `src/styles/global.css` el global. El target de build apunta a tablets/celulares viejos (chrome87, safari14): evitar CSS nesting nativo y media queries con sintaxis de rango.
 
 ## Deploy
 
 - `Dockerfile`: build con `node:24-alpine` y sirve `dist/` con `nginx:alpine`. `nginx.conf` resuelve el fallback de la SPA, no cachea `index.html`, cachea `/bundle/` como inmutable y declara los MIME de wav/m4a/mp3 (Safari no reproduce sin ellos).
-- `docker-compose.yml`: servicio `web` + `cloudflared` (túnel con `CLOUDFLARED_TUNNEL_TOKEN` desde `.env`).
+- `docker-compose.yml`: servicio `web` + `api` (SQLite en el volumen `datos`; nginx le pasa `/api/`) + `cloudflared` (túnel con `CLOUDFLARED_TUNNEL_TOKEN` desde `.env`).
 - Push a `master` dispara `.github/workflows/deploy.yml` en un runner self-hosted, que corre `deploy.sh` dentro del clon existente (`vars.DEPLOY_DIR`): hace `git pull --ff-only` de `master`, elige un puerto libre, lo escribe como `WEB_PORT` en `.env` y levanta `docker compose up -d --build --remove-orphans`.

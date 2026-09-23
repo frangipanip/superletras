@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import BackButton from "../components/BackButton";
 import Character from "../components/Character";
 import FullscreenButton from "../components/FullscreenButton";
+import PremioComida, { useRecompensa } from "../components/PremioComida";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
@@ -90,6 +91,7 @@ export default function Mariposas() {
 	const [butterflies, setButterflies] = useState([]);
 	const [celebrating, setCelebrating] = useState(false);
 	const [celebrationAudio] = useState(() => runtime.audio(sound("Fabuloso.m4a")));
+	const [premio, otorgarPremio] = useRecompensa("mariposas", mode);
 	const pageRef = useRef(null);
 	const fieldRef = useRef(null);
 
@@ -109,7 +111,9 @@ export default function Mariposas() {
 			celebrationActive: false,
 			activeButterflyAudio: null,
 			feedbackAudio: null,
-			generation: 0
+			generation: 0,
+			// Mariposas equivocadas tocadas: definen cuántas comidas se ganan.
+			errors: 0
 		};
 	}
 	const state = game.current;
@@ -241,6 +245,7 @@ export default function Mariposas() {
 			return;
 		}
 		state.celebrationActive = true;
+		otorgarPremio(state.errors);
 		stopInstructionAudio();
 		runtime.requestAnimationFrame(() => {
 			if (!state.celebrationActive) {
@@ -267,6 +272,7 @@ export default function Mariposas() {
 		playButterflyLabelAudio(butterfly.value, () => playFeedbackSound(butterfly.correct));
 
 		if (!butterfly.correct) {
+			state.errors += 1;
 			updateButterfly(butterfly.id, { vibrating: true });
 			button.animate([
 				{ transform: "translate(-50%, -50%) translateX(0)" },
@@ -327,6 +333,7 @@ export default function Mariposas() {
 
 	function restart() {
 		state.roundTransitionPending = false;
+		state.errors = 0;
 		finishCelebration();
 		stopInstructionAudio();
 		startInstructionSet();
@@ -390,6 +397,7 @@ export default function Mariposas() {
 				</section>
 			</main>
 			<Character character={character} mouth={mouth} celebrating={celebrating} onClick={repeatInstruction} />
+			<PremioComida premio={premio} />
 		</div>
 	);
 }

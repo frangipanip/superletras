@@ -143,3 +143,5 @@ vite.config.ts.timestamp-*
 .vite/
 descargar
 descargas/
+# Base SQLite de la API en desarrollo (server/index.js)
+datos/

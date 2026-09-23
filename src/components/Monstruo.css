@@ -1,0 +1,60 @@
+@keyframes monstruo-respira {
+	0%,
+	100% {
+		transform: scale(1, 1);
+	}
+	50% {
+		transform: scale(1.03, 0.97);
+	}
+}
+
+@keyframes monstruo-mastica {
+	0%,
+	100% {
+		transform: scale(1, 1);
+	}
+	30% {
+		transform: scale(1.08, 0.92);
+	}
+	60% {
+		transform: scale(0.96, 1.05);
+	}
+}
+
+@keyframes monstruo-baila {
+	0%,
+	100% {
+		transform: rotate(-5deg) translateY(0);
+	}
+	50% {
+		transform: rotate(5deg) translateY(-6%);
+	}
+}
+
+.monstruo {
+	display: block;
+	overflow: visible;
+	filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.35));
+
+	.monstruo-cuerpo {
+		transform-box: fill-box;
+		transform-origin: 50% 100%;
+		animation: monstruo-respira 2.4s ease-in-out infinite;
+	}
+
+	&.comiendo .monstruo-cuerpo {
+		animation: monstruo-mastica 0.35s ease-in-out 2;
+	}
+
+	&.lleno .monstruo-cuerpo {
+		animation: monstruo-baila 1.2s ease-in-out infinite;
+	}
+
+	.monstruo-letra {
+		fill: #ffffff;
+		font: 900 52px Arial, Helvetica, sans-serif;
+		paint-order: stroke;
+		stroke: rgba(0, 0, 0, 0.25);
+		stroke-width: 4px;
+	}
+}

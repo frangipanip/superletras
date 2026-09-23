@@ -3,7 +3,12 @@ export const STORAGE_KEYS = {
 	guestName: "superletras-guest-name",
 	mundo1MenuOption: "superletras-mundo1-menu-option",
 	selectedWorld: "superletras-selected-world",
-	installPromptDismissedAt: "superletras-install-dismissed-at"
+	installPromptDismissedAt: "superletras-install-dismissed-at",
+	// Recompensas (ver src/lib/recompensas.js).
+	codigo: "superletras-codigo",
+	dispositivo: "superletras-dispositivo",
+	comidas: "superletras-comidas",
+	comidasPendientes: "superletras-comidas-pendientes"
 };
 
 export function readStorage(key) {

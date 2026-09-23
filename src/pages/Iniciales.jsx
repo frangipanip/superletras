@@ -1,12 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import BackButton from "../components/BackButton";
 import Character from "../components/Character";
 import FullscreenButton from "../components/FullscreenButton";
+import PremioComida, { useRecompensa } from "../components/PremioComida";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { img, sound } from "../lib/assets";
 import { shuffle } from "../lib/shuffle";
+import { readMenuOption } from "../lib/storage";
 import "./Iniciales.css";
 
 const OPTIONS_BY_LETTER = {
@@ -156,6 +158,9 @@ export default function Peluche() {
 		Object.fromEntries(ROUND_LETTERS.slice(0, 5).map((letter) => [letter, runtime.audio(sound(`${letter}.wav`), { preload: true })]))
 	);
 	const activity = ACTIVITIES[activityIndex];
+	const [premio, otorgarPremio] = useRecompensa("peluches", readMenuOption() || "a");
+	// Imágenes equivocadas tocadas: definen cuántas comidas se ganan al terminar la última ronda.
+	const game = useRef({ errors: 0, rewarded: false }).current;
 
 	useEffect(() => {
 		Object.values(vowelAudios).forEach((audio) => {
@@ -177,6 +182,11 @@ export default function Peluche() {
 		}
 
 		if (option.correct) {
+			const correctCount = activity.options.filter((item) => item.correct).length;
+			if (activityIndex === ACTIVITIES.length - 1 && selected.size + 1 === correctCount && !game.rewarded) {
+				game.rewarded = true;
+				otorgarPremio(game.errors);
+			}
 			setSelected((current) => {
 				const next = new Set(current).add(option.name);
 				const correctCount = activity.options.filter((item) => item.correct).length;
@@ -192,6 +202,7 @@ export default function Peluche() {
 			return;
 		}
 
+		game.errors += 1;
 		errorAudio.pause();
 		errorAudio.currentTime = 0;
 		errorAudio.play().catch(() => {});
@@ -234,6 +245,7 @@ export default function Peluche() {
 				</section>
 			</main>
 			<Character character={character} />
+			<PremioComida premio={premio} />
 		</div>
 	);
 }

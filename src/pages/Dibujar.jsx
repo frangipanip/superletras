@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import BackButton from "../components/BackButton";
 import Character from "../components/Character";
 import FullscreenButton from "../components/FullscreenButton";
+import PremioComida, { useRecompensa } from "../components/PremioComida";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
@@ -263,6 +264,8 @@ export default function Dibujar() {
 	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime);
 	const menuOption = useActivityMenuOption();
 	const [letterOptions] = useState(() => LETTER_OPTIONS_BY_MENU[menuOption] || LETTER_OPTIONS_BY_MENU.a);
+	// Dibujar da siempre 1 galletita por cada letra completada (hasta el tope de la letra del menú).
+	const [premio, otorgarPremio] = useRecompensa("dibujar", LETTER_OPTIONS_BY_MENU[menuOption] ? menuOption : "a");
 	const firstLetter = letterOptions[0];
 	const [pointerPosition, setPointerPosition] = useState(() => getLetterStart(firstLetter));
 	const [isDragging, setIsDragging] = useState(false);
@@ -358,6 +361,7 @@ export default function Dibujar() {
 		updateCurveProgress(1);
 		setPointerPosition(curve.start);
 		setCompleted(true);
+		otorgarPremio();
 		startTalking();
 		celebrationAudio.onended = () => {
 			celebrationAudio.onended = null;
@@ -375,6 +379,7 @@ export default function Dibujar() {
 	// Muestra la celebración y, al terminar (o si el audio falla), aplica el reinicio de la letra.
 	function celebrateAndReset(onReset) {
 		setCompleted(true);
+		otorgarPremio();
 		startTalking();
 		const finish = () => {
 			celebrationAudio.onended = null;
@@ -428,6 +433,7 @@ export default function Dibujar() {
 	function tapIDot(point) {
 		if (!samePoint(point, I_DOT_POINT, 0.12)) return;
 		setCompleted(true);
+		otorgarPremio();
 		startTalking();
 		celebrationAudio.onended = () => {
 			celebrationAudio.onended = null;
@@ -570,6 +576,7 @@ export default function Dibujar() {
 					correctAudio.play().catch(() => {});
 				} else if (phase === 4) {
 					setCompleted(true);
+					otorgarPremio();
 					startTalking();
 					celebrationAudio.onended = () => {
 						celebrationAudio.onended = null;
@@ -632,6 +639,7 @@ export default function Dibujar() {
 				correctAudio.play().catch(() => {});
 			} else {
 				setCompleted(true);
+				otorgarPremio();
 				startTalking();
 				celebrationAudio.onended = () => {
 					celebrationAudio.onended = null;
@@ -784,6 +792,7 @@ export default function Dibujar() {
 				</div>
 			</main>
 			<Character character={character} mouth={mouth} />
+			<PremioComida premio={premio} />
 		</div>
 	);
 }
