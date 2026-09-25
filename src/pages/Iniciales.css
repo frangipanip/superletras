@@ -12,10 +12,10 @@
 	   algo más de la mitad del alto, para que entren las dos sin tapar al personaje. */
 	.initials-grid {
 		position: fixed;
-		top: 20%;
+		top: 30%;
 		left: 50%;
 		display: grid;
-		grid-template-columns: repeat(2, min(34vw, 60vh));
+		grid-template-columns: repeat(2, min(27vw, 48vh));
 		gap: 4vw;
 		transform: translateX(-50%);
 	}
@@ -50,23 +50,28 @@
 }
 
 @keyframes initials-pulse {
+
 	0%,
 	100% {
 		transform: scale(1);
 	}
+
 	45% {
 		transform: scale(1.18);
 	}
 }
 
 @keyframes initials-vibrate {
+
 	0%,
 	100% {
 		transform: translateX(0);
 	}
+
 	25% {
 		transform: translateX(-8px);
 	}
+
 	75% {
 		transform: translateX(8px);
 	}
@@ -75,7 +80,7 @@
 @media (max-width: 700px) {
 	.page-peluche .initials-grid {
 		top: 27%;
-		grid-template-columns: repeat(2, 44vw);
+		grid-template-columns: repeat(2, 35vw);
 		gap: 2vw;
 	}
 }

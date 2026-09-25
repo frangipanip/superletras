@@ -119,9 +119,8 @@ export default function MonstruoPage() {
 			<FullscreenButton toggle />
 
 			<main className="monstruo-escena">
-				<section className="monstruo-panel monstruo-juntadas" aria-label="Comidas que juntaste">
-					<h2>Tus comidas</h2>
-					<div className="monstruo-grilla">
+				<section className="monstruo-izq" aria-label="Comidas que juntaste">
+					<div className="monstruo-grilla-izq">
 						{comidas.map((comida) => (
 							<button
 								key={comida.clave}
@@ -136,7 +135,6 @@ export default function MonstruoPage() {
 							</button>
 						))}
 					</div>
-					<p className="monstruo-ayuda">Tocá una comida para dársela</p>
 				</section>
 
 				<section className="monstruo-centro" aria-live="polite">
@@ -146,21 +144,25 @@ export default function MonstruoPage() {
 					</div>
 				</section>
 
-				<section className="monstruo-panel monstruo-necesita" aria-label="Lo que necesita el monstruo">
-					<h2>Necesita</h2>
-					<ul>
-						{comidas.map(({ clave, emoji, nombre, dadas, necesarias }) => (
-							<li key={clave} className={dadas >= necesarias ? "completa" : undefined} aria-label={`${nombre}: ${dadas} de ${necesarias}`}>
-								<span className="monstruo-emoji">{emoji}</span>
-								<span className="monstruo-barra">
-									<span style={{ width: `${(100 * dadas) / necesarias}%` }} />
-								</span>
-								<span className="monstruo-cuenta">
-									{dadas}/{necesarias}
-								</span>
-							</li>
-						))}
-					</ul>
+				<section className="monstruo-der" aria-label="Lo que necesita el monstruo">
+					<div className="monstruo-grilla-der">
+						{comidas.map(({ clave, emoji, nombre, dadas, necesarias }) => {
+							const porcentaje = (100 * dadas) / necesarias;
+							const estaLleno = dadas >= necesarias;
+							return (
+								<div key={clave} className={`monstruo-item-necesita ${estaLleno ? "completa" : ""}`} aria-label={`${nombre}: ${dadas} de ${necesarias}`}>
+									<div className="monstruo-circulo-progreso" style={{ "--progreso": `${porcentaje}%` }}>
+										<div className="monstruo-circulo-interior">
+											<span className="monstruo-emoji">{emoji}</span>
+										</div>
+									</div>
+									<span className="monstruo-cuenta-pill">
+										{dadas}/{necesarias}
+									</span>
+								</div>
+							);
+						})}
+					</div>
 				</section>
 			</main>
 

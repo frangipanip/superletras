@@ -6,6 +6,7 @@ import PremioComida, { useRecompensa } from "../components/PremioComida";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
+import { useTalkingMouth } from "../hooks/useTalkingMouth";
 import { img, preloadImages, sound } from "../lib/assets";
 import { shuffle } from "../lib/shuffle";
 import { readMenuOption } from "../lib/storage";
@@ -14,18 +15,25 @@ import "./Iniciales.css";
 // Banco de imágenes (public/assets/imagenes/peluches/<palabra>.webp). El nombre del archivo es la
 // palabra: de ahí sale con qué vocal o sílaba empieza, así que no hay que renombrarlos.
 const BANCO = [
-	"avion", "frutilla", "arbol", "sol", "auto", "anillo",
-	"elefante", "estrella", "escalera", "espejo", "escoba", "perro",
-	"iguana", "iglu", "isla", "iman", "indio", "cartuchera",
-	"oruga", "oveja", "ojo", "oreja", "oso", "guitarra",
-	"uva", "uno", "unicornio", "uña", "urraca", "colectivo",
-	"lana", "lapiz", "lago", "lata", "bebe", "mano",
-	"leche", "leña", "lechuga", "leon", "limon", "libro",
-	"licuadora", "linterna", "lila", "loro", "lobo", "tren"
+	"anillo", "arbol", "auto", "avion", "bebe", "cartuchera", "colectivo",
+	"elefante", "escalera", "escoba", "espejo", "estrella", "frutilla",
+	"guitarra", "iglu", "iguana", "iman", "indio", "isla",
+	"lago", "lana", "lapiz", "lata", "leche", "lechuga", "leon", "leña",
+	"libro", "licuadora", "lila", "limon", "linterna", "lobo", "loro",
+	"mamadera", "mano", "mariposa", "martillo", "media", "megafono", "melon",
+	"mesa", "microfono", "microondas", "miel", "milanesa", "mochila", "momia",
+	"moneda", "mono", "moto", "muffin", "mundo", "murcielago", "musica", "muñeca",
+	"ojo", "oreja", "oruga", "oso", "oveja", "perro",
+	"saco", "sal", "sandia", "sapo", "semaforo", "serpiente", "serrucho", "servilleta",
+	"silbato", "silla", "sillon", "sirena", "soga", "sol", "sopa",
+	"subibaja", "submarino", "superheroe", "suricata",
+	"taco", "taladro", "tambor", "tapa", "taza", "techo", "tele", "telefono",
+	"tenedor", "tesoro", "tiburon", "tijera", "timbre", "titere", "tiza", "toalla",
+	"tomate", "toro", "torre", "torta", "tren", "tubo", "tucan", "tuerca", "tutu",
+	"unicornio", "uno", "urraca", "uva", "uña"
 ];
 
 const VOCALES = ["a", "e", "i", "o", "u"];
-const SILABAS_L = ["la", "le", "li", "lo", "lu"];
 // Cada consigna se pide dos veces (con imágenes distintas).
 const VUELTAS = 2;
 const CORRECT_ANIMATION_MS = 900;
@@ -35,14 +43,27 @@ function empiezaCon(palabra, consigna) {
 }
 
 function consignaAudio(consigna) {
-	// Las vocales están como A.wav, E.wav...; las sílabas como la.wav, le.wav...
-	return consigna.length === 1 ? `${consigna.toUpperCase()}.wav` : `${consigna}.wav`;
+	if (consigna.length === 1) {
+		return `${consigna.toUpperCase()}.wav`;
+	}
+	const lower = consigna.toLowerCase();
+	if (lower.startsWith("s")) {
+		return `${consigna.toUpperCase()}.m4a`;
+	}
+	if (lower === "te") {
+		return "TE2.m4a";
+	}
+	if (lower.startsWith("t")) {
+		return `${consigna.toUpperCase()}.m4a`;
+	}
+	return `${lower}.wav`;
 }
 
 function crearRondas(letra) {
-	// Con la L se piden sílabas; con cualquier otra letra, las vocales. Se saltean las
+	// Con la A se piden vocales; con las consonantes, sílabas. Se saltean las
 	// consignas que todavía no tienen imágenes en el banco.
-	const consignas = (letra === "l" ? SILABAS_L : VOCALES).filter((consigna) =>
+	const opciones = letra === "a" ? VOCALES : VOCALES.map((v) => letra + v);
+	const consignas = opciones.filter((consigna) =>
 		BANCO.some((palabra) => empiezaCon(palabra, consigna))
 	);
 	const correctas = Object.fromEntries(
@@ -79,6 +100,7 @@ export default function Peluche() {
 	usePageTitle("Peluche - Mundo 1");
 	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
+	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime);
 	const [letra] = useState(() => readMenuOption() || "a");
 	const [rondas] = useState(() => crearRondas(letra));
 	const [activityIndex, setActivityIndex] = useState(0);
@@ -104,17 +126,35 @@ export default function Peluche() {
 		preloadImages(rondas.flatMap((ronda) => ronda.options.map((option) => optionImage(option.name))));
 	}, [rondas]);
 
+	function playInstruction() {
+		const instructionAudio = consignaAudios[activity.consigna];
+		instructionAudio.currentTime = 0;
+		startTalking();
+		instructionAudio.onended = () => {
+			instructionAudio.onended = null;
+			stopTalking();
+		};
+		instructionAudio.play().catch(() => {
+			instructionAudio.onended = null;
+			stopTalking();
+		});
+	}
+
 	useEffect(() => {
 		Object.values(consignaAudios).forEach((audio) => {
 			audio.pause();
 			audio.currentTime = 0;
+			audio.onended = null;
 		});
-		const instructionAudio = consignaAudios[activity.consigna];
-		instructionAudio.currentTime = 0;
-		instructionAudio.play().catch(() => {});
+		playInstruction();
 		return () => {
-			instructionAudio.pause();
-			instructionAudio.currentTime = 0;
+			const instructionAudio = consignaAudios[activity.consigna];
+			if (instructionAudio) {
+				instructionAudio.pause();
+				instructionAudio.currentTime = 0;
+				instructionAudio.onended = null;
+			}
+			stopTalking();
 		};
 	}, [activity.consigna, consignaAudios]);
 
@@ -188,7 +228,7 @@ export default function Peluche() {
 					})}
 				</section>
 			</main>
-			<Character character={character} />
+			<Character character={character} mouth={mouth} onClick={playInstruction} label="Repetir audio" />
 			<PremioComida premio={premio} />
 		</div>
 	);
