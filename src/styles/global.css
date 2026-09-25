@@ -8,6 +8,29 @@ body,
 	overflow: hidden;
 }
 
+/* Los botones no quedan marcados al tocarlos: sin el recuadro de toque de Android/iOS, sin el
+   contorno de foco y sin que un toque largo seleccione o arrastre la imagen. */
+* {
+	-webkit-tap-highlight-color: transparent;
+}
+
+button,
+a,
+img {
+	-webkit-user-select: none;
+	user-select: none;
+	-webkit-touch-callout: none;
+}
+
+button:focus,
+a:focus {
+	outline: none;
+}
+
+img {
+	-webkit-user-drag: none;
+}
+
 /* Cada pantalla vive dentro de un .page que ocupa toda la ventana (antes era el body). */
 .page {
 	width: 100%;
