@@ -60,10 +60,10 @@ const PATH_ROUTES = ["/inicio", "/mariposas", "/flores", "/peluches", "/tren", "
 // hasta que la actividad tenga los audios de esa letra. Sin entrada, la letra no abre nada.
 const AVAILABLE_ACTIVITIES = {
 	a: [0, 1, 2, 3, 4, 5, 6],
-	l: [0, 1, 2, 4, 5, 6],
-	m: [0, 1, 2, 4, 5, 6],
-	s: [0, 1, 2, 4, 5, 6],
-	t: [0, 1, 2, 4, 5, 6]
+	l: [0, 1, 2, 3, 4, 5, 6],
+	m: [0, 1, 2, 3, 4, 5, 6],
+	s: [0, 1, 2, 3, 4, 5, 6],
+	t: [0, 1, 2, 3, 4, 5, 6]
 };
 
 // Desplazamiento con el mouse: al acercarse a un borde la escena avanza sola,

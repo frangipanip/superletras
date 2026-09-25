@@ -24,6 +24,7 @@
 		position: relative;
 		width: 100vw;
 		height: 100vh;
+		height: 100dvh;
 		overflow: hidden;
 	}
 
@@ -31,8 +32,10 @@
 		position: fixed;
 		left: 0vw;
 		top: 14%;
+		top: 14dvh;
 		width: 92vw;
 		height: 80vh;
+		height: 80dvh;
 		overflow: hidden;
 	}
 
@@ -51,6 +54,7 @@
 		display: block;
 		width: 100%;
 		height: auto;
+		aspect-ratio: 1;
 		filter: drop-shadow(0 4px 7px rgba(0, 0, 0, 0.45));
 	}
 
@@ -111,8 +115,10 @@
 		.butterfly-field {
 		left: 5vw;
 			top: 16%;
+			top: 16dvh;
 			width: 90vw;
 			height: 78vh;
+			height: 78dvh;
 		}
 
 		.butterfly-button {
@@ -137,8 +143,10 @@
 		.butterfly-field {
 		left: 3vw;
 			top: 13%;
+			top: 13dvh;
 			width: 94vw;
 			height: 84vh;
+			height: 84dvh;
 		}
 
 		.butterfly-button {
