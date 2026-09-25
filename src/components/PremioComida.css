@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Lilita+One&display=swap');
+
 .premio-modal-overlay {
 	position: fixed;
 	inset: 0;
@@ -9,54 +11,91 @@
 	animation: premio-fade-in 0.3s ease-out;
 }
 
-.premio-modal {
-	background: #fffdf5;
-	border: 8px solid #ffcc00;
-	border-radius: 40px;
-	padding: 2rem 3rem;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 2rem;
-	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3), inset 0 0 0 8px #ffeb73;
+/* New Window */
+.game-window {
+	background: #ffcc00;
+	border-radius: 70px;
+	padding: 16px;
+	box-shadow: 
+		inset 6px 8px 6px rgba(255,255,255,0.6),
+		inset -6px -8px 6px rgba(220, 150, 0, 0.4),
+		0 15px 30px rgba(0,0,0,0.3);
 	position: relative;
-	text-align: center;
-	max-width: 90vw;
+	width: 90vw;
+	max-width: 600px;
+	margin-top: 40px;
 	animation: premio-pop-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.premio-titulo {
-	font-family: "Arial Rounded MT Bold", Arial, Helvetica, sans-serif;
-	font-size: clamp(2.2rem, 7vw, 3.8rem);
-	font-weight: 900;
-	color: #ff7b00;
-	margin: 0;
-	-webkit-text-stroke: 8px #ffffff;
-	paint-order: stroke fill;
-	text-shadow: 0 4px 0 #c75a00, 0 8px 15px rgba(0,0,0,0.2);
-	transform: rotate(-3deg);
+.game-window-inner {
+	background: #fffdf2;
+	border: 10px solid #ffaa00;
+	border-radius: 54px;
+	padding: 4.5rem 2rem 2rem 2rem;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	box-shadow: 
+		inset 0 15px 0 0 rgba(255, 255, 255, 0.7),
+		inset 0 -10px 15px 0 rgba(220, 200, 150, 0.4);
+	position: relative;
 }
 
-.premio-iconos-contenedor {
+/* Title Banner */
+.title-banner {
+	position: absolute;
+	top: -55px;
+	left: 50%;
+	transform: translateX(-50%);
+	background: linear-gradient(to bottom, #ffea00, #ff9500);
+	border: 6px solid #ff7b00;
+	border-radius: 50px;
+	padding: 8px 40px;
+	box-shadow: 
+		0 10px 0 #cc5500,
+		0 15px 20px rgba(0,0,0,0.3),
+		inset 0 8px 10px rgba(255, 255, 255, 0.8),
+		inset 0 -5px 10px rgba(255, 120, 0, 0.6);
+	z-index: 10;
+	white-space: nowrap;
+}
+
+.title-banner h2 {
+	font-family: 'Lilita One', 'Arial Rounded MT Bold', sans-serif;
+	font-size: clamp(2.2rem, 8vw, 4rem);
+	font-weight: normal;
+	color: #ffffff;
+	margin: 0;
+	-webkit-text-stroke: 4px #8b2b00;
+	paint-order: stroke fill;
+	text-shadow: 0 5px 0 #8b2b00, 0 8px 10px rgba(0,0,0,0.4);
+	letter-spacing: 2px;
+	line-height: 1.2;
+}
+
+/* Items Area */
+.items-area {
 	display: flex;
 	gap: 1.5rem;
 	justify-content: center;
 	align-items: center;
-	margin: 1rem 0;
+	margin: 1.5rem 0 2rem 0;
+	min-height: 120px;
+	width: 100%;
 }
 
 .premio-icono-wrapper {
-	width: clamp(80px, 15vw, 130px);
-	height: clamp(80px, 15vw, 130px);
+	width: clamp(82px, 13.6vw, 136px); /* Reducido otro 15% */
+	height: clamp(82px, 13.6vw, 136px);
 	display: flex;
 	align-items: center;
 	justify-content: center;
 }
 
 .premio-icono {
-	font-size: clamp(4.5rem, 12vw, 7rem);
+	font-size: clamp(5.4rem, 12.2vw, 8.2rem); /* Reducido otro 15% */
 	line-height: 1;
-	filter: drop-shadow(0 8px 10px rgba(0,0,0,0.3));
+	filter: drop-shadow(0 12px 15px rgba(0,0,0,0.3));
 	animation: premio-icono-salto 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
 }
 
@@ -64,66 +103,83 @@
 .premio-icono-wrapper:nth-child(2) .premio-icono { animation-delay: 0.2s; }
 .premio-icono-wrapper:nth-child(3) .premio-icono { animation-delay: 0.3s; }
 
-.premio-icono-hueco {
-	width: 90%;
-	height: 75%;
-	background-color: #d1c5b4;
-	border-radius: 50px 40px 60px 45px / 45px 55px 40px 60px;
-	box-shadow: inset 0 8px 12px rgba(0, 0, 0, 0.15), inset 0 -4px 6px rgba(255, 255, 255, 0.5);
+.premio-icono.premio-icono-hueco {
+	filter: brightness(0) opacity(0.12);
+	animation: none;
+	transform: scale(0.9);
 }
 
-.premio-botones {
+/* Game Buttons */
+.game-buttons-area {
 	display: flex;
-	gap: 1.5rem;
+	gap: 2rem; /* Aumentada la separación */
 	width: 100%;
 	justify-content: center;
-	flex-wrap: wrap;
+	flex-wrap: nowrap;
 }
 
-.btn-volver, .btn-salir {
+.game-button {
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	gap: 0.8rem;
-	border: none;
 	border-radius: 999px;
-	padding: 0.6rem 1.6rem;
-	font-family: Arial, Helvetica, sans-serif;
-	font-weight: 900;
-	font-size: clamp(1.2rem, 4vw, 1.8rem);
+	padding: 0.8rem 2.5rem; /* Aumentado padding horizontal para alargarlos */
+	font-family: 'Lilita One', 'Arial Rounded MT Bold', sans-serif;
+	font-size: clamp(1.1rem, 3vw, 1.6rem);
 	color: white;
 	cursor: pointer;
-	text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+	border: none;
 	transition: transform 0.1s, box-shadow 0.1s;
 	text-align: left;
 	line-height: 1.1;
+	letter-spacing: 1px;
+	text-shadow: 0 3px 0 rgba(0,0,0,0.3);
 }
 
-.btn-volver {
-	background: linear-gradient(to bottom, #4ade80, #16a34a);
-	border: 4px solid #14532d;
-	box-shadow: 0 6px 0 #14532d, 0 10px 15px rgba(0,0,0,0.2);
+.game-button:active {
+	transform: translateY(8px);
 }
 
-.btn-volver:active {
-	transform: translateY(6px);
-	box-shadow: 0 0px 0 #14532d, 0 4px 6px rgba(0,0,0,0.2);
+.game-button--green {
+	background: linear-gradient(to bottom, #50f531, #02b302);
+	border: 6px solid #16b116;
+	box-shadow: 
+		0 8px 0 #088608,
+		0 12px 15px rgba(0,0,0,0.3),
+		inset 0 8px 10px rgba(255, 255, 255, 0.6),
+		inset 0 -5px 10px rgba(0, 80, 0, 0.4);
+}
+.game-button--green:active {
+	box-shadow: 
+		0 0px 0 #088608,
+		0 4px 6px rgba(0,0,0,0.2),
+		inset 0 8px 10px rgba(255, 255, 255, 0.6);
 }
 
-.btn-salir {
-	background: linear-gradient(to bottom, #38bdf8, #0284c7);
-	border: 4px solid #0c4a6e;
-	box-shadow: 0 6px 0 #0c4a6e, 0 10px 15px rgba(0,0,0,0.2);
+.game-button--blue {
+	background: linear-gradient(to bottom, #45e0ff, #0077ff);
+	border: 6px solid #0044aa;
+	box-shadow: 
+		0 8px 0 #002277,
+		0 12px 15px rgba(0,0,0,0.3),
+		inset 0 8px 10px rgba(255, 255, 255, 0.6),
+		inset 0 -5px 10px rgba(0, 50, 150, 0.4);
 }
-
-.btn-salir:active {
-	transform: translateY(6px);
-	box-shadow: 0 0px 0 #0c4a6e, 0 4px 6px rgba(0,0,0,0.2);
+.game-button--blue:active {
+	box-shadow: 
+		0 0px 0 #002277,
+		0 4px 6px rgba(0,0,0,0.2),
+		inset 0 8px 10px rgba(255, 255, 255, 0.6);
 }
 
 .btn-icon {
-	width: clamp(2rem, 6vw, 3rem);
-	height: clamp(2rem, 6vw, 3rem);
+	width: clamp(1.8rem, 5vw, 2.8rem); /* Reducido */
+	height: clamp(1.8rem, 5vw, 2.8rem); /* Reducido */
+	filter: drop-shadow(0 3px 0 rgba(0,0,0,0.3));
+}
+.btn-text {
+	display: inline-block;
 }
 
 @keyframes premio-fade-in {

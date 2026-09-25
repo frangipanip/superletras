@@ -58,7 +58,7 @@ export default function PremioComida({ premio }) {
 		} else {
 			items.push(
 				<div key={i} className="premio-icono-wrapper">
-					<div className="premio-icono-hueco"></div>
+					<span className="premio-icono premio-icono-hueco">{comida.emoji}</span>
 				</div>
 			);
 		}
@@ -66,22 +66,26 @@ export default function PremioComida({ premio }) {
 
 	return (
 		<div className="premio-modal-overlay">
-			<div className="premio-modal" role="dialog" aria-label={titulo}>
-				<h2 className="premio-titulo">{titulo}</h2>
-				
-				<div className="premio-iconos-contenedor">
-					{items}
-				</div>
+			<div className="game-window" role="dialog" aria-label={titulo}>
+				<div className="game-window-inner">
+					<div className="title-banner">
+						<h2>{titulo}</h2>
+					</div>
+					
+					<div className="items-area">
+						{items}
+					</div>
 
-				<div className="premio-botones">
-					<button className="btn-volver" onClick={handleVolver} type="button">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="btn-icon"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg>
-						VOLVER<br/>A JUGAR
-					</button>
-					<button className="btn-salir" onClick={handleSalir} type="button">
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="btn-icon"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-						SALIR
-					</button>
+					<div className="game-buttons-area">
+						<button className="game-button game-button--green" onClick={handleVolver} type="button">
+							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="btn-icon"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg>
+							<span className="btn-text">VOLVER<br/>A JUGAR</span>
+						</button>
+						<button className="game-button game-button--blue" onClick={handleSalir} type="button">
+							<svg viewBox="0 0 24 24" fill="currentColor" stroke="none" className="btn-icon"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" /></svg>
+							<span className="btn-text">SALIR</span>
+						</button>
+					</div>
 				</div>
 			</div>
 		</div>
