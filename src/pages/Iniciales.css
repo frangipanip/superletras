@@ -8,31 +8,30 @@
 		overflow: hidden;
 	}
 
+	/* Cada imagen se dimensiona según la pantalla: lo que sea menor entre un tercio del ancho y
+	   algo más de la mitad del alto, para que entren las dos sin tapar al personaje. */
 	.initials-grid {
 		position: fixed;
-		top: 24%;
+		top: 20%;
 		left: 50%;
 		display: grid;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: clamp(0.5rem, 1.5vw, 1.2rem);
-		width: min(48vw, 30rem);
+		grid-template-columns: repeat(2, min(34vw, 60vh));
+		gap: 4vw;
 		transform: translateX(-50%);
 	}
 
 	.initials-option {
 		min-width: 0;
 		padding: 0;
-		border: 4px solid rgba(255, 255, 255, 0.8);
-		border-radius: 14px;
-		background: rgba(255, 255, 255, 0.25);
-		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.28);
+		border: 0;
+		background: none;
 		cursor: pointer;
-		transition: transform 180ms ease, filter 180ms ease, border-color 180ms ease;
+		filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.3));
+		transition: transform 180ms ease, filter 180ms ease;
 	}
 
 	.initials-option img {
 		display: block;
-		border-radius: 10px;
 		width: 100%;
 		aspect-ratio: 1;
 		object-fit: contain;
@@ -41,14 +40,13 @@
 	.initials-option:hover,
 	.initials-option:focus-visible {
 		transform: translateY(-4px) scale(1.03);
-		filter: brightness(1.08);
+		filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.3)) brightness(1.08);
 	}
 
 	.initials-option.correct {
 		position: relative;
 		z-index: 1;
-		border-color: #fff6a4;
-		box-shadow: 0 0 0 4px rgba(133, 237, 150, 0.65), 0 5px 10px rgba(0, 0, 0, 0.3);
+		filter: drop-shadow(0 0 10px #fff6a4) drop-shadow(0 0 6px rgba(133, 237, 150, 0.9));
 		animation: initials-pulse 900ms ease-in-out;
 	}
 
@@ -83,12 +81,7 @@
 @media (max-width: 700px) {
 	.page-peluche .initials-grid {
 		top: 27%;
-		width: min(90vw, 34rem);
-		gap: 0.4rem;
-	}
-
-	.page-peluche .initials-option {
-		border-width: 2px;
-		border-radius: 8px;
+		grid-template-columns: repeat(2, 44vw);
+		gap: 2vw;
 	}
 }
