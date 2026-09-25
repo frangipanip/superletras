@@ -87,7 +87,7 @@ function encolar(evento) {
 	sincronizar();
 }
 
-// Al completar una actividad. Devuelve { comida, cantidad } (cantidad 0 si ya llegó al tope).
+// Al completar una actividad. Devuelve { comida, cantidad, score } (cantidad 0 si ya llegó al tope).
 export function otorgarPremio(letra, actividad, errores = 0) {
 	const comida = COMIDA_POR_ACTIVIDAD[actividad];
 	if (!comida || !letra) {
@@ -98,7 +98,8 @@ export function otorgarPremio(letra, actividad, errores = 0) {
 	if (cantidad > 0) {
 		encolar(evento);
 	}
-	return { id: evento.id, comida, cantidad };
+	const score = premioPorErrores(actividad, errores);
+	return { id: evento.id, comida, cantidad, score };
 }
 
 // Le da una unidad de comida al monstruo de la letra. Devuelve false si no quedaba.
