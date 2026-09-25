@@ -1,8 +1,4 @@
 .codigo-usuario {
-	position: fixed;
-	top: clamp(0.75rem, 2vw, 1.5rem);
-	right: clamp(0.75rem, 2vw, 1.5rem);
-	z-index: 3;
 	color: #ffffff;
 	font: 700 clamp(0.75rem, 2.5vmin, 1.05rem) Arial, Helvetica, sans-serif;
 	text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);

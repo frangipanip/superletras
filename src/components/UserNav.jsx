@@ -2,6 +2,7 @@ import { useLayoutEffect, useRef, useState } from "react";
 import { img } from "../lib/assets";
 import { readStorage, removeStorage, STORAGE_KEYS, writeStorage } from "../lib/storage";
 import BackButton from "./BackButton";
+import CodigoUsuario from "./CodigoUsuario";
 import FullscreenButton from "./FullscreenButton";
 import "./UserNav.css";
 
@@ -9,7 +10,8 @@ const MAX_NAME_LENGTH = 10;
 const DEFAULT_NAME = "USUARIO";
 
 // Barra superior de los menus: volver, pantalla completa y nombre del usuario.
-export default function UserNav() {
+// Con soloUsuario (pantalla de inicio) muestra solo el botón del usuario.
+export default function UserNav({ soloUsuario = false }) {
 	const [guestName, setGuestName] = useState(() => readStorage(STORAGE_KEYS.guestName) || DEFAULT_NAME);
 	const [modalOpen, setModalOpen] = useState(false);
 	const [draft, setDraft] = useState("");
@@ -40,8 +42,8 @@ export default function UserNav() {
 	return (
 		<>
 			<nav className="top-nav" aria-label="Navegación y usuario">
-				<BackButton className="corner-button back-button" />
-				<FullscreenButton />
+				{!soloUsuario && <BackButton className="corner-button back-button" />}
+				{!soloUsuario && <FullscreenButton />}
 				<button className="corner-button guest-button" type="button" onClick={openProfileModal}>
 					<span>{guestName}</span>
 				</button>
@@ -68,6 +70,7 @@ export default function UserNav() {
 							<img src={img("cancelarbtn.png")} alt="Cancelar" />
 						</button>
 					</div>
+					{modalOpen && <CodigoUsuario />}
 				</div>
 			</section>
 		</>

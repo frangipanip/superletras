@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router";
-import CodigoUsuario from "../components/CodigoUsuario";
+import UserNav from "../components/UserNav";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { CHARACTERS, img } from "../lib/assets";
@@ -27,7 +27,7 @@ export default function Inicio() {
 
 	return (
 		<div className="page page-inicio">
-			<CodigoUsuario />
+			<UserNav soloUsuario />
 			<main className={character ? "characters-row has-selection" : "characters-row"}>
 				<CharacterButton id="supernena" selected={character === "supernena"} onSelect={selectCharacter} />
 
