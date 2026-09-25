@@ -23,7 +23,7 @@ const SYLLABLES = {
 };
 const TOTAL_BUTTERFLIES = 8;
 const TOTAL_CORRECT = 5;
-const TOTAL_INSTRUCTIONS = 5;
+const TOTAL_INSTRUCTIONS = 3;
 const POSITIONS = [
 	[24, 18], [47, 20], [70, 18], [34, 48], [57, 45], [78, 47], [27, 76], [52, 75], [72, 74], [42, 62], [88, 62]
 ];
