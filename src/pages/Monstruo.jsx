@@ -28,7 +28,7 @@ const BOCA = { x: 0.5, y: 0.54 };
 export default function MonstruoPage() {
 	const location = useLocation();
 	const runtime = usePageRuntime();
-	const [letra] = useState(() => {
+	const [letra, setLetra] = useState(() => {
 		const elegida = (location.state?.letra || readMenuOption() || "a").toLowerCase();
 		return LETRAS.includes(elegida) ? elegida : "a";
 	});
@@ -39,6 +39,7 @@ export default function MonstruoPage() {
 	const monstruoRef = useRef(null);
 	// Timers de la secuencia de comer en curso: si le dan otra comida, arranca de nuevo.
 	const comerTimers = useRef([]);
+	const vueloTimers = useRef([]);
 	const [audios] = useState(() => ({
 		comer: runtime.audio(sound("correcto.mp3"), { preload: true }),
 		lleno: runtime.audio(sound("Fabuloso.m4a"), { preload: true })
@@ -52,12 +53,28 @@ export default function MonstruoPage() {
 
 	useEffect(() => {
 		sincronizar();
-		preloadImages(imagenesMonstruo(letra));
 	}, []);
+
+	useEffect(() => {
+		preloadImages(imagenesMonstruo(letra));
+	}, [letra]);
 
 	function cancelarSecuencia() {
 		comerTimers.current.forEach((id) => runtime.clearTimeout(id));
 		comerTimers.current = [];
+	}
+
+	function seleccionarMonstruo(otraLetra) {
+		cancelarSecuencia();
+		vueloTimers.current.forEach((id) => runtime.clearTimeout(id));
+		vueloTimers.current = [];
+		setVuelos([]);
+		Object.values(audios).forEach((audio) => {
+			audio.pause();
+			audio.currentTime = 0;
+		});
+		setCuadro(CUADROS_MONSTRUO.normal);
+		setLetra(otraLetra);
 	}
 
 	function comer() {
@@ -104,19 +121,35 @@ export default function MonstruoPage() {
 		cancelarSecuencia();
 		setCuadro(CUADROS_MONSTRUO.abre);
 		const quedaLleno = comidas.every(({ clave, dadas, necesarias }) => (clave === comida.clave ? dadas + 1 : dadas) >= necesarias);
-		runtime.setTimeout(() => {
+		const timer = runtime.setTimeout(() => {
+			vueloTimers.current = vueloTimers.current.filter((id) => id !== timer);
 			setVuelos((actuales) => actuales.filter((item) => item.id !== vuelo.id));
 			comer();
 			const audio = quedaLleno ? audios.lleno : audios.comer;
 			audio.currentTime = 0;
 			audio.play().catch(() => {});
 		}, VUELO_MS);
+		vueloTimers.current.push(timer);
 	}
 
 	return (
 		<div className="page activity-page page-monstruo">
 			<BackButton />
 			<FullscreenButton toggle />
+			<nav className="monstruo-selector" aria-label="Elegir monstruo">
+				{LETRAS.filter((otraLetra) => otraLetra !== letra).map((otraLetra) => (
+					<button
+						key={otraLetra}
+						type="button"
+						className="monstruo-selector__boton"
+						aria-label={`Monstruo de la ${otraLetra.toUpperCase()}`}
+						title={`Monstruo de la ${otraLetra.toUpperCase()}`}
+						onClick={() => seleccionarMonstruo(otraLetra)}
+					>
+						<Monstruo letra={otraLetra} className="monstruo-selector__imagen" />
+					</button>
+				))}
+			</nav>
 
 			<main className="monstruo-escena">
 				<section className="monstruo-izq" aria-label="Comidas que juntaste">
@@ -138,7 +171,6 @@ export default function MonstruoPage() {
 				</section>
 
 				<section className="monstruo-centro" aria-live="polite">
-					<h1>{lleno ? "¡Estoy lleno!" : `Monstruo de la ${letra.toUpperCase()}`}</h1>
 					<div ref={monstruoRef} className="monstruo-lugar">
 						<Monstruo letra={letra} cuadro={lleno && cuadro === CUADROS_MONSTRUO.normal ? CUADROS_MONSTRUO.feliz : cuadro} lleno={lleno} />
 					</div>

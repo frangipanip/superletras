@@ -20,6 +20,41 @@
 	user-select: none;
 	-webkit-user-select: none;
 
+	.monstruo-selector {
+		position: absolute;
+		top: clamp(0.5rem, 1.5vw, 1rem);
+		right: clamp(0.75rem, 2vw, 1.5rem);
+		z-index: 4;
+		display: flex;
+		align-items: center;
+		gap: clamp(0.2rem, 0.8vw, 0.6rem);
+	}
+
+	.monstruo-selector__boton {
+		display: grid;
+		place-items: center;
+		width: clamp(2.75rem, 8vmin, 5rem);
+		 aspect-ratio: 1;
+		padding: 0.15rem;
+		border: 2px solid #ffffff;
+		border-radius: 50%;
+		background: rgba(255, 249, 240, 0.88);
+		box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
+		cursor: pointer;
+		transition: transform 150ms ease, background-color 150ms ease;
+	}
+
+	.monstruo-selector__boton:hover,
+	.monstruo-selector__boton:focus-visible {
+		transform: translateY(-2px) scale(1.08);
+		background: #ffffff;
+	}
+
+	.monstruo-selector__imagen {
+		width: 100%;
+		height: 100%;
+	}
+
 	.monstruo-escena {
 		display: grid;
 		grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr) minmax(0, 1fr);
@@ -27,7 +62,7 @@
 		gap: clamp(0.5rem, 2vw, 1.5rem);
 		box-sizing: border-box;
 		height: 100%;
-		padding: clamp(4.5rem, 14vmin, 7.5rem) clamp(0.75rem, 3vw, 2.5rem) clamp(1.5rem, 5vmin, 3rem);
+		padding: clamp(5.5rem, 18vmin, 8.5rem) clamp(0.75rem, 3vw, 2.5rem) clamp(1.5rem, 5vmin, 3rem);
 	}
 
 	.monstruo-izq,
@@ -104,14 +139,6 @@
 		align-items: center;
 		height: 100%;
 		min-height: 0;
-	}
-
-	.monstruo-centro h1 {
-		margin: 0 0 clamp(0.3rem, 1.5vmin, 0.8rem);
-		color: #ffffff;
-		font-size: clamp(1.2rem, 5vmin, 2.4rem);
-		text-align: center;
-		text-shadow: 0 3px 0 #286f84, 0 0 10px rgba(0, 0, 0, 0.4);
 	}
 
 	.monstruo-lugar {
