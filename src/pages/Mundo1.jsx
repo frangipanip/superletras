@@ -50,6 +50,8 @@ export const MUNDO1_IMAGES = [
 	img("GLOBOSbtn.png"),
 	...ACTIVITY_SIGN_IMAGES.map(img),
 	...MENU_OPTIONS.map(({ image }) => img(image)),
+	img("bocha.png"),
+	img("cucurucho.png"),
 	...MENU_OPTIONS.map(({ key }) => imagenMonstruo(key)),
 	...MOUTH_IMAGES
 ];
@@ -91,7 +93,10 @@ export default function Mundo1() {
 	const [character] = useSelectedCharacter();
 	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime);
 	const [selectedOption, setSelectedOption] = useState(() => readStorage(STORAGE_KEYS.mundo1MenuOption));
+	const [menuPanelVisible, setMenuPanelVisible] = useState(true);
+	const [compactMenuOpen, setCompactMenuOpen] = useState(false);
 	const pageRef = useRef(null);
+	const menuPanelRef = useRef(null);
 	// Viaje en curso: { index, stage: "out" | "in" } o null.
 	const [travel, setTravel] = useState(null);
 	// Botón de la última actividad visitada: al volver con "Volver", el personaje queda parado junto a él.
@@ -150,6 +155,28 @@ export default function Mundo1() {
 		};
 	}, []);
 
+	useEffect(() => {
+		const page = pageRef.current;
+		const panel = menuPanelRef.current;
+		if (!page || !panel) return undefined;
+
+		function updateMenuPanelVisibility() {
+			const viewport = page.getBoundingClientRect();
+			const menu = panel.getBoundingClientRect();
+			const visible = menu.right > viewport.left && menu.left < viewport.right && menu.bottom > viewport.top && menu.top < viewport.bottom;
+			setMenuPanelVisible(visible);
+			if (visible) setCompactMenuOpen(false);
+		}
+
+		updateMenuPanelVisibility();
+		page.addEventListener("scroll", updateMenuPanelVisibility, { passive: true });
+		window.addEventListener("resize", updateMenuPanelVisibility);
+		return () => {
+			page.removeEventListener("scroll", updateMenuPanelVisibility);
+			window.removeEventListener("resize", updateMenuPanelVisibility);
+		};
+	}, []);
+
 	function playMenuAudio(optionKey) {
 		introAudio.pause();
 		introAudio.currentTime = 0;
@@ -162,6 +189,7 @@ export default function Mundo1() {
 
 	function selectMenuOption(optionKey) {
 		if (travel) return;
+		setCompactMenuOpen(false);
 		// Otra letra: se olvida la última actividad (deja de brillar y el personaje vuelve a su lugar).
 		if (optionKey !== selectedOption && perchIndex !== null) {
 			const { activityIndex, ...state } = location.state;
@@ -265,6 +293,37 @@ export default function Mundo1() {
 			}}
 		>
 			<UserNav />
+			{!menuPanelVisible && (
+				<nav className="mundo1-compact-menu" aria-label="Elegir letra">
+					<button
+						className="mundo1-compact-menu__trigger"
+						type="button"
+						aria-label={`Elegir letra. Seleccionada ${selectedOption?.toUpperCase() || "A"}`}
+						aria-expanded={compactMenuOpen}
+						onClick={() => setCompactMenuOpen((open) => !open)}
+					>
+						<LetterScoop letter={selectedOption || "a"} />
+						<img className="mundo1-compact-menu__cone" src={img("cucurucho.png")} alt="" />
+					</button>
+					{compactMenuOpen && (
+						<div className="mundo1-compact-menu__options">
+							{MENU_OPTIONS.map(({ key }) => (
+								<button
+									key={key}
+									className={selectedOption === key ? "mundo1-compact-menu__option selected" : "mundo1-compact-menu__option"}
+									type="button"
+									aria-label={`Elegir letra ${key.toUpperCase()}`}
+									aria-pressed={selectedOption === key}
+									onClick={() => selectMenuOption(key)}
+								>
+									<LetterScoop letter={key} />
+								</button>
+							))}
+							<img className="mundo1-compact-menu__cone" src={img("cucurucho.png")} alt="" />
+						</div>
+					)}
+				</nav>
+			)}
 
 			{/* Fijo arriba al centro: sigue ahí aunque se recorra el camino. */}
 			<button className="mundo1-monster-button" type="button" aria-label="Ver al monstruo y sus comidas" onClick={openMonster}>
@@ -321,7 +380,7 @@ export default function Mundo1() {
 					</div>
 				)}
 
-				<aside className="menu-panel" aria-label="Menú del mundo 1">
+				<aside ref={menuPanelRef} className="menu-panel" aria-label="Menú del mundo 1">
 					<img src={img("MENUM1.png")} alt="" />
 					{MENU_OPTIONS.map(({ key, image }) => (
 						<button
@@ -339,5 +398,14 @@ export default function Mundo1() {
 				</aside>
 			</div>
 		</div>
+	);
+}
+
+function LetterScoop({ letter }) {
+	return (
+		<span className="mundo1-letter-scoop" data-letter={letter}>
+			<img src={img("bocha.png")} alt="" />
+			<span>{letter.toUpperCase()}</span>
+		</span>
 	);
 }
