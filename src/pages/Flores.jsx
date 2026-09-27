@@ -105,10 +105,7 @@ export default function Flores() {
 	function buildFlowers(activityIndex = game.current.activityIndex) {
 		const target = game.current.instructionOrder[activityIndex];
 		const incorrect = mode !== "a"
-			? [
-					shuffle(SYLLABLES[mode].filter((item) => item !== target))[0],
-					...shuffle(Object.keys(SYLLABLES).filter(k => k !== mode).flatMap(k => SYLLABLES[k])).slice(0, 2)
-			  ]
+			? shuffle(SYLLABLES[mode].filter((item) => item !== target)).slice(0, 3)
 			: shuffle(VOWELS.filter((item) => item !== target)).slice(0, 3);
 		const labels = shuffle([target, ...incorrect]);
 		setRound((current) => ({
