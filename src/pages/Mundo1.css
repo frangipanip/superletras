@@ -220,7 +220,7 @@
 		}
 
 		&[data-letter="m"] {
-			--scoop-filter: sepia(1) saturate(4) hue-rotate(20deg) brightness(1.25);
+			--scoop-filter: sepia(1) saturate(4) hue-rotate(-25deg) brightness(1.25);
 		}
 
 		&[data-letter="s"] {
