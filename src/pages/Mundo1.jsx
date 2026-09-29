@@ -85,6 +85,17 @@ function getPerchStyle(index) {
 	return { left: `${left}%`, top: `${top}%` };
 }
 
+function readSavedPerches() {
+	try {
+		const saved = JSON.parse(readStorage(STORAGE_KEYS.mundo1Perches) || "{}");
+		return Object.fromEntries(Object.entries(saved).filter(([letter, index]) =>
+			MENU_OPTIONS.some(({ key }) => key === letter) && Number.isInteger(index) && PATH_BUTTONS[index]
+		));
+	} catch {
+		return {};
+	}
+}
+
 export default function Mundo1() {
 	usePageTitle("Mundo 1");
 	const navigate = useNavigate();
@@ -93,6 +104,7 @@ export default function Mundo1() {
 	const [character] = useSelectedCharacter();
 	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime);
 	const [selectedOption, setSelectedOption] = useState(() => readStorage(STORAGE_KEYS.mundo1MenuOption));
+	const [savedPerches, setSavedPerches] = useState(readSavedPerches);
 	const [menuPanelVisible, setMenuPanelVisible] = useState(true);
 	const [compactMenuOpen, setCompactMenuOpen] = useState(false);
 	const pageRef = useRef(null);
@@ -100,7 +112,8 @@ export default function Mundo1() {
 	// Viaje en curso: { index, stage: "out" | "in" } o null.
 	const [travel, setTravel] = useState(null);
 	// Botón de la última actividad visitada: al volver con "Volver", el personaje queda parado junto a él.
-	const perchIndex = PATH_BUTTONS[location.state?.activityIndex] ? location.state.activityIndex : null;
+	const routePerch = PATH_BUTTONS[location.state?.activityIndex] ? location.state.activityIndex : null;
+	const perchIndex = routePerch ?? (PATH_BUTTONS[savedPerches[selectedOption]] ? savedPerches[selectedOption] : null);
 	const [introAudio] = useState(() => runtime.audio(sound("Inicio Mundos.mp4"), { preload: true }));
 	// Estado del auto-scroll por borde; lo leen callbacks de requestAnimationFrame.
 	const edge = useRef({ speed: 0, running: false, position: 0, lastFrame: 0 }).current;
@@ -191,7 +204,7 @@ export default function Mundo1() {
 		if (travel) return;
 		setCompactMenuOpen(false);
 		// Otra letra: se olvida la última actividad (deja de brillar y el personaje vuelve a su lugar).
-		if (optionKey !== selectedOption && perchIndex !== null) {
+		if (optionKey !== selectedOption && location.state?.activityIndex !== undefined) {
 			const { activityIndex, ...state } = location.state;
 			navigate(location.pathname, { replace: true, state });
 		}
@@ -205,6 +218,9 @@ export default function Mundo1() {
 		if (!route || !isActivityAvailable(index) || travel) {
 			return;
 		}
+		const nextPerches = { ...savedPerches, [selectedOption]: index };
+		setSavedPerches(nextPerches);
+		writeStorage(STORAGE_KEYS.mundo1Perches, JSON.stringify(nextPerches));
 		writeStorage(STORAGE_KEYS.mundo1MenuOption, selectedOption);
 		const goToActivity = () => {
 			// Se anota en la entrada actual del historial, para encontrarla al volver.

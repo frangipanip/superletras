@@ -2,6 +2,7 @@ export const STORAGE_KEYS = {
 	character: "superletras-character",
 	guestName: "superletras-guest-name",
 	mundo1MenuOption: "superletras-mundo1-menu-option",
+	mundo1Perches: "superletras-mundo1-perches",
 	selectedWorld: "superletras-selected-world",
 	installPromptDismissedAt: "superletras-install-dismissed-at",
 	// Recompensas (ver src/lib/recompensas.js).
