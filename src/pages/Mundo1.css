@@ -136,6 +136,7 @@
 		width: clamp(58px, 9vmin, 76px);
 		box-sizing: border-box;
 		padding: 0.25rem;
+		padding-bottom: 0.9rem;
 		border: 2px solid #fffdf8;
 		border-radius: 1.25rem;
 		background: rgba(255, 250, 239, 0.96);
