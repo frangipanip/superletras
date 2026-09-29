@@ -148,7 +148,7 @@ function aplicarEvento(codigo, evento) {
 			const actual = sql.comida.get(codigo, letra, comida.clave) || { ganadas: 0, dadas: 0 };
 			let cantidad = 0;
 			if (tipo === "premio") {
-				cantidad = Math.min(premioPorErrores(evento.actividad, errores), comida.necesarias - actual.ganadas);
+				cantidad = Math.min(premioPorErrores(evento.actividad, errores, evento.cantidad), comida.necesarias - actual.ganadas);
 			} else if (actual.dadas < actual.ganadas) {
 				cantidad = 1;
 			}

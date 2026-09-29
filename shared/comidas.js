@@ -8,7 +8,7 @@ export const COMIDAS = [
 	{ clave: "chocolate", emoji: "🍫", nombre: "Chocolate", actividad: "flores", necesarias: 12 },
 	{ clave: "frutillas", emoji: "🍓", nombre: "Frutillas", actividad: "peluches", necesarias: 9 },
 	{ clave: "cucuruchos", emoji: "🍦", nombre: "Cucuruchos", actividad: "tren", necesarias: 9 },
-	{ clave: "galletitas", emoji: "🍪", nombre: "Galletitas", actividad: "dibujar", necesarias: 3 },
+	{ clave: "galletitas", emoji: "🍪", nombre: "Galletitas", actividad: "dibujar", necesarias: 6 },
 	{ clave: "caramelos", emoji: "🍬", nombre: "Caramelos", actividad: "memotest", necesarias: 6 }
 ];
 
@@ -19,9 +19,12 @@ export const COMIDA_POR_ACTIVIDAD = Object.fromEntries(COMIDAS.map((comida) => [
 export const LETRAS = ["a", "l", "m", "s", "t"];
 
 // Premio al completar una actividad: 3 sin errores, 2 con 1 o 2, 1 con 3 o más.
-// Dibujar siempre da 1 (se gana al completar la letra).
-export function premioPorErrores(actividad, errores) {
+// Dibujar acepta una cantidad explícita para agrupar el premio de sus letras.
+export function premioPorErrores(actividad, errores, cantidadSolicitada) {
 	if (actividad === "dibujar") {
+		if (cantidadSolicitada !== undefined) {
+			return Math.max(0, Math.floor(Number(cantidadSolicitada) || 0));
+		}
 		return 1;
 	}
 	if (errores <= 0) {

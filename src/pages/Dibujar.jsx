@@ -264,7 +264,7 @@ export default function Dibujar() {
 	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime);
 	const menuOption = useActivityMenuOption();
 	const [letterOptions] = useState(() => LETTER_OPTIONS_BY_MENU[menuOption] || LETTER_OPTIONS_BY_MENU.a);
-	// Dibujar da siempre 1 galletita por cada letra completada (hasta el tope de la letra del menú).
+	// Las vocales comparten un premio por completar el grupo; las consonantes premian su letra.
 	const [premio, otorgarPremio] = useRecompensa("dibujar", LETTER_OPTIONS_BY_MENU[menuOption] ? menuOption : "a");
 	const firstLetter = letterOptions[0];
 	const [pointerPosition, setPointerPosition] = useState(() => getLetterStart(firstLetter));
@@ -277,6 +277,8 @@ export default function Dibujar() {
 	const [showTargets, setShowTargets] = useState(true);
 	const [curveProgress, setCurveProgress] = useState(0);
 	const curveProgressRef = useRef(0);
+	const completedVowelsRef = useRef(new Set());
+	const rewardGrantedRef = useRef(false);
 	// Avance (0 a 1) del segmento recto en curso; se conserva al soltar para continuar desde ahí.
 	const segmentProgressRef = useRef(0);
 	const boardRef = useRef(null);
@@ -300,6 +302,32 @@ export default function Dibujar() {
 		celebrationAudio.onended = null;
 		celebrationAudio.pause();
 		celebrationAudio.currentTime = 0;
+	}
+
+	function awardCompletedLetter() {
+		if (letterOptions.length === 1) {
+			rewardGrantedRef.current = true;
+			otorgarPremio(0, 3);
+			return;
+		}
+		completedVowelsRef.current.add(activeLetter);
+		if (completedVowelsRef.current.size === letterOptions.length && !rewardGrantedRef.current) {
+			rewardGrantedRef.current = true;
+			otorgarPremio(0, 3);
+		}
+	}
+
+	function leaveActivity() {
+		if (letterOptions.length > 1 && !rewardGrantedRef.current) {
+			const completedCount = completedVowelsRef.current.size;
+			const cantidad = completedCount >= 3 ? 2 : completedCount > 0 ? 1 : 0;
+			if (cantidad > 0) {
+				rewardGrantedRef.current = true;
+				otorgarPremio(0, cantidad);
+				return;
+			}
+		}
+		window.history.back();
 	}
 
 	function resetActivity() {
@@ -361,7 +389,7 @@ export default function Dibujar() {
 		updateCurveProgress(1);
 		setPointerPosition(curve.start);
 		setCompleted(true);
-		otorgarPremio();
+		awardCompletedLetter();
 		startTalking();
 		celebrationAudio.onended = () => {
 			celebrationAudio.onended = null;
@@ -379,7 +407,7 @@ export default function Dibujar() {
 	// Muestra la celebración y, al terminar (o si el audio falla), aplica el reinicio de la letra.
 	function celebrateAndReset(onReset) {
 		setCompleted(true);
-		otorgarPremio();
+		awardCompletedLetter();
 		startTalking();
 		const finish = () => {
 			celebrationAudio.onended = null;
@@ -433,7 +461,7 @@ export default function Dibujar() {
 	function tapIDot(point) {
 		if (!samePoint(point, I_DOT_POINT, 0.12)) return;
 		setCompleted(true);
-		otorgarPremio();
+		awardCompletedLetter();
 		startTalking();
 		celebrationAudio.onended = () => {
 			celebrationAudio.onended = null;
@@ -576,7 +604,7 @@ export default function Dibujar() {
 					correctAudio.play().catch(() => {});
 				} else if (phase === 4) {
 					setCompleted(true);
-					otorgarPremio();
+					awardCompletedLetter();
 					startTalking();
 					celebrationAudio.onended = () => {
 						celebrationAudio.onended = null;
@@ -639,7 +667,7 @@ export default function Dibujar() {
 				correctAudio.play().catch(() => {});
 			} else {
 				setCompleted(true);
-				otorgarPremio();
+				awardCompletedLetter();
 				startTalking();
 				celebrationAudio.onended = () => {
 					celebrationAudio.onended = null;
@@ -673,7 +701,7 @@ export default function Dibujar() {
 
 	return (
 		<div className="page activity-page page-dibujar">
-			<BackButton />
+			<BackButton onClick={leaveActivity} />
 			<FullscreenButton toggle />
 			<button className="dibujar-clear" type="button" onClick={resetActivity} aria-label="Reiniciar actividad">Limpiar</button>
 			<main className="dibujar-layout">

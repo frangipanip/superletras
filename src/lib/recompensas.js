@@ -67,7 +67,7 @@ function aplicarLocal(evento) {
 	let cantidad;
 	let siguiente;
 	if (evento.tipo === "premio") {
-		cantidad = Math.max(0, Math.min(premioPorErrores(evento.actividad, evento.errores), comida.necesarias - actual.ganadas));
+		cantidad = Math.max(0, Math.min(premioPorErrores(evento.actividad, evento.errores, evento.cantidad), comida.necesarias - actual.ganadas));
 		siguiente = { ...actual, ganadas: actual.ganadas + cantidad };
 	} else {
 		cantidad = actual.dadas < actual.ganadas ? 1 : 0;
@@ -88,17 +88,20 @@ function encolar(evento) {
 }
 
 // Al completar una actividad. Devuelve { comida, cantidad, score } (cantidad 0 si ya llegó al tope).
-export function otorgarPremio(letra, actividad, errores = 0) {
+export function otorgarPremio(letra, actividad, errores = 0, cantidadSolicitada) {
 	const comida = COMIDA_POR_ACTIVIDAD[actividad];
 	if (!comida || !letra) {
 		return null;
 	}
 	const evento = { id: nuevoId(), tipo: "premio", letra, actividad, errores, codigo: state.codigo };
+	if (cantidadSolicitada !== undefined) {
+		evento.cantidad = cantidadSolicitada;
+	}
 	const cantidad = aplicarLocal(evento);
 	if (cantidad > 0) {
 		encolar(evento);
 	}
-	const score = premioPorErrores(actividad, errores);
+	const score = premioPorErrores(actividad, errores, cantidadSolicitada);
 	return { id: evento.id, comida, cantidad, score };
 }
 

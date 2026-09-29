@@ -8,8 +8,8 @@ import "./PremioComida.css";
 export function useRecompensa(actividad, letra) {
 	const [premio, setPremio] = useState(null);
 
-	function otorgar(errores = 0) {
-		const resultado = otorgarPremio(letra, actividad, errores);
+	function otorgar(errores = 0, cantidad) {
+		const resultado = otorgarPremio(letra, actividad, errores, cantidad);
 		if (resultado) {
 			setPremio(resultado);
 		}
