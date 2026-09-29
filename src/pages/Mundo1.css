@@ -94,7 +94,7 @@
 	.mundo1-compact-menu__trigger {
 		display: grid;
 		place-items: center;
-		width: clamp(54px, 10vmin, 80px);
+		width: clamp(59px, 11vmin, 88px);
 		flex: none;
 		padding: 0;
 		border: 0;
@@ -112,7 +112,7 @@
 		display: grid;
 		place-items: center;
 		width: 100%;
-		height: clamp(42px, 7vmin, 54px);
+		height: clamp(46px, 7.7vmin, 59px);
 		flex: none;
 		padding: 0;
 		border: 2px solid transparent;
@@ -151,7 +151,9 @@
 
 	.mundo1-compact-menu__option.selected::before {
 		position: absolute;
-		inset: 20px -3px -20px;
+		z-index: 0;
+		inset: 0 -3px;
+		transform: translateY(15%);
 		border: 2px solid #87df73;
 		border-radius: 10px;
 		background: rgba(255, 255, 255, 0.75);
@@ -162,7 +164,7 @@
 
 	.mundo1-compact-menu__option.selected::after {
 		position: absolute;
-		top: calc(50% + 18px);
+		top: 50%;
 		right: -1.05rem;
 		width: 0;
 		height: 0;
@@ -175,60 +177,24 @@
 	}
 
 	.mundo1-letter-scoop {
-		position: relative;
 		display: block;
 		width: 100%;
-		aspect-ratio: 678 / 773;
-		--scoop-filter: sepia(1) saturate(5) hue-rotate(245deg);
-
-		&[data-letter="l"] {
-			--scoop-filter: sepia(1) saturate(5) hue-rotate(90deg);
-		}
-
-		&[data-letter="m"] {
-			--scoop-filter: sepia(1) saturate(4) hue-rotate(-25deg) brightness(1.25);
-		}
-
-		&[data-letter="s"] {
-			--scoop-filter: sepia(1) saturate(10) hue-rotate(-62deg);
-		}
-
-		&[data-letter="t"] {
-			--scoop-filter: sepia(1) saturate(5) hue-rotate(180deg);
-		}
+		aspect-ratio: 325 / 413;
 	}
 
 	.mundo1-letter-scoop img {
+		position: relative;
+		z-index: 1;
 		display: block;
 		width: 100%;
 		height: 100%;
 		object-fit: contain;
-		filter: var(--scoop-filter);
-	}
-
-	.mundo1-letter-scoop > span {
-		position: absolute;
-		top: 58%;
-		left: 50%;
-		color: #ffffff;
-		font: 900 clamp(1rem, 4vmin, 1.6rem) Arial, Helvetica, sans-serif;
-		line-height: 1;
-		text-shadow: 0 1px 2px rgba(35, 35, 35, 0.9), 1px 0 rgba(35, 35, 35, 0.75), -1px 0 rgba(35, 35, 35, 0.75);
-		transform: translate(-50%, -50%);
-	}
-
-	.mundo1-compact-menu__cone {
-		display: block;
-		width: 62%;
-		height: auto;
-		margin-top: -18%;
-		pointer-events: none;
 	}
 
 	.mundo1-compact-menu__options .mundo1-letter-scoop {
 		width: auto;
 		height: 100%;
-		aspect-ratio: 678 / 773;
+		aspect-ratio: 325 / 413;
 	}
 
 	/* El ancho de la escena lo da la imagen de fondo a toda la altura. */

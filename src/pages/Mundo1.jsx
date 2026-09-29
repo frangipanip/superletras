@@ -20,6 +20,14 @@ const MENU_OPTIONS = [
 	{ key: "t", image: "Tbtn.png", audio: "Te.m4a" }
 ];
 
+const SCOOP_IMAGES = {
+	a: "bochaA.png",
+	l: "bochaL.png",
+	s: "bochaS.png",
+	m: "bochaM.png",
+	t: "bochaT.png"
+};
+
 const PATH_BUTTONS = [
 	{ left: 23.5, top: 80 },
 	{ left: 35.9, top: 67 },
@@ -51,8 +59,7 @@ export const MUNDO1_IMAGES = [
 	img("GLOBOSbtn.png"),
 	...ACTIVITY_SIGN_IMAGES.map(img),
 	...MENU_OPTIONS.map(({ image }) => img(image)),
-	img("bocha.png"),
-	img("cucurucho.png"),
+	...Object.values(SCOOP_IMAGES).map(img),
 	img("cabezasupernena.png"),
 	img("cabezasupernene.png"),
 	...MENU_OPTIONS.map(({ key }) => imagenMonstruo(key)),
@@ -107,6 +114,7 @@ export default function Mundo1() {
 	const [characterDirection, setCharacterDirection] = useState("left");
 	const pageRef = useRef(null);
 	const menuPanelRef = useRef(null);
+	const compactMenuRef = useRef(null);
 	const characterSpotRef = useRef(null);
 	// Al elegir una actividad el personaje se teletransporta (puf de crema) hasta su botón.
 	// teleport.position: índice del botón (o null = lugar inicial) donde se dibuja durante el viaje.
@@ -233,6 +241,19 @@ export default function Mundo1() {
 		};
 	}, []);
 
+	useEffect(() => {
+		if (!compactMenuOpen) return undefined;
+
+		function closeCompactMenuOutside(event) {
+			if (!compactMenuRef.current?.contains(event.target)) {
+				setCompactMenuOpen(false);
+			}
+		}
+
+		document.addEventListener("pointerdown", closeCompactMenuOutside);
+		return () => document.removeEventListener("pointerdown", closeCompactMenuOutside);
+	}, [compactMenuOpen]);
+
 	function playMenuAudio(optionKey) {
 		introAudio.pause();
 		introAudio.currentTime = 0;
@@ -340,7 +361,7 @@ export default function Mundo1() {
 		>
 			<UserNav />
 			{!menuPanelVisible && (
-				<nav className="mundo1-compact-menu" aria-label="Elegir letra">
+				<nav ref={compactMenuRef} className="mundo1-compact-menu" aria-label="Elegir letra">
 					<button
 						className="mundo1-compact-menu__trigger"
 						type="button"
@@ -349,7 +370,6 @@ export default function Mundo1() {
 						onClick={() => setCompactMenuOpen((open) => !open)}
 					>
 						<LetterScoop letter={selectedOption || "a"} />
-						<img className="mundo1-compact-menu__cone" src={img("cucurucho.png")} alt="" />
 					</button>
 					{compactMenuOpen && (
 						<div className="mundo1-compact-menu__options">
@@ -365,7 +385,6 @@ export default function Mundo1() {
 									<LetterScoop letter={key} />
 								</button>
 							))}
-							<img className="mundo1-compact-menu__cone" src={img("cucurucho.png")} alt="" />
 						</div>
 					)}
 				</nav>
@@ -452,8 +471,7 @@ export default function Mundo1() {
 function LetterScoop({ letter }) {
 	return (
 		<span className="mundo1-letter-scoop" data-letter={letter}>
-			<img src={img("bocha.png")} alt="" />
-			<span>{letter.toUpperCase()}</span>
+			<img src={img(SCOOP_IMAGES[letter])} alt="" />
 		</span>
 	);
 }
