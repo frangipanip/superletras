@@ -411,6 +411,16 @@
 		transform: translate(-50%, -50%);
 	}
 
+	@media (max-height: 600px), (max-width: 800px) {
+		.path-activity {
+			width: clamp(80px, 15vmin, 125px);
+		}
+
+		.mundo1-character-spot.perched {
+			transform: translate(calc(-100% - clamp(40px, 7.5vmin, 62.5px)), calc(-100% + clamp(40px, 7.5vmin, 62.5px)));
+		}
+	}
+
 	.path-activity-unavailable .path-activity-sign {
 		filter: grayscale(1);
 		opacity: 0.62;
