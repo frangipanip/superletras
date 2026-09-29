@@ -136,9 +136,15 @@
 	filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0.9));
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 560px) {
 	.inicio-activity-letter-image {
-		width: clamp(8rem, 30vw, 14rem);
+		width: clamp(8rem, 32vmin, 14rem);
+	}
+	.inicio-activity-character {
+		top: auto;
+		bottom: 2%;
+		left: 2%;
+		width: clamp(5rem, 36vmin, 11rem);
 	}
 }
 
@@ -156,9 +162,12 @@
 	pointer-events: auto;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px), (max-height: 560px) {
 	.inicio-activity-character {
-		width: clamp(6rem, 30vw, 12rem);
+		top: auto;
+		bottom: 2%;
+		left: 2%;
+		width: clamp(5rem, 36vmin, 11rem);
 	}
 }
 
@@ -233,8 +242,14 @@
 @media (max-width: 768px) {
 	.inicio-vowel-button {
 		width: clamp(5rem, 20vw, 9rem);
-		height: clamp(6.5rem, 24vw, 11.5rem);
+		height: clamp(5rem, 32vmin, 7.5rem);
 		font-size: clamp(1.6rem, 5.8vw, 3.2rem);
+	}
+}
+
+@media (max-height: 560px) {
+	.inicio-vowel-button {
+		height: clamp(5rem, 32vmin, 7.5rem);
 	}
 }
 
