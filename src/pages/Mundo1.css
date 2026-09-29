@@ -61,6 +61,21 @@
 		display: none;
 	}
 
+	/* Con mouse la escena se recorre arrastrando. */
+	@media (hover: hover) and (pointer: fine) {
+		cursor: grab;
+	}
+
+	&.dragging {
+		cursor: grabbing;
+		user-select: none;
+		-webkit-user-select: none;
+
+		* {
+			cursor: grabbing;
+		}
+	}
+
 	.top-nav .fullscreen-button {
 		left: auto;
 		right: calc(clamp(0.75rem, 2vw, 1.5rem) + clamp(100px, 18vmin, 190px) + 0.5rem);
@@ -290,6 +305,12 @@
 		filter: drop-shadow(-1px 1px 1px rgba(0, 0, 0, 0.25));
 		content: "";
 		transform: translateY(-50%);
+	}
+
+	/* Del lado de la pantalla hacia donde quedó el personaje. */
+	.mundo1-character-locator.direction-left {
+		right: auto;
+		left: clamp(0.5rem, 1.5vw, 1.25rem);
 	}
 
 	.mundo1-character-locator.direction-right::after {

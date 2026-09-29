@@ -71,10 +71,9 @@ const AVAILABLE_ACTIVITIES = {
 	t: [0, 1, 2, 3, 4, 5, 6]
 };
 
-// Desplazamiento con el mouse: al acercarse a un borde la escena avanza sola,
-// más rápido cuanto más pegado al borde.
-const EDGE_ZONE = 0.15; // fracción del ancho de la pantalla
-const EDGE_MAX_SPEED = 900; // px por segundo en el borde mismo
+// Desplazamiento con el mouse: se arrastra la escena con click sostenido.
+// Por debajo de este movimiento (px) cuenta como click y no como arrastre.
+const DRAG_THRESHOLD = 6;
 
 // Ubica al personaje parado junto a un botón del camino.
 function getPerchStyle(index) {
@@ -119,8 +118,9 @@ export default function Mundo1() {
 	const perchIndex = routePerch ?? (PATH_BUTTONS[savedPerches[selectedOption]] ? savedPerches[selectedOption] : null);
 	const characterIndex = teleport ? teleport.position : perchIndex;
 	const [introAudio] = useState(() => runtime.audio(sound("Inicio Mundos.mp4"), { preload: true }));
-	// Estado del auto-scroll por borde; lo leen callbacks de requestAnimationFrame.
-	const edge = useRef({ speed: 0, running: false, position: 0, lastFrame: 0 }).current;
+	// Estado del arrastre con el mouse; lo leen los handlers de pointer sin esperar un render.
+	const drag = useRef({ pointerId: null, startX: 0, startScroll: 0, moved: false }).current;
+	const [dragging, setDragging] = useState(false);
 	const [menuAudios] = useState(() =>
 		Object.fromEntries(MENU_OPTIONS.map(({ key, audio }) => [key, runtime.audio(sound(audio), { preload: true })]))
 	);
@@ -155,7 +155,6 @@ export default function Mundo1() {
 		if (perchIndex !== null) {
 			const sceneWidth = page.scrollWidth;
 			page.scrollLeft = (sceneWidth * PATH_BUTTONS[perchIndex].left) / 100 - page.clientWidth / 2;
-			edge.position = page.scrollLeft;
 		}
 		updateCharacterVisibility();
 	}
@@ -289,66 +288,55 @@ export default function Mundo1() {
 		navigate("/monstruo", { state: { letra } });
 	}
 
-	function stepEdgeScroll() {
-		const page = pageRef.current;
-		const now = performance.now();
-		const elapsed = Math.min(now - edge.lastFrame, 50) / 1000;
-		edge.lastFrame = now;
-		if (!page || edge.speed === 0) {
-			edge.running = false;
-			return;
-		}
-		// La posición se acumula con decimales: scrollLeft redondea y a baja velocidad no avanzaría.
-		const maxScroll = page.scrollWidth - page.clientWidth;
-		edge.position = Math.max(0, Math.min(maxScroll, edge.position + edge.speed * elapsed));
-		page.scrollLeft = edge.position;
-		// Llegó al final de la escena: se frena hasta que el mouse se vuelva a mover.
-		if ((edge.speed < 0 && edge.position === 0) || (edge.speed > 0 && edge.position === maxScroll)) {
-			edge.running = false;
-			return;
-		}
-		runtime.requestAnimationFrame(stepEdgeScroll);
+	function handlePointerDown(event) {
+		drag.moved = false;
+		// En touch se arrastra con el scroll nativo; esto es solo para el mouse (botón izquierdo).
+		if (event.pointerType !== "mouse" || event.button !== 0) return;
+		// Los menús fijos no mueven la escena.
+		if (event.target.closest(".top-nav, .mundo1-compact-menu, .mundo1-monster-button, .mundo1-character-locator")) return;
+		drag.pointerId = event.pointerId;
+		drag.startX = event.clientX;
+		drag.startScroll = pageRef.current.scrollLeft;
 	}
 
 	function handlePointerMove(event) {
-		// En touch se arrastra con el scroll nativo; el borde es solo para el mouse.
-		if (event.pointerType !== "mouse" || event.target.closest(".top-nav")) {
-			edge.speed = 0;
-			return;
+		if (drag.pointerId !== event.pointerId) return;
+		const dx = event.clientX - drag.startX;
+		if (!drag.moved) {
+			if (Math.abs(dx) < DRAG_THRESHOLD) return;
+			drag.moved = true;
+			setDragging(true);
+			// Recién ahora se captura: si se capturara al apretar, un click normal apuntaría a la página y no al botón.
+			pageRef.current.setPointerCapture(event.pointerId);
 		}
-		const width = window.innerWidth;
-		const zone = width * EDGE_ZONE;
-		const x = event.clientX;
-		if (x > width - zone) {
-			edge.speed = (EDGE_MAX_SPEED * (x - (width - zone))) / zone;
-		} else if (x < zone) {
-			edge.speed = (-EDGE_MAX_SPEED * (zone - x)) / zone;
-		} else {
-			edge.speed = 0;
-		}
-		if (edge.speed !== 0 && !edge.running) {
-			edge.running = true;
-			edge.position = pageRef.current.scrollLeft;
-			edge.lastFrame = performance.now();
-			runtime.requestAnimationFrame(stepEdgeScroll);
-		}
+		pageRef.current.scrollLeft = drag.startScroll - dx;
 	}
 
-	function stopEdgeScroll() {
-		edge.speed = 0;
+	function endDrag(event) {
+		if (drag.pointerId !== event.pointerId) return;
+		drag.pointerId = null;
+		setDragging(false);
+	}
+
+	// Al soltar después de arrastrar no tiene que abrirse la actividad que quedó bajo el mouse.
+	function handleClickCapture(event) {
+		if (drag.moved) {
+			drag.moved = false;
+			event.preventDefault();
+			event.stopPropagation();
+		}
 	}
 
 	return (
 		<div
 			ref={pageRef}
-			className={teleport ? "page page-mundo1 traveling" : "page page-mundo1"}
+			className={`page page-mundo1${teleport ? " traveling" : ""}${dragging ? " dragging" : ""}`}
+			onPointerDown={handlePointerDown}
 			onPointerMove={handlePointerMove}
-			onPointerLeave={stopEdgeScroll}
-			onScroll={() => {
-				if (!edge.running) {
-					edge.position = pageRef.current.scrollLeft;
-				}
-			}}
+			onPointerUp={endDrag}
+			onPointerCancel={endDrag}
+			onClickCapture={handleClickCapture}
+			onDragStart={(event) => event.preventDefault()}
 		>
 			<UserNav />
 			{!menuPanelVisible && (
