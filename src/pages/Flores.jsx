@@ -26,9 +26,9 @@ const TOTAL_ACTIVITIES = 5;
 function getAudioFileName(label) {
 	const upper = label.toUpperCase();
 	if (["A", "E", "I", "O", "U"].includes(upper)) return `${upper}.wav`;
-	if (upper.startsWith("S")) return `${upper}.m4a`;
-	if (upper === "TE") return "TE2.m4a";
-	if (upper.startsWith("T")) return `${upper}.m4a`;
+	if (upper.startsWith("S")) return `${upper}.mp3`;
+	if (upper === "TE") return "TE2.mp3";
+	if (upper.startsWith("T")) return `${upper}.mp3`;
 	return `${label.toLowerCase()}.wav`;
 }
 

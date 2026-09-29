@@ -48,13 +48,13 @@ function consignaAudio(consigna) {
 	}
 	const lower = consigna.toLowerCase();
 	if (lower.startsWith("s")) {
-		return `${consigna.toUpperCase()}.m4a`;
+		return `${consigna.toUpperCase()}.mp3`;
 	}
 	if (lower === "te") {
-		return "TE2.m4a";
+		return "TE2.mp3";
 	}
 	if (lower.startsWith("t")) {
-		return `${consigna.toUpperCase()}.m4a`;
+		return `${consigna.toUpperCase()}.mp3`;
 	}
 	return `${lower}.wav`;
 }

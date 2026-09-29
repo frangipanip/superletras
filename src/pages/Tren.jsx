@@ -82,11 +82,11 @@ const ACTIVITY_CONFIG = {
 		extraOptions: ["A", "E", "I", "O", "U", "S"],
 		speechAudios: {
 			vagones: "Vagones.m4a",
-			SA: "SA.m4a",
-			SE: "SE.m4a",
-			SI: "SI.m4a",
-			SO: "SO.m4a",
-			SU: "SU.m4a",
+			SA: "SA.mp3",
+			SE: "SE.mp3",
+			SI: "SI.mp3",
+			SO: "SO.mp3",
+			SU: "SU.mp3",
 			fabuloso: "Fabuloso.m4a"
 		}
 	},
@@ -102,11 +102,11 @@ const ACTIVITY_CONFIG = {
 		extraOptions: ["A", "E", "I", "O", "U", "T"],
 		speechAudios: {
 			vagones: "Vagones.m4a",
-			TA: "TA.m4a",
-			TE: "TE2.m4a",
-			TI: "TI.m4a",
-			TO: "TO.m4a",
-			TU: "TU.m4a",
+			TA: "TA.mp3",
+			TE: "TE2.mp3",
+			TI: "TI.mp3",
+			TO: "TO.mp3",
+			TU: "TU.mp3",
 			fabuloso: "Fabuloso.m4a"
 		}
 	}

@@ -54,17 +54,17 @@ const MODES = {
 		items: S_SYLLABLES,
 		intro: ["EstaEsLaLetra.m4a", "Ese.m4a", "ConLasVocales.m4a"],
 		prompt: "Pulsa silaba.m4a",
-		longAudio: (item) => `${item}.m4a`,
-		shortAudio: (item) => `${item}.m4a`,
+		longAudio: (item) => `${item}.mp3`,
+		shortAudio: (item) => `${item}.mp3`,
 		itemName: (item) => `sílaba ${item}`,
 		listName: "Sílabas con S"
 	},
 	t: {
 		items: T_SYLLABLES,
-		intro: ["EstaEsLaLetra.m4a", "TE2.m4a", "ConLasVocales.m4a"],
+		intro: ["EstaEsLaLetra.m4a", "TE2.mp3", "ConLasVocales.m4a"],
 		prompt: "Pulsa silaba.m4a",
-		longAudio: (item) => `${item === "TE" ? "TE2" : item}.m4a`,
-		shortAudio: (item) => `${item === "TE" ? "TE2" : item}.m4a`,
+		longAudio: (item) => `${item === "TE" ? "TE2" : item}.mp3`,
+		shortAudio: (item) => `${item === "TE" ? "TE2" : item}.mp3`,
 		itemName: (item) => `sílaba ${item}`,
 		listName: "Sílabas con T"
 	}
