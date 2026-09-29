@@ -341,6 +341,14 @@
 		transform: translateY(-50%);
 	}
 
+	.mundo1-character-locator.direction-right::after {
+		left: auto;
+		right: -0.75rem;
+		border-right: 0;
+		border-left: 0.8rem solid #ffffff;
+		filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.25));
+	}
+
 	.mundo1-character-locator:hover,
 	.mundo1-character-locator:focus-visible {
 		background: #ffffff;

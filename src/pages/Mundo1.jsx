@@ -110,6 +110,7 @@ export default function Mundo1() {
 	const [menuPanelVisible, setMenuPanelVisible] = useState(true);
 	const [compactMenuOpen, setCompactMenuOpen] = useState(false);
 	const [characterOffscreen, setCharacterOffscreen] = useState(false);
+	const [characterDirection, setCharacterDirection] = useState("left");
 	const pageRef = useRef(null);
 	const menuPanelRef = useRef(null);
 	const characterSpotRef = useRef(null);
@@ -174,6 +175,7 @@ export default function Mundo1() {
 		const visible = characterBounds.right > viewport.left && characterBounds.left < viewport.right &&
 			characterBounds.bottom > viewport.top && characterBounds.top < viewport.bottom;
 		setCharacterOffscreen(!visible);
+		setCharacterDirection(characterBounds.left + characterBounds.width / 2 >= viewport.left + viewport.width / 2 ? "right" : "left");
 	}
 
 	function scrollToCharacter() {
@@ -391,7 +393,7 @@ export default function Mundo1() {
 				<Monstruo letra={selectedOption || "a"} />
 			</button>
 			{characterOffscreen && character && (
-				<button className="mundo1-character-locator" type="button" aria-label="Ir hasta mi personaje" onClick={scrollToCharacter}>
+				<button className={`mundo1-character-locator direction-${characterDirection}`} type="button" aria-label="Ir hasta mi personaje" onClick={scrollToCharacter}>
 					<img src={img(character === "supernena" ? "cabezasupernena.png" : "cabezasupernene.png")} alt="" draggable={false} />
 				</button>
 			)}
