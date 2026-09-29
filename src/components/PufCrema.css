@@ -1,0 +1,268 @@
+/* "Puf de crema + confites" (ver PufCrema.jsx). Las duraciones y demoras deben entrar en
+   PUF_OUT_MS (1100ms) y PUF_IN_MS (1200ms) para que el efecto termine antes de cambiar de fase. */
+
+/* Origen: la bocha nace, se infla un poco de más, se asienta tapando al personaje y se deshace hacia afuera. */
+@keyframes puf-blob-out {
+	0% {
+		transform: translate(-50%, -50%) translate(0, 0) scale(0.1);
+		opacity: 0;
+	}
+	12% {
+		opacity: 1;
+	}
+	45% {
+		transform: translate(-50%, -50%) translate(0, 0) scale(1.12);
+	}
+	55%,
+	70% {
+		transform: translate(-50%, -50%) translate(0, 0) scale(1);
+		opacity: 1;
+	}
+	88% {
+		opacity: 0.25;
+	}
+	100% {
+		transform: translate(-50%, -50%) translate(var(--dx), var(--dy)) scale(0.3);
+		opacity: 0;
+	}
+}
+
+/* Destino: igual, pero al abrirse se va hacia los lados y hacia arriba. */
+@keyframes puf-blob-in {
+	0% {
+		transform: translate(-50%, -50%) translate(0, 0) scale(0.1);
+		opacity: 0;
+	}
+	8% {
+		opacity: 1;
+	}
+	35% {
+		transform: translate(-50%, -50%) translate(0, 0) scale(1.12);
+	}
+	45% {
+		transform: translate(-50%, -50%) translate(0, 0) scale(1);
+		opacity: 1;
+	}
+	75% {
+		opacity: 0.25;
+	}
+	100% {
+		transform: translate(-50%, -50%) translate(calc(var(--dx) * 2), calc(var(--dy) - 70%)) scale(0.3);
+		opacity: 0;
+	}
+}
+
+/* Los confites salen despedidos desde el centro de la nube. */
+@keyframes puf-confite-burst {
+	0% {
+		transform: translate(0, 0);
+		opacity: 0;
+	}
+	12%,
+	70% {
+		opacity: 1;
+	}
+	100% {
+		transform: translate(var(--tx), var(--ty));
+		opacity: 0;
+	}
+}
+
+/* En el destino saltan hacia afuera y después caen despacito. */
+@keyframes puf-confite-fall {
+	0% {
+		transform: translate(0, 0);
+		opacity: 0;
+	}
+	10% {
+		opacity: 1;
+	}
+	45% {
+		transform: translate(var(--tx), var(--ty));
+		opacity: 1;
+	}
+	100% {
+		transform: translate(calc(var(--tx) * 1.2), calc(var(--ty) + 35%));
+		opacity: 0;
+	}
+}
+
+@keyframes puf-confite-spin {
+	0% {
+		transform: translate(-50%, -50%) rotate(var(--rot)) scale(0.4);
+	}
+	20% {
+		transform: translate(-50%, -50%) rotate(calc(var(--rot) + 50deg)) scale(1);
+	}
+	100% {
+		transform: translate(-50%, -50%) rotate(calc(var(--rot) + 240deg)) scale(0.9);
+	}
+}
+
+/* El personaje queda quieto, se encoge apenas y desaparece cuando la nube está en su pico. */
+@keyframes puf-character-out {
+	0%,
+	50% {
+		transform: scale(1);
+		opacity: 1;
+	}
+	56% {
+		transform: scale(0.96, 1.03);
+		opacity: 1;
+	}
+	62%,
+	100% {
+		transform: scale(0.6);
+		opacity: 0;
+	}
+}
+
+/* Aparece dentro de la nube en su pico y, cuando la nube se abre, rebota al llegar. */
+@keyframes puf-character-in {
+	0%,
+	34% {
+		transform: translateY(0) scale(0.6);
+		opacity: 0;
+	}
+	40% {
+		transform: translateY(0) scale(0.92);
+		opacity: 1;
+	}
+	46% {
+		transform: translateY(0) scale(1);
+	}
+	58% {
+		transform: translateY(-10%) scale(0.97, 1.04);
+	}
+	72% {
+		transform: translateY(0) scale(1.06, 0.94);
+	}
+	84% {
+		transform: translateY(-3%) scale(1);
+	}
+	100% {
+		transform: translateY(0) scale(1);
+		opacity: 1;
+	}
+}
+
+.puf {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	z-index: 1;
+	pointer-events: none;
+}
+
+.puf-cloud {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+}
+
+/* Bocha de crema: círculo (alto = padding-top) blanco con sombra rosada suave para darle volumen. */
+.puf-blob {
+	position: absolute;
+	height: 0;
+	border-radius: 50%;
+	background: radial-gradient(circle at 38% 32%, #ffffff 0%, #fffdf8 42%, #fdf0f3 72%, #f6dce9 100%);
+	box-shadow: inset -3px -5px 10px rgba(240, 190, 215, 0.45), 0 2px 6px rgba(230, 170, 200, 0.3);
+	opacity: 0;
+	animation-fill-mode: both;
+}
+
+.puf-out .puf-blob {
+	animation-name: puf-blob-out;
+	animation-duration: 800ms;
+	animation-timing-function: ease-out;
+}
+
+.puf-in .puf-blob {
+	animation-name: puf-blob-in;
+	animation-duration: 1050ms;
+	animation-timing-function: ease-out;
+}
+
+/* Cada confite vive en una caja del tamaño del efecto, así el translate en % se mide contra el efecto. */
+.puf-confite {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	z-index: 1;
+	opacity: 0;
+	animation-fill-mode: both;
+}
+
+.puf-out .puf-confite {
+	animation-name: puf-confite-burst;
+	animation-duration: 700ms;
+	animation-timing-function: cubic-bezier(0.15, 0.7, 0.3, 1);
+}
+
+.puf-in .puf-confite {
+	animation-name: puf-confite-fall;
+	animation-duration: 750ms;
+	animation-timing-function: ease-out;
+}
+
+.puf-confite-pieza {
+	position: absolute;
+	display: block;
+	height: 0;
+	box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.08), 0 1px 2px rgba(120, 80, 110, 0.3);
+	animation-name: puf-confite-spin;
+	animation-delay: inherit;
+	animation-duration: inherit;
+	animation-fill-mode: both;
+	animation-timing-function: ease-out;
+}
+
+.puf-confite-baston {
+	width: 3.6%;
+	padding-top: 10.5%;
+	border-radius: 999px;
+}
+
+.puf-confite-cilindro {
+	width: 5.4%;
+	padding-top: 7.6%;
+	border-radius: 40%;
+}
+
+.puf-confite-bolita {
+	width: 5.4%;
+	padding-top: 5.4%;
+	border-radius: 50%;
+}
+
+.puf-confite-estrella {
+	width: 9%;
+	padding-top: 9%;
+	-webkit-clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+	clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+
+/* Para el elemento que envuelve al personaje (PUF_CHARACTER_CLASS). */
+.puf-character-out,
+.puf-character-in {
+	transform-origin: 50% 100%;
+	animation-fill-mode: both;
+}
+
+.puf-character-out {
+	animation-name: puf-character-out;
+	animation-duration: 1100ms;
+	animation-timing-function: ease-in-out;
+}
+
+.puf-character-in {
+	animation-name: puf-character-in;
+	animation-duration: 1200ms;
+	animation-timing-function: ease-out;
+}

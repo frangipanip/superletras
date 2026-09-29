@@ -31,55 +31,6 @@
 	}
 }
 
-@keyframes mundo1-spin-out {
-	0% {
-		transform: perspective(800px) rotateY(0deg) scale(1);
-		opacity: 1;
-	}
-	60% {
-		transform: perspective(800px) rotateY(1080deg) scale(0.8);
-		opacity: 1;
-	}
-	100% {
-		transform: perspective(800px) rotateY(2520deg) scale(0.05);
-		opacity: 0;
-	}
-}
-
-@keyframes mundo1-spin-in {
-	0% {
-		transform: perspective(800px) rotateY(-2520deg) scale(0.05);
-		opacity: 0;
-	}
-	15% {
-		opacity: 1;
-	}
-	100% {
-		transform: perspective(800px) rotateY(0deg) scale(1);
-		opacity: 1;
-	}
-}
-
-/* El tornado crece, gira un rato y se deshace; misma duración que el giro del héroe. */
-@keyframes mundo1-tornado-life {
-	0% {
-		transform: scale(0.2, 0);
-		opacity: 0;
-	}
-	18% {
-		transform: scale(1);
-		opacity: 1;
-	}
-	78% {
-		transform: scale(1);
-		opacity: 1;
-	}
-	100% {
-		transform: scale(0.4, 0.15);
-		opacity: 0;
-	}
-}
-
 @keyframes path-activity-glow-pulse {
 	0%,
 	100% {
@@ -402,10 +353,6 @@
 		transform: translate(calc(-100% - clamp(54px, 9vmin, 78px)), calc(-100% + clamp(54px, 9vmin, 78px)));
 	}
 
-	.mundo1-character-spot.arriving {
-		pointer-events: none;
-	}
-
 	.mundo1-character {
 		position: relative;
 		display: block;
@@ -439,40 +386,19 @@
 		top: 26%;
 	}
 
-	/* Viaje en tornado hacia una actividad (ver openPathActivity). */
+	/* Teletransporte con puf de crema hacia una actividad (ver openPathActivity). */
 	&.traveling .path-button,
 	&.traveling .menu-option,
 	&.traveling .mundo1-character {
 		pointer-events: none;
 	}
 
-	.mundo1-character.tornado-out {
-		transform-origin: 50% 100%;
-		animation: mundo1-spin-out 1.1s ease-in forwards;
-	}
-
-	.mundo1-character.tornado-in {
-		visibility: hidden;
-		animation: none;
-	}
-
-	.mundo1-spot-tornado {
-		position: absolute;
-		bottom: -12%;
-		left: -25%;
-		width: 150%;
-		transform-origin: 50% 100%;
-		animation: mundo1-tornado-life 1.1s ease-in-out forwards;
-	}
-
-	.mundo1-arrival-character {
-		position: relative;
-		display: block;
-		width: 100%;
-		height: auto;
-		transform-origin: 50% 100%;
-		filter: drop-shadow(0 0 14px rgba(0, 0, 0, 0.7));
-		animation: mundo1-spin-in 1.1s ease-out forwards;
+	/* La nube es bastante más grande que el personaje para taparlo entero en su pico. */
+	.mundo1-puf {
+		top: -10%;
+		right: -24%;
+		bottom: -8%;
+		left: -24%;
 	}
 
 	.path-button {

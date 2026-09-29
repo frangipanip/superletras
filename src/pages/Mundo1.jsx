@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import Monstruo, { imagenMonstruo } from "../components/Monstruo";
-import Tornado from "../components/Tornado";
+import PufCrema, { PUF_CHARACTER_CLASS } from "../components/PufCrema";
 import UserNav from "../components/UserNav";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
+import { useTeleport } from "../hooks/useTeleport";
 import { CHARACTERS, MOUTH_IMAGES, img, sound } from "../lib/assets";
 import { STORAGE_KEYS, readStorage, writeStorage } from "../lib/storage";
 import "./Mundo1.css";
@@ -75,12 +76,6 @@ const AVAILABLE_ACTIVITIES = {
 const EDGE_ZONE = 0.15; // fracción del ancho de la pantalla
 const EDGE_MAX_SPEED = 900; // px por segundo en el borde mismo
 
-// Viaje en tornado al elegir una actividad: el héroe se va girando y reaparece en el botón.
-// Deben coincidir con las duraciones de mundo1-spin-out / mundo1-spin-in en Mundo1.css.
-const TORNADO_OUT_MS = 1100;
-const TORNADO_IN_MS = 1100;
-const TORNADO_PAUSE_MS = 250;
-
 // Ubica al personaje parado junto a un botón del camino.
 function getPerchStyle(index) {
 	const { left, top } = PATH_BUTTONS[index];
@@ -114,13 +109,15 @@ export default function Mundo1() {
 	const pageRef = useRef(null);
 	const menuPanelRef = useRef(null);
 	const characterSpotRef = useRef(null);
-	// Viaje en curso: { index, stage: "out" | "in" } o null.
-	const [travel, setTravel] = useState(null);
+	// Al elegir una actividad el personaje se teletransporta (puf de crema) hasta su botón.
+	// teleport.position: índice del botón (o null = lugar inicial) donde se dibuja durante el viaje.
+	const { teleport, teleportCharacter } = useTeleport(runtime);
 	// Botón de la última actividad visitada: al volver con "Volver", el personaje queda parado junto a él.
 	const routePerch = location.state?.menuOption === selectedOption && PATH_BUTTONS[location.state?.activityIndex]
 		? location.state.activityIndex
 		: null;
 	const perchIndex = routePerch ?? (PATH_BUTTONS[savedPerches[selectedOption]] ? savedPerches[selectedOption] : null);
+	const characterIndex = teleport ? teleport.position : perchIndex;
 	const [introAudio] = useState(() => runtime.audio(sound("Inicio Mundos.mp4"), { preload: true }));
 	// Estado del auto-scroll por borde; lo leen callbacks de requestAnimationFrame.
 	const edge = useRef({ speed: 0, running: false, position: 0, lastFrame: 0 }).current;
@@ -142,7 +139,7 @@ export default function Mundo1() {
 	}
 
 	function playIntroAudio() {
-		if (travel) return;
+		if (teleport) return;
 		stopMenuAudios();
 		introAudio.pause();
 		introAudio.currentTime = 0;
@@ -166,7 +163,7 @@ export default function Mundo1() {
 	function updateCharacterVisibility() {
 		const page = pageRef.current;
 		const characterSpot = characterSpotRef.current;
-		if (!page || !characterSpot || !character || travel) {
+		if (!page || !characterSpot || !character || teleport) {
 			setCharacterOffscreen(false);
 			return;
 		}
@@ -213,7 +210,7 @@ export default function Mundo1() {
 			page.removeEventListener("scroll", updateCharacterVisibility);
 			window.removeEventListener("resize", updateCharacterVisibility);
 		};
-	}, [character, perchIndex, travel]);
+	}, [character, characterIndex, teleport]);
 
 	useEffect(() => {
 		const page = pageRef.current;
@@ -248,7 +245,7 @@ export default function Mundo1() {
 	}
 
 	function selectMenuOption(optionKey) {
-		if (travel) return;
+		if (teleport) return;
 		setCompactMenuOpen(false);
 		// Otra letra: se olvida la última actividad (deja de brillar y el personaje vuelve a su lugar).
 		if (optionKey !== selectedOption && location.state?.activityIndex !== undefined) {
@@ -262,7 +259,7 @@ export default function Mundo1() {
 
 	function openPathActivity(index) {
 		const route = PATH_ROUTES[index];
-		if (!route || !isActivityAvailable(index) || travel) {
+		if (!route || !isActivityAvailable(index) || teleport) {
 			return;
 		}
 		const nextPerches = { ...savedPerches, [selectedOption]: index };
@@ -282,13 +279,11 @@ export default function Mundo1() {
 		introAudio.pause();
 		stopMenuAudios();
 		stopTalking();
-		setTravel({ index, stage: "out" });
-		runtime.setTimeout(() => setTravel({ index, stage: "in" }), TORNADO_OUT_MS);
-		runtime.setTimeout(goToActivity, TORNADO_OUT_MS + TORNADO_IN_MS + TORNADO_PAUSE_MS);
+		teleportCharacter(perchIndex, index).then(goToActivity);
 	}
 
 	function openMonster() {
-		if (travel) return;
+		if (teleport) return;
 		const letra = selectedOption || "a";
 		writeStorage(STORAGE_KEYS.mundo1MenuOption, letra);
 		navigate("/monstruo", { state: { letra } });
@@ -346,7 +341,7 @@ export default function Mundo1() {
 	return (
 		<div
 			ref={pageRef}
-			className={travel ? "page page-mundo1 traveling" : "page page-mundo1"}
+			className={teleport ? "page page-mundo1 traveling" : "page page-mundo1"}
 			onPointerMove={handlePointerMove}
 			onPointerLeave={stopEdgeScroll}
 			onScroll={() => {
@@ -402,11 +397,11 @@ export default function Mundo1() {
 				<img className="mundo1-background" src={img("FONDOM1.jpg")} alt="" draggable={false} onLoad={scrollToPerch} />
 				{PATH_BUTTONS.map(({ left, top }, index) => (
 					<div
-						className={`${selectedOption && !isActivityAvailable(index) ? "path-activity path-activity-unavailable" : "path-activity"}${availableActivities && index >= 7 ? " path-activity-hidden" : ""}${index === perchIndex ? " path-activity-current" : ""}`}
+						className={`${selectedOption && !isActivityAvailable(index) ? "path-activity path-activity-unavailable" : "path-activity"}${availableActivities && index >= 7 ? " path-activity-hidden" : ""}${index === characterIndex ? " path-activity-current" : ""}`}
 						key={`${left}-${top}`}
 						style={{ left: `${left}%`, top: `${top}%` }}
 					>
-						{index === perchIndex && <span className="path-activity-glow" aria-hidden="true" />}
+						{index === characterIndex && <span className="path-activity-glow" aria-hidden="true" />}
 						<img
 							className="path-activity-sign"
 							src={img(ACTIVITY_SIGN_IMAGES[index] || "GLOBOSbtn.png")}
@@ -427,25 +422,21 @@ export default function Mundo1() {
 				{character && (
 					<div
 						ref={characterSpotRef}
-						className={perchIndex === null ? "mundo1-character-spot" : "mundo1-character-spot perched"}
-						style={perchIndex === null ? undefined : getPerchStyle(perchIndex)}
+						className={characterIndex === null ? "mundo1-character-spot" : "mundo1-character-spot perched"}
+						style={characterIndex === null ? undefined : getPerchStyle(characterIndex)}
 					>
-						<button
-							className={`mundo1-character${travel ? ` tornado-${travel.stage}` : ""}`}
-							type="button"
-							aria-label="Reproducir presentación"
-							onClick={playIntroAudio}
-						>
-							<img src={CHARACTERS[character].image} alt={CHARACTERS[character].alt} />
-							{mouth.visible && <img className={mouth.shifted ? "character-mouth shifted-mouth" : "character-mouth"} src={mouth.src} alt="" />}
-						</button>
-						{travel?.stage === "out" && <Tornado className="mundo1-spot-tornado" />}
-					</div>
-				)}
-				{character && travel?.stage === "in" && (
-					<div ref={characterSpotRef} className="mundo1-character-spot perched arriving" style={getPerchStyle(travel.index)}>
-						<img className="mundo1-arrival-character" src={CHARACTERS[character].image} alt="" draggable={false} />
-						<Tornado className="mundo1-spot-tornado" />
+						<div className={teleport ? PUF_CHARACTER_CLASS[teleport.stage] : undefined}>
+							<button
+								className="mundo1-character"
+								type="button"
+								aria-label="Reproducir presentación"
+								onClick={playIntroAudio}
+							>
+								<img src={CHARACTERS[character].image} alt={CHARACTERS[character].alt} />
+								{mouth.visible && <img className={mouth.shifted ? "character-mouth shifted-mouth" : "character-mouth"} src={mouth.src} alt="" />}
+							</button>
+						</div>
+						{teleport && <PufCrema mode={teleport.stage} className="mundo1-puf" />}
 					</div>
 				)}
 
