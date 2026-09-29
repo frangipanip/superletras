@@ -260,7 +260,7 @@
 
 	.wagon {
 		position: relative;
-		width: clamp(79px, 14vw, 153px);
+		width: clamp(67px, 12vw, 131px);
 		flex: 0 0 auto;
 		order: 1;
 	}
@@ -357,7 +357,7 @@
 	}
 
 	.page-tren .wagon {
-		width: clamp(58px, 11vw, 125px);
+		width: clamp(50px, 9.4vw, 107px);
 	}
 }
 
@@ -367,7 +367,7 @@
 	}
 
 	.page-tren .wagon {
-		width: clamp(38px, 10vw, 52px);
+		width: clamp(32px, 8.6vw, 44px);
 	}
 }
 
