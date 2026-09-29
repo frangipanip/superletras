@@ -347,6 +347,10 @@
 	background: url("/assets/imagenes/escenarioTren.png") center / cover no-repeat;
 }
 
+.page-tren .selected-character {
+	--selected-character-width: clamp(109px, 30vmin, 208px);
+}
+
 @keyframes train-arrival {
 	from {
 		transform: translate(calc(-50% - 100vw), -50%) scale(1.5);
