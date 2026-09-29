@@ -29,6 +29,12 @@
 	}
 }
 
+@keyframes balloon-letter-disappear {
+	to {
+		opacity: 0;
+	}
+}
+
 @keyframes inicio-confetti-fall {
 	0% {
 		top: -8%;
@@ -143,7 +149,11 @@
 	left: 5%;
 	z-index: 1;
 	width: clamp(8rem, 22vw, 18rem);
-	pointer-events: none;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	cursor: pointer;
+	pointer-events: auto;
 }
 
 @media (max-width: 768px) {
@@ -187,6 +197,7 @@
 	display: block;
 	transform: none;
 	z-index: 2;
+	pointer-events: none;
 }
 
 .inicio-vowel-button {
@@ -213,6 +224,7 @@
 	justify-content: center;
 	background-color: transparent;
 	color: #fff;
+	pointer-events: auto;
 	text-shadow: 0 0.14em 0 rgba(78, 39, 81, 0.18), 0 0 0.6em rgba(255, 255, 255, 0.6);
 	user-select: none;
 	-webkit-user-select: none;
@@ -316,6 +328,7 @@
 .inicio-vowel-button.selected span {
 	color: #fff6a4;
 	text-shadow: 0 0.14em 0 rgba(78, 39, 81, 0.18), 0 0 15px rgba(255, 255, 255, 1);
+	animation: balloon-letter-disappear 0.4s forwards;
 }
 
 /* Durante shuffle los globos mantienen su globo */

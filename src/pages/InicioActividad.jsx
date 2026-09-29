@@ -106,6 +106,7 @@ export default function InicioActividad() {
 	const shuffleTimer = useRef(0);
 	const errorTimer = useRef(0);
 	const revealTimer = useRef(0);
+	const introductionActive = useRef(false);
 	const requestedItemIndex = useRef(0);
 	// Carteles equivocados tocados al pedirlos (fases 2 y 3): definen cuántas comidas se ganan.
 	const errorCount = useRef(0);
@@ -168,6 +169,30 @@ export default function InicioActividad() {
 		});
 	}
 
+	function repeatInstruction() {
+		if (introductionActive.current || isShuffling || showConfetti || visibleItems.size < mode.items.length) {
+			return;
+		}
+		if (requestedItem) {
+			playRequestedItem(requestedItem);
+			return;
+		}
+		if (isPhaseTwo || isPhaseThree) {
+			return;
+		}
+		stopShortAudios();
+		startTalking();
+		audios.pressure.currentTime = 0;
+		audios.pressure.onended = () => {
+			audios.pressure.onended = null;
+			stopTalking();
+		};
+		audios.pressure.play().catch(() => {
+			audios.pressure.onended = null;
+			stopTalking();
+		});
+	}
+
 	function handleItemPress(item) {
 		if (isShuffling) {
 			return;
@@ -221,6 +246,7 @@ export default function InicioActividad() {
 				return;
 			}
 			requestedItemIndex.current += 1;
+			setRequestedItem(null);
 			runtime.setTimeout(() => {
 				const nextItem = mode.items[requestedItemIndex.current];
 				setRequestedItem(nextItem);
@@ -241,6 +267,26 @@ export default function InicioActividad() {
 		setRevealingItem(item);
 		runtime.clearTimeout(revealTimer.current);
 		revealTimer.current = runtime.setTimeout(() => setRevealingItem(null), 550);
+	}
+
+	function skipIntroduction(event) {
+		if (!introductionActive.current || event.target.closest("button, a")) {
+			return;
+		}
+		introductionActive.current = false;
+		runtime.clearTimeout(sequenceTimer.current);
+		runtime.clearTimeout(revealTimer.current);
+		[...audios.intro, ...Object.values(audios.itemsLong), audios.pressure].forEach((audio) => {
+			audio.onended = null;
+			audio.ontimeupdate = null;
+			audio.pause();
+			audio.currentTime = 0;
+		});
+		setShowBigLetter(true);
+		setVisibleItems(new Set(mode.items));
+		setRevealingItem(null);
+		setActiveItem(null);
+		stopTalking();
 	}
 
 	function startPhaseThree() {
@@ -352,6 +398,7 @@ export default function InicioActividad() {
 		if (!MODES[menuOption]) {
 			return undefined;
 		}
+		introductionActive.current = true;
 		// Presentación: primero los audios de la letra y después cada cartel con su audio largo.
 		const steps = [
 			...audios.intro.map((audio) => ({ audio, item: null })),
@@ -361,12 +408,20 @@ export default function InicioActividad() {
 
 		function playNextStep() {
 			if (stepIndex >= steps.length) {
+				introductionActive.current = false;
 				setShowBigLetter(true);
 				setActiveItem(null);
 				audios.pressure.currentTime = 0;
-				audios.pressure.onended = stopTalking;
+				audios.pressure.onended = () => {
+					audios.pressure.onended = null;
+					introductionActive.current = false;
+					stopTalking();
+				};
 				startTalking();
-				audios.pressure.play().catch(stopTalking);
+				audios.pressure.play().catch(() => {
+					introductionActive.current = false;
+					stopTalking();
+				});
 				return;
 			}
 			const step = steps[stepIndex];
@@ -404,8 +459,10 @@ export default function InicioActividad() {
 
 		setShowBigLetter(false);
 		setVisibleItems(new Set());
+		setRevealingItem(null);
 		playNextStep();
 		return () => {
+			introductionActive.current = false;
 			runtime.clearTimeout(sequenceTimer.current);
 			runtime.clearTimeout(shuffleTimer.current);
 			runtime.clearTimeout(revealTimer.current);
@@ -442,7 +499,7 @@ export default function InicioActividad() {
 	}, [audios, menuOption]);
 
 	return (
-		<div className="page activity-page page-inicio-actividad">
+		<div className="page activity-page page-inicio-actividad" onClick={skipIntroduction}>
 			<BackButton />
 			<FullscreenButton toggle />
 			<div className="inicio-vowels inicio-syllables" aria-label={mode.listName}>
@@ -495,7 +552,7 @@ export default function InicioActividad() {
 				</div>
 			<PremioComida premio={premio} />
 			{character && (
-				<div className="inicio-activity-character" aria-label="Personaje seleccionado">
+				<button className="inicio-activity-character" type="button" aria-label="Repetir consigna" onClick={repeatInstruction}>
 					<img src={CHARACTERS[character].image} alt={CHARACTERS[character].alt} />
 					<img
 						className={mouth.shifted ? "inicio-activity-mouth shifted-mouth" : "inicio-activity-mouth"}
@@ -503,7 +560,7 @@ export default function InicioActividad() {
 						alt=""
 						hidden={!mouth.visible}
 					/>
-				</div>
+				</button>
 			)}
 		</div>
 	);
