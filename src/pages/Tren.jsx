@@ -374,12 +374,6 @@ export default function Tren() {
 				</button>
 			</div>
 			<main className="train-activity" aria-live="polite">
-				<div className="activity-heading">
-					<h1 className="activity-title">Completa la secuencia</h1>
-					<p className="round-counter">
-						{roundIndex + 1} / {config.sequences.length}
-					</p>
-				</div>
 				<section className="sequence-board" ref={sequenceBoardRef} aria-label="Secuencia de vocales">
 					{slots.map((slot, index) => (
 						<div
