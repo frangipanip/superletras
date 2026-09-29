@@ -291,19 +291,14 @@ export default function InicioActividad() {
 
 	function startPhaseThree() {
 		setIsPhaseThree(true);
+		setSelectedItems(new Set());
+		setActivitySelectedItems(new Set());
 		startTalking();
 		audios.movement.currentTime = 0;
 		const startRequests = () => {
-			setSelectedItems(new Set());
-			setItemOrder(shuffle(mode.items));
-			setIsShuffling(true);
-			shuffleTimer.current = runtime.setTimeout(() => {
-				setIsShuffling(false);
-				requestedItemIndex.current = 0;
-				setActivitySelectedItems(new Set());
-				setRequestedItem(mode.items[0]);
-				playRequestedItem(mode.items[0]);
-			}, 1200);
+			requestedItemIndex.current = 0;
+			setRequestedItem(mode.items[0]);
+			playRequestedItem(mode.items[0]);
 		};
 		audios.movement.onended = () => {
 			audios.movement.onended = null;
