@@ -112,7 +112,9 @@ export default function Mundo1() {
 	// Viaje en curso: { index, stage: "out" | "in" } o null.
 	const [travel, setTravel] = useState(null);
 	// Botón de la última actividad visitada: al volver con "Volver", el personaje queda parado junto a él.
-	const routePerch = PATH_BUTTONS[location.state?.activityIndex] ? location.state.activityIndex : null;
+	const routePerch = location.state?.menuOption === selectedOption && PATH_BUTTONS[location.state?.activityIndex]
+		? location.state.activityIndex
+		: null;
 	const perchIndex = routePerch ?? (PATH_BUTTONS[savedPerches[selectedOption]] ? savedPerches[selectedOption] : null);
 	const [introAudio] = useState(() => runtime.audio(sound("Inicio Mundos.mp4"), { preload: true }));
 	// Estado del auto-scroll por borde; lo leen callbacks de requestAnimationFrame.
@@ -224,7 +226,7 @@ export default function Mundo1() {
 		writeStorage(STORAGE_KEYS.mundo1MenuOption, selectedOption);
 		const goToActivity = () => {
 			// Se anota en la entrada actual del historial, para encontrarla al volver.
-			navigate(location.pathname, { replace: true, state: { ...location.state, activityIndex: index } });
+				navigate(location.pathname, { replace: true, state: { ...location.state, activityIndex: index, menuOption: selectedOption } });
 			navigate(route, { state: { menuOption: selectedOption } });
 		};
 		if (!character || perchIndex === index) {

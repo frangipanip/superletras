@@ -8,7 +8,7 @@ import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { preloadImages, sound } from "../lib/assets";
 import { cantidadComida, darComida, getRecompensas, sincronizar, subscribeRecompensas } from "../lib/recompensas";
-import { readMenuOption } from "../lib/storage";
+import { readMenuOption, STORAGE_KEYS, writeStorage } from "../lib/storage";
 import "./actividad.css";
 import "./Monstruo.css";
 
@@ -75,6 +75,7 @@ export default function MonstruoPage() {
 		});
 		setCuadro(CUADROS_MONSTRUO.normal);
 		setLetra(otraLetra);
+		writeStorage(STORAGE_KEYS.mundo1MenuOption, otraLetra);
 	}
 
 	function comer() {
