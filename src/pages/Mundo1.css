@@ -308,6 +308,52 @@
 		height: auto;
 	}
 
+	.mundo1-character-locator {
+		position: fixed;
+		top: 50%;
+		right: clamp(0.5rem, 1.5vw, 1.25rem);
+		z-index: 6;
+		display: grid;
+		place-items: center;
+		width: clamp(3.5rem, 9vmin, 5.5rem);
+		aspect-ratio: 1;
+		padding: 0.2rem;
+		border: 2px solid rgba(255, 255, 255, 0.9);
+		border-radius: 50%;
+		background: rgba(255, 255, 255, 0.82);
+		box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+		cursor: pointer;
+		transform: translateY(-50%);
+		transition: transform 160ms ease, background-color 160ms ease;
+	}
+
+	.mundo1-character-locator::after {
+		position: absolute;
+		top: 50%;
+		left: -0.75rem;
+		width: 0;
+		height: 0;
+		border-top: 0.65rem solid transparent;
+		border-bottom: 0.65rem solid transparent;
+		border-right: 0.8rem solid #ffffff;
+		filter: drop-shadow(-1px 1px 1px rgba(0, 0, 0, 0.25));
+		content: "";
+		transform: translateY(-50%);
+	}
+
+	.mundo1-character-locator:hover,
+	.mundo1-character-locator:focus-visible {
+		background: #ffffff;
+		transform: translateY(-50%) scale(1.08);
+	}
+
+	.mundo1-character-locator img {
+		display: block;
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+	}
+
 	&.traveling .mundo1-monster-button {
 		pointer-events: none;
 	}

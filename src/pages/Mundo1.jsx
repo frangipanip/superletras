@@ -52,6 +52,8 @@ export const MUNDO1_IMAGES = [
 	...MENU_OPTIONS.map(({ image }) => img(image)),
 	img("bocha.png"),
 	img("cucurucho.png"),
+	img("cabezasupernena.png"),
+	img("cabezasupernene.png"),
 	...MENU_OPTIONS.map(({ key }) => imagenMonstruo(key)),
 	...MOUTH_IMAGES
 ];
@@ -107,8 +109,10 @@ export default function Mundo1() {
 	const [savedPerches, setSavedPerches] = useState(readSavedPerches);
 	const [menuPanelVisible, setMenuPanelVisible] = useState(true);
 	const [compactMenuOpen, setCompactMenuOpen] = useState(false);
+	const [characterOffscreen, setCharacterOffscreen] = useState(false);
 	const pageRef = useRef(null);
 	const menuPanelRef = useRef(null);
+	const characterSpotRef = useRef(null);
 	// Viaje en curso: { index, stage: "out" | "in" } o null.
 	const [travel, setTravel] = useState(null);
 	// Botón de la última actividad visitada: al volver con "Volver", el personaje queda parado junto a él.
@@ -149,10 +153,37 @@ export default function Mundo1() {
 	// Desplaza la escena para que se vea el botón donde está parado el personaje.
 	function scrollToPerch() {
 		const page = pageRef.current;
-		if (perchIndex === null || !page) return;
-		const sceneWidth = page.scrollWidth;
-		page.scrollLeft = (sceneWidth * PATH_BUTTONS[perchIndex].left) / 100 - page.clientWidth / 2;
-		edge.position = page.scrollLeft;
+		if (!page) return;
+		if (perchIndex !== null) {
+			const sceneWidth = page.scrollWidth;
+			page.scrollLeft = (sceneWidth * PATH_BUTTONS[perchIndex].left) / 100 - page.clientWidth / 2;
+			edge.position = page.scrollLeft;
+		}
+		updateCharacterVisibility();
+	}
+
+	function updateCharacterVisibility() {
+		const page = pageRef.current;
+		const characterSpot = characterSpotRef.current;
+		if (!page || !characterSpot || !character || travel) {
+			setCharacterOffscreen(false);
+			return;
+		}
+		const viewport = page.getBoundingClientRect();
+		const characterBounds = characterSpot.getBoundingClientRect();
+		const visible = characterBounds.right > viewport.left && characterBounds.left < viewport.right &&
+			characterBounds.bottom > viewport.top && characterBounds.top < viewport.bottom;
+		setCharacterOffscreen(!visible);
+	}
+
+	function scrollToCharacter() {
+		const page = pageRef.current;
+		const characterSpot = characterSpotRef.current;
+		if (!page || !characterSpot) return;
+		const viewport = page.getBoundingClientRect();
+		const characterBounds = characterSpot.getBoundingClientRect();
+		const destination = page.scrollLeft + characterBounds.left + characterBounds.width / 2 - viewport.width / 2;
+		page.scrollTo({ left: Math.max(0, Math.min(page.scrollWidth - page.clientWidth, destination)), behavior: "smooth" });
 	}
 
 	useEffect(() => {
@@ -169,6 +200,18 @@ export default function Mundo1() {
 			stopTalking();
 		};
 	}, []);
+
+	useEffect(() => {
+		const page = pageRef.current;
+		if (!page) return undefined;
+		updateCharacterVisibility();
+		page.addEventListener("scroll", updateCharacterVisibility, { passive: true });
+		window.addEventListener("resize", updateCharacterVisibility);
+		return () => {
+			page.removeEventListener("scroll", updateCharacterVisibility);
+			window.removeEventListener("resize", updateCharacterVisibility);
+		};
+	}, [character, perchIndex, travel]);
 
 	useEffect(() => {
 		const page = pageRef.current;
@@ -347,6 +390,11 @@ export default function Mundo1() {
 			<button className="mundo1-monster-button" type="button" aria-label="Ver al monstruo y sus comidas" onClick={openMonster}>
 				<Monstruo letra={selectedOption || "a"} />
 			</button>
+			{characterOffscreen && character && (
+				<button className="mundo1-character-locator" type="button" aria-label="Ir hasta mi personaje" onClick={scrollToCharacter}>
+					<img src={img(character === "supernena" ? "cabezasupernena.png" : "cabezasupernene.png")} alt="" draggable={false} />
+				</button>
+			)}
 
 			<div className="mundo1-scene">
 				<img className="mundo1-background" src={img("FONDOM1.jpg")} alt="" draggable={false} onLoad={scrollToPerch} />
@@ -376,6 +424,7 @@ export default function Mundo1() {
 				))}
 				{character && (
 					<div
+						ref={characterSpotRef}
 						className={perchIndex === null ? "mundo1-character-spot" : "mundo1-character-spot perched"}
 						style={perchIndex === null ? undefined : getPerchStyle(perchIndex)}
 					>
@@ -392,7 +441,7 @@ export default function Mundo1() {
 					</div>
 				)}
 				{character && travel?.stage === "in" && (
-					<div className="mundo1-character-spot perched arriving" style={getPerchStyle(travel.index)}>
+					<div ref={characterSpotRef} className="mundo1-character-spot perched arriving" style={getPerchStyle(travel.index)}>
 						<img className="mundo1-arrival-character" src={CHARACTERS[character].image} alt="" draggable={false} />
 						<Tornado className="mundo1-spot-tornado" />
 					</div>
