@@ -13,7 +13,7 @@ import { useActivityMenuOption } from "../hooks/useActivityMenuOption";
 import "./actividad.css";
 
 const VOWELS = ["A", "E", "I", "O", "U"];
-const WAGON_IMAGES = ["vagon1.svg", "vagon2.svg", "vagon3.svg", "vagon4.svg"];
+const WAGON_IMAGES = ["vagon1.png", "vagon2.png", "vagon3.png", "vagon4.png"];
 
 const ACTIVITY_CONFIG = {
 	a: {
@@ -402,7 +402,7 @@ export default function Tren() {
 								</button>
 							</div>
 						))}
-						{convoy.tokens && <img className="locomotive" src={img("tren.svg")} alt="Locomotora" draggable={false} />}
+						{convoy.tokens && <img className="locomotive" src={img("locomotora.png")} alt="Locomotora" draggable={false} />}
 					</div>
 				</section>
 			</main>

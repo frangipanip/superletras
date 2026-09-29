@@ -196,8 +196,8 @@
 	.sequence-slot {
 		display: grid;
 		place-items: center;
-		height: clamp(3.2rem, 8.5vmin, 5.5rem);
-		width: clamp(1.5rem, 4.8vmin, 2.8rem);
+		height: clamp(3.7rem, 9.8vmin, 6.3rem);
+		width: clamp(1.7rem, 5.5vmin, 3.2rem);
 		color: #fff;
 		font: 700 clamp(1.8rem, 6vmin, 3.8rem) Arial, Helvetica, sans-serif;
 		text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.35);
@@ -217,7 +217,7 @@
 	}
 
 	.sequence-slot.double-token {
-		width: clamp(2.8rem, 7.5vmin, 4.6rem);
+		width: clamp(3.2rem, 8.6vmin, 5.3rem);
 		font: 700 clamp(1.45rem, 4.3vmin, 2.8rem) Arial, Helvetica, sans-serif;
 	}
 
@@ -253,14 +253,14 @@
 	}
 
 	.locomotive {
-		width: clamp(52px, 10vw, 112px);
+		width: clamp(88px, 17vw, 190px);
 		height: auto;
 		order: 2;
 	}
 
 	.wagon {
 		position: relative;
-		width: clamp(62px, 11vw, 120px);
+		width: clamp(79px, 14vw, 153px);
 		flex: 0 0 auto;
 		order: 1;
 	}
@@ -334,11 +334,11 @@
 		}
 
 		.locomotive {
-			width: 60px;
+			width: 102px;
 		}
 
 		.wagon {
-			width: 72px;
+			width: 92px;
 		}
 	}
 }
@@ -349,6 +349,26 @@
 
 .page-tren .selected-character {
 	--selected-character-width: clamp(109px, 30vmin, 208px);
+}
+
+@media (min-width: 521px) and (max-width: 1200px) {
+	.page-tren .locomotive {
+		width: clamp(73px, 14vw, 160px);
+	}
+
+	.page-tren .wagon {
+		width: clamp(58px, 11vw, 125px);
+	}
+}
+
+@media (max-width: 520px) {
+	.page-tren .locomotive {
+		width: clamp(48px, 12vw, 64px);
+	}
+
+	.page-tren .wagon {
+		width: clamp(38px, 10vw, 52px);
+	}
 }
 
 @keyframes train-arrival {
