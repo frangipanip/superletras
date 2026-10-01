@@ -13,6 +13,15 @@ const LEVEL_ROWS = [
 	[4, 5, 6]
 ];
 
+const LEVEL_LETTERS = {
+	1: "A - L - M - S - T",
+	2: "P - N - D - F - H",
+	3: "R - RR - AR - Y - LL",
+	4: "C - CE - Q - Z - CH",
+	5: "G - GE - GU - J - GÜ",
+	6: "B - V - Ñ - K - X"
+};
+
 // Solo el nivel 1 tiene contenido por ahora.
 const LEVEL_ROUTES = { 1: "/mundo1" };
 
@@ -60,6 +69,7 @@ export default function Mundos() {
 										navigate(LEVEL_ROUTES[level]);
 									} : undefined}
 								>
+									<span className="level-letters" aria-hidden="true">{LEVEL_LETTERS[level]}</span>
 									<img src={img(`${level}btn.png`)} alt={`Nivel ${level}`} />
 								</button>
 							))}
