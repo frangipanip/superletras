@@ -197,6 +197,9 @@ export default function InicioActividad() {
 		if (isShuffling) {
 			return;
 		}
+		if (isPhaseThree && !requestedItem) {
+			return;
+		}
 		if (visibleItems.size < mode.items.length) {
 			return;
 		}

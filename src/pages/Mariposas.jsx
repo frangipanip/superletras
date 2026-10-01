@@ -23,7 +23,6 @@ const SYLLABLES = {
 };
 const TOTAL_BUTTERFLIES = 8;
 const TOTAL_CORRECT = 5;
-const TOTAL_INSTRUCTIONS = 3;
 const POSITIONS = [
 	[24, 18], [47, 20], [70, 18], [34, 48], [57, 45], [78, 47], [27, 76], [52, 75], [72, 74], [42, 62], [88, 62]
 ];
@@ -42,7 +41,7 @@ function getAudioFileName(label, type = "syllable") {
 }
 
 function createInstructionOrder(mode) {
-	return mode !== "a" ? Array(TOTAL_INSTRUCTIONS).fill(mode.toUpperCase()) : shuffle(VOWELS);
+	return mode !== "a" ? [mode.toUpperCase()] : shuffle(VOWELS);
 }
 
 function createButterflies(mode, targetValue, generation) {
@@ -87,6 +86,7 @@ export default function Mariposas() {
 	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime);
 	const activityMenuOption = useActivityMenuOption();
 	const [mode] = useState(() => (["l", "m", "s", "t"].includes(activityMenuOption) ? activityMenuOption : "a"));
+	const totalInstructions = mode === "a" ? VOWELS.length : 1;
 	const [targetValue, setTargetValue] = useState("");
 	const [butterflies, setButterflies] = useState([]);
 	const [celebrating, setCelebrating] = useState(false);
@@ -135,7 +135,7 @@ export default function Mariposas() {
 	function startInstructionSet() {
 		const previousOption = mode !== "a" ? mode.toUpperCase() : state.targetValue;
 		state.instructionOrder = createInstructionOrder(mode);
-		if (mode !== "a" && state.instructionOrder[0] === previousOption) {
+		if (mode !== "a" && state.instructionOrder.length > 1 && state.instructionOrder[0] === previousOption) {
 			const replacementIndex = state.instructionOrder.findIndex((option) => option !== previousOption);
 			[state.instructionOrder[0], state.instructionOrder[replacementIndex]] = [state.instructionOrder[replacementIndex], state.instructionOrder[0]];
 		}
@@ -221,7 +221,7 @@ export default function Mariposas() {
 	}
 
 	function repeatInstruction() {
-		if (!state.celebrationActive && !state.roundTransitionPending && state.instructionsCompleted < TOTAL_INSTRUCTIONS) {
+		if (!state.celebrationActive && !state.roundTransitionPending && state.instructionsCompleted < totalInstructions) {
 			playInstructionAudio();
 		}
 	}
@@ -317,9 +317,9 @@ export default function Mariposas() {
 		});
 		runtime.setTimeout(() => setButterflies((current) => current.filter((item) => item.flying)), 640);
 
-		const lastInstruction = state.instructionsCompleted >= TOTAL_INSTRUCTIONS;
+		const lastInstruction = state.instructionsCompleted >= totalInstructions;
 		runtime.setTimeout(() => {
-			if (state.instructionsCompleted >= TOTAL_INSTRUCTIONS) {
+			if (state.instructionsCompleted >= totalInstructions) {
 				state.roundTransitionPending = false;
 				startCelebration();
 				return;

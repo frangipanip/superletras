@@ -30,6 +30,7 @@
 
 	.butterfly-field {
 		position: fixed;
+		z-index: 3;
 		left: 0vw;
 		top: 14%;
 		top: 14dvh;
@@ -37,11 +38,13 @@
 		height: 80vh;
 		height: 80dvh;
 		overflow: hidden;
+		pointer-events: none;
 	}
 
 	.butterfly-button {
 		position: absolute;
 		width: var(--butterfly-size);
+		pointer-events: auto;
 		padding: 0;
 		border: 0;
 		background: transparent;
