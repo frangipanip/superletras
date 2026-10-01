@@ -40,9 +40,9 @@
 	}
 
 	.initials-name {
-		width: fit-content;
+		width: min(12.75rem, 100%);
 		max-width: 100%;
-		min-height: 2.4rem;
+		min-height: 4.2rem;
 		padding: 0.3rem 0.6rem;
 		border: 3px solid;
 		border-radius: 12px;
