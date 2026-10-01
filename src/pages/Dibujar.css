@@ -21,10 +21,9 @@
 	.dibujar-board {
 		position: relative;
 		touch-action: none;
-		height: min(72vh, 620px);
-		width: min(58vw, calc(72vh * 322 / 317), 620px);
-		min-width: 280px;
-		min-height: 280px;
+		box-sizing: border-box;
+		height: min(calc(100vh - 7rem), 620px);
+		width: min(58vw, calc((100vh - 7rem) * 322 / 317), 620px);
 		aspect-ratio: 322 / 317;
 		border: clamp(8px, 1.2vmin, 14px) solid #8c4b97;
 		border-radius: clamp(1rem, 3vmin, 2.2rem);
@@ -128,10 +127,8 @@
 		}
 
 		.dibujar-board {
-			height: min(68vh, 520px);
-			width: min(82vw, calc(68vh * 322 / 317), 520px);
-			min-width: 240px;
-			min-height: 240px;
+			height: min(calc(100vh - 7rem), 520px);
+			width: min(82vw, calc((100vh - 7rem) * 322 / 317), 520px);
 		}
 	}
 }

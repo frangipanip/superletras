@@ -288,12 +288,13 @@ export default function Dibujar() {
 	const curve = CURVE_TRACES[activeLetter];
 
 	function getBoardPoint(event) {
-		if (!boardRef.current) return START_POINT;
+		const board = boardRef.current;
+		if (!board) return START_POINT;
 		const point = event?.touches?.[0] ?? event?.changedTouches?.[0] ?? event;
-		const bounds = boardRef.current.getBoundingClientRect();
+		const bounds = board.getBoundingClientRect();
 		return {
-			x: ((point?.clientX ?? 0) - bounds.left) / bounds.width,
-			y: ((point?.clientY ?? 0) - bounds.top) / bounds.height,
+			x: ((point?.clientX ?? 0) - bounds.left - board.clientLeft) / board.clientWidth,
+			y: ((point?.clientY ?? 0) - bounds.top - board.clientTop) / board.clientHeight,
 		};
 	}
 
