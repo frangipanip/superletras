@@ -60,7 +60,7 @@
 			linear-gradient(178deg, rgba(255, 255, 255, 0.78) 0 7%, transparent 20%),
 			linear-gradient(180deg, #d6f8ff 0%, #a9e7f4 43%, #7bcfe3 72%, #5fb5cb 100%);
 		color: #6b3f24;
-		font: 700 clamp(0.8rem, 2vmin, 1.25rem) Arial, Helvetica, sans-serif;
+		font: 700 calc(clamp(1rem, 2.2vmin, 1.25rem) - 4px) Arial, Helvetica, sans-serif;
 		box-shadow:
 			inset 0 3px 0 rgba(255, 255, 255, 0.9),
 			inset 0 0 0 3px rgba(111, 210, 229, 0.65),
