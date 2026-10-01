@@ -70,6 +70,7 @@ function createButterflies(mode, targetValue, generation) {
 
 	return shuffle(items).map((item, index) => ({
 		...item,
+		generation,
 		id: `${generation}-${index}`,
 		left: POSITIONS[index][0],
 		top: POSITIONS[index][1],
@@ -285,6 +286,8 @@ export default function Mariposas() {
 		}
 
 		state.correctClicked += 1;
+		const completesRound = state.correctClicked === TOTAL_CORRECT;
+		const clickGeneration = state.generation;
 		button.disabled = true;
 		updateButterfly(butterfly.id, { flying: true });
 		button.animate([
@@ -294,7 +297,7 @@ export default function Mariposas() {
 		], { duration: 780, iterations: 1, easing: "ease-out" });
 		runtime.setTimeout(() => {
 			setButterflies((current) => current.filter((item) => item.id !== butterfly.id));
-			if (state.correctClicked >= TOTAL_CORRECT) {
+			if (completesRound && state.generation === clickGeneration) {
 				finishRound();
 			}
 		}, 860);
@@ -306,6 +309,7 @@ export default function Mariposas() {
 		}
 		state.roundTransitionPending = true;
 		state.instructionsCompleted += 1;
+		const roundGeneration = state.generation;
 		stopInstructionAudio();
 
 		fieldRef.current.querySelectorAll(".butterfly-button:not(.correct)").forEach((button) => {
@@ -313,12 +317,19 @@ export default function Mariposas() {
 				{ transform: "translate(-50%, -50%) scale(1)", opacity: 1 },
 				{ transform: "translate(-50%, -50%) scale(0.82)", opacity: 0.86 },
 				{ transform: "translate(12vw, -12vh) scale(0.2)", opacity: 0 }
-			], { duration: 620, iterations: 1, easing: "ease-out" });
+			], { duration: 620, iterations: 1, easing: "ease-out", fill: "forwards" });
 		});
-		runtime.setTimeout(() => setButterflies((current) => current.filter((item) => item.flying)), 640);
+		runtime.setTimeout(() => {
+			if (state.generation === roundGeneration) {
+				setButterflies((current) => current.filter((item) => item.generation !== roundGeneration || item.flying));
+			}
+		}, 640);
 
 		const lastInstruction = state.instructionsCompleted >= totalInstructions;
 		runtime.setTimeout(() => {
+			if (state.generation !== roundGeneration) {
+				return;
+			}
 			if (state.instructionsCompleted >= totalInstructions) {
 				state.roundTransitionPending = false;
 				startCelebration();
