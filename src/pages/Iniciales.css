@@ -40,19 +40,21 @@
 	}
 
 	.initials-name {
-		width: min(12.75rem, 100%);
+		width: min(12.7rem, 100%);
 		max-width: 100%;
-		min-height: 4.2rem;
+		min-height: 4.725rem;
 		padding: 0.3rem 0.6rem;
 		border: 3px solid;
 		border-radius: 12px;
 		box-shadow: 0 3px 0 var(--name-shadow);
 		color: var(--name-text);
-		font: 700 1.1rem Arial, Helvetica, sans-serif;
+		font: 700 1.58rem Arial, Helvetica, sans-serif;
 		line-height: 1.1;
 		text-transform: uppercase;
 		overflow-wrap: anywhere;
 		opacity: 1;
+		cursor: pointer;
+		transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
 		-webkit-text-fill-color: var(--name-text);
 	}
 
@@ -101,6 +103,13 @@
 	.initials-option.vibrating {
 		animation: initials-vibrate 350ms ease-in-out;
 	}
+}
+
+.page-peluche .initials-name:hover,
+.page-peluche .initials-name:focus-visible {
+	transform: translateY(-3px) scale(1.04);
+	box-shadow: 0 6px 0 var(--name-shadow), 0 8px 12px rgba(0, 0, 0, 0.18);
+	filter: brightness(1.04);
 }
 
 @keyframes initials-pulse {
