@@ -231,12 +231,26 @@
 		transition: transform 180ms ease;
 	}
 
+	.mundo1-monster-cloud {
+		position: absolute;
+		bottom: -28%;
+		left: 50%;
+		z-index: 0;
+		display: block;
+		width: 145%;
+		height: auto;
+		transform: translateX(-50%);
+		pointer-events: none;
+	}
+
 	.mundo1-monster-button:hover,
 	.mundo1-monster-button:focus-visible {
 		transform: translateX(-50%) scale(1.1);
 	}
 
 	.mundo1-monster-button .monstruo {
+		position: relative;
+		z-index: 1;
 		width: 100%;
 		height: auto;
 	}

@@ -55,6 +55,7 @@ const ACTIVITY_SIGN_IMAGES = [
 export const MUNDO1_IMAGES = [
 	img("FONDOM1.jpg"),
 	img("MENUM1.png"),
+	img("nube.png"),
 	img("boton.svg"),
 	img("GLOBOSbtn.png"),
 	...ACTIVITY_SIGN_IMAGES.map(img),
@@ -392,6 +393,7 @@ export default function Mundo1() {
 
 			{/* Fijo arriba al centro: sigue ahí aunque se recorra el camino. */}
 			<button className="mundo1-monster-button" type="button" aria-label="Ver al monstruo y sus comidas" onClick={openMonster}>
+				<img className="mundo1-monster-cloud" src={img("nube.png")} alt="" aria-hidden="true" draggable={false} />
 				<Monstruo letra={selectedOption || "a"} />
 			</button>
 			{characterOffscreen && character && (
