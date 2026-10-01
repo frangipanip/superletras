@@ -3,7 +3,7 @@ import { useLocation } from "react-router";
 import { COMIDAS, LETRAS } from "../../shared/comidas.js";
 import BackButton from "../components/BackButton";
 import FullscreenButton from "../components/FullscreenButton";
-import Monstruo, { CUADROS_MONSTRUO, imagenesMonstruo } from "../components/Monstruo";
+import Monstruo, { CUADROS_MONSTRUO, imagenesMonstruo, imagenMonstruoNivel2 } from "../components/Monstruo";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { preloadImages, sound } from "../lib/assets";
@@ -14,6 +14,7 @@ import "./Monstruo.css";
 
 // Duración del vuelo de la comida hasta la boca (coincide con monstruo-vuelo en Monstruo.css).
 const VUELO_MS = 650;
+const EVOLUCION_MS = 1300;
 // Mientras vuela la comida tiene la boca abierta; al llegar pasa por estos cuadros (ms cada uno).
 const SECUENCIA_COMER = [
 	[CUADROS_MONSTRUO.mastica, 380],
@@ -36,10 +37,13 @@ export default function MonstruoPage() {
 	const { letras } = useSyncExternalStore(subscribeRecompensas, getRecompensas);
 	const [vuelos, setVuelos] = useState([]);
 	const [cuadro, setCuadro] = useState(CUADROS_MONSTRUO.normal);
+	const [evolucionPendiente, setEvolucionPendiente] = useState(false);
+	const [evolucionando, setEvolucionando] = useState(false);
 	const monstruoRef = useRef(null);
 	// Timers de la secuencia de comer en curso: si le dan otra comida, arranca de nuevo.
 	const comerTimers = useRef([]);
 	const vueloTimers = useRef([]);
+	const evolucionTimer = useRef(null);
 	const [audios] = useState(() => ({
 		comer: runtime.audio(sound("correcto.mp3"), { preload: true }),
 		lleno: runtime.audio(sound("Fabuloso.m4a"), { preload: true })
@@ -50,13 +54,21 @@ export default function MonstruoPage() {
 		return { ...comida, ganadas, dadas, guardadas: ganadas - dadas };
 	});
 	const lleno = comidas.every(({ dadas, necesarias }) => dadas >= necesarias);
+	const monstruosEvolucionados = Object.fromEntries(LETRAS.map((otraLetra) => [
+		otraLetra,
+		COMIDAS.every(({ clave, necesarias }) => cantidadComida(letras, otraLetra, clave).dadas >= necesarias)
+	]));
 
 	useEffect(() => {
 		sincronizar();
 	}, []);
 
 	useEffect(() => {
-		preloadImages(imagenesMonstruo(letra));
+		preloadImages([
+			...imagenesMonstruo(letra),
+			...LETRAS.map((otraLetra) => imagenMonstruoNivel2(otraLetra)),
+			img("nube.png")
+		]);
 	}, [letra]);
 
 	function cancelarSecuencia() {
@@ -66,9 +78,15 @@ export default function MonstruoPage() {
 
 	function seleccionarMonstruo(otraLetra) {
 		cancelarSecuencia();
+		if (evolucionTimer.current !== null) {
+			runtime.clearTimeout(evolucionTimer.current);
+			evolucionTimer.current = null;
+		}
 		vueloTimers.current.forEach((id) => runtime.clearTimeout(id));
 		vueloTimers.current = [];
 		setVuelos([]);
+		setEvolucionPendiente(false);
+		setEvolucionando(false);
 		Object.values(audios).forEach((audio) => {
 			audio.pause();
 			audio.currentTime = 0;
@@ -103,7 +121,14 @@ export default function MonstruoPage() {
 
 	function darAlMonstruo(event, comida) {
 		const boton = event.currentTarget.getBoundingClientRect();
+		const quedaLleno = comidas.every(({ clave, dadas, necesarias }) => (clave === comida.clave ? dadas + 1 : dadas) >= necesarias);
+		if (quedaLleno) {
+			setEvolucionPendiente(true);
+		}
 		if (!darComida(letra, comida.clave)) {
+			if (quedaLleno) {
+				setEvolucionPendiente(false);
+			}
 			return;
 		}
 		const boca = puntoBoca();
@@ -121,11 +146,20 @@ export default function MonstruoPage() {
 		setVuelos((actuales) => [...actuales, vuelo]);
 		cancelarSecuencia();
 		setCuadro(CUADROS_MONSTRUO.abre);
-		const quedaLleno = comidas.every(({ clave, dadas, necesarias }) => (clave === comida.clave ? dadas + 1 : dadas) >= necesarias);
 		const timer = runtime.setTimeout(() => {
 			vueloTimers.current = vueloTimers.current.filter((id) => id !== timer);
 			setVuelos((actuales) => actuales.filter((item) => item.id !== vuelo.id));
-			comer();
+			if (quedaLleno) {
+				setCuadro(CUADROS_MONSTRUO.feliz);
+				setEvolucionando(true);
+				evolucionTimer.current = runtime.setTimeout(() => {
+					evolucionTimer.current = null;
+					setEvolucionPendiente(false);
+					setEvolucionando(false);
+				}, EVOLUCION_MS);
+			} else {
+				comer();
+			}
 			const audio = quedaLleno ? audios.lleno : audios.comer;
 			audio.currentTime = 0;
 			audio.play().catch(() => {});
@@ -147,7 +181,7 @@ export default function MonstruoPage() {
 						title={`Monstruo de la ${otraLetra.toUpperCase()}`}
 						onClick={() => seleccionarMonstruo(otraLetra)}
 					>
-						<Monstruo letra={otraLetra} className="monstruo-selector__imagen" />
+						<Monstruo letra={otraLetra} evolucionado={monstruosEvolucionados[otraLetra]} className="monstruo-selector__imagen" />
 					</button>
 				))}
 			</nav>
@@ -173,7 +207,15 @@ export default function MonstruoPage() {
 
 				<section className="monstruo-centro" aria-live="polite">
 					<div ref={monstruoRef} className="monstruo-lugar">
-						<Monstruo letra={letra} cuadro={lleno && cuadro === CUADROS_MONSTRUO.normal ? CUADROS_MONSTRUO.feliz : cuadro} lleno={lleno} />
+						{evolucionando ? (
+							<div className="monstruo-evolucion">
+								<Monstruo letra={letra} cuadro={CUADROS_MONSTRUO.feliz} className="monstruo-evolucion__anterior" />
+								<img className="monstruo-evolucion__nube" src={img("nube.png")} alt="" aria-hidden="true" draggable={false} />
+								<Monstruo letra={letra} evolucionado className="monstruo-evolucion__nuevo" />
+							</div>
+						) : (
+							<Monstruo letra={letra} cuadro={lleno && cuadro === CUADROS_MONSTRUO.normal ? CUADROS_MONSTRUO.feliz : cuadro} lleno={lleno} evolucionado={lleno && !evolucionPendiente} />
+						)}
 					</div>
 				</section>
 
