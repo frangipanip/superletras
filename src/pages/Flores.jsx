@@ -74,19 +74,27 @@ export default function Flores() {
 		startTalking();
 		const optionAudio = runtime.audio(audioPath(targetValue));
 		audios.option = optionAudio;
-		instructionAudio.onended = () => {
-			instructionAudio.onended = null;
-			optionAudio.onended = () => {
-				optionAudio.onended = null;
-				stopTalking();
+		optionAudio.onended = () => {
+			optionAudio.onended = null;
+			instructionAudio.onended = () => {
+				instructionAudio.onended = null;
+				optionAudio.currentTime = 0;
+				optionAudio.onended = () => {
+					optionAudio.onended = null;
+					stopTalking();
+				};
+				optionAudio.play().catch(() => {
+					optionAudio.onended = null;
+					stopTalking();
+				});
 			};
-			optionAudio.play().catch(() => {
-				optionAudio.onended = null;
+			instructionAudio.play().catch(() => {
+				instructionAudio.onended = null;
 				stopTalking();
 			});
 		};
-		instructionAudio.play().catch(() => {
-			instructionAudio.onended = null;
+		optionAudio.play().catch(() => {
+			optionAudio.onended = null;
 			stopTalking();
 		});
 	}
