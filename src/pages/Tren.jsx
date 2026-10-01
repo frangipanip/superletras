@@ -14,12 +14,12 @@ import "./actividad.css";
 
 const VOWELS = ["A", "E", "I", "O", "U"];
 const WAGON_IMAGES = ["vagon1.png", "vagon2.png", "vagon3.png", "vagon4.png"];
+const MIN_DROP_OVERLAP = 0.15;
 
 const ACTIVITY_CONFIG = {
 	a: {
 		sequences: ["OE", "EA", "AA", "OIA", "UAU"],
 		sequenceTokens: {},
-		extraOptions: VOWELS,
 		speechAudios: {
 			vagones: "Vagones.m4a",
 			OE: "Oe.m4a",
@@ -39,7 +39,6 @@ const ACTIVITY_CONFIG = {
 			LO: ["L", "O"],
 			LU: ["L", "U"]
 		},
-		extraOptions: ["A", "E", "I", "O", "U", "L"],
 		speechAudios: {
 			vagones: "Vagones.m4a",
 			LA: "la.wav",
@@ -59,7 +58,6 @@ const ACTIVITY_CONFIG = {
 			MO: ["M", "O"],
 			MU: ["M", "U"]
 		},
-		extraOptions: ["A", "E", "I", "O", "U", "M"],
 		speechAudios: {
 			vagones: "Vagones.m4a",
 			MA: "ma.wav",
@@ -79,7 +77,6 @@ const ACTIVITY_CONFIG = {
 			SO: ["S", "O"],
 			SU: ["S", "U"]
 		},
-		extraOptions: ["A", "E", "I", "O", "U", "S"],
 		speechAudios: {
 			vagones: "Vagones.m4a",
 			SA: "SA.mp3",
@@ -99,7 +96,6 @@ const ACTIVITY_CONFIG = {
 			TO: ["T", "O"],
 			TU: ["T", "U"]
 		},
-		extraOptions: ["A", "E", "I", "O", "U", "T"],
 		speechAudios: {
 			vagones: "Vagones.m4a",
 			TA: "TA.mp3",
@@ -127,6 +123,7 @@ export default function Tren() {
 	const [speechAudios] = useState(() =>
 		Object.fromEntries(Object.entries(config.speechAudios).map(([key, file]) => [key, runtime.audio(sound(file), { preload: true })]))
 	);
+	const [errorAudio] = useState(() => runtime.audio(sound("error.mp3"), { preload: true }));
 
 	const [roundIndex, setRoundIndex] = useState(0);
 	const [slots, setSlots] = useState([]);
@@ -193,7 +190,7 @@ export default function Tren() {
 
 	function createConvoy() {
 		const tokens = getSequenceTokens(game.currentSequence);
-		const extra = randomItem(menuOption === "l" ? config.extraOptions : VOWELS);
+		const extra = randomItem(VOWELS.filter((vowel) => !tokens.includes(vowel)));
 		setConvoy((current) => ({
 			generation: current.generation + 1,
 			tokens: shuffle([...tokens, extra]).map((value) => ({ value, disabled: false }))
@@ -305,14 +302,25 @@ export default function Tren() {
 		if (!game.drag) {
 			return;
 		}
-		const { index, value } = game.drag;
+		const { index, value, offsetX, offsetY, width, height } = game.drag;
+		const dragLeft = event.clientX - offsetX;
+		const dragTop = event.clientY - offsetY;
 		game.drag = null;
 		setDrag(null);
 
 		const slotElements = [...sequenceBoardRef.current.querySelectorAll(".sequence-slot")];
-		const targetIndex = slotElements.findIndex((slot) => {
+		const minOverlapArea = width * height * MIN_DROP_OVERLAP;
+		let targetIndex = -1;
+		let largestOverlapArea = 0;
+		slotElements.forEach((slot, slotIndex) => {
 			const rect = slot.getBoundingClientRect();
-			return event.clientX >= rect.left && event.clientX <= rect.right && event.clientY >= rect.top && event.clientY <= rect.bottom;
+			const overlapWidth = Math.max(0, Math.min(dragLeft + width, rect.right) - Math.max(dragLeft, rect.left));
+			const overlapHeight = Math.max(0, Math.min(dragTop + height, rect.bottom) - Math.max(dragTop, rect.top));
+			const overlapArea = overlapWidth * overlapHeight;
+			if (overlapArea >= minOverlapArea && overlapArea > largestOverlapArea) {
+				largestOverlapArea = overlapArea;
+				targetIndex = slotIndex;
+			}
 		});
 		const target = slotElements[targetIndex];
 		if (!target || target.classList.contains("filled")) {
@@ -320,6 +328,9 @@ export default function Tren() {
 		}
 		if (target.dataset.vowel !== value) {
 			game.errors += 1;
+			errorAudio.pause();
+			errorAudio.currentTime = 0;
+			errorAudio.play().catch(() => {});
 			return;
 		}
 
