@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router";
 import BackButton from "../components/BackButton";
 import Character from "../components/Character";
@@ -42,6 +42,14 @@ function buildDeck(mode) {
 	}));
 }
 
+function getAudioFileName(label) {
+	if (label.length === 1) return `${label}.wav`;
+	if (label.startsWith("S")) return `${label}.mp3`;
+	if (label === "TE") return "TE2.mp3";
+	if (label.startsWith("T")) return `${label}.mp3`;
+	return `${label.toLowerCase()}.wav`;
+}
+
 export default function Memotest() {
 	usePageTitle("Memotest - Mundo 1");
 	const location = useLocation();
@@ -51,6 +59,9 @@ export default function Memotest() {
 	const selectedOption = useActivityMenuOption();
 	const mode = CARD_SETS[selectedOption] ? selectedOption : "a";
 	const [cards, setCards] = useState(() => buildDeck(mode));
+	const [cardAudios] = useState(() =>
+		Object.fromEntries(CARD_SETS[mode].map((label) => [label, runtime.audio(sound(getAudioFileName(label)), { preload: true })]))
+	);
 	const [selectedIndices, setSelectedIndices] = useState([]);
 	const [moves, setMoves] = useState(0);
 	const [matchedPairs, setMatchedPairs] = useState(0);
@@ -58,8 +69,48 @@ export default function Memotest() {
 	const [celebrating, setCelebrating] = useState(false);
 	// Todas las parejas encontradas: el cartel de felicitaciones queda hasta reiniciar.
 	const [finished, setFinished] = useState(false);
+	const activeCardAudio = useRef(null);
 	const [celebrationAudio] = useState(() => runtime.audio(sound("Felicitaciones.m4a"), { preload: true }));
 	const [successAudio] = useState(() => runtime.audio(sound("correcto.mp3"), { preload: true }));
+
+	function stopCardAudio() {
+		const audio = activeCardAudio.current;
+		if (audio) {
+			audio.pause();
+			audio.currentTime = 0;
+			audio.onended = null;
+		}
+		activeCardAudio.current = null;
+		stopTalking();
+	}
+
+	function playCardAudio(label) {
+		stopCardAudio();
+		successAudio.pause();
+		successAudio.currentTime = 0;
+		successAudio.onended = null;
+		const audio = cardAudios[label];
+		if (!audio) {
+			return;
+		}
+		activeCardAudio.current = audio;
+		startTalking();
+		audio.onended = () => {
+			audio.onended = null;
+			if (activeCardAudio.current === audio) {
+				activeCardAudio.current = null;
+				stopTalking();
+			}
+		};
+		audio.currentTime = 0;
+		audio.play().catch(() => {
+			audio.onended = null;
+			if (activeCardAudio.current === audio) {
+				activeCardAudio.current = null;
+				stopTalking();
+			}
+		});
+	}
 
 	useEffect(() => {
 		setCards(buildDeck(mode));
@@ -72,15 +123,17 @@ export default function Memotest() {
 		celebrationAudio.currentTime = 0;
 		successAudio.pause();
 		successAudio.currentTime = 0;
+		stopCardAudio();
 		stopTalking();
 	}, [mode]);
 
 	useEffect(() => {
 		if (matchedPairs > 0 && matchedPairs === cards.length / 2) {
-			// Cada intento sin pareja cuenta como error.
-			otorgarPremio(moves - matchedPairs);
+				const cantidad = moves <= 11 ? 3 : moves <= 16 ? 2 : 1;
+				otorgarPremio(moves - matchedPairs, cantidad);
 			setFinished(true);
 			setCelebrating(true);
+				stopCardAudio();
 			startTalking();
 			celebrationAudio.currentTime = 0;
 			celebrationAudio.onended = () => {
@@ -103,6 +156,7 @@ export default function Memotest() {
 		setMatchedPairs(0);
 		setCelebrating(false);
 		setFinished(false);
+		stopCardAudio();
 		celebrationAudio.onended = null;
 		celebrationAudio.pause();
 		celebrationAudio.currentTime = 0;
@@ -120,6 +174,7 @@ export default function Memotest() {
 		if (!card || card.flipped || card.matched) {
 			return;
 		}
+		playCardAudio(card.value);
 
 		const nextSelection = [...selectedIndices, index];
 		setCards((current) => current.map((item, itemIndex) => (itemIndex === index ? { ...item, flipped: true } : item)));
@@ -182,12 +237,6 @@ export default function Memotest() {
 			</div>
 
 			<main className="memotest-container">
-				<header className="activity-heading">
-					<h1 className="activity-title">Memotest</h1>
-					<p className="round-counter">Modo: {mode.toUpperCase()}</p>
-					<p className="round-counter">Movimientos: {moves}</p>
-				</header>
-
 				<section className="memotest-board" aria-label="Tablero de memotest">
 					{cards.map((card, index) => (
 						<button

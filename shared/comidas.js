@@ -21,6 +21,9 @@ export const LETRAS = ["a", "l", "m", "s", "t"];
 // Premio al completar una actividad: 3 sin errores, 2 con 1 o 2, 1 con 3 o más.
 // Dibujar acepta una cantidad explícita para agrupar el premio de sus letras.
 export function premioPorErrores(actividad, errores, cantidadSolicitada) {
+	if (actividad === "memotest" && cantidadSolicitada !== undefined) {
+		return Math.max(0, Math.min(3, Math.floor(Number(cantidadSolicitada) || 0)));
+	}
 	if (actividad === "dibujar") {
 		if (cantidadSolicitada !== undefined) {
 			return Math.max(0, Math.floor(Number(cantidadSolicitada) || 0));
