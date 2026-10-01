@@ -442,7 +442,7 @@ export default function Tren() {
 				label="Escuchar al personaje"
 				onClick={() => {
 					if (!game.activityFinished) {
-						announceCurrentRound();
+						speak(speechAudios[game.currentSequence]);
 					}
 				}}
 			/>
