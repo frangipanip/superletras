@@ -76,7 +76,12 @@ function crearRondas(letra) {
 			const opcionesCorrectas = correctas[consigna];
 			const correcta = opcionesCorrectas[vuelta % opcionesCorrectas.length];
 			usadas.add(correcta);
-			const distractores = BANCO.filter((palabra) => !empiezaCon(palabra, consigna));
+			const distractores = BANCO.filter((palabra) => {
+				const perteneceAlGrupo = letra === "a"
+					? VOCALES.some((vocal) => empiezaCon(palabra, vocal))
+					: empiezaCon(palabra, letra);
+				return perteneceAlGrupo && !empiezaCon(palabra, consigna);
+			});
 			const noUsados = distractores.filter((palabra) => !usadas.has(palabra));
 			const incorrecta = shuffle(noUsados.length ? noUsados : distractores)[0];
 			usadas.add(incorrecta);
