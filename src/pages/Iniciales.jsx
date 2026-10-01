@@ -116,6 +116,9 @@ export default function Peluche() {
 			])
 		)
 	);
+	const [instructionAudio] = useState(() => runtime.audio(sound("Pulsa el dibujo.mp4"), { preload: true }));
+	const [helpAudio] = useState(() => runtime.audio(sound("Si no sabes que dibujo.m4a"), { preload: true }));
+	const sequenceToken = useRef(0);
 	const activity = rondas[activityIndex];
 	const [premio, otorgarPremio] = useRecompensa("peluches", letra);
 	// errors: imágenes equivocadas tocadas (definen cuántas comidas se ganan al terminar la última ronda).
@@ -127,36 +130,69 @@ export default function Peluche() {
 	}, [rondas]);
 
 	function playInstruction() {
-		const instructionAudio = consignaAudios[activity.consigna];
-		instructionAudio.currentTime = 0;
-		startTalking();
-		instructionAudio.onended = () => {
-			instructionAudio.onended = null;
-			stopTalking();
-		};
-		instructionAudio.play().catch(() => {
-			instructionAudio.onended = null;
-			stopTalking();
-		});
-	}
-
-	useEffect(() => {
-		Object.values(consignaAudios).forEach((audio) => {
+		window.speechSynthesis?.cancel();
+		const token = sequenceToken.current + 1;
+		sequenceToken.current = token;
+		const targetAudio = consignaAudios[activity.consigna];
+		const sequence = [targetAudio, instructionAudio, targetAudio, helpAudio];
+		sequence.forEach((audio) => {
 			audio.pause();
 			audio.currentTime = 0;
 			audio.onended = null;
 		});
-		playInstruction();
-		return () => {
-			const instructionAudio = consignaAudios[activity.consigna];
-			if (instructionAudio) {
-				instructionAudio.pause();
-				instructionAudio.currentTime = 0;
-				instructionAudio.onended = null;
+		startTalking();
+
+		function playNext(index) {
+			if (token !== sequenceToken.current) {
+				return;
 			}
-			stopTalking();
-		};
-	}, [activity.consigna, consignaAudios]);
+			if (index === sequence.length) {
+				stopTalking();
+				return;
+			}
+			const audio = sequence[index];
+			let advanced = false;
+			const advance = () => {
+				if (advanced) {
+					return;
+				}
+				advanced = true;
+				audio.onended = null;
+				playNext(index + 1);
+			};
+			audio.currentTime = 0;
+			audio.onended = advance;
+			audio.play().catch(advance);
+		}
+
+		playNext(0);
+	}
+
+	function stopInstructionSequence() {
+		sequenceToken.current += 1;
+		[...Object.values(consignaAudios), instructionAudio, helpAudio].forEach((audio) => {
+			audio.pause();
+			audio.currentTime = 0;
+			audio.onended = null;
+		});
+		window.speechSynthesis?.cancel();
+		stopTalking();
+	}
+
+	function playWordName(name) {
+		if (!("speechSynthesis" in window) || typeof SpeechSynthesisUtterance === "undefined") {
+			return;
+		}
+		stopInstructionSequence();
+		const utterance = new SpeechSynthesisUtterance(name);
+		utterance.lang = "es-AR";
+		window.speechSynthesis.speak(utterance);
+	}
+
+	useEffect(() => {
+		playInstruction();
+		return stopInstructionSequence;
+	}, [activity.consigna, consignaAudios, helpAudio, instructionAudio]);
 
 	function handleImageClick(option) {
 		if (game.locked) {
@@ -165,7 +201,7 @@ export default function Peluche() {
 
 		if (option.correct) {
 			game.locked = true;
-			consignaAudios[activity.consigna].pause();
+			stopInstructionSequence();
 			correctAudio.pause();
 			correctAudio.currentTime = 0;
 			correctAudio.play().catch(() => {});
@@ -206,7 +242,7 @@ export default function Peluche() {
 			<FullscreenButton toggle />
 			<main className="initials-activity">
 				<section className="initials-grid" aria-label="Imágenes para elegir">
-					{activity.options.map((option) => {
+					{activity.options.map((option, optionIndex) => {
 						const classNames = ["initials-option"];
 						if (acertada === option.name) {
 							classNames.push("correct");
@@ -215,15 +251,23 @@ export default function Peluche() {
 							classNames.push("vibrating");
 						}
 						return (
-							<button
-								key={`${activityIndex}-${option.name}`}
-								type="button"
-								className={classNames.join(" ")}
-								onClick={() => handleImageClick(option)}
-								aria-label={option.name}
-							>
-								<img src={optionImage(option.name)} alt={option.name} />
-							</button>
+							<div className="initials-item" key={`${activityIndex}-${option.name}`}>
+								<button
+									type="button"
+									className={classNames.join(" ")}
+									onClick={() => handleImageClick(option)}
+									aria-label={option.name}
+								>
+									<img src={optionImage(option.name)} alt={option.name} />
+								</button>
+								<button
+									type="button"
+									className={`initials-name color-${(activityIndex * 2 + optionIndex) % 4}`}
+									onClick={() => playWordName(option.name)}
+								>
+									{option.name}
+								</button>
+							</div>
 						);
 					})}
 				</section>
