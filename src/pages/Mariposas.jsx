@@ -29,7 +29,7 @@ const POSITIONS = [
 
 function getAudioFileName(label, type = "syllable") {
 	if (type === "letter") {
-		const letterMap = { a: "A.wav", e: "E.wav", i: "I.wav", o: "O.wav", u: "U.wav", l: "Ele.m4a", m: "Eme.m4a", s: "Ese.m4a", t: "Te.m4a" };
+		const letterMap = { a: "A.wav", e: "E.wav", i: "I.wav", o: "O.wav", u: "U.wav", l: "L.wav", m: "M.wav", s: "s.wav", t: "T.wav" };
 		return letterMap[label.toLowerCase()] || `${label}.wav`;
 	}
 	const upper = label.toUpperCase();
