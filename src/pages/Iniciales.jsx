@@ -20,9 +20,10 @@ const BANCO = [
 	"guitarra", "iglu", "iguana", "iman", "indio", "isla",
 	"lago", "lana", "lapiz", "lata", "leche", "lechuga", "leon", "leña",
 	"libro", "licuadora", "lila", "limon", "linterna", "lobo", "loro",
+	"luciernaga", "luna", "lupa", "luz",
 	"mamadera", "mano", "mariposa", "martillo", "media", "megafono", "melon",
 	"mesa", "microfono", "microondas", "miel", "milanesa", "mochila", "momia",
-	"moneda", "mono", "moto", "muffin", "mundo", "murcielago", "musica", "muñeca",
+	"moneda", "mono", "moto", "mundo", "murcielago", "musica", "muñeca",
 	"ojo", "oreja", "oruga", "oso", "oveja", "perro",
 	"saco", "sal", "sandia", "sapo", "semaforo", "serpiente", "serrucho", "servilleta",
 	"silbato", "silla", "sillon", "sirena", "soga", "sol", "sopa",
@@ -125,6 +126,7 @@ export default function Peluche() {
 	const [helpAudio] = useState(() => runtime.audio(sound("Si no sabes que dibujo.m4a"), { preload: true }));
 	const sequenceToken = useRef(0);
 	const activity = rondas[activityIndex];
+	const largoResaltado = letra === "a" ? 1 : 2;
 	const [premio, otorgarPremio] = useRecompensa("peluches", letra);
 	// errors: imágenes equivocadas tocadas (definen cuántas comidas se ganan al terminar la última ronda).
 	// locked: ya se acertó la ronda y se está animando antes de pasar a la siguiente.
@@ -184,13 +186,26 @@ export default function Peluche() {
 		stopTalking();
 	}
 
-	function playWordName(name) {
+	function playWordName(name, onEnd) {
 		if (!("speechSynthesis" in window) || typeof SpeechSynthesisUtterance === "undefined") {
+			onEnd?.();
 			return;
 		}
 		stopInstructionSequence();
 		const utterance = new SpeechSynthesisUtterance(name);
 		utterance.lang = "es-AR";
+		if (onEnd) {
+			let completed = false;
+			const finish = () => {
+				if (completed) {
+					return;
+				}
+				completed = true;
+				onEnd();
+			};
+			utterance.onend = finish;
+			utterance.onerror = finish;
+		}
 		window.speechSynthesis.speak(utterance);
 	}
 
@@ -206,31 +221,34 @@ export default function Peluche() {
 
 		if (option.correct) {
 			game.locked = true;
-			stopInstructionSequence();
-			correctAudio.pause();
-			correctAudio.currentTime = 0;
-			correctAudio.play().catch(() => {});
 			setAcertada(option.name);
 			const esUltima = activityIndex === rondas.length - 1;
 			if (esUltima && !game.rewarded) {
 				game.rewarded = true;
 				otorgarPremio(game.errors);
 			}
-			if (!esUltima) {
-				runtime.setTimeout(() => {
-					setActivityIndex((currentIndex) => currentIndex + 1);
-					setAcertada(null);
-					setVibrating(new Set());
-					game.locked = false;
-				}, CORRECT_ANIMATION_MS);
-			}
+			playWordName(option.name, () => {
+				correctAudio.pause();
+				correctAudio.currentTime = 0;
+				correctAudio.play().catch(() => {});
+				if (!esUltima) {
+					runtime.setTimeout(() => {
+						setActivityIndex((currentIndex) => currentIndex + 1);
+						setAcertada(null);
+						setVibrating(new Set());
+						game.locked = false;
+					}, CORRECT_ANIMATION_MS);
+				}
+			});
 			return;
 		}
 
+		playWordName(option.name, () => {
+			errorAudio.pause();
+			errorAudio.currentTime = 0;
+			errorAudio.play().catch(() => {});
+		});
 		game.errors += 1;
-		errorAudio.pause();
-		errorAudio.currentTime = 0;
-		errorAudio.play().catch(() => {});
 		setVibrating((current) => new Set(current).add(option.name));
 		runtime.setTimeout(() => {
 			setVibrating((current) => {
@@ -270,7 +288,10 @@ export default function Peluche() {
 									className={`initials-name color-${(activityIndex * 2 + optionIndex) % 4}`}
 									onClick={() => playWordName(option.name)}
 								>
-									{option.name}
+									<>
+										<span className="requested-sound">{option.name.slice(0, largoResaltado)}</span>
+										{option.name.slice(largoResaltado)}
+									</>
 								</button>
 							</div>
 						);

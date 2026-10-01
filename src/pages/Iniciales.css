@@ -61,6 +61,7 @@
 	.initials-name.color-0 {
 		--name-shadow: #c9a8de;
 		--name-text: #9270a8;
+		--name-highlight: #5a28d3;
 		border-color: #d9c0e8;
 		background: #fbf5ff;
 	}
@@ -68,6 +69,7 @@
 	.initials-name.color-1 {
 		--name-shadow: #e3aebc;
 		--name-text: #ad6f80;
+		--name-highlight: #5a28d3;
 		border-color: #efc1ce;
 		background: #fff5f7;
 	}
@@ -75,6 +77,7 @@
 	.initials-name.color-2 {
 		--name-shadow: #9ccbd8;
 		--name-text: #56899a;
+		--name-highlight: #5a28d3;
 		border-color: #b5dce6;
 		background: #f2fbfd;
 	}
@@ -82,8 +85,14 @@
 	.initials-name.color-3 {
 		--name-shadow: #a8d1ad;
 		--name-text: #648c68;
+		--name-highlight: #5a28d3;
 		border-color: #c0e0c4;
 		background: #f4fbf4;
+	}
+
+	.initials-name .requested-sound {
+		color: var(--name-highlight);
+		-webkit-text-fill-color: var(--name-highlight);
 	}
 
 	.initials-option img {
