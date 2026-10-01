@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 322 317" width="322" height="317">
+	<!-- Guia para trazar la L. Generado por scripts/generar-trazados.mjs: no editar a mano. -->
+	<rect width="322" height="317" fill="#f2f3ee" />
+	<g fill="none" stroke-linecap="round" stroke-linejoin="round">
+		<path d="M 87.91 41.21 L 87.91 275.16 L 251.16 275.16" stroke="#111" stroke-width="58" />
+		<path d="M 87.91 41.21 L 87.91 275.16 L 251.16 275.16" stroke="#f2f3ee" stroke-width="44" />
+		<path d="M 87.91 41.21 L 87.91 275.16 L 251.16 275.16" stroke="#333" stroke-width="3" stroke-dasharray="9 8" />
+	</g>
+	<g fill="#333">
+		<polygon points="87.91,181.58 80.11,168.58 95.71,168.58" />
+		<polygon points="218.51,275.16 205.51,282.96 205.51,267.36" />
+	</g>
+</svg>

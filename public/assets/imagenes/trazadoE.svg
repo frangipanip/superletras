@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 322 317" width="322" height="317">
+	<!-- Guia para trazar la E. Generado por scripts/generar-trazados.mjs: no editar a mano. -->
+	<rect width="322" height="317" fill="#f2f3ee" />
+	<g fill="none" stroke-linecap="round" stroke-linejoin="round">
+		<path d="M 103.04 44.38 L 103.04 269.45 L 244.72 269.45" stroke="#111" stroke-width="58" />
+		<path d="M 122.36 44.38 L 241.50 44.38" stroke="#111" stroke-width="58" />
+		<path d="M 122.36 152.16 L 235.06 152.16" stroke="#111" stroke-width="58" />
+		<path d="M 103.04 44.38 L 122.36 44.38" stroke="#111" stroke-width="58" />
+		<path d="M 103.04 152.16 L 122.36 152.16" stroke="#111" stroke-width="58" />
+		<path d="M 103.04 44.38 L 103.04 269.45 L 244.72 269.45" stroke="#f2f3ee" stroke-width="44" />
+		<path d="M 122.36 44.38 L 241.50 44.38" stroke="#f2f3ee" stroke-width="44" />
+		<path d="M 122.36 152.16 L 235.06 152.16" stroke="#f2f3ee" stroke-width="44" />
+		<path d="M 103.04 44.38 L 122.36 44.38" stroke="#f2f3ee" stroke-width="44" />
+		<path d="M 103.04 152.16 L 122.36 152.16" stroke="#f2f3ee" stroke-width="44" />
+		<path d="M 103.04 44.38 L 103.04 269.45 L 244.72 269.45" stroke="#333" stroke-width="3" stroke-dasharray="9 8" />
+		<path d="M 122.36 44.38 L 241.50 44.38" stroke="#333" stroke-width="3" stroke-dasharray="9 8" />
+		<path d="M 122.36 152.16 L 235.06 152.16" stroke="#333" stroke-width="3" stroke-dasharray="9 8" />
+	</g>
+	<g fill="#333">
+		<polygon points="103.04,213.18 95.24,200.18 110.84,200.18" />
+		<polygon points="216.38,269.45 203.38,277.25 203.38,261.65" />
+		<polygon points="217.67,44.38 204.67,52.18 204.67,36.58" />
+		<polygon points="212.52,152.16 199.52,159.96 199.52,144.36" />
+	</g>
+</svg>

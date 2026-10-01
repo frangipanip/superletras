@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 322 317" width="322" height="317">
+	<!-- Guia para trazar la T. Generado por scripts/generar-trazados.mjs: no editar a mano. -->
+	<rect width="322" height="317" fill="#f2f3ee" />
+	<g fill="none" stroke-linecap="round" stroke-linejoin="round">
+		<path d="M 160.68 50.72 L 160.68 282.13" stroke="#111" stroke-width="58" />
+		<path d="M 67.62 40.89 L 247.94 40.89" stroke="#111" stroke-width="58" />
+		<path d="M 160.68 50.72 L 160.68 282.13" stroke="#f2f3ee" stroke-width="44" />
+		<path d="M 67.62 40.89 L 247.94 40.89" stroke="#f2f3ee" stroke-width="44" />
+		<path d="M 160.68 50.72 L 160.68 282.13" stroke="#333" stroke-width="3" stroke-dasharray="9 8" />
+		<path d="M 67.62 40.89 L 247.94 40.89" stroke="#333" stroke-width="3" stroke-dasharray="9 8" />
+	</g>
+	<g fill="#333">
+		<polygon points="160.68,235.85 152.88,222.85 168.48,222.85" />
+		<polygon points="211.88,40.89 198.88,48.69 198.88,33.09" />
+	</g>
+</svg>

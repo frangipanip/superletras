@@ -1,7 +1,7 @@
 {
   "name": "superletras",
   "private": true,
-  "version": "3.24.35",
+  "version": "3.25.0",
   "type": "module",
   "repository": {
     "type": "git",
@@ -11,7 +11,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "api": "node server/index.js"
+    "api": "node server/index.js",
+    "trazados": "node scripts/generar-trazados.mjs"
   },
   "dependencies": {
     "react": "^19.3.0",

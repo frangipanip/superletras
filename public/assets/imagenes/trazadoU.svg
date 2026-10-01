@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 322 317" width="322" height="317">
+	<!-- Guia para trazar la U. Generado por scripts/generar-trazados.mjs: no editar a mano. -->
+	<rect width="322" height="317" fill="#f2f3ee" />
+	<g fill="none" stroke-linecap="round" stroke-linejoin="round">
+		<path d="M 72.61 45.01 L 72.61 186.08 A 87.91 88.13 0 0 0 248.42 186.08 L 248.42 45.01" stroke="#111" stroke-width="58" />
+		<path d="M 72.61 45.01 L 72.61 186.08 A 87.91 88.13 0 0 0 248.42 186.08 L 248.42 45.01" stroke="#f2f3ee" stroke-width="44" />
+		<path d="M 72.61 45.01 L 72.61 186.08 A 87.91 88.13 0 0 0 248.42 186.08 L 248.42 45.01" stroke="#333" stroke-width="3" stroke-dasharray="9 8" />
+	</g>
+	<g fill="#333">
+		<polygon points="72.61,156.31 64.81,143.31 80.41,143.31" />
+		<polygon points="160.52,274.20 147.25,281.55 147.80,265.95" />
+		<polygon points="248.42,128.49 256.22,141.49 240.62,141.49" />
+	</g>
+</svg>

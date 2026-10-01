@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 322 317" width="322" height="317">
+	<!-- Guia para trazar la A. Generado por scripts/generar-trazados.mjs: no editar a mano. -->
+	<rect width="322" height="317" fill="#f2f3ee" />
+	<g fill="none" stroke-linecap="round" stroke-linejoin="round">
+		<path d="M 41.86 285.30 L 144.90 44.38 L 247.94 285.30" stroke="#111" stroke-width="58" />
+		<path d="M 86.94 218.73 L 209.30 218.73" stroke="#111" stroke-width="58" />
+		<path d="M 41.86 285.30 L 144.90 44.38 L 247.94 285.30" stroke="#f2f3ee" stroke-width="44" />
+		<path d="M 86.94 218.73 L 209.30 218.73" stroke="#f2f3ee" stroke-width="44" />
+		<path d="M 41.86 285.30 L 144.90 44.38 L 247.94 285.30" stroke="#333" stroke-width="3" stroke-dasharray="9 8" />
+		<path d="M 86.94 218.73 L 209.30 218.73" stroke="#333" stroke-width="3" stroke-dasharray="9 8" />
+	</g>
+	<g fill="#333">
+		<polygon points="119.14,104.61 121.20,119.63 106.86,113.50" />
+		<polygon points="222.18,225.07 209.90,216.18 224.24,210.05" />
+		<polygon points="184.83,218.73 171.83,226.53 171.83,210.93" />
+	</g>
+</svg>

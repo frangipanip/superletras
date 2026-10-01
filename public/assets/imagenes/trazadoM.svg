@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 322 317" width="322" height="317">
+	<!-- Guia para trazar la M. Generado por scripts/generar-trazados.mjs: no editar a mano. -->
+	<rect width="322" height="317" fill="#f2f3ee" />
+	<g fill="none" stroke-linecap="round" stroke-linejoin="round">
+		<path d="M 46.05 275.16 L 64.82 104.61 C 67.62 38.04, 88.55 38.04, 107.58 104.61 L 167.44 269.45 L 227.04 104.61 C 246.33 38.04, 270.48 38.04, 270.22 104.61 L 285.94 284.98" stroke="#111" stroke-width="58" />
+		<path d="M 46.05 275.16 L 64.82 104.61 C 67.62 38.04, 88.55 38.04, 107.58 104.61 L 167.44 269.45 L 227.04 104.61 C 246.33 38.04, 270.48 38.04, 270.22 104.61 L 285.94 284.98" stroke="#f2f3ee" stroke-width="44" />
+		<path d="M 46.05 275.16 L 64.82 104.61 C 67.62 38.04, 88.55 38.04, 107.58 104.61 L 167.44 269.45 L 227.04 104.61 C 246.33 38.04, 270.48 38.04, 270.22 104.61 L 285.94 284.98" stroke="#333" stroke-width="3" stroke-dasharray="9 8" />
+	</g>
+	<g fill="#333">
+		<polygon points="61.06,138.72 67.39,152.49 51.89,150.79" />
+		<polygon points="155.47,236.48 143.70,226.93 158.36,221.60" />
+		<polygon points="215.12,137.58 218.04,152.46 203.37,147.15" />
+		<polygon points="285.94,284.98 277.04,272.71 292.58,271.36" />
+	</g>
+</svg>

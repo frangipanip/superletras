@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 322 317" width="322" height="317">
+	<!-- Guia para trazar la I. Generado por scripts/generar-trazados.mjs: no editar a mano. -->
+	<rect width="322" height="317" fill="#f2f3ee" />
+	<g fill="none" stroke-linecap="round" stroke-linejoin="round">
+		<path d="M 161.00 148.04 L 161.00 261.84" stroke="#111" stroke-width="58" />
+		<path d="M 161.00 59.91 L 161.00 59.91" stroke="#111" stroke-width="58" />
+		<path d="M 161.00 148.04 L 161.00 261.84" stroke="#f2f3ee" stroke-width="44" />
+		<path d="M 161.00 59.91 L 161.00 59.91" stroke="#f2f3ee" stroke-width="44" />
+		<path d="M 161.00 148.04 L 161.00 261.84" stroke="#333" stroke-width="3" stroke-dasharray="9 8" />
+	</g>
+	<g fill="#333">
+		<polygon points="161.00,239.08 153.20,226.08 168.80,226.08" />
+		<circle cx="161.00" cy="59.91" r="7" />
+	</g>
+</svg>

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 322 317" width="322" height="317">
+	<!-- Guia para trazar la O. Generado por scripts/generar-trazados.mjs: no editar a mano. -->
+	<rect width="322" height="317" fill="#f2f3ee" />
+	<g fill="none" stroke-linecap="round" stroke-linejoin="round">
+		<path d="M 160.68 50.40 A 105.29 114.44 0 1 0 160.68 279.28 A 105.29 114.44 0 1 0 160.68 50.40" stroke="#111" stroke-width="58" />
+		<path d="M 160.68 50.40 A 105.29 114.44 0 1 0 160.68 279.28 A 105.29 114.44 0 1 0 160.68 50.40" stroke="#f2f3ee" stroke-width="44" />
+		<path d="M 160.68 50.40 A 105.29 114.44 0 1 0 160.68 279.28 A 105.29 114.44 0 1 0 160.68 50.40" stroke="#333" stroke-width="3" stroke-dasharray="9 8" />
+	</g>
+	<g fill="#333">
+		<polygon points="55.38,164.84 47.96,151.62 63.56,152.07" />
+		<polygon points="160.68,279.28 147.42,286.63 147.95,271.04" />
+		<polygon points="265.97,164.84 273.39,178.06 257.80,177.61" />
+	</g>
+</svg>
