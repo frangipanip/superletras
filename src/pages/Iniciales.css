@@ -156,3 +156,29 @@
 		gap: 2vw;
 	}
 }
+
+@media (max-width: 380px) {
+	.page-peluche .initials-name {
+		min-height: 3.5rem;
+		padding: 0.2rem 0.35rem;
+		border-width: 2px;
+		border-radius: 9px;
+		font-size: 1rem;
+	}
+}
+
+@media (max-height: 450px) {
+	.page-peluche .initials-grid {
+		top: 18%;
+		gap: 2vw;
+	}
+
+	.page-peluche .initials-name {
+		width: min(10.5rem, 100%);
+		min-height: 3.7rem;
+		padding: 0.2rem 0.35rem;
+		border-width: 2px;
+		border-radius: 9px;
+		font-size: 1.1rem;
+	}
+}
