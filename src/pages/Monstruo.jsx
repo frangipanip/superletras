@@ -4,10 +4,11 @@ import { COMIDAS, LETRAS } from "../../shared/comidas.js";
 import BackButton from "../components/BackButton";
 import FullscreenButton from "../components/FullscreenButton";
 import Monstruo, { CUADROS_MONSTRUO, imagenesMonstruo, imagenMonstruoNivel2 } from "../components/Monstruo";
+import PufCrema from "../components/PufCrema";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { preloadImages, sound } from "../lib/assets";
-import { cantidadComida, darComida, getRecompensas, sincronizar, subscribeRecompensas } from "../lib/recompensas";
+import { cantidadComida, darComida, forzarMonstruo, getRecompensas, sincronizar, subscribeRecompensas } from "../lib/recompensas";
 import { readMenuOption, STORAGE_KEYS, writeStorage } from "../lib/storage";
 import "./actividad.css";
 import "./Monstruo.css";
@@ -25,6 +26,8 @@ const SECUENCIA_COMER = [
 ];
 // Dónde está la boca dentro de la imagen del monstruo (fracción del ancho y del alto).
 const BOCA = { x: 0.5, y: 0.54 };
+// Botones de evolucionar/desevolucionar: solo se ven con este código (ver server/index.js).
+const CODIGO_DEBUG = "QDM7-9YVF";
 
 export default function MonstruoPage() {
 	const location = useLocation();
@@ -34,7 +37,7 @@ export default function MonstruoPage() {
 		return LETRAS.includes(elegida) ? elegida : "a";
 	});
 	usePageTitle(`Monstruo ${letra.toUpperCase()} - Mundo 1`);
-	const { letras } = useSyncExternalStore(subscribeRecompensas, getRecompensas);
+	const { letras, codigo } = useSyncExternalStore(subscribeRecompensas, getRecompensas);
 	const [vuelos, setVuelos] = useState([]);
 	const [cuadro, setCuadro] = useState(CUADROS_MONSTRUO.normal);
 	const [evolucionPendiente, setEvolucionPendiente] = useState(false);
@@ -66,8 +69,7 @@ export default function MonstruoPage() {
 	useEffect(() => {
 		preloadImages([
 			...imagenesMonstruo(letra),
-			...LETRAS.map((otraLetra) => imagenMonstruoNivel2(otraLetra)),
-			img("nube.png")
+			...LETRAS.map((otraLetra) => imagenMonstruoNivel2(otraLetra))
 		]);
 	}, [letra]);
 
@@ -167,6 +169,43 @@ export default function MonstruoPage() {
 		vueloTimers.current.push(timer);
 	}
 
+	// Botones de debug (CODIGO_DEBUG): saltean juntar comida y fuerzan el monstruo al tope o a cero.
+	async function evolucionarDebug() {
+		cancelarSecuencia();
+		if (evolucionTimer.current !== null) {
+			runtime.clearTimeout(evolucionTimer.current);
+			evolucionTimer.current = null;
+		}
+		setEvolucionPendiente(true);
+		const exito = await forzarMonstruo(letra, true);
+		if (!exito) {
+			setEvolucionPendiente(false);
+			return;
+		}
+		setCuadro(CUADROS_MONSTRUO.feliz);
+		setEvolucionando(true);
+		audios.lleno.currentTime = 0;
+		audios.lleno.play().catch(() => {});
+		evolucionTimer.current = runtime.setTimeout(() => {
+			evolucionTimer.current = null;
+			setEvolucionPendiente(false);
+			setEvolucionando(false);
+		}, EVOLUCION_MS);
+	}
+
+	function desevolucionarDebug() {
+		cancelarSecuencia();
+		if (evolucionTimer.current !== null) {
+			runtime.clearTimeout(evolucionTimer.current);
+			evolucionTimer.current = null;
+		}
+		setVuelos([]);
+		setEvolucionPendiente(false);
+		setEvolucionando(false);
+		setCuadro(CUADROS_MONSTRUO.normal);
+		forzarMonstruo(letra, false);
+	}
+
 	return (
 		<div className="page activity-page page-monstruo">
 			<BackButton />
@@ -206,11 +245,21 @@ export default function MonstruoPage() {
 				</section>
 
 				<section className="monstruo-centro" aria-live="polite">
+					{codigo === CODIGO_DEBUG && (
+						<div className="monstruo-debug">
+							<button type="button" className="monstruo-debug__boton" onClick={evolucionarDebug}>
+								Evolucionar
+							</button>
+							<button type="button" className="monstruo-debug__boton" onClick={desevolucionarDebug}>
+								Desevolucionar
+							</button>
+						</div>
+					)}
 					<div ref={monstruoRef} className="monstruo-lugar">
 						{evolucionando ? (
 							<div className="monstruo-evolucion">
 								<Monstruo letra={letra} cuadro={CUADROS_MONSTRUO.feliz} className="monstruo-evolucion__anterior" />
-								<img className="monstruo-evolucion__nube" src={img("nube.png")} alt="" aria-hidden="true" draggable={false} />
+								<PufCrema mode="in" className="monstruo-evolucion__nube" />
 								<Monstruo letra={letra} evolucionado className="monstruo-evolucion__nuevo" />
 							</div>
 						) : (

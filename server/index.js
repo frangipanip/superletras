@@ -6,11 +6,13 @@ import { createServer } from "node:http";
 import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { DatabaseSync } from "node:sqlite";
-import { COMIDA_POR_ACTIVIDAD, COMIDA_POR_CLAVE, premioPorErrores } from "../shared/comidas.js";
+import { COMIDA_POR_ACTIVIDAD, COMIDA_POR_CLAVE, COMIDAS, premioPorErrores } from "../shared/comidas.js";
 
 const PORT = Number(process.env.PORT) || 3001;
 const DB_PATH = process.env.DB_PATH || fileURLToPath(new URL("../datos/superletras.db", import.meta.url));
 const MAX_BODY = 10 * 1024;
+// Botones de evolucionar/desevolucionar en la pantalla del monstruo (ver Monstruo.jsx): solo para este código.
+const CODIGO_DEBUG = "QDM7-9YVF";
 
 mkdirSync(dirname(DB_PATH), { recursive: true });
 const db = new DatabaseSync(DB_PATH);
@@ -206,6 +208,29 @@ const server = createServer(async (req, res) => {
 			const valido = typeof dispositivo === "string" && /^[\w-]{8,64}$/.test(dispositivo) ? dispositivo : null;
 			const codigo = crearJugador(valido);
 			return responder(res, 201, { codigo, letras: leerComidas(codigo) });
+		}
+
+		// POST /api/jugadores/:codigo/letras/:letra/evolucionar|desevolucionar → debug: fuerza
+		// el monstruo al tope o a cero. Solo para CODIGO_DEBUG (botones de Monstruo.jsx).
+		const rutaDebug = pathname.match(/^\/api\/jugadores\/([^/]+)\/letras\/([^/]+)\/(evolucionar|desevolucionar)$/);
+		if (rutaDebug && req.method === "POST") {
+			const codigoDebug = normalizarCodigo(decodeURIComponent(rutaDebug[1]));
+			const letraDebug = decodeURIComponent(rutaDebug[2]);
+			if (codigoDebug !== CODIGO_DEBUG) {
+				return responder(res, 403, { error: "No autorizado" });
+			}
+			if (!/^[a-zñ]$/.test(letraDebug)) {
+				return responder(res, 400, { error: "Letra inválida" });
+			}
+			if (!sql.existeJugador.get(codigoDebug)) {
+				sql.crearJugador.run(codigoDebug, null);
+			}
+			const tope = rutaDebug[3] === "evolucionar";
+			for (const comida of COMIDAS) {
+				const cantidad = tope ? comida.necesarias : 0;
+				sql.guardarComida.run(codigoDebug, letraDebug, comida.clave, cantidad, cantidad);
+			}
+			return responder(res, 200, { codigo: codigoDebug, letras: leerComidas(codigoDebug) });
 		}
 
 		const ruta = pathname.match(/^\/api\/jugadores\/([^/]+)(\/eventos)?$/);

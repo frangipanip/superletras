@@ -27,22 +27,6 @@
 	}
 }
 
-@keyframes monstruo-evolucion-nube {
-	0% {
-		transform: scale(0.55);
-		opacity: 0;
-	}
-	20%,
-	70% {
-		transform: scale(1);
-		opacity: 1;
-	}
-	100% {
-		transform: scale(1.2);
-		opacity: 0;
-	}
-}
-
 @keyframes monstruo-evolucion-aparece {
 	0%,
 	65% {
@@ -184,6 +168,27 @@
 		min-height: 0;
 	}
 
+	.monstruo-debug {
+		display: flex;
+		gap: 0.5rem;
+		margin-bottom: 0.5rem;
+	}
+
+	.monstruo-debug__boton {
+		font: inherit;
+		font-size: clamp(0.7rem, 1.6vw, 0.9rem);
+		padding: 0.35em 0.9em;
+		border-radius: 999px;
+		border: 2px solid var(--monstruo-borde);
+		background: #fff;
+		color: var(--monstruo-texto);
+		cursor: pointer;
+	}
+
+	.monstruo-debug__boton:active {
+		transform: scale(0.96);
+	}
+
 	.monstruo-lugar {
 		position: relative;
 		flex: 1;
@@ -201,8 +206,7 @@
 		inset: 0;
 	}
 
-	.monstruo-evolucion .monstruo,
-	.monstruo-evolucion__nube {
+	.monstruo-evolucion .monstruo {
 		position: absolute;
 		inset: 0;
 		width: 100%;
@@ -216,8 +220,6 @@
 
 	.monstruo-evolucion__nube {
 		z-index: 1;
-		transform: scale(0.55);
-		animation: monstruo-evolucion-nube 1.3s ease-in-out both;
 	}
 
 	.monstruo-evolucion .monstruo-evolucion__nuevo {

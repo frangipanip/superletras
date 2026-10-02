@@ -193,6 +193,26 @@ export async function usarCodigo(texto) {
 	}
 }
 
+// Debug: fuerza el monstruo de una letra al tope (evoluciona) o a cero (desevoluciona).
+// El servidor solo lo acepta para CODIGO_DEBUG (ver server/index.js); lo usan los botones
+// de Monstruo.jsx, que también chequean el código antes de mostrarse.
+export async function forzarMonstruo(letra, evolucionar) {
+	if (!state.codigo) {
+		return false;
+	}
+	const accion = evolucionar ? "evolucionar" : "desevolucionar";
+	try {
+		const { status, datos } = await pedir("POST", `/api/jugadores/${encodeURIComponent(state.codigo)}/letras/${encodeURIComponent(letra)}/${accion}`);
+		if (status !== 200) {
+			return false;
+		}
+		setState({ letras: datos.letras || {} });
+		return true;
+	} catch {
+		return false;
+	}
+}
+
 export function startRecompensas() {
 	sincronizar();
 	window.addEventListener("online", sincronizar);
