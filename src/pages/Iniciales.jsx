@@ -108,6 +108,10 @@ function optionImage(name) {
 	return img(`peluches/${name}.webp`);
 }
 
+function wordAudioFile(name) {
+	return `${name}PELUCHE.mp3`;
+}
+
 export default function Peluche() {
 	usePageTitle("Peluche - Mundo 1");
 	const runtime = usePageRuntime();
@@ -129,13 +133,13 @@ export default function Peluche() {
 		)
 	);
 	const [wordAudios] = useState(() => {
-		if (letra !== "a") {
+		if (letra !== "a" && letra !== "l") {
 			return {};
 		}
 		const words = [...new Set(rondas.flatMap((ronda) => ronda.options.map((option) => option.name)))];
 		return Object.fromEntries(
 			words
-				.map((name) => [name, runtime.audio(sound(`peluche/${name}PELUCHE.mp3`), { preload: true })])
+				.map((name) => [name, runtime.audio(sound(`peluche/${wordAudioFile(name)}`), { preload: true })])
 		);
 	});
 	const [instructionAudio] = useState(() => runtime.audio(sound("Pulsaeldibujo.mp3"), { preload: true }));
