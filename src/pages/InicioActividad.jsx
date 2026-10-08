@@ -63,8 +63,8 @@ const MODES = {
 		items: T_SYLLABLES,
 		intro: ["Esta es la letra T.mp3", "ConLasVocales.mp3"],
 		prompt: "Pulsasilaba.mp3",
-		longAudio: (item) => `${item === "TE" ? "TE2" : item}.mp3`,
-		shortAudio: (item) => `${item === "TE" ? "TE2" : item}.mp3`,
+		longAudio: (item) => item === "TE" ? "te.mp3" : `${item}.mp3`,
+		shortAudio: (item) => item === "TE" ? "te.mp3" : `${item}.mp3`,
 		itemName: (item) => `sílaba ${item}`,
 		listName: "Sílabas con T"
 	}
@@ -82,7 +82,7 @@ export default function InicioActividad() {
 		intro: mode.intro.map((file) => runtime.audio(sound(file), { preload: true })),
 		pressure: runtime.audio(sound("Presion.mp3"), { preload: true }),
 		shuffle: runtime.audio(sound("Mezclarvocales.mp3"), { preload: true }),
-		movement: runtime.audio(sound("yahoraconmovimiento.mp4"), { preload: true }),
+		movement: runtime.audio(sound("yahoraconmovimiento.mp3"), { preload: true }),
 		itemPrompt: runtime.audio(sound(mode.prompt), { preload: true }),
 		celebration: runtime.audio(sound("Felicitaciones.mp3"), { preload: true }),
 		error: runtime.audio(sound("error.mp3"), { preload: true }),

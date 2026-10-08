@@ -21,7 +21,7 @@ const ACTIVITY_CONFIG = {
 		sequences: ["OE", "EA", "AA", "OIA", "UAU"],
 		sequenceTokens: {},
 		speechAudios: {
-			vagones: "Vagones.m4a",
+			vagones: "Vagones.mp3",
 			OE: "Oe.mp3",
 			EA: "Ea.mp3",
 			AA: "Aa.mp3",
@@ -40,7 +40,7 @@ const ACTIVITY_CONFIG = {
 			LU: ["L", "U"]
 		},
 		speechAudios: {
-			vagones: "Vagones.m4a",
+			vagones: "Vagones.mp3",
 			LA: "la.mp3",
 			LE: "le.mp3",
 			LI: "li.mp3",
@@ -59,7 +59,7 @@ const ACTIVITY_CONFIG = {
 			MU: ["M", "U"]
 		},
 		speechAudios: {
-			vagones: "Vagones.m4a",
+			vagones: "Vagones.mp3",
 			MA: "ma.mp3",
 			ME: "me.mp3",
 			MI: "mi.mp3",
@@ -78,7 +78,7 @@ const ACTIVITY_CONFIG = {
 			SU: ["S", "U"]
 		},
 		speechAudios: {
-			vagones: "Vagones.m4a",
+			vagones: "Vagones.mp3",
 			SA: "SA.mp3",
 			SE: "SE.mp3",
 			SI: "SI.mp3",
@@ -97,9 +97,9 @@ const ACTIVITY_CONFIG = {
 			TU: ["T", "U"]
 		},
 		speechAudios: {
-			vagones: "Vagones.m4a",
+			vagones: "Vagones.mp3",
 			TA: "TA.mp3",
-			TE: "TE2.mp3",
+			TE: "te.mp3",
 			TI: "TI.mp3",
 			TO: "TO.mp3",
 			TU: "TU.mp3",

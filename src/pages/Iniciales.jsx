@@ -52,7 +52,7 @@ function consignaAudio(consigna) {
 		return `${consigna.toUpperCase()}.mp3`;
 	}
 	if (lower === "te") {
-		return "TE2.mp3";
+		return "te.mp3";
 	}
 	if (["la", "le", "li", "lo", "lu"].includes(lower)) {
 		return `${lower}.mp3`;
@@ -128,6 +128,16 @@ export default function Peluche() {
 			])
 		)
 	);
+	const [wordAudios] = useState(() => {
+		if (letra !== "a") {
+			return {};
+		}
+		const words = [...new Set(rondas.flatMap((ronda) => ronda.options.map((option) => option.name)))];
+		return Object.fromEntries(
+			words
+				.map((name) => [name, runtime.audio(sound(`peluche/${name}PELUCHE.mp3`), { preload: true })])
+		);
+	});
 	const [instructionAudio] = useState(() => runtime.audio(sound("Pulsaeldibujo.mp3"), { preload: true }));
 	const [helpAudio] = useState(() => runtime.audio(sound("apetaeltexto.mp3"), { preload: true }));
 	const sequenceToken = useRef(0);
@@ -183,7 +193,7 @@ export default function Peluche() {
 
 	function stopInstructionSequence() {
 		sequenceToken.current += 1;
-		[...Object.values(consignaAudios), instructionAudio, helpAudio].forEach((audio) => {
+		[...Object.values(consignaAudios), ...Object.values(wordAudios), instructionAudio, helpAudio].forEach((audio) => {
 			audio.pause();
 			audio.currentTime = 0;
 			audio.onended = null;
@@ -193,11 +203,29 @@ export default function Peluche() {
 	}
 
 	function playWordName(name, onEnd) {
+		stopInstructionSequence();
+		const wordAudio = wordAudios[name];
+		if (wordAudio) {
+			let completed = false;
+			const finish = () => {
+				if (completed) {
+					return;
+				}
+				completed = true;
+				wordAudio.onended = null;
+				stopTalking();
+				onEnd?.();
+			};
+			wordAudio.currentTime = 0;
+			wordAudio.onended = finish;
+			startTalking();
+			wordAudio.play().catch(finish);
+			return;
+		}
 		if (!("speechSynthesis" in window) || typeof SpeechSynthesisUtterance === "undefined") {
 			onEnd?.();
 			return;
 		}
-		stopInstructionSequence();
 		const utterance = new SpeechSynthesisUtterance(name);
 		utterance.lang = "es-AR";
 		if (onEnd) {

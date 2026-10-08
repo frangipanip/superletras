@@ -37,7 +37,7 @@ function getAudioFileName(label, type = "syllable") {
 	if (["LA", "LE", "LI", "LO", "LU"].includes(upper)) return `${upper.toLowerCase()}.mp3`;
 	if (["MA", "ME", "MI", "MO", "MU"].includes(upper)) return `${upper.toLowerCase()}.mp3`;
 	if (upper.startsWith("S")) return `${upper}.mp3`;
-	if (upper === "TE") return "TE2.mp3";
+	if (upper === "TE") return "te.mp3";
 	if (upper.startsWith("T")) return `${upper}.mp3`;
 	return `${label.toLowerCase()}.wav`;
 }
