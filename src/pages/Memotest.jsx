@@ -44,6 +44,8 @@ function buildDeck(mode) {
 
 function getAudioFileName(label) {
 	if (label.length === 1) return `${label.toLowerCase()}.mp3`;
+	if (["LA", "LE", "LI", "LO", "LU"].includes(label)) return `${label.toLowerCase()}.mp3`;
+	if (["MA", "ME", "MI", "MO", "MU"].includes(label)) return `${label.toLowerCase()}.mp3`;
 	if (label.startsWith("S")) return `${label}.mp3`;
 	if (label === "TE") return "TE2.mp3";
 	if (label.startsWith("T")) return `${label}.mp3`;

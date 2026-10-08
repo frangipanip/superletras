@@ -34,6 +34,8 @@ function getAudioFileName(label, type = "syllable") {
 	}
 	const upper = label.toUpperCase();
 	if (["A", "E", "I", "O", "U"].includes(upper)) return `${upper.toLowerCase()}.mp3`;
+	if (["LA", "LE", "LI", "LO", "LU"].includes(upper)) return `${upper.toLowerCase()}.mp3`;
+	if (["MA", "ME", "MI", "MO", "MU"].includes(upper)) return `${upper.toLowerCase()}.mp3`;
 	if (upper.startsWith("S")) return `${upper}.mp3`;
 	if (upper === "TE") return "TE2.mp3";
 	if (upper.startsWith("T")) return `${upper}.mp3`;
@@ -193,7 +195,7 @@ export default function Mariposas() {
 		startTalking();
 		const sequenceId = ++state.instructionSequenceId;
 		const optionFile = sound(getAudioFileName(state.targetValue, mode === "a" ? "vowel" : "letter"));
-		const sequence = [runtime.audio(optionFile), runtime.audio(sound("Pulsa.m4a")), runtime.audio(optionFile)];
+		const sequence = [runtime.audio(optionFile), runtime.audio(sound("Pulsa.mp3")), runtime.audio(optionFile)];
 		state.instructionAudios = sequence;
 		let audioIndex = 0;
 

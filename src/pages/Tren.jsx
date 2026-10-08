@@ -41,11 +41,11 @@ const ACTIVITY_CONFIG = {
 		},
 		speechAudios: {
 			vagones: "Vagones.m4a",
-			LA: "la.wav",
-			LE: "le.wav",
-			LI: "li.wav",
-			LO: "lo.wav",
-			LU: "lu.wav",
+			LA: "la.mp3",
+			LE: "le.mp3",
+			LI: "li.mp3",
+			LO: "lo.mp3",
+			LU: "lu.mp3",
 			fabuloso: "Fabuloso.mp3"
 		}
 	},
@@ -60,11 +60,11 @@ const ACTIVITY_CONFIG = {
 		},
 		speechAudios: {
 			vagones: "Vagones.m4a",
-			MA: "ma.wav",
-			ME: "me.wav",
-			MI: "mi.wav",
-			MO: "mo.wav",
-			MU: "mu.wav",
+			MA: "ma.mp3",
+			ME: "me.mp3",
+			MI: "mi.mp3",
+			MO: "mo.mp3",
+			MU: "mu.mp3",
 			fabuloso: "Fabuloso.mp3"
 		}
 	},

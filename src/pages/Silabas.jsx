@@ -64,8 +64,8 @@ export default function Silabas() {
 	const [confetti, setConfetti] = useState([]);
 
 	const [audios] = useState(() => ({
-		syllables: runtime.audio(sound("SilabasA.m4a"), { preload: true }),
-		pressure: runtime.audio(sound("Presion.m4a"), { preload: true }),
+		syllables: runtime.audio(sound("Esta es la letra A.mp3"), { preload: true }),
+		pressure: runtime.audio(sound("Presion.mp3"), { preload: true }),
 		congratulations: runtime.audio(sound("Felicitaciones.mp3"), { preload: true }),
 		vowels: Object.fromEntries(VOWELS.map((vowel) => [vowel, runtime.audio(sound(`${vowel.toLowerCase()}.mp3`), { preload: true })]))
 	}));

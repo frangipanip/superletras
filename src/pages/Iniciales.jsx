@@ -54,6 +54,12 @@ function consignaAudio(consigna) {
 	if (lower === "te") {
 		return "TE2.mp3";
 	}
+	if (["la", "le", "li", "lo", "lu"].includes(lower)) {
+		return `${lower}.mp3`;
+	}
+	if (["ma", "me", "mi", "mo", "mu"].includes(lower)) {
+		return `${lower}.mp3`;
+	}
 	if (lower.startsWith("t")) {
 		return `${consigna.toUpperCase()}.mp3`;
 	}
@@ -122,8 +128,8 @@ export default function Peluche() {
 			])
 		)
 	);
-	const [instructionAudio] = useState(() => runtime.audio(sound("Pulsa el dibujo.mp4"), { preload: true }));
-	const [helpAudio] = useState(() => runtime.audio(sound("Si no sabes que dibujo.m4a"), { preload: true }));
+	const [instructionAudio] = useState(() => runtime.audio(sound("Pulsaeldibujo.mp3"), { preload: true }));
+	const [helpAudio] = useState(() => runtime.audio(sound("apetaeltexto.mp3"), { preload: true }));
 	const sequenceToken = useRef(0);
 	const activity = rondas[activityIndex];
 	const largoResaltado = letra === "a" ? 1 : 2;

@@ -25,8 +25,8 @@ const CONFETTI_COLORS = ["#f04f78", "#f6c945", "#55b96c", "#4d9ed8", "#9b6bd6", 
 const MODES = {
 	a: {
 		items: VOWELS,
-		intro: ["SilabasA.m4a"],
-		prompt: "Pulsavocal.m4a",
+		intro: ["Esta es la letra A.mp3"],
+		prompt: "Pulsavocal.mp3",
 		longAudio: (item) => `${item.toLowerCase()}.mp3`,
 		shortAudio: (item) => `${item.toLowerCase()}.mp3`,
 		itemName: (item) => `vocal ${item}`,
@@ -35,25 +35,25 @@ const MODES = {
 	l: {
 		items: L_SYLLABLES,
 		intro: ["Esta es la letra L.mp3", "ConLasVocales.mp3"],
-		prompt: "Pulsa silaba.m4a",
-		longAudio: (item) => `${item}largo.m4a`,
-		shortAudio: (item) => `${item.toLowerCase()}.wav`,
+		prompt: "Pulsasilaba.mp3",
+		longAudio: (item) => `${item.toLowerCase()}.mp3`,
+		shortAudio: (item) => `${item.toLowerCase()}.mp3`,
 		itemName: (item) => `sílaba ${item}`,
 		listName: "Sílabas con L"
 	},
 	m: {
 		items: M_SYLLABLES,
 		intro: ["Esta es la letra M.mp3", "ConLasVocales.mp3"],
-		prompt: "Pulsa silaba.m4a",
-		longAudio: (item) => `${item.toLowerCase()}.wav`,
-		shortAudio: (item) => `${item.toLowerCase()}.wav`,
+		prompt: "Pulsasilaba.mp3",
+		longAudio: (item) => `${item.toLowerCase()}.mp3`,
+		shortAudio: (item) => `${item.toLowerCase()}.mp3`,
 		itemName: (item) => `sílaba ${item}`,
 		listName: "Sílabas con M"
 	},
 	s: {
 		items: S_SYLLABLES,
 		intro: ["Esta es la letra S.mp3", "ConLasVocales.mp3"],
-		prompt: "Pulsa silaba.m4a",
+		prompt: "Pulsasilaba.mp3",
 		longAudio: (item) => `${item}.mp3`,
 		shortAudio: (item) => `${item}.mp3`,
 		itemName: (item) => `sílaba ${item}`,
@@ -62,7 +62,7 @@ const MODES = {
 	t: {
 		items: T_SYLLABLES,
 		intro: ["Esta es la letra T.mp3", "ConLasVocales.mp3"],
-		prompt: "Pulsa silaba.m4a",
+		prompt: "Pulsasilaba.mp3",
 		longAudio: (item) => `${item === "TE" ? "TE2" : item}.mp3`,
 		shortAudio: (item) => `${item === "TE" ? "TE2" : item}.mp3`,
 		itemName: (item) => `sílaba ${item}`,
@@ -80,8 +80,8 @@ export default function InicioActividad() {
 	const [mode] = useState(() => MODES[menuOption || "a"] || MODES.a);
 	const [audios] = useState(() => ({
 		intro: mode.intro.map((file) => runtime.audio(sound(file), { preload: true })),
-		pressure: runtime.audio(sound("Presion.m4a"), { preload: true }),
-		shuffle: runtime.audio(sound("Mezclarvocales.m4a"), { preload: true }),
+		pressure: runtime.audio(sound("Presion.mp3"), { preload: true }),
+		shuffle: runtime.audio(sound("Mezclarvocales.mp3"), { preload: true }),
 		movement: runtime.audio(sound("yahoraconmovimiento.mp4"), { preload: true }),
 		itemPrompt: runtime.audio(sound(mode.prompt), { preload: true }),
 		celebration: runtime.audio(sound("Felicitaciones.mp3"), { preload: true }),
