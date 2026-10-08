@@ -45,7 +45,7 @@ function empiezaCon(palabra, consigna) {
 
 function consignaAudio(consigna) {
 	if (consigna.length === 1) {
-		return `${consigna.toUpperCase()}.wav`;
+		return `${consigna.toLowerCase()}.mp3`;
 	}
 	const lower = consigna.toLowerCase();
 	if (lower.startsWith("s")) {

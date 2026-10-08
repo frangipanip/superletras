@@ -22,12 +22,12 @@ const ACTIVITY_CONFIG = {
 		sequenceTokens: {},
 		speechAudios: {
 			vagones: "Vagones.m4a",
-			OE: "Oe.m4a",
-			EA: "Ea.m4a",
-			AA: "Aa.m4a",
-			OIA: "Oia.m4a",
-			UAU: "Uau.m4a",
-			fabuloso: "Fabuloso.m4a"
+			OE: "Oe.mp3",
+			EA: "Ea.mp3",
+			AA: "Aa.mp3",
+			OIA: "Oia.mp3",
+			UAU: "Uau.mp3",
+			fabuloso: "Fabuloso.mp3"
 		}
 	},
 	l: {
@@ -46,7 +46,7 @@ const ACTIVITY_CONFIG = {
 			LI: "li.wav",
 			LO: "lo.wav",
 			LU: "lu.wav",
-			fabuloso: "Fabuloso.m4a"
+			fabuloso: "Fabuloso.mp3"
 		}
 	},
 	m: {
@@ -65,7 +65,7 @@ const ACTIVITY_CONFIG = {
 			MI: "mi.wav",
 			MO: "mo.wav",
 			MU: "mu.wav",
-			fabuloso: "Fabuloso.m4a"
+			fabuloso: "Fabuloso.mp3"
 		}
 	},
 	s: {
@@ -84,7 +84,7 @@ const ACTIVITY_CONFIG = {
 			SI: "SI.mp3",
 			SO: "SO.mp3",
 			SU: "SU.mp3",
-			fabuloso: "Fabuloso.m4a"
+			fabuloso: "Fabuloso.mp3"
 		}
 	},
 	t: {
@@ -103,7 +103,7 @@ const ACTIVITY_CONFIG = {
 			TI: "TI.mp3",
 			TO: "TO.mp3",
 			TU: "TU.mp3",
-			fabuloso: "Fabuloso.m4a"
+			fabuloso: "Fabuloso.mp3"
 		}
 	}
 };

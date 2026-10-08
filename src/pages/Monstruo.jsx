@@ -49,7 +49,7 @@ export default function MonstruoPage() {
 	const evolucionTimer = useRef(null);
 	const [audios] = useState(() => ({
 		comer: runtime.audio(sound("correcto.mp3"), { preload: true }),
-		lleno: runtime.audio(sound("Fabuloso.m4a"), { preload: true })
+		lleno: runtime.audio(sound("Fabuloso.mp3"), { preload: true })
 	}));
 
 	const comidas = COMIDAS.map((comida) => {

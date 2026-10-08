@@ -66,8 +66,8 @@ export default function Silabas() {
 	const [audios] = useState(() => ({
 		syllables: runtime.audio(sound("SilabasA.m4a"), { preload: true }),
 		pressure: runtime.audio(sound("Presion.m4a"), { preload: true }),
-		congratulations: runtime.audio(sound("Felicitaciones.m4a"), { preload: true }),
-		vowels: Object.fromEntries(VOWELS.map((vowel) => [vowel, runtime.audio(sound(`${vowel}.wav`), { preload: true })]))
+		congratulations: runtime.audio(sound("Felicitaciones.mp3"), { preload: true }),
+		vowels: Object.fromEntries(VOWELS.map((vowel) => [vowel, runtime.audio(sound(`${vowel.toLowerCase()}.mp3`), { preload: true })]))
 	}));
 
 	// Estado que leen los callbacks de audio/timers (siempre el valor actual).

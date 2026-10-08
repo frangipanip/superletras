@@ -25,7 +25,7 @@ const TOTAL_ACTIVITIES = 5;
 
 function getAudioFileName(label) {
 	const upper = label.toUpperCase();
-	if (["A", "E", "I", "O", "U"].includes(upper)) return `${upper}.wav`;
+	if (["A", "E", "I", "O", "U"].includes(upper)) return `${upper.toLowerCase()}.mp3`;
 	if (upper.startsWith("S")) return `${upper}.mp3`;
 	if (upper === "TE") return "TE2.mp3";
 	if (upper.startsWith("T")) return `${upper}.mp3`;
@@ -51,7 +51,7 @@ export default function Flores() {
 	const [round, setRound] = useState({ generation: 0, activityIndex: 0, target: "", flowers: [] });
 	const [celebrating, setCelebrating] = useState(false);
 	const [instructionAudio] = useState(() => runtime.audio(sound(mode === "a" ? "Pulsavocal.m4a" : "Pulsa silaba.m4a")));
-	const [celebrationAudio] = useState(() => runtime.audio(sound("Fabuloso.m4a")));
+	const [celebrationAudio] = useState(() => runtime.audio(sound("Fabuloso.mp3")));
 	const [premio, otorgarPremio] = useRecompensa("flores", mode);
 	const audioRef = useRef({ option: null, feedback: null });
 	// errors: flores equivocadas tocadas, definen cuántas comidas se ganan.

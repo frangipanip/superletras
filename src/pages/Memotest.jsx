@@ -43,7 +43,7 @@ function buildDeck(mode) {
 }
 
 function getAudioFileName(label) {
-	if (label.length === 1) return `${label}.wav`;
+	if (label.length === 1) return `${label.toLowerCase()}.mp3`;
 	if (label.startsWith("S")) return `${label}.mp3`;
 	if (label === "TE") return "TE2.mp3";
 	if (label.startsWith("T")) return `${label}.mp3`;
@@ -70,7 +70,7 @@ export default function Memotest() {
 	// Todas las parejas encontradas: el cartel de felicitaciones queda hasta reiniciar.
 	const [finished, setFinished] = useState(false);
 	const activeCardAudio = useRef(null);
-	const [celebrationAudio] = useState(() => runtime.audio(sound("Felicitaciones.m4a"), { preload: true }));
+	const [celebrationAudio] = useState(() => runtime.audio(sound("Felicitaciones.mp3"), { preload: true }));
 	const [successAudio] = useState(() => runtime.audio(sound("correcto.mp3"), { preload: true }));
 
 	function stopCardAudio() {

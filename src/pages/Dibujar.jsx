@@ -84,7 +84,7 @@ export default function Dibujar() {
 	const segmentProgressRef = useRef(0);
 	const boardRef = useRef(null);
 	const [correctAudio] = useState(() => runtime.audio(sound("correcto.mp3"), { preload: true }));
-	const [celebrationAudio] = useState(() => runtime.audio(sound("Felicitaciones.m4a"), { preload: true }));
+	const [celebrationAudio] = useState(() => runtime.audio(sound("Felicitaciones.mp3"), { preload: true }));
 	const letter = activeLetter;
 	const curve = CURVE_TRACES[activeLetter];
 

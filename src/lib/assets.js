@@ -1,5 +1,11 @@
+import { readStorage, STORAGE_KEYS } from "./storage";
+
 export const img = (name) => `/assets/imagenes/${name}`;
-export const sound = (name) => `/assets/sonidos/${name}`;
+export const sound = (name) => {
+	const savedCharacter = readStorage(STORAGE_KEYS.character);
+	const character = savedCharacter === "supernene" ? "supernene" : "supernena";
+	return `/assets/sonido/${character}/${name}`;
+};
 
 // Descarga imágenes por adelantado (quedan en la caché del navegador) para que
 // la próxima pantalla aparezca completa. Se guardan las referencias para que

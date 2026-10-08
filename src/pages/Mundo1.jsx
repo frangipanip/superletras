@@ -13,11 +13,11 @@ import { STORAGE_KEYS, readStorage, writeStorage } from "../lib/storage";
 import "./Mundo1.css";
 
 const MENU_OPTIONS = [
-	{ key: "a", image: "Abtn.png", audio: "Vocales.m4a" },
-	{ key: "l", image: "Lbtn.png", audio: "Ele.m4a" },
-	{ key: "m", image: "Mbtn.png", audio: "Eme.m4a" },
-	{ key: "s", image: "Sbtn.png", audio: "Ese.m4a" },
-	{ key: "t", image: "Tbtn.png", audio: "Te.m4a" }
+	{ key: "a", image: "Abtn.png", audio: "suenaA.mp3" },
+	{ key: "l", image: "Lbtn.png", audio: "suenaL.mp3" },
+	{ key: "m", image: "Mbtn.png", audio: "suenaM.mp3" },
+	{ key: "s", image: "Sbtn.png", audio: "suenaS.mp3" },
+	{ key: "t", image: "Tbtn.png", audio: "suenaT.mp3" }
 ];
 
 const SCOOP_IMAGES = {
@@ -126,7 +126,7 @@ export default function Mundo1() {
 		: null;
 	const perchIndex = routePerch ?? (PATH_BUTTONS[savedPerches[selectedOption]] ? savedPerches[selectedOption] : null);
 	const characterIndex = teleport ? teleport.position : perchIndex;
-	const [introAudio] = useState(() => runtime.audio(sound("Inicio Mundos.mp4"), { preload: true }));
+	const [introAudio] = useState(() => runtime.audio(sound("InicioMundos.mp3"), { preload: true }));
 	// Estado del arrastre con el mouse; lo leen los handlers de pointer sin esperar un render.
 	const drag = useRef({ pointerId: null, startX: 0, startScroll: 0, moved: false }).current;
 	const [dragging, setDragging] = useState(false);

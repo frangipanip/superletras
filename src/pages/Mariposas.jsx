@@ -29,11 +29,11 @@ const POSITIONS = [
 
 function getAudioFileName(label, type = "syllable") {
 	if (type === "letter") {
-		const letterMap = { a: "A.wav", e: "E.wav", i: "I.wav", o: "O.wav", u: "U.wav", l: "L.wav", m: "M.wav", s: "s.wav", t: "T.wav" };
+		const letterMap = { a: "a.mp3", e: "e.mp3", i: "i.mp3", o: "o.mp3", u: "u.mp3", l: "letraL.mp3", m: "letraM.mp3", s: "letraS.mp3", t: "letraT.mp3" };
 		return letterMap[label.toLowerCase()] || `${label}.wav`;
 	}
 	const upper = label.toUpperCase();
-	if (["A", "E", "I", "O", "U"].includes(upper)) return `${upper}.wav`;
+	if (["A", "E", "I", "O", "U"].includes(upper)) return `${upper.toLowerCase()}.mp3`;
 	if (upper.startsWith("S")) return `${upper}.mp3`;
 	if (upper === "TE") return "TE2.mp3";
 	if (upper.startsWith("T")) return `${upper}.mp3`;
@@ -91,7 +91,7 @@ export default function Mariposas() {
 	const [targetValue, setTargetValue] = useState("");
 	const [butterflies, setButterflies] = useState([]);
 	const [celebrating, setCelebrating] = useState(false);
-	const [celebrationAudio] = useState(() => runtime.audio(sound("Fabuloso.m4a")));
+	const [celebrationAudio] = useState(() => runtime.audio(sound("Fabuloso.mp3")));
 	const [premio, otorgarPremio] = useRecompensa("mariposas", mode);
 	const pageRef = useRef(null);
 	const fieldRef = useRef(null);

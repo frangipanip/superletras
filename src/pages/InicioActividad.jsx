@@ -27,14 +27,14 @@ const MODES = {
 		items: VOWELS,
 		intro: ["SilabasA.m4a"],
 		prompt: "Pulsavocal.m4a",
-		longAudio: (item) => `${item}largo.m4a`,
-		shortAudio: (item) => `${item}.wav`,
+		longAudio: (item) => `${item.toLowerCase()}.mp3`,
+		shortAudio: (item) => `${item.toLowerCase()}.mp3`,
 		itemName: (item) => `vocal ${item}`,
 		listName: "Vocales"
 	},
 	l: {
 		items: L_SYLLABLES,
-		intro: ["EstaEsLaLetra.m4a", "Ele.m4a", "ConLasVocales.m4a"],
+		intro: ["Esta es la letra L.mp3", "ConLasVocales.mp3"],
 		prompt: "Pulsa silaba.m4a",
 		longAudio: (item) => `${item}largo.m4a`,
 		shortAudio: (item) => `${item.toLowerCase()}.wav`,
@@ -43,7 +43,7 @@ const MODES = {
 	},
 	m: {
 		items: M_SYLLABLES,
-		intro: ["EstaEsLaLetra.m4a", "Eme.m4a", "ConLasVocales.m4a"],
+		intro: ["Esta es la letra M.mp3", "ConLasVocales.mp3"],
 		prompt: "Pulsa silaba.m4a",
 		longAudio: (item) => `${item.toLowerCase()}.wav`,
 		shortAudio: (item) => `${item.toLowerCase()}.wav`,
@@ -52,7 +52,7 @@ const MODES = {
 	},
 	s: {
 		items: S_SYLLABLES,
-		intro: ["EstaEsLaLetra.m4a", "Ese.m4a", "ConLasVocales.m4a"],
+		intro: ["Esta es la letra S.mp3", "ConLasVocales.mp3"],
 		prompt: "Pulsa silaba.m4a",
 		longAudio: (item) => `${item}.mp3`,
 		shortAudio: (item) => `${item}.mp3`,
@@ -61,7 +61,7 @@ const MODES = {
 	},
 	t: {
 		items: T_SYLLABLES,
-		intro: ["EstaEsLaLetra.m4a", "TE2.mp3", "ConLasVocales.m4a"],
+		intro: ["Esta es la letra T.mp3", "ConLasVocales.mp3"],
 		prompt: "Pulsa silaba.m4a",
 		longAudio: (item) => `${item === "TE" ? "TE2" : item}.mp3`,
 		shortAudio: (item) => `${item === "TE" ? "TE2" : item}.mp3`,
@@ -84,7 +84,7 @@ export default function InicioActividad() {
 		shuffle: runtime.audio(sound("Mezclarvocales.m4a"), { preload: true }),
 		movement: runtime.audio(sound("yahoraconmovimiento.mp4"), { preload: true }),
 		itemPrompt: runtime.audio(sound(mode.prompt), { preload: true }),
-		celebration: runtime.audio(sound("Felicitaciones.m4a"), { preload: true }),
+		celebration: runtime.audio(sound("Felicitaciones.mp3"), { preload: true }),
 		error: runtime.audio(sound("error.mp3"), { preload: true }),
 		itemsLong: Object.fromEntries(mode.items.map((item) => [item, runtime.audio(sound(mode.longAudio(item)), { preload: true })])),
 		itemsShort: Object.fromEntries(mode.items.map((item) => [item, runtime.audio(sound(mode.shortAudio(item)), { preload: true })]))
