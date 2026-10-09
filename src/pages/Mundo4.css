@@ -1,0 +1,138 @@
+.page.page-mundo4 {
+	overflow-x: auto;
+	overflow-y: hidden;
+}
+
+.page-mundo4 {
+	--mundo4-menu-left: 46vw;
+	--mundo4-character-width: clamp(180px, 49.5vmin, 390px);
+	position: relative;
+	background: #55cfe4;
+	touch-action: pan-x;
+	-webkit-overflow-scrolling: touch;
+	scrollbar-width: none;
+}
+
+.page-mundo4 .top-nav {
+	position: fixed;
+	inset: 0;
+	z-index: 6;
+	pointer-events: none;
+}
+
+.page-mundo4 .top-nav > * {
+	pointer-events: auto;
+}
+
+.page-mundo4::-webkit-scrollbar {
+	display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+	.page-mundo4 {
+		cursor: grab;
+	}
+}
+
+.page-mundo4.dragging {
+	cursor: grabbing;
+	user-select: none;
+	-webkit-user-select: none;
+}
+
+.page-mundo4.dragging * {
+	cursor: grabbing;
+}
+
+.mundo4-scene {
+	position: relative;
+	display: inline-block;
+	vertical-align: top;
+	min-width: 100vw;
+	height: 100%;
+	user-select: none;
+	-webkit-user-select: none;
+}
+
+.mundo4-background {
+	display: block;
+	width: auto;
+	max-width: none;
+	height: 100%;
+}
+
+.mundo4-menu-panel {
+	position: absolute;
+	top: 50%;
+	left: var(--mundo4-menu-left);
+	z-index: 4;
+	height: clamp(300px, min(92vh, 110vw), 740px);
+	aspect-ratio: 1180 / 1536;
+	transform: translateY(-50%);
+}
+
+.mundo4-menu-image {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	filter: drop-shadow(0 3px 8px rgba(20, 54, 65, 0.4));
+}
+
+.mundo4-letter {
+	position: absolute;
+	left: 47%;
+	z-index: 1;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: #38263f;
+	font-family: "Comic Sans MS", "Comic Sans", cursive;
+	font-size: clamp(1.5rem, 5vmin, 3.2rem);
+	font-weight: 700;
+	line-height: 1;
+	text-shadow: 0 1px 2px rgba(255, 255, 255, 0.95);
+	transform: translate(-50%, -50%);
+	cursor: pointer;
+}
+
+.mundo4-letter:hover,
+.mundo4-letter:focus-visible {
+	filter: brightness(1.2) drop-shadow(0 0 5px rgba(255, 255, 255, 0.95));
+}
+
+.mundo4-letter.selected {
+	color: #c62861;
+	text-shadow: 0 1px 2px #fff, 0 0 8px rgba(255, 255, 255, 0.9);
+}
+
+.mundo4-letter-1 { top: 19.2%; }
+.mundo4-letter-2 { top: 33.5%; }
+.mundo4-letter-3 { top: 48.3%; }
+.mundo4-letter-4 { top: 63.2%; }
+.mundo4-letter-5 { top: 78.6%; }
+
+.mundo4-character {
+	position: absolute;
+	bottom: 5%;
+	left: max(12px, calc(var(--mundo4-menu-left) - var(--mundo4-character-width) - 18px));
+	z-index: 2;
+	width: var(--mundo4-character-width);
+	filter: drop-shadow(0 5px 7px rgba(20, 54, 65, 0.38));
+}
+
+.mundo4-character img {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+@media (max-width: 700px) {
+	.page-mundo4 {
+		--mundo4-menu-left: 50vw;
+	}
+
+	.mundo4-letter {
+		font-size: clamp(1.35rem, 6vmin, 2.4rem);
+	}
+}

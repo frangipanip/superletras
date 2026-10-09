@@ -3,6 +3,8 @@ export const STORAGE_KEYS = {
 	guestName: "superletras-guest-name",
 	mundo1MenuOption: "superletras-mundo1-menu-option",
 	mundo2MenuOption: "superletras-mundo2-menu-option",
+	mundo3MenuOption: "superletras-mundo3-menu-option",
+	mundo4MenuOption: "superletras-mundo4-menu-option",
 	mundo1Perches: "superletras-mundo1-perches",
 	selectedWorld: "superletras-selected-world",
 	installPromptDismissedAt: "superletras-install-dismissed-at",

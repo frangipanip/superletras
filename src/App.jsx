@@ -3,6 +3,8 @@ import Inicio from "./pages/Inicio";
 import Mundos from "./pages/Mundos";
 import Mundo1 from "./pages/Mundo1";
 import Mundo2 from "./pages/Mundo2";
+import Mundo3 from "./pages/Mundo3";
+import Mundo4 from "./pages/Mundo4";
 import InicioActividad from "./pages/InicioActividad";
 import Silabas from "./pages/Silabas";
 import Mariposas from "./pages/Mariposas";
@@ -35,6 +37,8 @@ export default function App() {
 			<Route path="/mundos" element={<Mundos />} />
 			<Route path="/mundo1" element={<Mundo1 />} />
 			<Route path="/mundo2" element={<Mundo2 />} />
+			<Route path="/mundo3" element={<Mundo3 />} />
+			<Route path="/mundo4" element={<Mundo4 />} />
 			<Route path="/inicio" element={<InicioActividad />} />
 			<Route path="/silabas" element={<Silabas />} />
 			<Route path="/mariposas" element={<Mariposas />} />
