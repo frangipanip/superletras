@@ -30,6 +30,20 @@ const PATH_BUTTONS = [
 	[72.5, 69.5],
 	[78.5, 80]
 ];
+const MUNDO2_CHARACTER_FRAMES = {
+	supernena: [
+		MUNDO2_CHARACTERS.supernena.image,
+		img("PERSONAJES/supernenaMariposa1.png"),
+		img("PERSONAJES/supernenaMariposa2.png"),
+		img("PERSONAJES/supernenaMariposa1.png")
+	],
+	supernene: [
+		MUNDO2_CHARACTERS.supernene.image,
+		img("PERSONAJES/superneneMariposa1.png"),
+		img("PERSONAJES/superneneMariposa2.png"),
+		img("PERSONAJES/superneneMariposa1.png")
+	]
+};
 
 export const MUNDO2_IMAGES = [
 	img("FONDOM2.jpg"),
@@ -37,6 +51,7 @@ export const MUNDO2_IMAGES = [
 	img("boton.svg"),
 	...ACTIVITY_SIGN_IMAGES.map(img),
 	...Object.values(MUNDO2_CHARACTERS).map(({ image }) => image),
+	...Object.values(MUNDO2_CHARACTER_FRAMES).flatMap((frames) => frames.slice(1, 3)),
 	...MUNDO2_MOUTH_IMAGES
 ];
 
@@ -171,7 +186,15 @@ export default function Mundo2() {
 				{character && (
 					<div className="mundo2-character-spot">
 						<button className="mundo2-character" type="button" aria-label="Reproducir presentación" onClick={playIntroAudio}>
-							<img src={MUNDO2_CHARACTERS[character].image} alt={MUNDO2_CHARACTERS[character].alt} />
+							{MUNDO2_CHARACTER_FRAMES[character].map((src, index) => (
+								<img
+									key={`${src}-${index}`}
+									className={`mundo2-character-frame mundo2-character-frame-${index + 1}`}
+									src={src}
+									alt=""
+									aria-hidden="true"
+								/>
+							))}
 							{mouth.visible && <img className="character-mouth" src={mouth.src} alt="" />}
 						</button>
 					</div>
