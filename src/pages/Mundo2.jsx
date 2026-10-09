@@ -5,6 +5,7 @@ import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
 import { img, MUNDO2_CHARACTERS, MUNDO2_MOUTH_IMAGES, sound } from "../lib/assets";
+import { STORAGE_KEYS, readStorage, writeStorage } from "../lib/storage";
 import "./Mundo2.css";
 
 const LETTERS = ["P", "N", "D", "F", "H"];
@@ -37,16 +38,45 @@ export default function Mundo2() {
 	const [character] = useSelectedCharacter();
 	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime, MUNDO2_MOUTH_IMAGES);
 	const [introAudio] = useState(() => runtime.audio(sound("InicioMundos.mp3"), { preload: true }));
+	const [letterAudios] = useState(() => Object.fromEntries(
+		LETTERS.map((letter) => [letter, runtime.audio(sound(`suena${letter}.mp3`), { preload: true })])
+	));
+	const [selectedLetter, setSelectedLetter] = useState(() => {
+		const saved = readStorage(STORAGE_KEYS.mundo2MenuOption);
+		return LETTERS.includes(saved) ? saved : null;
+	});
 	const pageRef = useRef(null);
 	const drag = useRef({ pointerId: null, startX: 0, startScroll: 0, moved: false }).current;
 	const [dragging, setDragging] = useState(false);
 
 	function playIntroAudio() {
+		Object.values(letterAudios).forEach((audio) => {
+			audio.onended = null;
+			audio.pause();
+			audio.currentTime = 0;
+		});
 		introAudio.pause();
 		introAudio.currentTime = 0;
 		startTalking();
 		introAudio.onended = stopTalking;
 		introAudio.play().catch(stopTalking);
+	}
+
+	function selectLetter(letter) {
+		setSelectedLetter(letter);
+		writeStorage(STORAGE_KEYS.mundo2MenuOption, letter);
+		introAudio.onended = null;
+		introAudio.pause();
+		introAudio.currentTime = 0;
+		Object.values(letterAudios).forEach((audio) => {
+			audio.onended = null;
+			audio.pause();
+			audio.currentTime = 0;
+		});
+		const audio = letterAudios[letter];
+		startTalking();
+		audio.onended = stopTalking;
+		audio.play().catch(stopTalking);
 	}
 
 	useEffect(() => {
@@ -55,6 +85,11 @@ export default function Mundo2() {
 			introAudio.onended = null;
 			introAudio.pause();
 			introAudio.currentTime = 0;
+			Object.values(letterAudios).forEach((audio) => {
+				audio.onended = null;
+				audio.pause();
+				audio.currentTime = 0;
+			});
 			stopTalking();
 		};
 	}, []);
@@ -118,7 +153,7 @@ export default function Mundo2() {
 								alt=""
 								draggable={false}
 							/>
-							<button className="mundo2-path-button" type="button" disabled aria-label={`Actividad ${index + 1}, no disponible`}>
+							<button className={`mundo2-path-button${selectedLetter ? ` path-letter-${selectedLetter.toLowerCase()}` : ""}`} type="button" disabled aria-label={`Actividad ${index + 1}, no disponible`}>
 								<img src={img("boton.svg")} alt="" draggable={false} />
 							</button>
 						</div>
@@ -138,11 +173,13 @@ export default function Mundo2() {
 					<img className="mundo2-menu-image" src={img("MENUM2.png")} alt="" draggable={false} />
 					{LETTERS.map((letter, index) => (
 						<button
-							className={`mundo2-letter mundo2-letter-${index + 1}`}
+							className={`mundo2-letter mundo2-letter-${index + 1}${selectedLetter === letter ? " selected" : ""}`}
 							key={letter}
+							data-letter={letter.toLowerCase()}
 							type="button"
-							disabled
-							aria-label={`Letra ${letter}, actividades todavía no disponibles`}
+							aria-label={`Seleccionar letra ${letter}`}
+							aria-pressed={selectedLetter === letter}
+							onClick={() => selectLetter(letter)}
 						>
 							{letter}
 						</button>

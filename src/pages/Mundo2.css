@@ -87,20 +87,26 @@
 		color: #fff;
 		-webkit-text-fill-color: #fff;
 		font-family: "Comic Sans MS", "Comic Sans", cursive;
-		font-size: clamp(1.8rem, 5.2vmin, 3.4rem);
+		font-size: clamp(1.71rem, 4.94vmin, 3.23rem);
 		font-weight: 700;
 		line-height: 1;
 		text-shadow: 0 2px 4px rgba(22, 63, 24, 0.9), 0 0 8px rgba(22, 63, 24, 0.6);
 		transform: translate(-50%, -50%);
-		cursor: not-allowed;
+		cursor: pointer;
 		opacity: 1;
 	}
 
-	.mundo2-letter:disabled {
-		color: #fff;
-		-webkit-text-fill-color: #fff;
-		opacity: 1;
+	.mundo2-letter:hover,
+	.mundo2-letter:focus-visible {
+		filter: brightness(1.35) drop-shadow(0 0 8px rgba(255, 255, 255, 0.95));
 	}
+
+	.mundo2-letter.selected { filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.95)); }
+	.mundo2-letter.selected[data-letter="p"] { color: #d026eb; -webkit-text-fill-color: #d026eb; }
+	.mundo2-letter.selected[data-letter="n"] { color: #6fff1a; -webkit-text-fill-color: #6fff1a; }
+	.mundo2-letter.selected[data-letter="d"] { color: #ffc953; -webkit-text-fill-color: #ffc953; }
+	.mundo2-letter.selected[data-letter="f"] { color: #f34722; -webkit-text-fill-color: #f34722; }
+	.mundo2-letter.selected[data-letter="h"] { color: #61e6ff; -webkit-text-fill-color: #61e6ff; }
 
 	.mundo2-letter-1 { top: 15%; }
 	.mundo2-letter-2 { top: 33%; }
@@ -146,6 +152,12 @@
 		cursor: not-allowed;
 		pointer-events: auto;
 	}
+
+	.mundo2-path-button.path-letter-p { filter: hue-rotate(125deg) saturate(1); }
+	.mundo2-path-button.path-letter-n { filter: saturate(1.35) hue-rotate(-10deg); }
+	.mundo2-path-button.path-letter-d { filter: hue-rotate(245deg) saturate(1.55) brightness(1.08); }
+	.mundo2-path-button.path-letter-f { filter: hue-rotate(210deg) saturate(1.65); }
+	.mundo2-path-button.path-letter-h { filter: hue-rotate(42deg) saturate(1.4); }
 
 	.mundo2-path-button img {
 		display: block;
@@ -195,13 +207,13 @@
 	}
 
 	.page-mundo2 .mundo2-letter {
-		font-size: 1.785rem;
+		font-size: 1.69575rem;
 	}
 }
 
 @media (min-width: 901px) {
 	.page-mundo2 .mundo2-letter {
-		font-size: clamp(3.06rem, 8.84vmin, 5.78rem);
+		font-size: clamp(2.907rem, 8.398vmin, 5.491rem);
 	}
 }
 
