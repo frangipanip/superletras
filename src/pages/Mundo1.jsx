@@ -61,6 +61,8 @@ export const MUNDO1_IMAGES = [
 	...ACTIVITY_SIGN_IMAGES.map(img),
 	...MENU_OPTIONS.map(({ image }) => img(image)),
 	...Object.values(SCOOP_IMAGES).map(img),
+	img("cabezasupernena.png"),
+	img("cabezasupernene.png"),
 	...Object.values(MUNDO1_CHARACTERS).map(({ image }) => image),
 	...MENU_OPTIONS.map(({ key }) => imagenMonstruo(key)),
 	...MUNDO1_MOUTH_IMAGES
@@ -397,7 +399,7 @@ export default function Mundo1() {
 			</button>
 			{characterOffscreen && character && (
 				<button className={`mundo1-character-locator direction-${characterDirection}`} type="button" aria-label="Ir hasta mi personaje" onClick={scrollToCharacter}>
-					<img src={MUNDO1_CHARACTERS[character].image} alt="" draggable={false} />
+					<img src={img(character === "supernena" ? "cabezasupernena.png" : "cabezasupernene.png")} alt="" draggable={false} />
 				</button>
 			)}
 

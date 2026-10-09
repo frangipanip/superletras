@@ -4,7 +4,7 @@ import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
-import { CHARACTERS, MOUTH_IMAGES, img, sound } from "../lib/assets";
+import { img, MUNDO2_CHARACTERS, MUNDO2_MOUTH_IMAGES, sound } from "../lib/assets";
 import "./Mundo2.css";
 
 const LETTERS = ["P", "N", "D", "F", "H"];
@@ -27,16 +27,15 @@ export const MUNDO2_IMAGES = [
 	img("MENUM2.png"),
 	img("boton.svg"),
 	...ACTIVITY_SIGN_IMAGES.map(img),
-	img("cabezasupernena.png"),
-	img("cabezasupernene.png"),
-	...MOUTH_IMAGES
+	...Object.values(MUNDO2_CHARACTERS).map(({ image }) => image),
+	...MUNDO2_MOUTH_IMAGES
 ];
 
 export default function Mundo2() {
 	usePageTitle("Mundo 2");
 	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
-	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime);
+	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime, MUNDO2_MOUTH_IMAGES);
 	const [introAudio] = useState(() => runtime.audio(sound("InicioMundos.mp3"), { preload: true }));
 	const pageRef = useRef(null);
 	const drag = useRef({ pointerId: null, startX: 0, startScroll: 0, moved: false }).current;
@@ -129,8 +128,8 @@ export default function Mundo2() {
 				{character && (
 					<div className="mundo2-character-spot">
 						<button className="mundo2-character" type="button" aria-label="Reproducir presentación" onClick={playIntroAudio}>
-							<img src={CHARACTERS[character].image} alt={CHARACTERS[character].alt} />
-							{mouth.visible && <img className={mouth.shifted ? "character-mouth shifted-mouth" : "character-mouth"} src={mouth.src} alt="" />}
+							<img src={MUNDO2_CHARACTERS[character].image} alt={MUNDO2_CHARACTERS[character].alt} />
+							{mouth.visible && <img className="character-mouth" src={mouth.src} alt="" />}
 						</button>
 					</div>
 				)}

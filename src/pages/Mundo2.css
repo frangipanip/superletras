@@ -5,7 +5,7 @@
 
 .page-mundo2 {
 	--mundo2-menu-left: 55vw;
-	--mundo2-character-width: clamp(132px, 33vmin, 260px);
+	--mundo2-character-width: clamp(198px, 49.5vmin, 390px);
 	position: relative;
 	background: #8ed7f5;
 	touch-action: pan-x;
@@ -181,17 +181,11 @@
 
 	.mundo2-character .character-mouth {
 		position: absolute;
-		top: 23%;
-		left: 50%;
-		width: 22%;
+		top: 0;
+		left: 0;
+		width: 100%;
 		height: auto;
 		filter: none;
-		transform: translateX(-50%);
-	}
-
-	.mundo2-character .character-mouth.shifted-mouth {
-		left: 52%;
-		top: 26%;
 	}
 }
 

@@ -1,7 +1,7 @@
 {
   "name": "superletras",
   "private": true,
-  "version": "3.28.15",
+  "version": "3.28.18",
   "type": "module",
   "repository": {
     "type": "git",

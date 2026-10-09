@@ -30,6 +30,11 @@ export const MUNDO1_CHARACTERS = {
 	supernena: { image: img("PERSONAJES/supernenaDulce.png"), alt: "Supernena" },
 	supernene: { image: img("PERSONAJES/superneneDulce.png"), alt: "Supernene" }
 };
+export const MUNDO2_MOUTH_IMAGES = [1, 2, 3].map((index) => img(`PERSONAJES/superbocaMariposa${index}.png`));
+export const MUNDO2_CHARACTERS = {
+	supernena: { image: img("PERSONAJES/supernenaMariposa.png"), alt: "Supernena" },
+	supernene: { image: img("PERSONAJES/superneneMariposa.png"), alt: "Supernene" }
+};
 
 export const CHARACTERS = {
 	supernena: { image: img("supernena.png"), alt: "Supernena" },
