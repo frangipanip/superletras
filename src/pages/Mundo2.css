@@ -4,7 +4,7 @@
 }
 
 .page-mundo2 {
-	--mundo2-menu-left: 55vw;
+	--mundo2-menu-left: 43vw;
 	--mundo2-character-width: clamp(198px, 49.5vmin, 390px);
 	position: relative;
 	background: #8ed7f5;
@@ -60,7 +60,7 @@
 
 	.mundo2-menu-panel {
 		position: absolute;
-		top: 50%;
+		top: 53%;
 		left: var(--mundo2-menu-left);
 		z-index: 4;
 		width: auto;
@@ -122,9 +122,15 @@
 
 	.mundo2-path-activity {
 		position: absolute;
-		width: clamp(80px, 15vmin, 156px);
+		width: clamp(108px, 18vmin, 156px);
 		aspect-ratio: 1;
 		transform: translate(-50%, -50%);
+	}
+
+	@media (max-height: 600px), (max-width: 800px) {
+		.mundo2-path-activity {
+			width: clamp(80px, 15vmin, 125px);
+		}
 	}
 
 	.mundo2-path-sign {
@@ -203,7 +209,7 @@
 
 @media (max-width: 900px) {
 	.page-mundo2 {
-		--mundo2-menu-left: 35vw;
+		--mundo2-menu-left: 33vw;
 	}
 
 	.page-mundo2 .mundo2-letter {
