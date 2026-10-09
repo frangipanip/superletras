@@ -1,11 +1,14 @@
 import { useRef, useState } from "react";
-import { MOUTH_IMAGES } from "../lib/assets";
+import { useLocation } from "react-router";
+import { MOUTH_IMAGES, MUNDO1_MOUTH_IMAGES } from "../lib/assets";
 
 const HIDDEN_MOUTH = { visible: false, src: MOUTH_IMAGES[0], shifted: false };
 
 // Boca del personaje: alterna las 3 imagenes cada 220 ms mientras habla.
-export function useTalkingMouth(runtime) {
-	const [mouth, setMouth] = useState(HIDDEN_MOUTH);
+export function useTalkingMouth(runtime, mouthImages) {
+	const location = useLocation();
+	const selectedMouthImages = mouthImages || (location.state?.world === 1 ? MUNDO1_MOUTH_IMAGES : MOUTH_IMAGES);
+	const [mouth, setMouth] = useState(() => ({ ...HIDDEN_MOUTH, src: selectedMouthImages[0] }));
 	const timerRef = useRef(0);
 
 	function patchMouth(changes) {
@@ -19,10 +22,10 @@ export function useTalkingMouth(runtime) {
 	function startTalking() {
 		clearMouthTimer();
 		let index = 0;
-		setMouth({ visible: true, src: MOUTH_IMAGES[0], shifted: false });
+		setMouth({ visible: true, src: selectedMouthImages[0], shifted: false });
 		timerRef.current = runtime.setInterval(() => {
-			index = (index + 1) % MOUTH_IMAGES.length;
-			patchMouth({ src: MOUTH_IMAGES[index], shifted: index > 0 });
+			index = (index + 1) % selectedMouthImages.length;
+			patchMouth({ src: selectedMouthImages[index], shifted: index > 0 });
 		}, 220);
 	}
 

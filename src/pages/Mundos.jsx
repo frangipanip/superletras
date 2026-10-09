@@ -6,6 +6,7 @@ import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { CHARACTERS, img, preloadImages } from "../lib/assets";
 import { writeStorage, STORAGE_KEYS } from "../lib/storage";
 import { MUNDO1_IMAGES } from "./Mundo1";
+import { MUNDO2_IMAGES } from "./Mundo2";
 import "./Mundos.css";
 
 const LEVEL_ROWS = [
@@ -22,17 +23,16 @@ const LEVEL_LETTERS = {
 	6: "B - V - Ñ - K - X"
 };
 
-// Solo el nivel 1 tiene contenido por ahora.
-const LEVEL_ROUTES = { 1: "/mundo1" };
+const LEVEL_ROUTES = { 1: "/mundo1", 2: "/mundo2" };
 
 export default function Mundos() {
 	usePageTitle("Superletras - Mundos");
 	const navigate = useNavigate();
 	const [character, selectCharacter] = useSelectedCharacter();
 
-	// Mientras se elige personaje y nivel, se van bajando las imágenes del Mundo 1.
+	// Mientras se elige personaje y nivel, se van bajando las imágenes de ambos mundos.
 	useEffect(() => {
-		preloadImages(MUNDO1_IMAGES);
+		preloadImages([...MUNDO1_IMAGES, ...MUNDO2_IMAGES]);
 	}, []);
 
 	return (

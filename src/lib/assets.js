@@ -25,6 +25,11 @@ export function preloadImages(urls) {
 }
 
 export const MOUTH_IMAGES = [img("bocasuper.png"), img("bocasuper1.png"), img("bocasuper2.png")];
+export const MUNDO1_MOUTH_IMAGES = [1, 2, 3].map((index) => img(`PERSONAJES/superbocaDulce${index}.png`));
+export const MUNDO1_CHARACTERS = {
+	supernena: { image: img("PERSONAJES/supernenaDulce.png"), alt: "Supernena" },
+	supernene: { image: img("PERSONAJES/superneneDulce.png"), alt: "Supernene" }
+};
 
 export const CHARACTERS = {
 	supernena: { image: img("supernena.png"), alt: "Supernena" },

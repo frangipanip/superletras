@@ -132,6 +132,13 @@
 		top: 26%;
 	}
 
+	.selected-character.dulce-character .character-mouth {
+		top: 0;
+		left: 0;
+		width: 100%;
+		transform: none;
+	}
+
 	.character-mouth[hidden] {
 		display: none;
 	}

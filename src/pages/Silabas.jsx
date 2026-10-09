@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import Character from "../components/Character";
 import UserNav from "../components/UserNav";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
-import { img, sound } from "../lib/assets";
+import { img, MUNDO1_MOUTH_IMAGES, sound } from "../lib/assets";
 import { shuffle } from "../lib/shuffle";
 import "./Silabas.css";
 
@@ -52,8 +52,12 @@ function createConfetti(generation) {
 export default function Silabas() {
 	usePageTitle("Silabas - Mundo 1");
 	const navigate = useNavigate();
+	const location = useLocation();
 	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
+	const mouthByVowel = location.state?.world === 1
+		? { A: MUNDO1_MOUTH_IMAGES[0], E: MUNDO1_MOUTH_IMAGES[0], I: MUNDO1_MOUTH_IMAGES[1], O: MUNDO1_MOUTH_IMAGES[2], U: MUNDO1_MOUTH_IMAGES[2] }
+		: MOUTH_BY_VOWEL;
 	const { mouth, patchMouth, clearMouthTimer, startTalking, stopTalking } = useTalkingMouth(runtime);
 
 	const [displayedVowels, setDisplayedVowels] = useState(VOWELS);
@@ -191,7 +195,7 @@ export default function Silabas() {
 		clearVowelMouthTimers();
 		resetAudio(audios.syllables);
 		clearMouthTimer();
-		patchMouth({ visible: vowel === "A", src: MOUTH_BY_VOWEL[vowel], shifted: SHIFTED_MOUTH_VOWELS.has(vowel) });
+		patchMouth({ visible: vowel === "A", src: mouthByVowel[vowel], shifted: SHIFTED_MOUTH_VOWELS.has(vowel) });
 		resetVowelAudios();
 		audio.onended = () => {
 			clearVowelMouthTimers();
@@ -224,7 +228,7 @@ export default function Silabas() {
 		const audio = audios.vowels[vowel];
 		game.vowelSequenceIndex += 1;
 		clearVowelMouthTimers();
-		patchMouth({ visible: false, src: MOUTH_BY_VOWEL[vowel], shifted: SHIFTED_MOUTH_VOWELS.has(vowel) });
+		patchMouth({ visible: false, src: mouthByVowel[vowel], shifted: SHIFTED_MOUTH_VOWELS.has(vowel) });
 		resetVowelAudios();
 		audio.onended = () => {
 			clearVowelMouthTimers();
@@ -290,7 +294,7 @@ export default function Silabas() {
 						className={className ? `activity-button ${className}` : "activity-button"}
 						type="button"
 						aria-label={label}
-						onClick={() => navigate(route)}
+						onClick={() => navigate(route, { state: location.state })}
 					>
 						<img src={img(image)} alt="" />
 					</button>

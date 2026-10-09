@@ -1,7 +1,9 @@
 import { spawn } from "node:child_process";
+import { readFileSync } from "node:fs";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import { version } from "./package.json";
+
+const { version } = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf8"));
 
 // Publica /version.json con la versión del build: la app instalada lo consulta
 // para saber si quedó desactualizada (ver src/lib/appUpdate.js).
@@ -67,7 +69,10 @@ function rewardsApi() {
 
 export default defineConfig({
 	plugins: [react(), versionFile(), rewardsApi()],
-	server: { proxy: apiProxy },
+	server: {
+		proxy: apiProxy,
+		watch: { ignored: ["**/*.lnk"] }
+	},
 	preview: { proxy: apiProxy },
 	build: {
 		// "assets" ya lo usa public/assets (imagenes y sonidos).

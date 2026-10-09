@@ -375,17 +375,11 @@
 
 	.mundo1-character .character-mouth {
 		position: absolute;
-		top: 23%;
-		left: 50%;
-		width: 22%;
+		top: 0;
+		left: 0;
+		width: 100%;
 		height: auto;
 		filter: none;
-		transform: translateX(-50%);
-	}
-
-	.mundo1-character .character-mouth.shifted-mouth {
-		left: 52%;
-		top: 26%;
 	}
 
 	/* Teletransporte con puf de crema hacia una actividad (ver openPathActivity). */

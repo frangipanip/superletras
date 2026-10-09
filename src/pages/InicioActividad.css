@@ -192,6 +192,13 @@
 	left: 52%;
 }
 
+.inicio-activity-character.dulce-character .inicio-activity-mouth {
+	top: 0;
+	left: 0;
+	width: 100%;
+	transform: none;
+}
+
 .inicio-activity-mouth[hidden] {
 	display: none;
 }

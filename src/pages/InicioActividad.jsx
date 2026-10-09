@@ -7,7 +7,7 @@ import { usePageTitle } from "../hooks/usePageTitle";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
-import { CHARACTERS, img, sound } from "../lib/assets";
+import { CHARACTERS, img, MUNDO1_CHARACTERS, sound } from "../lib/assets";
 import { shuffle } from "../lib/shuffle";
 import { useActivityMenuOption } from "../hooks/useActivityMenuOption";
 import "./actividad.css";
@@ -75,6 +75,8 @@ export default function InicioActividad() {
 	const location = useLocation();
 	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
+	const isMundo1 = location.state?.world === 1;
+	const activityCharacters = isMundo1 ? MUNDO1_CHARACTERS : CHARACTERS;
 	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime);
 	const menuOption = useActivityMenuOption();
 	const [mode] = useState(() => MODES[menuOption || "a"] || MODES.a);
@@ -550,10 +552,10 @@ export default function InicioActividad() {
 				</div>
 			<PremioComida premio={premio} />
 			{character && (
-				<button className="inicio-activity-character" type="button" aria-label="Repetir consigna" onClick={repeatInstruction}>
-					<img src={CHARACTERS[character].image} alt={CHARACTERS[character].alt} />
+				<button className={`inicio-activity-character${isMundo1 ? " dulce-character" : ""}`} type="button" aria-label="Repetir consigna" onClick={repeatInstruction}>
+					<img src={activityCharacters[character].image} alt={activityCharacters[character].alt} />
 					<img
-						className={mouth.shifted ? "inicio-activity-mouth shifted-mouth" : "inicio-activity-mouth"}
+						className={!isMundo1 && mouth.shifted ? "inicio-activity-mouth shifted-mouth" : "inicio-activity-mouth"}
 						src={mouth.src}
 						alt=""
 						hidden={!mouth.visible}

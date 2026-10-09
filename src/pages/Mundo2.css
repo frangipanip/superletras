@@ -1,0 +1,222 @@
+.page.page-mundo2 {
+	overflow-x: auto;
+	overflow-y: hidden;
+}
+
+.page-mundo2 {
+	--mundo2-menu-left: 55vw;
+	--mundo2-character-width: clamp(132px, 33vmin, 260px);
+	position: relative;
+	background: #8ed7f5;
+	touch-action: pan-x;
+	-webkit-overflow-scrolling: touch;
+	scrollbar-width: none;
+
+	.top-nav {
+		position: fixed;
+		inset: 0;
+		z-index: 6;
+		pointer-events: none;
+	}
+
+	.top-nav > * {
+		pointer-events: auto;
+	}
+
+	&::-webkit-scrollbar {
+		display: none;
+	}
+
+	@media (hover: hover) and (pointer: fine) {
+		cursor: grab;
+	}
+
+	&.dragging {
+		cursor: grabbing;
+		user-select: none;
+		-webkit-user-select: none;
+
+		* {
+			cursor: grabbing;
+		}
+	}
+
+	.mundo2-scene {
+		position: relative;
+		display: inline-block;
+		vertical-align: top;
+		min-width: 100vw;
+		height: 100%;
+		user-select: none;
+		-webkit-user-select: none;
+	}
+
+	.mundo2-background {
+		display: block;
+		width: auto;
+		max-width: none;
+		height: 100%;
+	}
+
+	.mundo2-menu-panel {
+		position: absolute;
+		top: 50%;
+		left: var(--mundo2-menu-left);
+		z-index: 4;
+		width: auto;
+		height: min(94vh, 210vw);
+		aspect-ratio: 712 / 2048;
+		transform: translateY(-50%);
+	}
+
+	.mundo2-menu-image {
+		display: block;
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+		filter: drop-shadow(0 0 14px rgba(20, 60, 25, 0.42));
+	}
+
+	.mundo2-letter {
+		position: absolute;
+		left: 56%;
+		z-index: 1;
+		padding: 0;
+		border: 0;
+		background: transparent;
+		color: #fff;
+		-webkit-text-fill-color: #fff;
+		font-family: "Comic Sans MS", "Comic Sans", cursive;
+		font-size: clamp(1.8rem, 5.2vmin, 3.4rem);
+		font-weight: 700;
+		line-height: 1;
+		text-shadow: 0 2px 4px rgba(22, 63, 24, 0.9), 0 0 8px rgba(22, 63, 24, 0.6);
+		transform: translate(-50%, -50%);
+		cursor: not-allowed;
+		opacity: 1;
+	}
+
+	.mundo2-letter:disabled {
+		color: #fff;
+		-webkit-text-fill-color: #fff;
+		opacity: 1;
+	}
+
+	.mundo2-letter-1 { top: 15%; }
+	.mundo2-letter-2 { top: 33%; }
+	.mundo2-letter-3 { top: 50%; }
+	.mundo2-letter-4 { top: 68%; }
+	.mundo2-letter-5 { top: 85%; }
+
+	.mundo2-path {
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
+	}
+
+	.mundo2-path-activity {
+		position: absolute;
+		width: clamp(80px, 15vmin, 156px);
+		aspect-ratio: 1;
+		transform: translate(-50%, -50%);
+	}
+
+	.mundo2-path-sign {
+		position: absolute;
+		bottom: calc(70% + clamp(4px, 0.8vmin, 10px));
+		left: 50%;
+		width: 82%;
+		height: auto;
+		filter: grayscale(1);
+		opacity: 0.62;
+		transform: translateX(-50%);
+		pointer-events: none;
+	}
+
+	.mundo2-path-button {
+		position: absolute;
+		inset: 0;
+		z-index: 1;
+		width: 100%;
+		height: 100%;
+		padding: 0;
+		border: 0;
+		background: transparent;
+		filter: grayscale(1) opacity(0.62);
+		cursor: not-allowed;
+		pointer-events: auto;
+	}
+
+	.mundo2-path-button img {
+		display: block;
+		width: 100%;
+		height: auto;
+	}
+
+	.mundo2-character-spot {
+		position: absolute;
+		bottom: 8%;
+		left: calc(var(--mundo2-menu-left) - var(--mundo2-character-width) - clamp(12px, 2vw, 32px));
+		z-index: 2;
+		width: var(--mundo2-character-width);
+	}
+
+	.mundo2-character {
+		position: relative;
+		display: block;
+		width: 100%;
+		padding: 0;
+		border: 0;
+		background: transparent;
+		animation: mundo2-character-float 2.8s ease-in-out infinite;
+		cursor: pointer;
+	}
+
+	.mundo2-character > img {
+		display: block;
+		width: 100%;
+		height: auto;
+		filter: drop-shadow(0 0 14px rgba(0, 0, 0, 0.7));
+	}
+
+	.mundo2-character .character-mouth {
+		position: absolute;
+		top: 23%;
+		left: 50%;
+		width: 22%;
+		height: auto;
+		filter: none;
+		transform: translateX(-50%);
+	}
+
+	.mundo2-character .character-mouth.shifted-mouth {
+		left: 52%;
+		top: 26%;
+	}
+}
+
+@media (max-width: 900px) {
+	.page-mundo2 {
+		--mundo2-menu-left: 35vw;
+	}
+
+	.page-mundo2 .mundo2-letter {
+		font-size: 1.785rem;
+	}
+}
+
+@media (min-width: 901px) {
+	.page-mundo2 .mundo2-letter {
+		font-size: clamp(3.06rem, 8.84vmin, 5.78rem);
+	}
+}
+
+@keyframes mundo2-character-float {
+	0%,
+	100% {
+		transform: translateY(0);
+	}
+	50% {
+		transform: translateY(-10px);
+	}
+}

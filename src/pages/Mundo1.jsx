@@ -8,7 +8,7 @@ import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
 import { useTeleport } from "../hooks/useTeleport";
-import { CHARACTERS, MOUTH_IMAGES, img, sound } from "../lib/assets";
+import { img, MUNDO1_CHARACTERS, MUNDO1_MOUTH_IMAGES, sound } from "../lib/assets";
 import { STORAGE_KEYS, readStorage, writeStorage } from "../lib/storage";
 import "./Mundo1.css";
 
@@ -61,10 +61,9 @@ export const MUNDO1_IMAGES = [
 	...ACTIVITY_SIGN_IMAGES.map(img),
 	...MENU_OPTIONS.map(({ image }) => img(image)),
 	...Object.values(SCOOP_IMAGES).map(img),
-	img("cabezasupernena.png"),
-	img("cabezasupernene.png"),
+	...Object.values(MUNDO1_CHARACTERS).map(({ image }) => image),
 	...MENU_OPTIONS.map(({ key }) => imagenMonstruo(key)),
-	...MOUTH_IMAGES
+	...MUNDO1_MOUTH_IMAGES
 ];
 
 const PATH_ROUTES = ["/inicio", "/mariposas", "/flores", "/peluches", "/tren", "/dibujar", "/memotest", null, null, null];
@@ -106,7 +105,7 @@ export default function Mundo1() {
 	const location = useLocation();
 	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
-	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime);
+	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime, MUNDO1_MOUTH_IMAGES);
 	const [selectedOption, setSelectedOption] = useState(() => readStorage(STORAGE_KEYS.mundo1MenuOption));
 	const [savedPerches, setSavedPerches] = useState(readSavedPerches);
 	const [menuPanelVisible, setMenuPanelVisible] = useState(true);
@@ -290,7 +289,7 @@ export default function Mundo1() {
 		const goToActivity = () => {
 			// Se anota en la entrada actual del historial, para encontrarla al volver.
 				navigate(location.pathname, { replace: true, state: { ...location.state, activityIndex: index, menuOption: selectedOption } });
-			navigate(route, { state: { menuOption: selectedOption } });
+			navigate(route, { state: { menuOption: selectedOption, world: 1 } });
 		};
 		if (!character || perchIndex === index) {
 			goToActivity();
@@ -398,7 +397,7 @@ export default function Mundo1() {
 			</button>
 			{characterOffscreen && character && (
 				<button className={`mundo1-character-locator direction-${characterDirection}`} type="button" aria-label="Ir hasta mi personaje" onClick={scrollToCharacter}>
-					<img src={img(character === "supernena" ? "cabezasupernena.png" : "cabezasupernene.png")} alt="" draggable={false} />
+					<img src={MUNDO1_CHARACTERS[character].image} alt="" draggable={false} />
 				</button>
 			)}
 
@@ -441,7 +440,7 @@ export default function Mundo1() {
 								aria-label="Reproducir presentación"
 								onClick={playIntroAudio}
 							>
-								<img src={CHARACTERS[character].image} alt={CHARACTERS[character].alt} />
+								<img src={MUNDO1_CHARACTERS[character].image} alt={MUNDO1_CHARACTERS[character].alt} />
 								{mouth.visible && <img className={mouth.shifted ? "character-mouth shifted-mouth" : "character-mouth"} src={mouth.src} alt="" />}
 							</button>
 						</div>
