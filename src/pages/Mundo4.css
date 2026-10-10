@@ -122,7 +122,7 @@
 	display: flex;
 	justify-content: center;
 	width: var(--mundo4-character-area-width);
-	transform: scale(1.2);
+	transform: scale(1.1);
 	transform-origin: center bottom;
 	filter: drop-shadow(0 5px 7px rgba(20, 54, 65, 0.38));
 }
