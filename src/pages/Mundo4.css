@@ -4,8 +4,10 @@
 }
 
 .page-mundo4 {
-	--mundo4-menu-left: 25vw;
-	--mundo4-character-width: clamp(180px, 49.5vmin, 390px);
+	--mundo4-menu-left: 30vw;
+	--mundo4-menu-art-offset: min(22vh, 178px);
+	--mundo4-character-width: 40.5vw;
+	--mundo4-character-area-width: calc(var(--mundo4-menu-left) + var(--mundo4-menu-art-offset) - 4px);
 	position: relative;
 	background: #55cfe4;
 	touch-action: pan-x;
@@ -63,12 +65,12 @@
 
 .mundo4-menu-panel {
 	position: absolute;
-	top: 50%;
-	left: var(--mundo4-menu-left);
+	top: 63%;
+	left: calc(var(--mundo4-menu-left) + var(--mundo4-menu-art-offset));
 	z-index: 4;
 	height: clamp(320px, min(96vh, 115vw), 780px);
-	aspect-ratio: 1180 / 1536;
-	transform: translateY(-50%) scale(1.1);
+	aspect-ratio: 428 / 1374;
+	transform: translateY(-50%) scale(1.045);
 }
 
 .mundo4-menu-image {
@@ -115,24 +117,59 @@
 .mundo4-character {
 	position: absolute;
 	bottom: 5%;
-	left: max(12px, calc(var(--mundo4-menu-left) - var(--mundo4-character-width) - 18px));
+	left: 2%;
 	z-index: 2;
-	width: var(--mundo4-character-width);
+	display: flex;
+	justify-content: center;
+	width: var(--mundo4-character-area-width);
+	transform: scale(1.2);
+	transform-origin: center bottom;
 	filter: drop-shadow(0 5px 7px rgba(20, 54, 65, 0.38));
 }
 
 .mundo4-character img {
 	display: block;
-	width: 100%;
+	width: var(--mundo4-character-width);
+	max-width: 100%;
 	height: auto;
 }
 
 @media (max-width: 700px) {
 	.page-mundo4 {
-		--mundo4-menu-left: 29vw;
+		--mundo4-menu-left: 30vw;
+		--mundo4-menu-art-offset: 27vw;
+		--mundo4-character-width: 34.425vw;
 	}
 
 	.mundo4-letter {
 		font-size: clamp(1.35rem, 6vmin, 2.4rem);
+	}
+}
+
+@media (max-width: 900px) and (max-height: 500px) {
+	.page-mundo4 {
+		--mundo4-menu-left: 27vw;
+		--mundo4-menu-art-offset: 22vh;
+		--mundo4-character-width: 30.6vw;
+	}
+}
+
+@media (min-width: 701px) and (max-width: 1199px) {
+	.page-mundo4 {
+		--mundo4-character-width: 34.425vw;
+	}
+
+	.mundo4-menu-panel {
+		top: 51%;
+	}
+}
+
+@media (min-width: 1200px) {
+	.page-mundo4 {
+		--mundo4-character-width: 34.425vw;
+	}
+
+	.mundo4-menu-panel {
+		top: 50%;
 	}
 }
