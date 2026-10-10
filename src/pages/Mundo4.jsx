@@ -13,7 +13,7 @@ const CHARACTER_IMAGES = {
 };
 
 export const MUNDO4_IMAGES = [
-	img("FONDOM4.png"),
+	img("FONDOM4.jpg"),
 	img("MENUM4.png"),
 	...Object.values(CHARACTER_IMAGES)
 ];
@@ -82,7 +82,7 @@ export default function Mundo4() {
 		>
 			<UserNav />
 			<main className="mundo4-scene">
-				<img className="mundo4-background" src={img("FONDOM4.png")} alt="" draggable={false} />
+				<img className="mundo4-background" src={img("FONDOM4.jpg")} alt="" draggable={false} />
 
 				{character && (
 					<div className="mundo4-character">

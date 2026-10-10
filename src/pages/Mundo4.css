@@ -4,7 +4,7 @@
 }
 
 .page-mundo4 {
-	--mundo4-menu-left: 46vw;
+	--mundo4-menu-left: 25vw;
 	--mundo4-character-width: clamp(180px, 49.5vmin, 390px);
 	position: relative;
 	background: #55cfe4;
@@ -66,9 +66,9 @@
 	top: 50%;
 	left: var(--mundo4-menu-left);
 	z-index: 4;
-	height: clamp(300px, min(92vh, 110vw), 740px);
+	height: clamp(320px, min(96vh, 115vw), 780px);
 	aspect-ratio: 1180 / 1536;
-	transform: translateY(-50%);
+	transform: translateY(-50%) scale(1.1);
 }
 
 .mundo4-menu-image {
@@ -129,7 +129,7 @@
 
 @media (max-width: 700px) {
 	.page-mundo4 {
-		--mundo4-menu-left: 50vw;
+		--mundo4-menu-left: 29vw;
 	}
 
 	.mundo4-letter {
