@@ -1,0 +1,146 @@
+.sea-life-fish-school,
+.sea-life-jellyfish-school,
+.sea-life-bubbles {
+	position: absolute;
+	inset: 0;
+	overflow: hidden;
+	pointer-events: none;
+}
+
+.sea-life-fish-school,
+.sea-life-jellyfish-school {
+	z-index: 3;
+}
+
+.sea-life-bubbles {
+	z-index: 4;
+}
+
+.sea-life-fish {
+	position: absolute;
+	top: var(--top);
+	left: var(--offset);
+	width: var(--size);
+	height: auto;
+	color: var(--fish-color);
+	filter: drop-shadow(0 2px 2px rgba(22, 97, 119, 0.18));
+	opacity: 0;
+	animation: sea-life-nadar-derecha var(--duration) linear var(--delay) infinite;
+}
+
+.sea-life-fish--izquierda {
+	animation-name: sea-life-nadar-izquierda;
+}
+
+.sea-life-fish:nth-child(1) { --top: 25%; --size: 76px; --fish-color: #f08d56; --duration: 27s; --delay: -10s; }
+.sea-life-fish:nth-child(2) { --top: 42%; --size: 62px; --fish-color: #238da6; --duration: 31s; --delay: -19s; }
+.sea-life-fish:nth-child(3) { --top: 34%; --size: 88px; --fish-color: #e8a936; --duration: 35s; --delay: -25s; }
+.sea-life-fish:nth-child(4) { --top: 51%; --size: 68px; --fish-color: #388fa3; --duration: 29s; --delay: -7s; }
+.sea-life-fish:nth-child(5) { --top: 29%; --size: 56px; --fish-color: #ef8055; --duration: 33s; --delay: -21s; }
+.sea-life-fish:nth-child(6) { --top: 38%; --size: 72px; --fish-color: #388fa3; --duration: 34s; --delay: -13s; }
+.sea-life-fish:nth-child(7) { --top: 47%; --size: 64px; --fish-color: #e8a936; --duration: 30s; --delay: -20s; }
+.sea-life-fish:nth-child(8) { --top: 26%; --size: 80px; --fish-color: #238da6; --duration: 36s; --delay: -17s; }
+.sea-life-fish:nth-child(9) { --top: 45%; --size: 70px; --fish-color: #f08d56; --duration: 32s; --delay: -24s; }
+.sea-life-fish:nth-child(10) { --top: 31%; --size: 61px; --fish-color: #388fa3; --duration: 33s; --delay: -19s; }
+
+.sea-life-jellyfish {
+	position: absolute;
+	bottom: calc(4% + var(--start));
+	left: var(--x);
+	width: var(--size);
+	height: auto;
+	color: var(--color);
+	filter: drop-shadow(0 3px 5px rgba(33, 113, 142, 0.12));
+	opacity: 0;
+	animation: sea-life-jellyfish-rise var(--duration) ease-in-out var(--delay) infinite;
+}
+
+.sea-life-jellyfish:nth-child(1) { --size: 58px; --color: #73bac5; --start: 0vh; --near-drift: 20px; --far-drift: 54px; --duration: 17s; --delay: -4s; }
+.sea-life-jellyfish:nth-child(2) { --size: 72px; --color: #e89fa5; --start: 9vh; --near-drift: -24px; --far-drift: -62px; --duration: 21s; --delay: -11s; }
+.sea-life-jellyfish:nth-child(3) { --size: 64px; --color: #e9bf72; --start: 3vh; --near-drift: 18px; --far-drift: 48px; --duration: 19s; --delay: -7s; }
+.sea-life-jellyfish:nth-child(4) { --size: 78px; --color: #7ba8ca; --start: 12vh; --near-drift: -22px; --far-drift: -58px; --duration: 23s; --delay: -14s; }
+.sea-life-jellyfish:nth-child(5) { --size: 62px; --color: #dc9fc4; --start: 5vh; --near-drift: 26px; --far-drift: 66px; --duration: 18s; --delay: -9s; }
+.sea-life-jellyfish:nth-child(6) { --size: 58px; --color: #73bac5; --start: 0vh; --near-drift: -20px; --far-drift: -54px; --duration: 20s; --delay: -12s; }
+.sea-life-jellyfish:nth-child(7) { --size: 72px; --color: #e89fa5; --start: 9vh; --near-drift: 24px; --far-drift: 62px; --duration: 19s; --delay: -8s; }
+.sea-life-jellyfish:nth-child(8) { --size: 64px; --color: #e9bf72; --start: 3vh; --near-drift: -18px; --far-drift: -48px; --duration: 22s; --delay: -16s; }
+.sea-life-jellyfish:nth-child(9) { --size: 78px; --color: #7ba8ca; --start: 12vh; --near-drift: 22px; --far-drift: 58px; --duration: 21s; --delay: -10s; }
+.sea-life-jellyfish:nth-child(10) { --size: 62px; --color: #dc9fc4; --start: 5vh; --near-drift: -26px; --far-drift: -66px; --duration: 18s; --delay: -13s; }
+
+.sea-life-bubble {
+	position: absolute;
+	bottom: calc(15% + var(--start));
+	left: var(--x);
+	width: var(--size);
+	height: var(--size);
+	border: 1px solid rgba(255, 255, 255, 0.58);
+	border-radius: 50%;
+	background: radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.08) 66%);
+	box-shadow: inset -2px -2px 4px rgba(37, 155, 179, 0.14), 0 0 8px rgba(255, 255, 255, 0.12);
+	opacity: 0;
+	animation: sea-life-bubble-rise var(--duration) linear var(--delay) infinite;
+}
+
+.sea-life-bubble:nth-child(1) { --x: 8%; --size: 16px; --start: 0%; --duration: 9s; --delay: 0s; --drift: 22px; }
+.sea-life-bubble:nth-child(2) { --x: 17%; --size: 10px; --start: 10%; --duration: 12s; --delay: 2s; --drift: -18px; }
+.sea-life-bubble:nth-child(3) { --x: 27%; --size: 22px; --start: 3%; --duration: 11s; --delay: 4s; --drift: 24px; }
+.sea-life-bubble:nth-child(4) { --x: 38%; --size: 12px; --start: 15%; --duration: 10s; --delay: 1s; --drift: -20px; }
+.sea-life-bubble:nth-child(5) { --x: 48%; --size: 18px; --start: 6%; --duration: 13s; --delay: 5s; --drift: 16px; }
+.sea-life-bubble:nth-child(6) { --x: 58%; --size: 11px; --start: 18%; --duration: 9s; --delay: 3s; --drift: -24px; }
+.sea-life-bubble:nth-child(7) { --x: 68%; --size: 24px; --start: 1%; --duration: 12s; --delay: 6s; --drift: 18px; }
+.sea-life-bubble:nth-child(8) { --x: 77%; --size: 14px; --start: 12%; --duration: 10s; --delay: 2.5s; --drift: -16px; }
+.sea-life-bubble:nth-child(9) { --x: 86%; --size: 20px; --start: 5%; --duration: 14s; --delay: 4.5s; --drift: 22px; }
+.sea-life-bubble:nth-child(10) { --x: 94%; --size: 12px; --start: 16%; --duration: 11s; --delay: 1.5s; --drift: -20px; }
+.sea-life-bubble:nth-child(11) { --x: 33%; --size: 9px; --start: 20%; --duration: 13s; --delay: 7s; --drift: 20px; }
+.sea-life-bubble:nth-child(12) { --x: 73%; --size: 15px; --start: 8%; --duration: 10s; --delay: 3.5s; --drift: -22px; }
+.sea-life-bubble:nth-child(13) { --x: 5%; --size: 38px; --start: 9%; --duration: 15s; --delay: 2s; --drift: 28px; }
+.sea-life-bubble:nth-child(14) { --x: 21%; --size: 32px; --start: 2%; --duration: 13s; --delay: 5s; --drift: -24px; }
+.sea-life-bubble:nth-child(15) { --x: 39%; --size: 46px; --start: 14%; --duration: 17s; --delay: 1s; --drift: 20px; }
+.sea-life-bubble:nth-child(16) { --x: 61%; --size: 34px; --start: 7%; --duration: 14s; --delay: 6s; --drift: -26px; }
+.sea-life-bubble:nth-child(17) { --x: 79%; --size: 50px; --start: 11%; --duration: 18s; --delay: 3s; --drift: 24px; }
+.sea-life-bubble:nth-child(18) { --x: 96%; --size: 36px; --start: 4%; --duration: 15s; --delay: 7s; --drift: -20px; }
+
+@keyframes sea-life-jellyfish-rise {
+	0% { opacity: 0; transform: translate3d(0, 0, 0) scale(0.72); }
+	10% { opacity: 0.58; }
+	25% { opacity: 0.52; transform: translate3d(var(--near-drift), -18vh, 0) scale(0.92); }
+	50% { opacity: 0.46; transform: translate3d(var(--far-drift), -42vh, 0) scale(1); }
+	75% { opacity: 0.46; transform: translate3d(var(--near-drift), -64vh, 0) scale(0.92); }
+	88% { opacity: 0; transform: translate3d(var(--far-drift), -78vh, 0) scale(0.84); }
+	100% { opacity: 0; transform: translate3d(var(--far-drift), -86vh, 0) scale(0.78); }
+}
+
+@keyframes sea-life-nadar-derecha {
+	0% { opacity: 0; transform: translate3d(-18vw, 0, 0) scaleX(-1); }
+	8% { opacity: 0.9; }
+	25% { transform: translate3d(18vw, -6px, 0) scaleX(-1); }
+	50% { transform: translate3d(48vw, 5px, 0) scaleX(-1); }
+	75% { transform: translate3d(82vw, -4px, 0) scaleX(-1); }
+	92% { opacity: 0.9; }
+	100% { opacity: 0; transform: translate3d(118vw, 0, 0) scaleX(-1); }
+}
+
+@keyframes sea-life-nadar-izquierda {
+	0% { opacity: 0; transform: translate3d(calc(100vw + 20px), 0, 0); }
+	8% { opacity: 0.9; }
+	25% { transform: translate3d(82vw, 6px, 0); }
+	50% { transform: translate3d(48vw, -5px, 0); }
+	75% { transform: translate3d(18vw, 4px, 0); }
+	92% { opacity: 0.9; }
+	100% { opacity: 0; transform: translate3d(-18vw, 0, 0); }
+}
+
+@keyframes sea-life-bubble-rise {
+	0% { opacity: 0; transform: translate3d(0, 0, 0) scale(0.72); }
+	12% { opacity: 0.78; }
+	78% { opacity: 0.58; }
+	100% { opacity: 0; transform: translate3d(var(--drift), -82vh, 0) scale(1.12); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.sea-life-bubble,
+	.sea-life-fish,
+	.sea-life-jellyfish {
+		animation: none;
+		opacity: 0;
+	}
+}

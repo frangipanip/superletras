@@ -83,36 +83,56 @@
 
 .mundo4-letter {
 	position: absolute;
-	left: 47%;
+	left: 50%;
 	z-index: 1;
+	display: block;
+	width: 49%;
+	height: 10%;
 	padding: 0;
 	border: 0;
+	border-radius: 50%;
 	background: transparent;
-	color: #38263f;
-	font-family: "Comic Sans MS", "Comic Sans", cursive;
-	font-size: clamp(1.5rem, 5vmin, 3.2rem);
+	color: transparent;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: clamp(1.2rem, 4vmin, 2.5rem);
 	font-weight: 700;
 	line-height: 1;
-	text-shadow: 0 1px 2px rgba(255, 255, 255, 0.95);
+	text-shadow: none;
 	transform: translate(-50%, -50%);
 	cursor: pointer;
+	transition: color 180ms ease, text-shadow 180ms ease, filter 180ms ease;
 }
 
 .mundo4-letter:hover,
-.mundo4-letter:focus-visible {
-	filter: brightness(1.2) drop-shadow(0 0 5px rgba(255, 255, 255, 0.95));
+.mundo4-letter:focus-visible,
+.mundo4-letter.selected {
+	color: #ffffff;
+	text-shadow: 0 0 2px #ffffff, 0 0 7px #ffffff, 0 0 14px #8cf6ff, 0 0 24px #48deff;
 }
 
 .mundo4-letter.selected {
-	color: #c62861;
-	text-shadow: 0 1px 2px #fff, 0 0 8px rgba(255, 255, 255, 0.9);
+	animation: mundo4-letter-pulse 800ms ease-in-out infinite alternate;
 }
 
-.mundo4-letter-1 { top: 19.2%; }
-.mundo4-letter-2 { top: 33.5%; }
-.mundo4-letter-3 { top: 48.3%; }
-.mundo4-letter-4 { top: 63.2%; }
-.mundo4-letter-5 { top: 78.6%; }
+.mundo4-letter:active {
+	color: #ffffff;
+	text-shadow: 0 0 4px #ffffff, 0 0 12px #ffffff, 0 0 24px #54eaff;
+}
+
+.mundo4-letter-1 { top: 20.3%; }
+.mundo4-letter-2 { top: 38%; }
+.mundo4-letter-3 { top: 53%; }
+.mundo4-letter-4 { top: 70%; }
+.mundo4-letter-5 { top: 86%; }
+
+@keyframes mundo4-letter-pulse {
+	from {
+		filter: brightness(1);
+	}
+	to {
+		filter: brightness(1.65);
+	}
+}
 
 .mundo4-character {
 	position: absolute;
@@ -141,9 +161,6 @@
 		--mundo4-character-width: 34.425vw;
 	}
 
-	.mundo4-letter {
-		font-size: clamp(1.35rem, 6vmin, 2.4rem);
-	}
 }
 
 @media (max-width: 900px) and (max-height: 500px) {

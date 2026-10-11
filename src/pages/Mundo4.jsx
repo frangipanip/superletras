@@ -4,6 +4,7 @@ import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { img } from "../lib/assets";
 import { STORAGE_KEYS, readStorage, writeStorage } from "../lib/storage";
+import SeaLifeEffects from "../components/SeaLifeEffects";
 import "./Mundo4.css";
 
 const LETTERS = ["C", "CE", "Q", "Z", "CH"];
@@ -83,6 +84,7 @@ export default function Mundo4() {
 			<UserNav />
 			<main className="mundo4-scene">
 				<img className="mundo4-background" src={img("FONDOM4.jpg")} alt="" draggable={false} />
+				<SeaLifeEffects variant="mundo4" />
 
 				{character && (
 					<div className="mundo4-character">
@@ -101,7 +103,7 @@ export default function Mundo4() {
 							aria-pressed={selectedLetter === letter}
 							onClick={() => selectLetter(letter)}
 						>
-							{letter}
+							<span aria-hidden="true">{letter}</span>
 						</button>
 					))}
 				</aside>

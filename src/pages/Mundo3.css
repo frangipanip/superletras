@@ -61,6 +61,49 @@
 	height: 100%;
 }
 
+.mundo3-clouds {
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	overflow: hidden;
+	pointer-events: none;
+}
+
+.mundo3-cloud {
+	position: absolute;
+	left: var(--left);
+	top: var(--top);
+	width: var(--width);
+	height: auto;
+	opacity: 0;
+	filter: drop-shadow(0 3px 5px rgba(25, 112, 150, 0.12));
+	will-change: transform, opacity;
+}
+
+.mundo3-cloud--right {
+	animation: mundo3-cloud-drift-right var(--duration) ease-in-out var(--delay) infinite;
+}
+
+.mundo3-cloud--left {
+	animation: mundo3-cloud-drift-left var(--duration) ease-in-out var(--delay) infinite;
+}
+
+@keyframes mundo3-cloud-drift-right {
+	0% { opacity: 0; transform: translate3d(-12vw, 0, 0); }
+	10% { opacity: 0.88; }
+	50% { transform: translate3d(var(--drift-mid), -8px, 0); }
+	90% { opacity: 0.82; }
+	100% { opacity: 0; transform: translate3d(var(--drift-end), 4px, 0); }
+}
+
+@keyframes mundo3-cloud-drift-left {
+	0% { opacity: 0; transform: translate3d(12vw, 0, 0); }
+	10% { opacity: 0.88; }
+	50% { transform: translate3d(var(--drift-mid), 8px, 0); }
+	90% { opacity: 0.82; }
+	100% { opacity: 0; transform: translate3d(var(--drift-end), -4px, 0); }
+}
+
 .mundo3-menu-panel {
 	position: absolute;
 	top: 50%;
@@ -134,5 +177,12 @@
 
 	.mundo3-letter {
 		font-size: clamp(1.35rem, 6vmin, 2.4rem);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.mundo3-cloud {
+		animation: none;
+		opacity: 0.8;
 	}
 }

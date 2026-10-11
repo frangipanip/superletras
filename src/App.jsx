@@ -15,6 +15,7 @@ import Dibujar from "./pages/Dibujar";
 import Memotest from "./pages/Memotest";
 import Monstruo from "./pages/Monstruo";
 import PlaceholderActivity from "./pages/PlaceholderActivity";
+import Prueba from "./pages/Prueba";
 
 // Las URLs viejas (*.html) redirigen a las rutas nuevas para no romper accesos guardados.
 const LEGACY_REDIRECTS = {
@@ -47,6 +48,7 @@ export default function App() {
 			<Route path="/dibujar" element={<Dibujar />} />
 			<Route path="/memotest" element={<Memotest />} />
 			<Route path="/monstruo" element={<Monstruo />} />
+			<Route path="/prueba" element={<Prueba />} />
 			<Route path="/globos" element={<PlaceholderActivity key="globos" title="Globos" />} />
 			<Route path="/iniciales" element={<Navigate to="/peluches" replace />} />
 			<Route path="/peluches" element={<Peluche />} />
