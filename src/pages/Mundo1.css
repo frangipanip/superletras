@@ -201,7 +201,8 @@
 	/* El ancho de la escena lo da la imagen de fondo a toda la altura. */
 	.mundo1-scene {
 		position: relative;
-		display: inline-block;
+		display: inline-flex;
+		align-items: flex-start;
 		vertical-align: top;
 		min-width: 100vw;
 		height: 100%;
@@ -209,8 +210,23 @@
 		-webkit-user-select: none;
 	}
 
+	.mundo1-base {
+		position: relative;
+		display: inline-block;
+		flex: none;
+		height: 100%;
+	}
+
 	.mundo1-background {
 		display: block;
+		width: auto;
+		max-width: none;
+		height: 100%;
+	}
+
+	.mundo1-background-extension {
+		display: block;
+		flex: none;
 		width: auto;
 		max-width: none;
 		height: 100%;

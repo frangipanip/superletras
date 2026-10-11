@@ -54,6 +54,7 @@ const ACTIVITY_SIGN_IMAGES = [
 // Todo lo que muestra la pantalla al entrar; Mundos lo precarga para que no aparezca de a partes.
 export const MUNDO1_IMAGES = [
 	img("FONDOM1.jpg"),
+	img("FONDOM1bis.jpg"),
 	img("MENUM1.png"),
 	img("nube.png"),
 	img("boton.svg"),
@@ -162,9 +163,11 @@ export default function Mundo1() {
 	function scrollToPerch() {
 		const page = pageRef.current;
 		if (!page) return;
-		if (perchIndex !== null) {
-			const sceneWidth = page.scrollWidth;
-			page.scrollLeft = (sceneWidth * PATH_BUTTONS[perchIndex].left) / 100 - page.clientWidth / 2;
+		const characterSpot = characterSpotRef.current;
+		if (perchIndex !== null && characterSpot) {
+			const pageBounds = page.getBoundingClientRect();
+			const characterBounds = characterSpot.getBoundingClientRect();
+			page.scrollLeft += characterBounds.left + characterBounds.width / 2 - (pageBounds.left + pageBounds.width / 2);
 		}
 		updateCharacterVisibility();
 	}
@@ -404,68 +407,71 @@ export default function Mundo1() {
 			)}
 
 			<div className="mundo1-scene">
-				<img className="mundo1-background" src={img("FONDOM1.jpg")} alt="" draggable={false} onLoad={scrollToPerch} />
-				{PATH_BUTTONS.map(({ left, top }, index) => (
-					<div
-						className={`${selectedOption && !isActivityAvailable(index) ? "path-activity path-activity-unavailable" : "path-activity"}${availableActivities && index >= 7 ? " path-activity-hidden" : ""}${index === characterIndex ? " path-activity-current" : ""}`}
-						key={`${left}-${top}`}
-						style={{ left: `${left}%`, top: `${top}%` }}
-					>
-						{index === characterIndex && <span className="path-activity-glow" aria-hidden="true" />}
-						<img
-							className="path-activity-sign"
-							src={img(ACTIVITY_SIGN_IMAGES[index] || "GLOBOSbtn.png")}
-							alt=""
-							draggable={false}
-						/>
-						<button
-							className={isActivityAvailable(index) ? `path-button path-button-${selectedOption}` : "path-button path-button-disabled"}
-							type="button"
-							disabled={!isActivityAvailable(index)}
-							aria-label={`Actividad del camino ${index + 1}`}
-							onClick={() => openPathActivity(index)}
+				<div className="mundo1-base">
+					<img className="mundo1-background" src={img("FONDOM1.jpg")} alt="" draggable={false} onLoad={scrollToPerch} />
+					{PATH_BUTTONS.map(({ left, top }, index) => (
+						<div
+							className={`${selectedOption && !isActivityAvailable(index) ? "path-activity path-activity-unavailable" : "path-activity"}${availableActivities && index >= 7 ? " path-activity-hidden" : ""}${index === characterIndex ? " path-activity-current" : ""}`}
+							key={`${left}-${top}`}
+							style={{ left: `${left}%`, top: `${top}%` }}
 						>
-							<img src={img("boton.svg")} alt="" draggable={false} />
-						</button>
-					</div>
-				))}
-				{character && (
-					<div
-						ref={characterSpotRef}
-						className={characterIndex === null ? "mundo1-character-spot" : "mundo1-character-spot perched"}
-						style={characterIndex === null ? undefined : getPerchStyle(characterIndex)}
-					>
-						<div className={teleport ? PUF_CHARACTER_CLASS[teleport.stage] : undefined}>
+							{index === characterIndex && <span className="path-activity-glow" aria-hidden="true" />}
+							<img
+								className="path-activity-sign"
+								src={img(ACTIVITY_SIGN_IMAGES[index] || "GLOBOSbtn.png")}
+								alt=""
+								draggable={false}
+							/>
 							<button
-								className="mundo1-character"
+								className={isActivityAvailable(index) ? `path-button path-button-${selectedOption}` : "path-button path-button-disabled"}
 								type="button"
-								aria-label="Reproducir presentación"
-								onClick={playIntroAudio}
+								disabled={!isActivityAvailable(index)}
+								aria-label={`Actividad del camino ${index + 1}`}
+								onClick={() => openPathActivity(index)}
 							>
-								<img src={MUNDO1_CHARACTERS[character].image} alt={MUNDO1_CHARACTERS[character].alt} />
-								{mouth.visible && <img className={mouth.shifted ? "character-mouth shifted-mouth" : "character-mouth"} src={mouth.src} alt="" />}
+								<img src={img("boton.svg")} alt="" draggable={false} />
 							</button>
 						</div>
-						{teleport && <PufCrema mode={teleport.stage} className="mundo1-puf" />}
-					</div>
-				)}
-
-				<aside ref={menuPanelRef} className="menu-panel" aria-label="Menú del mundo 1">
-					<img src={img("MENUM1.png")} alt="" />
-					{MENU_OPTIONS.map(({ key, image }) => (
-						<button
-							key={key}
-							className={selectedOption === key ? "menu-option selected" : "menu-option"}
-							type="button"
-							data-option={key}
-							aria-label={key.toUpperCase()}
-							aria-pressed={selectedOption === key}
-							onClick={() => selectMenuOption(key)}
-						>
-							<img src={img(image)} alt={key.toUpperCase()} />
-						</button>
 					))}
-				</aside>
+					{character && (
+						<div
+							ref={characterSpotRef}
+							className={characterIndex === null ? "mundo1-character-spot" : "mundo1-character-spot perched"}
+							style={characterIndex === null ? undefined : getPerchStyle(characterIndex)}
+						>
+							<div className={teleport ? PUF_CHARACTER_CLASS[teleport.stage] : undefined}>
+								<button
+									className="mundo1-character"
+									type="button"
+									aria-label="Reproducir presentación"
+									onClick={playIntroAudio}
+								>
+									<img src={MUNDO1_CHARACTERS[character].image} alt={MUNDO1_CHARACTERS[character].alt} />
+									{mouth.visible && <img className={mouth.shifted ? "character-mouth shifted-mouth" : "character-mouth"} src={mouth.src} alt="" />}
+								</button>
+							</div>
+							{teleport && <PufCrema mode={teleport.stage} className="mundo1-puf" />}
+						</div>
+					)}
+
+					<aside ref={menuPanelRef} className="menu-panel" aria-label="Menú del mundo 1">
+						<img src={img("MENUM1.png")} alt="" />
+						{MENU_OPTIONS.map(({ key, image }) => (
+							<button
+								key={key}
+								className={selectedOption === key ? "menu-option selected" : "menu-option"}
+								type="button"
+								data-option={key}
+								aria-label={key.toUpperCase()}
+								aria-pressed={selectedOption === key}
+								onClick={() => selectMenuOption(key)}
+							>
+								<img src={img(image)} alt={key.toUpperCase()} />
+							</button>
+						))}
+					</aside>
+				</div>
+				<img className="mundo1-background-extension" src={img("FONDOM1bis.jpg")} alt="" draggable={false} />
 			</div>
 		</div>
 	);
