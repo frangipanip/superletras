@@ -152,7 +152,7 @@
 .inicio-activity-character {
 	position: absolute;
 	top: 45%;
-	left: 5%;
+	left: 0%;
 	z-index: 1;
 	width: clamp(8rem, 22vw, 18rem);
 	padding: 0;
@@ -168,6 +168,16 @@
 		bottom: 2%;
 		left: 2%;
 		width: clamp(5rem, 36vmin, 11rem);
+	}
+}
+
+.page-inicio-actividad.world-insectos .inicio-activity-character {
+	width: clamp(10rem, 27.5vw, 22.5rem);
+}
+
+@media (max-width: 768px), (max-height: 560px) {
+	.page-inicio-actividad.world-insectos .inicio-activity-character {
+		width: clamp(6.25rem, 45vmin, 13.75rem);
 	}
 }
 
@@ -196,6 +206,41 @@
 	top: 0;
 	left: 0;
 	width: 100%;
+	transform: none;
+}
+
+.inicio-activity-character.mundo2-flying-character {
+	animation: inicio-personaje-mariposa-volar 2.8s ease-in-out infinite;
+}
+
+.inicio-activity-character .inicio-mundo2-character-frame {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	opacity: 0;
+	animation-duration: 1s;
+	animation-iteration-count: infinite;
+	animation-timing-function: steps(1, end);
+}
+
+.inicio-activity-character .inicio-mundo2-character-frame-1 {
+	position: relative;
+	animation-name: inicio-mundo2-character-frame-1;
+}
+
+.inicio-activity-character .inicio-mundo2-character-frame-2 { animation-name: inicio-mundo2-character-frame-2; }
+.inicio-activity-character .inicio-mundo2-character-frame-3 { animation-name: inicio-mundo2-character-frame-3; }
+.inicio-activity-character .inicio-mundo2-character-frame-4 { animation-name: inicio-mundo2-character-frame-4; }
+
+.inicio-activity-character .inicio-activity-mouth.mundo2-mouth-frame {
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	filter: none;
 	transform: none;
 }
 
@@ -435,4 +480,136 @@
 }
 .inicio-vowel-button.flying:nth-child(5) {
 	animation: balloon-fly-5 17s linear infinite;
+}
+
+@keyframes inicio-personaje-mariposa-volar {
+	0%, 100% { transform: translateY(0); }
+	50% { transform: translateY(-10px); }
+}
+
+@keyframes inicio-mundo2-character-frame-1 {
+	0%, 24.99% { opacity: 1; }
+	25%, 100% { opacity: 0; }
+}
+
+@keyframes inicio-mundo2-character-frame-2 {
+	0%, 24.99% { opacity: 0; }
+	25%, 49.99% { opacity: 1; }
+	50%, 100% { opacity: 0; }
+}
+
+@keyframes inicio-mundo2-character-frame-3 {
+	0%, 49.99% { opacity: 0; }
+	50%, 74.99% { opacity: 1; }
+	75%, 100% { opacity: 0; }
+}
+
+@keyframes inicio-mundo2-character-frame-4 {
+	0%, 74.99% { opacity: 0; }
+	75%, 99.99% { opacity: 1; }
+	100% { opacity: 0; }
+}
+
+.page-inicio-actividad.world-insectos .inicio-vowel-button {
+	width: clamp(8.125rem, 13.75vw, 13.75rem);
+	height: clamp(8.125rem, 13.75vw, 13.75rem);
+	font-size: clamp(1.25rem, 3vw, 2.5rem);
+	text-shadow: 0 2px 3px rgba(55, 37, 12, 0.75), 0 0 8px rgba(255, 255, 255, 0.8);
+	filter: none;
+}
+
+.page-inicio-actividad.world-insectos .inicio-vowel-button::before {
+	display: none;
+}
+
+.inicio-insect-frame {
+	position: absolute;
+	inset: 0;
+	z-index: 0;
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	opacity: 0;
+	pointer-events: none;
+	animation: mariquita-wingbeat-1 960ms steps(1, end) infinite;
+}
+
+.inicio-insect-frame-2 { animation-name: mariquita-wingbeat-2; }
+.inicio-insect-frame-3 { animation-name: mariquita-wingbeat-3; }
+
+.page-inicio-actividad.world-insectos .inicio-vowel-button > span {
+	position: relative;
+	z-index: 1;
+	transform: translateY(95%);
+	font-size: inherit;
+	color: #694335;
+	text-shadow: none;
+}
+
+.page-inicio-actividad.world-insectos .inicio-vowel-button.selected::before {
+	display: none;
+}
+
+.page-inicio-actividad.world-insectos .inicio-vowel-button.selected {
+	animation: mariquita-seleccionada 420ms ease-in forwards;
+}
+
+.page-inicio-actividad.world-insectos .inicio-vowel-button.selected .inicio-insect-frame {
+	animation-play-state: paused;
+}
+
+@keyframes mariquita-wingbeat-1 {
+	0%, 24.99% { opacity: 1; }
+	25%, 100% { opacity: 0; }
+}
+
+@keyframes mariquita-wingbeat-2 {
+	0%, 24.99% { opacity: 0; }
+	25%, 49.99% { opacity: 1; }
+	50%, 74.99% { opacity: 0; }
+	75%, 99.99% { opacity: 1; }
+	100% { opacity: 0; }
+}
+
+@keyframes mariquita-wingbeat-3 {
+	0%, 49.99% { opacity: 0; }
+	50%, 74.99% { opacity: 1; }
+	75%, 100% { opacity: 0; }
+}
+
+@keyframes mariquita-seleccionada {
+	0% { opacity: 1; transform: translateY(0) scale(1); }
+	45% { opacity: 1; transform: translateY(-12px) scale(1.08); }
+	100% { opacity: 0; transform: translateY(-42px) scale(0.7); }
+}
+
+
+@media (min-width: 769px) and (min-height: 561px) and (max-width: 1280px) {
+	.page-inicio-actividad.world-insectos .inicio-vowel-button {
+		width: clamp(10rem, 15.5vw, 15rem);
+		height: clamp(10rem, 15.5vw, 15rem);
+	}
+}
+
+@media (max-width: 768px) {
+	.page-inicio-actividad.world-insectos .inicio-vowel-button {
+		width: clamp(5.77rem, 29.4vw, 7.87rem);
+		height: clamp(5.77rem, 29.4vw, 7.87rem);
+		font-size: clamp(1rem, 4.5vw, 1.5rem);
+	}
+}
+
+@media (max-height: 560px) {
+	.page-inicio-actividad.world-insectos .inicio-vowel-button {
+		width: clamp(5.75rem, 32.2vw, 8.62rem);
+		height: clamp(5.75rem, 32.2vw, 8.62rem);
+		font-size: clamp(1.15rem, 5.75vmin, 1.725rem);
+	}
+}
+
+@media (max-width: 768px), (max-height: 560px) {
+	.page-inicio-actividad.world-insectos .inicio-vowel-button > span {
+		transform: translateY(130%);
+	}
 }

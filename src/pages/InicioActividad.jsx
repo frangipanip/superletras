@@ -7,7 +7,7 @@ import { usePageTitle } from "../hooks/usePageTitle";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
-import { CHARACTERS, img, MUNDO1_CHARACTERS, sound } from "../lib/assets";
+import { CHARACTERS, img, MUNDO1_CHARACTERS, MUNDO2_CHARACTER_FRAMES, MUNDO2_CHARACTERS, MUNDO2_MOUTH_IMAGES, sound } from "../lib/assets";
 import { shuffle } from "../lib/shuffle";
 import { useActivityMenuOption } from "../hooks/useActivityMenuOption";
 import "./actividad.css";
@@ -18,6 +18,11 @@ const L_SYLLABLES = ["LA", "LE", "LI", "LO", "LU"];
 const M_SYLLABLES = ["MA", "ME", "MI", "MO", "MU"];
 const S_SYLLABLES = ["SA", "SE", "SI", "SO", "SU"];
 const T_SYLLABLES = ["TA", "TE", "TI", "TO", "TU"];
+const P_SYLLABLES = ["PA", "PE", "PI", "PO", "PU"];
+const N_SYLLABLES = ["NA", "NE", "NI", "NO", "NU"];
+const D_SYLLABLES = ["DA", "DE", "DI", "DO", "DU"];
+const F_SYLLABLES = ["FA", "FE", "FI", "FO", "FU"];
+const H_SYLLABLES = ["HA", "HE", "HI", "HO", "HU"];
 const CONFETTI_COLORS = ["#f04f78", "#f6c945", "#55b96c", "#4d9ed8", "#9b6bd6", "#f08a36"];
 
 // Cada letra del menú de Mundo 1 trae su propia presentación: los carteles que se pulsan,
@@ -70,16 +75,57 @@ const MODES = {
 	}
 };
 
+function createMundo2Mode(letter, items) {
+	return {
+		items,
+		intro: [`Esta es la letra ${letter.toUpperCase()}.mp3`, "ConLasVocales.mp3"],
+		prompt: "Pulsasilaba.mp3",
+		longAudio: (item) => `${item.toLowerCase()}.mp3`,
+		shortAudio: (item) => `${item.toLowerCase()}.mp3`,
+		itemName: (item) => `sílaba ${item}`,
+		listName: `Sílabas con ${letter.toUpperCase()}`
+	};
+}
+
+const MUNDO2_MODES = {
+	p: createMundo2Mode("p", P_SYLLABLES),
+	n: createMundo2Mode("n", N_SYLLABLES),
+	d: createMundo2Mode("d", D_SYLLABLES),
+	f: createMundo2Mode("f", F_SYLLABLES),
+	h: createMundo2Mode("h", H_SYLLABLES)
+};
+const MUNDO2_LETTER_IMAGES = {
+	p: "letraP.png",
+	n: "letraN.png",
+	d: "letraD.png",
+	f: "letraF.png",
+	h: "letraH.png"
+};
+const MUNDO2_LETTER_LABELS = {
+	p: "Letra P",
+	n: "Letra N",
+	d: "Letra D",
+	f: "Letra F",
+	h: "Letra H"
+};
+const MUNDO2_INSECT_FRAMES = Object.fromEntries(["A", "E", "I", "O", "U"].map((vowel) => [
+	vowel,
+	[1, 2, 3].map((frame) => img(`mariquita${vowel}${frame}.png`))
+]));
+
 export default function InicioActividad() {
-	usePageTitle("Inicio - Mundo 1");
 	const location = useLocation();
+	const isMundo1 = location.state?.world === 1;
+	const isMundo2 = location.state?.world === 2;
+	usePageTitle(isMundo2 ? "Inicio - Mundo 2" : "Inicio - Mundo 1");
 	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
-	const isMundo1 = location.state?.world === 1;
-	const activityCharacters = isMundo1 ? MUNDO1_CHARACTERS : CHARACTERS;
-	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime);
+	const activityCharacters = isMundo1 ? MUNDO1_CHARACTERS : isMundo2 ? MUNDO2_CHARACTERS : CHARACTERS;
+	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime, isMundo2 ? MUNDO2_MOUTH_IMAGES : undefined);
 	const menuOption = useActivityMenuOption();
-	const [mode] = useState(() => MODES[menuOption || "a"] || MODES.a);
+	const modeOptions = isMundo2 ? MUNDO2_MODES : MODES;
+	const fallbackOption = isMundo2 ? "p" : "a";
+	const [mode] = useState(() => modeOptions[menuOption || fallbackOption] || modeOptions[fallbackOption]);
 	const [audios] = useState(() => ({
 		intro: mode.intro.map((file) => runtime.audio(sound(file), { preload: true })),
 		pressure: runtime.audio(sound("Presion.mp3"), { preload: true }),
@@ -112,7 +158,7 @@ export default function InicioActividad() {
 	const requestedItemIndex = useRef(0);
 	// Carteles equivocados tocados al pedirlos (fases 2 y 3): definen cuántas comidas se ganan.
 	const errorCount = useRef(0);
-	const [premio, otorgarPremio] = useRecompensa("inicio", MODES[menuOption] ? menuOption : "a");
+	const [premio, otorgarPremio] = useRecompensa("inicio", isMundo2 ? null : MODES[menuOption] ? menuOption : "a");
 	const LETTER_IMAGES = {
 		a: "letraA.png",
 		l: "letraL.png",
@@ -127,7 +173,9 @@ export default function InicioActividad() {
 		s: "Letra S",
 		t: "Letra T"
 	};
-	const bigLetterImage = img(LETTER_IMAGES[menuOption] || "letraA.png");
+	const letterImages = isMundo2 ? MUNDO2_LETTER_IMAGES : LETTER_IMAGES;
+	const letterLabels = isMundo2 ? MUNDO2_LETTER_LABELS : LETTER_LABELS;
+	const bigLetterImage = img(letterImages[menuOption] || letterImages[fallbackOption]);
 
 	function allItemAudios() {
 		return [...Object.values(audios.itemsLong), ...Object.values(audios.itemsShort)];
@@ -228,7 +276,7 @@ export default function InicioActividad() {
 				setActiveItem(null);
 				setShowConfetti(true);
 				// La actividad se completa al terminar la fase 3 (carteles en movimiento).
-				if (isPhaseThree) {
+				if (isPhaseThree && !isMundo2) {
 					otorgarPremio(errorCount.current);
 				}
 				audios.celebration.onended = () => {
@@ -262,7 +310,7 @@ export default function InicioActividad() {
 		playItem(item);
 	}
 
-	function revealBalloon(item) {
+	function revealItem(item) {
 		setVisibleItems((current) => {
 			if (current.has(item)) return current;
 			const next = new Set(current);
@@ -395,7 +443,7 @@ export default function InicioActividad() {
 	}, [selectedItems, activeItem]);
 
 	useEffect(() => {
-		if (!MODES[menuOption]) {
+		if (!modeOptions[menuOption]) {
 			return undefined;
 		}
 		introductionActive.current = true;
@@ -438,7 +486,7 @@ export default function InicioActividad() {
 			}
 			// Revelar el globo justo antes de reproducir su audio
 			if (step.item) {
-				revealBalloon(step.item);
+				revealItem(step.item);
 			}
 			setActiveItem(step.item);
 			startTalking();
@@ -496,10 +544,10 @@ export default function InicioActividad() {
 			setActiveItem(null);
 			stopTalking();
 		};
-	}, [audios, menuOption]);
+	}, [audios, menuOption, modeOptions]);
 
 	return (
-		<div className="page activity-page page-inicio-actividad" onClick={skipIntroduction}>
+		<div className={`page activity-page page-inicio-actividad${isMundo2 ? " world-insectos" : ""}`} onClick={skipIntroduction}>
 			<BackButton />
 			<FullscreenButton toggle />
 			<div className="inicio-vowels inicio-syllables" aria-label={mode.listName}>
@@ -523,6 +571,9 @@ export default function InicioActividad() {
 									}
 								}}
 							>
+								{isMundo2 && MUNDO2_INSECT_FRAMES[item.slice(-1)].map((src, frameIndex) => (
+									<img key={src} className={`inicio-insect-frame inicio-insect-frame-${frameIndex + 1}`} src={src} alt="" draggable={false} />
+								))}
 								<span>{item}</span>
 							</div>
 						);
@@ -548,14 +599,22 @@ export default function InicioActividad() {
 					className={`inicio-activity-letter-image-wrap${showBigLetter ? " is-visible" : ""}`}
 					aria-hidden="true"
 				>
-					<img className="inicio-activity-letter-image" src={bigLetterImage} alt={LETTER_LABELS[menuOption] || "Letra A"} />
+					<img className="inicio-activity-letter-image" src={bigLetterImage} alt={letterLabels[menuOption] || letterLabels[fallbackOption]} />
 				</div>
 			<PremioComida premio={premio} />
 			{character && (
-				<button className={`inicio-activity-character${isMundo1 ? " dulce-character" : ""}`} type="button" aria-label="Repetir consigna" onClick={repeatInstruction}>
-					<img src={activityCharacters[character].image} alt={activityCharacters[character].alt} />
+				<button className={`inicio-activity-character${isMundo1 ? " dulce-character" : ""}${isMundo2 ? " mundo2-flying-character" : ""}`} type="button" aria-label="Repetir consigna" onClick={repeatInstruction}>
+					{isMundo2 ? MUNDO2_CHARACTER_FRAMES[character].map((src, index) => (
+						<img
+							key={`${src}-${index}`}
+							className={`inicio-mundo2-character-frame inicio-mundo2-character-frame-${index + 1}`}
+							src={src}
+							alt=""
+							aria-hidden="true"
+						/>
+					)) : <img src={activityCharacters[character].image} alt={activityCharacters[character].alt} />}
 					<img
-						className={!isMundo1 && mouth.shifted ? "inicio-activity-mouth shifted-mouth" : "inicio-activity-mouth"}
+						className={`inicio-activity-mouth${isMundo2 ? " mundo2-mouth-frame" : !isMundo1 && mouth.shifted ? " shifted-mouth" : ""}`}
 						src={mouth.src}
 						alt=""
 						hidden={!mouth.visible}
