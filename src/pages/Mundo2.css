@@ -82,7 +82,7 @@
 		position: absolute;
 		left: 45%;
 		z-index: 1;
-		width: clamp(23.94px, 15.4%, 44.8px);
+		width: clamp(18.36px, 13.2%, 38.4px);
 		padding: 0;
 		border: 0;
 		background: transparent;
@@ -124,10 +124,10 @@
 	.mundo2-letter[data-letter="h"] { --outline-color: #17547f; }
 
 	.mundo2-letter-1 { top: 24%; left: 45%; }
-	.mundo2-letter-2 { top: 37%; left: 45%; }
-	.mundo2-letter-3 { top: 51%; left: 45%; }
-	.mundo2-letter-4 { top: 63%; left: 45%; }
-	.mundo2-letter-5 { top: 85%; left: 45%; }
+	.mundo2-letter-2 { top: 37.5%; left: 43%; }
+	.mundo2-letter-3 { top: 50.5%; left: 45.5%; }
+	.mundo2-letter-4 { top: 63.5%; left: 45%; }
+	.mundo2-letter-5 { top: 77%; left: 45%; }
 
 	.mundo2-path {
 		position: absolute;
