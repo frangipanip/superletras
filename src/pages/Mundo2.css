@@ -80,9 +80,9 @@
 
 	.mundo2-letter {
 		position: absolute;
-		left: 56%;
+		left: 45%;
 		z-index: 1;
-		width: clamp(36px, 22%, 64px);
+		width: clamp(23.94px, 15.4%, 44.8px);
 		padding: 0;
 		border: 0;
 		background: transparent;
@@ -123,11 +123,11 @@
 	.mundo2-letter[data-letter="f"] { --outline-color: #910b0b; }
 	.mundo2-letter[data-letter="h"] { --outline-color: #17547f; }
 
-	.mundo2-letter-1 { top: 15%; }
-	.mundo2-letter-2 { top: 33%; }
-	.mundo2-letter-3 { top: 50%; }
-	.mundo2-letter-4 { top: 68%; }
-	.mundo2-letter-5 { top: 85%; }
+	.mundo2-letter-1 { top: 24%; left: 45%; }
+	.mundo2-letter-2 { top: 37%; left: 45%; }
+	.mundo2-letter-3 { top: 51%; left: 45%; }
+	.mundo2-letter-4 { top: 63%; left: 45%; }
+	.mundo2-letter-5 { top: 85%; left: 45%; }
 
 	.mundo2-path {
 		position: absolute;
