@@ -49,8 +49,11 @@
 }
 
 .page-mundo1 {
-	--menu-left: 10%;
+	--menu-left: 13%;
 	--menu-width: clamp(168px, 36.75vmin, 367.5px);
+	@media (max-width: 480px), (max-height: 480px) {
+		--menu-width: clamp(150px, 35vmin, 165px);
+	}
 	position: relative;
 	background: #8ed7f5;
 	touch-action: pan-x;

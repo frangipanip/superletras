@@ -48,6 +48,7 @@ const MUNDO2_CHARACTER_FRAMES = {
 export const MUNDO2_IMAGES = [
 	img("FONDOM2.jpg"),
 	img("MENUM2.png"),
+	...LETTERS.map((letter) => img(`${letter}btn.png`)),
 	img("boton.svg"),
 	...ACTIVITY_SIGN_IMAGES.map(img),
 	...Object.values(MUNDO2_CHARACTERS).map(({ image }) => image),
@@ -212,7 +213,7 @@ export default function Mundo2() {
 							aria-pressed={selectedLetter === letter}
 							onClick={() => selectLetter(letter)}
 						>
-							{letter}
+							<img src={img(`${letter}btn.png`)} alt="" draggable={false} />
 						</button>
 					))}
 				</aside>
