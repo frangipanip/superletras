@@ -1,6 +1,10 @@
 .page-mariposas {
 	--butterfly-size: clamp(117px, 15vw, 183px);
-	background: url("/assets/imagenes/FONDOejerciciosM1.jpg") center / cover no-repeat;
+	background: url("/assets/imagenes/fondoositos.png") center / cover no-repeat;
+
+	&.world-mundo2 {
+		background-image: url("/assets/imagenes/fondoMariposa.png");
+	}
 
 	.butterfly-top-controls {
 		position: fixed;
@@ -26,6 +30,23 @@
 		height: 100vh;
 		height: 100dvh;
 		overflow: hidden;
+	}
+
+	.osito-jar {
+		position: fixed;
+		top: 50%;
+		right: clamp(-48px, -4vw, -20px);
+		z-index: 2;
+		width: clamp(220px, 60vmin, 500px);
+		max-height: 90vh;
+		object-fit: contain;
+		transform: translateY(-50%);
+		pointer-events: none;
+	}
+
+	&:not(.world-mundo2) .selected-character {
+		right: auto;
+		left: clamp(0.75rem, 2vw, 1.5rem);
 	}
 
 	.butterfly-field {
@@ -93,6 +114,11 @@
 		animation: fly-away 900ms ease forwards;
 	}
 
+	.butterfly-button.correct.flying-to-jar {
+		pointer-events: none;
+		animation: none;
+	}
+
 	.butterfly-button.wrong.vibration {
 		animation: butterfly-vibrate 280ms linear;
 	}
@@ -126,7 +152,11 @@
 
 		.butterfly-button {
 			width: clamp(130px, 29.25vw, 203px);
-			min-width: 126px;
+			min-width: var(--butterfly-min-size, 126px);
+		}
+
+		&:not(.world-mundo2) .butterfly-button {
+			width: clamp(91.19px, 20.515vw, 142.34px);
 		}
 
 		.butterfly-button img {
@@ -153,7 +183,7 @@
 		}
 
 		.butterfly-button {
-			min-width: 95px;
+			min-width: var(--butterfly-min-size, 95px);
 		}
 
 		.butterfly-button img {
@@ -164,6 +194,16 @@
 		.butterfly-button .badge {
 			width: clamp(21px, 3.6vw, 33px);
 			font: 800 clamp(0.84rem, 2.1vmin, 1.2rem) Arial, Helvetica, sans-serif;
+		}
+	}
+
+	@media (max-width: 768px), (max-height: 560px) {
+		&:not(.world-mundo2) .butterfly-button .badge {
+			width: clamp(26px, 7.5vmin, 32px);
+			border-width: 2px;
+			font: 800 clamp(0.8rem, 4vmin, 1rem) Arial, Helvetica, sans-serif;
+			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.32);
+			transform: translate(-50%, -50%) scale(1.1);
 		}
 	}
 }

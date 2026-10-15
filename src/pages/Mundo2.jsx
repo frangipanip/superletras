@@ -40,12 +40,13 @@ const PATH_BUTTONS = [
 	[79, 69.5],
 	[88, 80]
 ];
+const ACTIVITY_ROUTES = ["/inicio", "/mariposas"];
 
 function readSavedPerches() {
 	try {
 		const saved = JSON.parse(readStorage(STORAGE_KEYS.mundo2Perches) || "{}");
 		return Object.fromEntries(Object.entries(saved).filter(([letter, index]) =>
-			LETTERS.includes(letter) && Number.isInteger(index) && index === 0 && PATH_BUTTONS[index]
+			LETTERS.includes(letter) && Number.isInteger(index) && index <= 1 && PATH_BUTTONS[index]
 		));
 	} catch {
 		return {};
@@ -115,6 +116,7 @@ export default function Mundo2() {
 	}
 
 	function selectLetter(letter) {
+		const shouldPlayIntro = letter !== selectedLetter && perchIndex !== null && !PATH_BUTTONS[savedPerches[letter]];
 		if (letter !== selectedLetter && location.state?.activityIndex !== undefined) {
 			const { activityIndex, ...state } = location.state;
 			navigate(location.pathname, { replace: true, state });
@@ -122,6 +124,10 @@ export default function Mundo2() {
 		setCompactMenuOpen(false);
 		setSelectedLetter(letter);
 		writeStorage(STORAGE_KEYS.mundo2MenuOption, letter);
+		if (shouldPlayIntro) {
+			playIntroAudio();
+			return;
+		}
 		introAudio.onended = null;
 		introAudio.pause();
 		introAudio.currentTime = 0;
@@ -136,18 +142,20 @@ export default function Mundo2() {
 		audio.play().catch(stopTalking);
 	}
 
-	function openStartActivity() {
+	function openPathActivity(index) {
 		if (teleport) return;
+		const route = ACTIVITY_ROUTES[index];
+		if (!route) return;
 		const letter = selectedLetter || LETTERS[0];
-		const nextPerches = { ...savedPerches, [letter]: 0 };
+		const nextPerches = { ...savedPerches, [letter]: index };
 		setSavedPerches(nextPerches);
 		writeStorage(STORAGE_KEYS.mundo2Perches, JSON.stringify(nextPerches));
 		writeStorage(STORAGE_KEYS.mundo2MenuOption, letter);
 		const goToActivity = () => {
-			navigate(location.pathname, { replace: true, state: { ...location.state, activityIndex: 0, menuOption: letter } });
-			navigate("/inicio", { state: { menuOption: letter, world: 2 } });
+			navigate(location.pathname, { replace: true, state: { ...location.state, activityIndex: index, menuOption: letter } });
+			navigate(route, { state: { menuOption: letter, world: 2 } });
 		};
-		if (!character || perchIndex === 0) {
+		if (!character || perchIndex === index) {
 			goToActivity();
 			return;
 		}
@@ -159,7 +167,7 @@ export default function Mundo2() {
 			audio.currentTime = 0;
 		});
 		stopTalking();
-		teleportCharacter(perchIndex, 0).then(goToActivity);
+		teleportCharacter(perchIndex, index).then(goToActivity);
 	}
 
 	useEffect(() => {
@@ -177,7 +185,7 @@ export default function Mundo2() {
 			});
 			stopTalking();
 		};
-	}, [perchIndex]);
+	}, []);
 
 	useEffect(() => {
 		const page = pageRef.current;
@@ -297,7 +305,7 @@ export default function Mundo2() {
 					{PATH_BUTTONS.map(([left, top], index) => (
 						<div className="mundo2-path-activity" key={`${left}-${top}`} style={{ left: `${left}%`, top: `${top}%` }}>
 							<img
-								className={`mundo2-path-sign${index === 0 ? " available" : ""}`}
+								className={`mundo2-path-sign${index < ACTIVITY_ROUTES.length ? " available" : ""}`}
 								src={img(ACTIVITY_SIGN_IMAGES[index] || "GLOBOSbtn.png")}
 								alt=""
 								draggable={false}
@@ -305,9 +313,9 @@ export default function Mundo2() {
 							<button
 								className={`mundo2-path-button${selectedLetter ? ` path-letter-${selectedLetter.toLowerCase()}` : index === 0 ? " path-letter-p" : ""}`}
 								type="button"
-								disabled={index !== 0 || Boolean(teleport)}
-								aria-label={index === 0 ? "Actividad Inicio" : `Actividad ${index + 1}, no disponible`}
-								onClick={index === 0 ? openStartActivity : undefined}
+								disabled={index >= ACTIVITY_ROUTES.length || Boolean(teleport)}
+								aria-label={index < ACTIVITY_ROUTES.length ? `Actividad ${index === 0 ? "Inicio" : "Mariposas"}` : `Actividad ${index + 1}, no disponible`}
+								onClick={index < ACTIVITY_ROUTES.length ? () => openPathActivity(index) : undefined}
 							>
 								<img src={img("boton.svg")} alt="" draggable={false} />
 							</button>

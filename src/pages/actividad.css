@@ -139,6 +139,15 @@
 		transform: none;
 	}
 
+	.selected-character.mundo2-character .character-mouth {
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+		transform: none;
+	}
+
 	.character-mouth[hidden] {
 		display: none;
 	}

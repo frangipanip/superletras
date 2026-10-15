@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router";
 import BackButton from "../components/BackButton";
 import Character from "../components/Character";
 import FullscreenButton from "../components/FullscreenButton";
@@ -7,13 +8,25 @@ import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
-import { img, sound } from "../lib/assets";
+import { img, MUNDO2_MOUTH_IMAGES, sound } from "../lib/assets";
 import { shuffle } from "../lib/shuffle";
 import { useActivityMenuOption } from "../hooks/useActivityMenuOption";
 import "./actividad.css";
 import "./Mariposas.css";
 
 const BUTTERFLY_IMAGES = [img("MARIPOSA.svg"), img("MARIPOSA1.svg"), img("MARIPOSA2.svg")];
+const OSITO_LAYOUT = [
+	{ image: img("osito1.png"), position: [35, 29] },
+	{ image: img("osito2.png"), position: [50, 29] },
+	{ image: img("osito3.png"), position: [70, 29] },
+	{ image: img("osito4.png"), position: [40, 57] },
+	{ image: img("osito5.png"), position: [57, 57] },
+	{ image: img("osito6.png"), position: [73, 57] },
+	{ image: img("osito7.png"), position: [45, 84] },
+	{ image: img("osito8.png"), position: [65, 84] }
+];
+const OSITO_IMAGES = OSITO_LAYOUT.map(({ image }) => image);
+const OSITO_POSITIONS = OSITO_LAYOUT.map(({ position }) => position);
 const VOWELS = ["A", "E", "I", "O", "U"];
 const SYLLABLES = {
 	l: ["LA", "LE", "LI", "LO", "LU"],
@@ -21,18 +34,38 @@ const SYLLABLES = {
 	s: ["SA", "SE", "SI", "SO", "SU"],
 	t: ["TA", "TE", "TI", "TO", "TU"]
 };
+const MUNDO2_SYLLABLES = {
+	p: ["PA", "PE", "PI", "PO", "PU"],
+	n: ["NA", "NE", "NI", "NO", "NU"],
+	d: ["DA", "DE", "DI", "DO", "DU"],
+	f: ["FA", "FE", "FI", "FO", "FU"],
+	h: ["HA", "HE", "HI", "HO", "HU"]
+};
 const TOTAL_BUTTERFLIES = 8;
 const TOTAL_CORRECT = 5;
 const POSITIONS = [
-	[24, 18], [47, 20], [70, 18], [34, 48], [57, 45], [78, 47], [27, 76], [52, 75], [72, 74], [42, 62], [88, 62]
+	[24, 18],
+	[47, 20],
+	[70, 18],
+	[34, 48],
+	[57, 45],
+	[78, 47],
+	[27, 76],
+	[52, 75]
 ];
 
-function getAudioFileName(label, type = "syllable") {
+function getAudioFileName(label, type = "syllable", isMundo2 = false) {
 	if (type === "letter") {
-		const letterMap = { a: "a.mp3", e: "e.mp3", i: "i.mp3", o: "o.mp3", u: "u.mp3", l: "letraL.mp3", m: "letraM.mp3", s: "letraS.mp3", t: "letraT.mp3" };
+		const letterMap = {
+			a: "a.mp3", e: "e.mp3", i: "i.mp3", o: "o.mp3", u: "u.mp3",
+			l: "letraL.mp3", m: "letraM.mp3", s: "letraS.mp3", t: "letraT.mp3",
+			p: "letraP.mp3", n: "letraN.mp3", d: "letraD.mp3",
+			f: "letraF.mp3", h: "letraH.mp3"
+		};
 		return letterMap[label.toLowerCase()] || `${label}.wav`;
 	}
 	const upper = label.toUpperCase();
+	if (isMundo2) return `${upper.toLowerCase()}.mp3`;
 	if (["A", "E", "I", "O", "U"].includes(upper)) return `${upper.toLowerCase()}.mp3`;
 	if (["LA", "LE", "LI", "LO", "LU"].includes(upper)) return `${upper.toLowerCase()}.mp3`;
 	if (["MA", "ME", "MI", "MO", "MU"].includes(upper)) return `${upper.toLowerCase()}.mp3`;
@@ -46,57 +79,77 @@ function createInstructionOrder(mode) {
 	return mode !== "a" ? [mode.toUpperCase()] : shuffle(VOWELS);
 }
 
-function createButterflies(mode, targetValue, generation) {
+function createButterflies(mode, targetValue, generation, syllableModes = SYLLABLES, creatureImages = BUTTERFLY_IMAGES, creaturePositions) {
 	const items = [];
+	function addItem(value, correct, index) {
+		items.push({
+			value,
+			correct,
+			image: creatureImages[index % creatureImages.length],
+			position: creaturePositions?.[index]
+		});
+	}
+
 	if (mode !== "a") {
-		const targetSyllables = SYLLABLES[mode];
+		const targetSyllables = syllableModes[mode];
 		for (let index = 0; index < TOTAL_CORRECT; index += 1) {
-			items.push({ value: targetSyllables[index % targetSyllables.length], correct: true, image: BUTTERFLY_IMAGES[index % BUTTERFLY_IMAGES.length] });
+			addItem(targetSyllables[index % targetSyllables.length], true, index);
 		}
-		const allOtherSyllables = Object.keys(SYLLABLES)
+		const allOtherSyllables = Object.keys(syllableModes)
 			.filter(k => k !== mode)
-			.flatMap(k => SYLLABLES[k]);
+			.flatMap(k => syllableModes[k]);
 		const incorrectSyllables = shuffle(allOtherSyllables);
 		for (let index = TOTAL_CORRECT; index < TOTAL_BUTTERFLIES; index += 1) {
-			items.push({ value: incorrectSyllables[index - TOTAL_CORRECT], correct: false, image: BUTTERFLY_IMAGES[index % BUTTERFLY_IMAGES.length] });
+			addItem(incorrectSyllables[index - TOTAL_CORRECT], false, index);
 		}
 	} else {
 		for (let index = 0; index < TOTAL_CORRECT; index += 1) {
-			items.push({ value: targetValue, correct: true, image: BUTTERFLY_IMAGES[index % BUTTERFLY_IMAGES.length] });
+			addItem(targetValue, true, index);
 		}
 		for (let index = TOTAL_CORRECT; index < TOTAL_BUTTERFLIES; index += 1) {
 			const otherVowel = shuffle(VOWELS.filter((vowel) => vowel !== targetValue))[0];
-			items.push({ value: otherVowel, correct: false, image: BUTTERFLY_IMAGES[index % BUTTERFLY_IMAGES.length] });
+			addItem(otherVowel, false, index);
 		}
 	}
 
-	return shuffle(items).map((item, index) => ({
-		...item,
-		generation,
-		id: `${generation}-${index}`,
-		left: POSITIONS[index][0],
-		top: POSITIONS[index][1],
-		rotation: Math.random() * 18 - 9,
-		flying: false,
-		vibrating: false
-	}));
+	return shuffle(items).map((item, index) => {
+		const [left, top] = item.position || POSITIONS[index];
+		return {
+			...item,
+			generation,
+			id: `${generation}-${index}`,
+			left,
+			top,
+			rotation: Math.random() * 18 - 9,
+			flying: false,
+			vibrating: false
+		};
+	});
 }
 
 export default function Mariposas() {
-	usePageTitle("Mariposas - Mundo 1");
+	const location = useLocation();
+	const isMundo2 = location.state?.world === 2;
+	usePageTitle(isMundo2 ? "Mariposas - Mundo 2" : "Mariposas - Mundo 1");
 	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
-	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime);
+	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime, isMundo2 ? MUNDO2_MOUTH_IMAGES : undefined);
 	const activityMenuOption = useActivityMenuOption();
-	const [mode] = useState(() => (["l", "m", "s", "t"].includes(activityMenuOption) ? activityMenuOption : "a"));
+	const syllableModes = isMundo2 ? MUNDO2_SYLLABLES : SYLLABLES;
+	const creatureImages = isMundo2 ? BUTTERFLY_IMAGES : OSITO_IMAGES;
+	const [mode] = useState(() => (Object.hasOwn(syllableModes, activityMenuOption) ? activityMenuOption : "a"));
 	const totalInstructions = mode === "a" ? VOWELS.length : 1;
 	const [targetValue, setTargetValue] = useState("");
 	const [butterflies, setButterflies] = useState([]);
 	const [celebrating, setCelebrating] = useState(false);
+	const [jarOpen, setJarOpen] = useState(false);
 	const [celebrationAudio] = useState(() => runtime.audio(sound("Fabuloso.mp3")));
 	const [premio, otorgarPremio] = useRecompensa("mariposas", mode);
 	const pageRef = useRef(null);
 	const fieldRef = useRef(null);
+	const jarRef = useRef(null);
+	const jarFlightsRef = useRef(0);
+	const jarCloseTimerRef = useRef(0);
 
 	// Estado que leen los callbacks de audio/timers (siempre el valor actual).
 	const game = useRef(null);
@@ -125,14 +178,25 @@ export default function Mariposas() {
 		setButterflies((current) => current.map((butterfly) => (butterfly.id === id ? { ...butterfly, ...changes } : butterfly)));
 	}
 
+	function closeJarAfterFlights() {
+		if (jarFlightsRef.current > 0) return;
+		jarCloseTimerRef.current = runtime.setTimeout(() => {
+			if (jarFlightsRef.current === 0) setJarOpen(false);
+		}, 260);
+	}
+
 	function updateButterflySize() {
 		const isMobileLandscape = window.matchMedia("(max-width: 768px) and (orientation: landscape)").matches;
+		const isSmallScreen = window.matchMedia("(max-width: 768px), (max-height: 560px)").matches;
 		const bounds = fieldRef.current.getBoundingClientRect();
 		const maxByWidth = bounds.width / 4.8;
 		const maxByHeight = bounds.height / 2.27;
 		const preferred = Math.min(maxByWidth, maxByHeight, isMobileLandscape ? 108 : 225);
-		const size = Math.max(isMobileLandscape ? 63 : 96, Math.min(preferred, isMobileLandscape ? 108 : 225));
+		const sizeScale = isMundo2 ? 1 : isSmallScreen ? 0.70125 : 0.6375;
+		const minimumSize = isMobileLandscape ? 95 : 126;
+		const size = Math.max(isMobileLandscape ? 63 : 96, Math.min(preferred, isMobileLandscape ? 108 : 225)) * sizeScale;
 		pageRef.current.style.setProperty("--butterfly-size", `${size}px`);
+		pageRef.current.style.setProperty("--butterfly-min-size", `${minimumSize * sizeScale}px`);
 	}
 
 	function startInstructionSet() {
@@ -184,7 +248,7 @@ export default function Mariposas() {
 			state.activeButterflyAudio.pause();
 			state.activeButterflyAudio.currentTime = 0;
 		}
-		const audioFile = getAudioFileName(label, "syllable");
+		const audioFile = getAudioFileName(label, "syllable", isMundo2);
 		state.activeButterflyAudio = runtime.audio(sound(audioFile));
 		state.activeButterflyAudio.onended = onEnded;
 		state.activeButterflyAudio.play().catch(() => onEnded?.());
@@ -194,8 +258,9 @@ export default function Mariposas() {
 		stopInstructionAudio();
 		startTalking();
 		const sequenceId = ++state.instructionSequenceId;
-		const optionFile = sound(getAudioFileName(state.targetValue, mode === "a" ? "vowel" : "letter"));
-		const sequence = [runtime.audio(optionFile), runtime.audio(sound("Pulsa.mp3")), runtime.audio(optionFile)];
+		const optionFile = sound(getAudioFileName(state.targetValue, mode === "a" ? "vowel" : "letter", isMundo2));
+		const promptFile = isMundo2 ? "Pulsa.mp3" : "Pulsaosito.mp3";
+		const sequence = [runtime.audio(optionFile), runtime.audio(sound(promptFile)), runtime.audio(optionFile)];
 		state.instructionAudios = sequence;
 		let audioIndex = 0;
 
@@ -266,7 +331,7 @@ export default function Mariposas() {
 		state.correctClicked = 0;
 		state.generation += 1;
 		setTargetValue(state.targetValue);
-		setButterflies(createButterflies(mode, state.targetValue, state.generation));
+		setButterflies(createButterflies(mode, state.targetValue, state.generation, syllableModes, creatureImages, isMundo2 ? undefined : OSITO_POSITIONS));
 		playInstructionAudio();
 	}
 
@@ -292,6 +357,51 @@ export default function Mariposas() {
 		const clickGeneration = state.generation;
 		button.disabled = true;
 		updateButterfly(butterfly.id, { flying: true });
+
+		if (!isMundo2 && jarRef.current) {
+			runtime.clearTimeout(jarCloseTimerRef.current);
+			setJarOpen(true);
+			jarFlightsRef.current += 1;
+			const fieldBounds = fieldRef.current.getBoundingClientRect();
+			const jarBounds = jarRef.current.getBoundingClientRect();
+			const targetLeft = ((jarBounds.left + jarBounds.width * 0.47 - fieldBounds.left) / fieldBounds.width) * 100;
+			const targetTop = ((jarBounds.top + jarBounds.height * 0.38 - fieldBounds.top) / fieldBounds.height) * 100;
+			const animation = button.animate([
+				{
+					left: button.style.left,
+					top: button.style.top,
+					transform: getComputedStyle(button).transform,
+					opacity: 1,
+					offset: 0
+				},
+				{
+					left: `${targetLeft}%`,
+					top: `${targetTop}%`,
+					transform: "translate(-50%, -50%) scale(0.2)",
+					opacity: 0.85,
+					offset: 0.78
+				},
+				{
+					left: `${targetLeft}%`,
+					top: `${targetTop}%`,
+					transform: "translate(-50%, -50%) scale(0.02)",
+					opacity: 0
+				}
+			], { duration: 1050, iterations: 1, easing: "ease-in", fill: "forwards" });
+			let flightFinished = false;
+			const finishOsitoFlight = () => {
+				if (flightFinished) return;
+				flightFinished = true;
+				setButterflies((current) => current.filter((item) => item.id !== butterfly.id));
+				jarFlightsRef.current = Math.max(0, jarFlightsRef.current - 1);
+				closeJarAfterFlights();
+				if (completesRound && state.generation === clickGeneration) finishRound();
+			};
+			animation.onfinish = finishOsitoFlight;
+			runtime.setTimeout(finishOsitoFlight, 1150);
+			return;
+		}
+
 		button.animate([
 			{ transform: "translate(-50%, -50%) scale(1)", opacity: 1 },
 			{ transform: "translate(-50%, -50%) scale(0.7)", opacity: 0.7 },
@@ -299,9 +409,7 @@ export default function Mariposas() {
 		], { duration: 780, iterations: 1, easing: "ease-out" });
 		runtime.setTimeout(() => {
 			setButterflies((current) => current.filter((item) => item.id !== butterfly.id));
-			if (completesRound && state.generation === clickGeneration) {
-				finishRound();
-			}
+			if (completesRound && state.generation === clickGeneration) finishRound();
 		}, 860);
 	}
 
@@ -347,6 +455,9 @@ export default function Mariposas() {
 	function restart() {
 		state.roundTransitionPending = false;
 		state.errors = 0;
+		runtime.clearTimeout(jarCloseTimerRef.current);
+		jarFlightsRef.current = 0;
+		setJarOpen(false);
 		finishCelebration();
 		stopInstructionAudio();
 		startInstructionSet();
@@ -366,7 +477,7 @@ export default function Mariposas() {
 	}, []);
 
 	return (
-		<div className="page activity-page page-mariposas" ref={pageRef}>
+		<div className={`page activity-page page-mariposas${isMundo2 ? " world-mundo2 world-insectos" : ""}`} ref={pageRef}>
 			<div className="butterfly-top-controls" aria-label="Navegación">
 				<BackButton />
 				<FullscreenButton toggle />
@@ -376,12 +487,22 @@ export default function Mariposas() {
 					&#x21bb; Reiniciar
 				</button>
 			</div>
+			{!isMundo2 && (
+				<img
+					ref={jarRef}
+					className="osito-jar"
+					src={img(jarOpen ? "frascoabierto.png" : "frascocerrado.png")}
+					alt=""
+					aria-hidden="true"
+					draggable={false}
+				/>
+			)}
 			<main className="butterfly-activity">
 				<section className="butterfly-field" ref={fieldRef} aria-label="Mariposas">
 					{butterflies.map((butterfly) => {
 						const classNames = ["butterfly-button", mode !== "a" ? "l-butterfly" : "a-butterfly"];
 						if (butterfly.flying) {
-							classNames.push("flying", "correct");
+							classNames.push(isMundo2 ? "flying" : "flying-to-jar", "correct");
 						}
 						if (butterfly.vibrating) {
 							classNames.push("vibration");
