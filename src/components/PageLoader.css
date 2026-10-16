@@ -1,0 +1,103 @@
+/* Cartel que tapa toda la pantalla mientras cargan sus imágenes (ver PageLoader.jsx). */
+.page-loader {
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	z-index: 1000;
+	overflow: hidden;
+	/* Por si la imagen todavía no llegó: cielo arriba, pasto abajo. */
+	background: linear-gradient(180deg, #7fd6f7 0%, #bfe8f7 55%, #a8d860 70%, #8cc74a 100%);
+	opacity: 1;
+	transition: opacity 0.3s ease;
+}
+
+.page-loader--hiding {
+	opacity: 0;
+	pointer-events: none;
+}
+
+/* Cuadro con la proporción de la imagen (1600x901) que cubre toda la pantalla, centrado. */
+.page-loader__scene {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: max(100vw, 177.58vh);
+	height: max(56.31vw, 100vh);
+	transform: translate(-50%, -50%);
+}
+
+.page-loader__image {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+/* Barra tipo caramelo, en el lugar del pasto donde estaba dibujada en la imagen. */
+.page-loader__bar {
+	position: absolute;
+	left: 30.25%;
+	top: 77.8%;
+	width: 39.25%;
+	height: 10.2%;
+	box-sizing: border-box;
+	padding: 0.45vmax 0.5vmax;
+	border-radius: 999px;
+	background: #fff;
+	box-shadow:
+		0 0 0 2px #f8c6d8,
+		0 4px 10px rgba(214, 92, 140, 0.35);
+}
+
+.page-loader__bar::before {
+	content: "";
+	position: absolute;
+	top: 0.45vmax;
+	right: 0.5vmax;
+	bottom: 0.45vmax;
+	left: 0.5vmax;
+	border-radius: 999px;
+	background: #fbeee6;
+	box-shadow: inset 0 2px 4px rgba(150, 90, 70, 0.15);
+}
+
+.page-loader__fill {
+	position: relative;
+	min-width: 8%;
+	height: 100%;
+	border-radius: 999px;
+	background-color: #f46fa8;
+	background-image: repeating-linear-gradient(
+		-45deg,
+		rgba(255, 255, 255, 0.28) 0,
+		rgba(255, 255, 255, 0.28) 1vmax,
+		rgba(255, 255, 255, 0) 1vmax,
+		rgba(255, 255, 255, 0) 2vmax
+	);
+	background-size: 2.83vmax 2.83vmax;
+	box-shadow: inset 0 -0.3vmax 0 rgba(200, 50, 120, 0.25);
+	transition: width 0.25s ease;
+	animation: page-loader-stripes 0.8s linear infinite;
+}
+
+/* Brillo de arriba, como en la barra dibujada. */
+.page-loader__fill::after {
+	content: "";
+	position: absolute;
+	top: 14%;
+	right: 4%;
+	left: 4%;
+	height: 26%;
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.45);
+}
+
+@keyframes page-loader-stripes {
+	from {
+		background-position: 0 0;
+	}
+	to {
+		background-position: 2.83vmax 0;
+	}
+}
