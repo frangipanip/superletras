@@ -36,10 +36,14 @@ const PATH_BUTTONS = [
 	{ left: 85, top: 77 },
 	{ left: 97, top: 77 },
 	{ left: 109, top: 77 },
-	{ left: 105, top: 77 },
-	{ left: 85.6, top: 77 },
-	{ left: 94, top: 77 }
+	{ left: 139, top: 80 },
+	{ left: 145, top: 77 },
+	{ left: 154, top: 77 }
 ];
+
+const CELEBRATION_FRAMES = Array.from({ length: 29 }, (_, index) =>
+	img(`monstruos/festejoS${index}.png`)
+);
 
 const ACTIVITY_SIGN_IMAGES = [
 	"INICIALESbtn.png",
@@ -59,6 +63,8 @@ export const MUNDO1_IMAGES = [
 	img("nube.png"),
 	img("boton.svg"),
 	img("GLOBOSbtn.png"),
+	img("cartelPALABRAS.png"),
+	...CELEBRATION_FRAMES,
 	...ACTIVITY_SIGN_IMAGES.map(img),
 	...MENU_OPTIONS.map(({ image }) => img(image)),
 	...Object.values(SCOOP_IMAGES).map(img),
@@ -115,6 +121,8 @@ export default function Mundo1() {
 	const [compactMenuOpen, setCompactMenuOpen] = useState(false);
 	const [characterOffscreen, setCharacterOffscreen] = useState(false);
 	const [characterDirection, setCharacterDirection] = useState("left");
+	const [celebrationFrame, setCelebrationFrame] = useState(0);
+	const [celebrationPlaying, setCelebrationPlaying] = useState(false);
 	const pageRef = useRef(null);
 	const menuPanelRef = useRef(null);
 	const compactMenuRef = useRef(null);
@@ -129,6 +137,9 @@ export default function Mundo1() {
 	const perchIndex = routePerch ?? (PATH_BUTTONS[savedPerches[selectedOption]] ? savedPerches[selectedOption] : null);
 	const characterIndex = teleport ? teleport.position : perchIndex;
 	const [introAudio] = useState(() => runtime.audio(sound("InicioMundos.mp3"), { preload: true }));
+	const [wordsAudio] = useState(() => runtime.audio("/assets/sonido/logropalabras.mp3", { preload: true }));
+	const [discoverWordsAudio] = useState(() => runtime.audio("/assets/sonido/descubrirpalabras.mp3", { preload: true }));
+	const [letUsSayWordsAudio] = useState(() => runtime.audio("/assets/sonido/vamospalabras.mp3", { preload: true }));
 	// Estado del arrastre con el mouse; lo leen los handlers de pointer sin esperar un render.
 	const drag = useRef({ pointerId: null, startX: 0, startScroll: 0, moved: false }).current;
 	const [dragging, setDragging] = useState(false);
@@ -136,6 +147,88 @@ export default function Mundo1() {
 		Object.fromEntries(MENU_OPTIONS.map(({ key, audio }) => [key, runtime.audio(sound(audio), { preload: true })]))
 	);
 	const availableActivities = AVAILABLE_ACTIVITIES[selectedOption] || null;
+
+	useEffect(() => {
+		if (selectedOption !== "s" || !celebrationPlaying) return undefined;
+		const timer = runtime.setTimeout(() => {
+			setCelebrationFrame((frame) => frame < 20 ? frame + 1 : frame < 28 ? frame + 1 : 21);
+		}, 120);
+		return () => runtime.clearTimeout(timer);
+	}, [celebrationFrame, celebrationPlaying, runtime, selectedOption]);
+
+	useEffect(() => {
+		if (selectedOption !== "s") {
+			setCelebrationPlaying(false);
+			setCelebrationFrame(0);
+			wordsAudio.onended = null;
+			discoverWordsAudio.onended = null;
+			letUsSayWordsAudio.onended = null;
+			wordsAudio.pause();
+			wordsAudio.currentTime = 0;
+			discoverWordsAudio.pause();
+			discoverWordsAudio.currentTime = 0;
+			letUsSayWordsAudio.pause();
+			letUsSayWordsAudio.currentTime = 0;
+		}
+	}, [selectedOption, wordsAudio, discoverWordsAudio, letUsSayWordsAudio]);
+
+	useEffect(() => () => {
+		wordsAudio.onended = null;
+		discoverWordsAudio.onended = null;
+		letUsSayWordsAudio.onended = null;
+		wordsAudio.pause();
+		wordsAudio.currentTime = 0;
+		discoverWordsAudio.pause();
+		discoverWordsAudio.currentTime = 0;
+		letUsSayWordsAudio.pause();
+		letUsSayWordsAudio.currentTime = 0;
+	}, [wordsAudio, discoverWordsAudio, letUsSayWordsAudio]);
+
+	function finishCelebration() {
+		wordsAudio.onended = null;
+		discoverWordsAudio.onended = null;
+		letUsSayWordsAudio.onended = null;
+		setCelebrationPlaying(false);
+		setCelebrationFrame(0);
+	}
+
+	function playLetUsSayWordsAudio() {
+		setCelebrationFrame(0);
+		letUsSayWordsAudio.currentTime = 0;
+		letUsSayWordsAudio.onended = finishCelebration;
+		letUsSayWordsAudio.play().catch((error) => {
+			finishCelebration();
+			console.error("No se pudo reproducir el audio vamospalabras.mp3.", error);
+		});
+	}
+
+	function playDiscoverWordsAudio() {
+		setCelebrationFrame(0);
+		discoverWordsAudio.currentTime = 0;
+		discoverWordsAudio.onended = playLetUsSayWordsAudio;
+		discoverWordsAudio.play().catch((error) => {
+			finishCelebration();
+			console.error("No se pudo reproducir el audio descubrirpalabras.mp3.", error);
+		});
+	}
+
+	function playCelebration() {
+		setCelebrationFrame(1);
+		wordsAudio.pause();
+		wordsAudio.currentTime = 0;
+		discoverWordsAudio.onended = null;
+		discoverWordsAudio.pause();
+		discoverWordsAudio.currentTime = 0;
+		letUsSayWordsAudio.onended = null;
+		letUsSayWordsAudio.pause();
+		letUsSayWordsAudio.currentTime = 0;
+		wordsAudio.onended = playDiscoverWordsAudio;
+		setCelebrationPlaying(true);
+		wordsAudio.play().catch((error) => {
+			finishCelebration();
+			console.error("No se pudo reproducir el audio logropalabras.mp3.", error);
+		});
+	}
 
 	function isActivityAvailable(index) {
 		return Boolean(availableActivities && availableActivities.indexOf(index) !== -1);
@@ -232,7 +325,10 @@ export default function Mundo1() {
 		function updateMenuPanelVisibility() {
 			const viewport = page.getBoundingClientRect();
 			const menu = panel.getBoundingClientRect();
-			const visible = menu.right > viewport.left && menu.left < viewport.right && menu.bottom > viewport.top && menu.top < viewport.bottom;
+			const visibleWidth = Math.max(0, Math.min(menu.right, viewport.right) - Math.max(menu.left, viewport.left));
+			const visibleHeight = Math.max(0, Math.min(menu.bottom, viewport.bottom) - Math.max(menu.top, viewport.top));
+			const visibleRatio = menu.width && menu.height ? visibleWidth * visibleHeight / (menu.width * menu.height) : 0;
+			const visible = visibleRatio > 0.2;
 			setMenuPanelVisible(visible);
 			if (visible) setCompactMenuOpen(false);
 		}
@@ -319,7 +415,7 @@ export default function Mundo1() {
 		// En touch se arrastra con el scroll nativo; esto es solo para el mouse (botón izquierdo).
 		if (event.pointerType !== "mouse" || event.button !== 0) return;
 		// Los menús fijos no mueven la escena.
-		if (event.target.closest(".top-nav, .mundo1-compact-menu, .mundo1-monster-button, .mundo1-character-locator")) return;
+		if (event.target.closest(".top-nav, .mundo1-compact-menu, .mundo1-monster-button, .mundo1-character-locator, .mundo1-festejo")) return;
 		drag.pointerId = event.pointerId;
 		drag.startX = event.clientX;
 		drag.startScroll = pageRef.current.scrollLeft;
@@ -411,7 +507,7 @@ export default function Mundo1() {
 					<img className="mundo1-background" src={img("FONDOM1.jpg")} alt="" draggable={false} onLoad={scrollToPerch} />
 					{PATH_BUTTONS.map(({ left, top }, index) => (
 						<div
-							className={`${selectedOption && !isActivityAvailable(index) ? "path-activity path-activity-unavailable" : "path-activity"}${availableActivities && index >= 7 ? " path-activity-hidden" : ""}${index === characterIndex ? " path-activity-current" : ""}`}
+							className={`${selectedOption && !isActivityAvailable(index) ? "path-activity path-activity-unavailable" : "path-activity"}${index === characterIndex ? " path-activity-current" : ""}`}
 							key={`${left}-${top}`}
 							style={{ left: `${left}%`, top: `${top}%` }}
 						>
@@ -433,6 +529,12 @@ export default function Mundo1() {
 							</button>
 						</div>
 					))}
+					<img className="mundo1-word-sign" src={img("cartelPALABRAS.png")} alt="" draggable={false} />
+					{selectedOption === "s" && (
+						<button className="mundo1-festejo" type="button" aria-label="Reproducir festejo" onClick={playCelebration}>
+							<img src={CELEBRATION_FRAMES[celebrationFrame]} alt="" draggable={false} />
+						</button>
+					)}
 					{character && (
 						<div
 							ref={characterSpotRef}

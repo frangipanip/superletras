@@ -7,6 +7,7 @@
 		left: 50%;
 		width: clamp(122.1px, 33.7365vmin, 233.478px);
 		transform: translate(-50%, -50%);
+		animation: flores-character-float 2.8s ease-in-out infinite;
 	}
 
 	.selected-character.celebrating {
@@ -14,6 +15,7 @@
 		left: 50%;
 		width: clamp(122.1px, 33.7365vmin, 233.478px);
 		transform: translate(-50%, -50%) scale(1.35);
+		animation: none;
 	}
 
 	.flower-activity {
@@ -110,5 +112,15 @@
 
 	.flower-button.wrong .flower-image {
 		filter: grayscale(1) drop-shadow(0 0 10px rgba(235, 86, 86, 0.95));
+	}
+}
+
+@keyframes flores-character-float {
+	0%,
+	100% {
+		transform: translate(-50%, -50%);
+	}
+	50% {
+		transform: translate(-50%, calc(-50% - 10px));
 	}
 }

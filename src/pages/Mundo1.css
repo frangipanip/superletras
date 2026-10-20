@@ -453,8 +453,42 @@
 		opacity: 0.62;
 	}
 
-	.path-activity-hidden {
-		display: none;
+	.mundo1-word-sign {
+		--mundo1-word-sign-left: 127%;
+		--mundo1-word-sign-top: 57.5%;
+		--mundo1-word-sign-width: min(67.8vmin, 483px);
+		position: absolute;
+		top: var(--mundo1-word-sign-top);
+		left: var(--mundo1-word-sign-left);
+		z-index: 2;
+		display: block;
+		width: var(--mundo1-word-sign-width);
+		height: auto;
+		transform: translate(-50%, -50%);
+		pointer-events: none;
+		user-select: none;
+	}
+
+	.mundo1-festejo {
+		--mundo1-festejo-left: 126%;
+		--mundo1-festejo-top: 73%;
+		--mundo1-festejo-width: min(32.3vmin, 230px);
+		position: absolute;
+		top: var(--mundo1-festejo-top);
+		left: var(--mundo1-festejo-left);
+		z-index: 3;
+		width: var(--mundo1-festejo-width);
+		padding: 0;
+		border: 0;
+		background: transparent;
+		transform: translate(-50%, -50%);
+		cursor: pointer;
+	}
+
+	.mundo1-festejo img {
+		display: block;
+		width: 100%;
+		height: auto;
 	}
 
 	.path-activity-sign {

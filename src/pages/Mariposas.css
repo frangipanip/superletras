@@ -49,6 +49,20 @@
 		left: clamp(0.75rem, 2vw, 1.5rem);
 	}
 
+	.selected-character.celebrating {
+		top: 70%;
+		transform: translateY(-50%);
+	}
+
+	&.world-mundo2 .selected-character.celebrating {
+		left: calc(100% - clamp(0.75rem, 4vw, 4rem) - var(--selected-character-width));
+	}
+
+	&:not(.world-mundo2) .selected-character.celebrating {
+		right: auto;
+		left: clamp(0.75rem, 2vw, 1.5rem);
+	}
+
 	.butterfly-field {
 		position: fixed;
 		z-index: 3;
