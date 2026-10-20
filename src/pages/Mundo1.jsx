@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useLocation, useNavigate } from "react-router";
-import Monstruo, { imagenMonstruo } from "../components/Monstruo";
-import PufCrema, { PUF_CHARACTER_CLASS } from "../components/PufCrema";
+import Monstruo, { imagenMonstruo, imagenMonstruoNivel2 } from "../components/Monstruo";
+import PufCrema, { PUF_CHARACTER_CLASS, PUF_IN_MS } from "../components/PufCrema";
 import UserNav from "../components/UserNav";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
@@ -10,6 +10,8 @@ import { useTalkingMouth } from "../hooks/useTalkingMouth";
 import { useTeleport } from "../hooks/useTeleport";
 import { img, MUNDO1_CHARACTERS, MUNDO1_MOUTH_IMAGES, sound } from "../lib/assets";
 import { STORAGE_KEYS, readStorage, writeStorage } from "../lib/storage";
+import { COMIDAS } from "../../shared/comidas.js";
+import { cantidadComida, getRecompensas, subscribeRecompensas } from "../lib/recompensas";
 import "./Mundo1.css";
 
 const MENU_OPTIONS = [
@@ -36,11 +38,10 @@ const PATH_BUTTONS = [
 	{ left: 85, top: 77 },
 	{ left: 97, top: 77 },
 	{ left: 109, top: 77 },
-	{ left: 139, top: 80 },
-	{ left: 145, top: 77 },
-	{ left: 154, top: 77 }
+	{ left: 145, top: 72 },
+	{ left: 163, top: 77 },
+	{ left: 176, top: 83 }
 ];
-
 const CELEBRATION_FRAMES = Array.from({ length: 29 }, (_, index) =>
 	img(`monstruos/festejoS${index}.png`)
 );
@@ -72,6 +73,7 @@ export const MUNDO1_IMAGES = [
 	img("cabezasupernene.png"),
 	...Object.values(MUNDO1_CHARACTERS).map(({ image }) => image),
 	...MENU_OPTIONS.map(({ key }) => imagenMonstruo(key)),
+	...MENU_OPTIONS.map(({ key }) => imagenMonstruoNivel2(key)),
 	...MUNDO1_MOUTH_IMAGES
 ];
 
@@ -97,6 +99,17 @@ function getPerchStyle(index) {
 	return { left: `${left}%`, top: `${top}%` };
 }
 
+function readUnlockedWordPaths() {
+	try {
+		const saved = JSON.parse(readStorage(STORAGE_KEYS.mundo1WordPathsUnlocked) || "{}");
+		return Object.fromEntries(MENU_OPTIONS
+			.filter(({ key }) => saved[key] === true)
+			.map(({ key }) => [key, true]));
+	} catch {
+		return {};
+	}
+}
+
 function readSavedPerches() {
 	try {
 		const saved = JSON.parse(readStorage(STORAGE_KEYS.mundo1Perches) || "{}");
@@ -114,8 +127,14 @@ export default function Mundo1() {
 	const location = useLocation();
 	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
+	const { letras: recompensasPorLetra } = useSyncExternalStore(subscribeRecompensas, getRecompensas);
 	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime, MUNDO1_MOUTH_IMAGES);
 	const [selectedOption, setSelectedOption] = useState(() => readStorage(STORAGE_KEYS.mundo1MenuOption));
+	const [unlockedWordPaths, setUnlockedWordPaths] = useState(readUnlockedWordPaths);
+	const wordPathUnlocked = Boolean(selectedOption && unlockedWordPaths[selectedOption]);
+	const selectedMonsterEvolved = Boolean(selectedOption && COMIDAS.every(({ clave, necesarias }) =>
+		cantidadComida(recompensasPorLetra, selectedOption, clave).dadas >= necesarias
+	));
 	const [savedPerches, setSavedPerches] = useState(readSavedPerches);
 	const [menuPanelVisible, setMenuPanelVisible] = useState(true);
 	const [compactMenuOpen, setCompactMenuOpen] = useState(false);
@@ -123,6 +142,10 @@ export default function Mundo1() {
 	const [characterDirection, setCharacterDirection] = useState("left");
 	const [celebrationFrame, setCelebrationFrame] = useState(0);
 	const [celebrationPlaying, setCelebrationPlaying] = useState(false);
+	const [evolvedMonsterArriving, setEvolvedMonsterArriving] = useState(selectedMonsterEvolved);
+	const wordSequenceActive = useRef(false);
+	const wordSequenceId = useRef(0);
+	const wordSequenceLetter = useRef(null);
 	const pageRef = useRef(null);
 	const menuPanelRef = useRef(null);
 	const compactMenuRef = useRef(null);
@@ -149,6 +172,16 @@ export default function Mundo1() {
 	const availableActivities = AVAILABLE_ACTIVITIES[selectedOption] || null;
 
 	useEffect(() => {
+		if (!selectedMonsterEvolved) {
+			setEvolvedMonsterArriving(false);
+			return undefined;
+		}
+		setEvolvedMonsterArriving(true);
+		const timer = runtime.setTimeout(() => setEvolvedMonsterArriving(false), PUF_IN_MS);
+		return () => runtime.clearTimeout(timer);
+	}, [runtime, selectedMonsterEvolved, selectedOption]);
+
+	useEffect(() => {
 		if (selectedOption !== "s" || !celebrationPlaying) return undefined;
 		const timer = runtime.setTimeout(() => {
 			setCelebrationFrame((frame) => frame < 20 ? frame + 1 : frame < 28 ? frame + 1 : 21);
@@ -156,23 +189,10 @@ export default function Mundo1() {
 		return () => runtime.clearTimeout(timer);
 	}, [celebrationFrame, celebrationPlaying, runtime, selectedOption]);
 
-	useEffect(() => {
-		if (selectedOption !== "s") {
-			setCelebrationPlaying(false);
-			setCelebrationFrame(0);
-			wordsAudio.onended = null;
-			discoverWordsAudio.onended = null;
-			letUsSayWordsAudio.onended = null;
-			wordsAudio.pause();
-			wordsAudio.currentTime = 0;
-			discoverWordsAudio.pause();
-			discoverWordsAudio.currentTime = 0;
-			letUsSayWordsAudio.pause();
-			letUsSayWordsAudio.currentTime = 0;
-		}
-	}, [selectedOption, wordsAudio, discoverWordsAudio, letUsSayWordsAudio]);
-
 	useEffect(() => () => {
+		wordSequenceId.current += 1;
+		wordSequenceActive.current = false;
+		wordSequenceLetter.current = null;
 		wordsAudio.onended = null;
 		discoverWordsAudio.onended = null;
 		letUsSayWordsAudio.onended = null;
@@ -184,50 +204,88 @@ export default function Mundo1() {
 		letUsSayWordsAudio.currentTime = 0;
 	}, [wordsAudio, discoverWordsAudio, letUsSayWordsAudio]);
 
-	function finishCelebration() {
+	function finishWordAudioSequence(sequenceId, completed) {
+		if (wordSequenceId.current !== sequenceId) return;
+		const letter = wordSequenceLetter.current;
+		wordSequenceActive.current = false;
+		wordSequenceLetter.current = null;
 		wordsAudio.onended = null;
 		discoverWordsAudio.onended = null;
 		letUsSayWordsAudio.onended = null;
 		setCelebrationPlaying(false);
 		setCelebrationFrame(0);
+		if (completed && letter) {
+			const nextUnlockedWordPaths = { ...unlockedWordPaths, [letter]: true };
+			setUnlockedWordPaths(nextUnlockedWordPaths);
+			writeStorage(STORAGE_KEYS.mundo1WordPathsUnlocked, JSON.stringify(nextUnlockedWordPaths));
+
+			const firstWordPathIndex = 7;
+			const nextPerches = { ...savedPerches, [letter]: firstWordPathIndex };
+			setSavedPerches(nextPerches);
+			writeStorage(STORAGE_KEYS.mundo1Perches, JSON.stringify(nextPerches));
+			if (location.state?.activityIndex !== undefined) {
+				const { activityIndex, ...state } = location.state;
+				navigate(location.pathname, { replace: true, state });
+			}
+			if (character && perchIndex !== firstWordPathIndex) {
+				teleportCharacter(perchIndex, firstWordPathIndex);
+			}
+		}
 	}
 
-	function playLetUsSayWordsAudio() {
+	function cancelWordAudioSequence() {
+		wordSequenceId.current += 1;
+		wordSequenceActive.current = false;
+		wordSequenceLetter.current = null;
+		[wordsAudio, discoverWordsAudio, letUsSayWordsAudio].forEach((audio) => {
+			audio.onended = null;
+			audio.pause();
+			audio.currentTime = 0;
+		});
+		setCelebrationPlaying(false);
 		setCelebrationFrame(0);
-		letUsSayWordsAudio.currentTime = 0;
-		letUsSayWordsAudio.onended = finishCelebration;
-		letUsSayWordsAudio.play().catch((error) => {
-			finishCelebration();
-			console.error("No se pudo reproducir el audio vamospalabras.mp3.", error);
+	}
+
+	function playWordAudio(audio, next, sequenceId, audioName) {
+		audio.currentTime = 0;
+		audio.onended = () => {
+			if (wordSequenceId.current === sequenceId) next();
+		};
+		audio.play().catch((error) => {
+			if (wordSequenceId.current !== sequenceId) return;
+			finishWordAudioSequence(sequenceId, false);
+			console.error(`No se pudo reproducir el audio ${audioName}.`, error);
 		});
 	}
 
-	function playDiscoverWordsAudio() {
-		setCelebrationFrame(0);
-		discoverWordsAudio.currentTime = 0;
-		discoverWordsAudio.onended = playLetUsSayWordsAudio;
-		discoverWordsAudio.play().catch((error) => {
-			finishCelebration();
-			console.error("No se pudo reproducir el audio descubrirpalabras.mp3.", error);
-		});
+	function startWordAudioSequence(letter, sequenceId) {
+		if (wordSequenceId.current !== sequenceId) return;
+		setCelebrationFrame(letter === "s" ? 1 : 0);
+		setCelebrationPlaying(letter === "s");
+		playWordAudio(wordsAudio, () => {
+			setCelebrationFrame(0);
+			playWordAudio(discoverWordsAudio, () => {
+				setCelebrationFrame(0);
+				playWordAudio(letUsSayWordsAudio, () => {
+					finishWordAudioSequence(sequenceId, true);
+				}, sequenceId, "vamospalabras.mp3");
+			}, sequenceId, "descubrirpalabras.mp3");
+		}, sequenceId, "logropalabras.mp3");
 	}
 
-	function playCelebration() {
-		setCelebrationFrame(1);
-		wordsAudio.pause();
-		wordsAudio.currentTime = 0;
-		discoverWordsAudio.onended = null;
-		discoverWordsAudio.pause();
-		discoverWordsAudio.currentTime = 0;
-		letUsSayWordsAudio.onended = null;
-		letUsSayWordsAudio.pause();
-		letUsSayWordsAudio.currentTime = 0;
-		wordsAudio.onended = playDiscoverWordsAudio;
-		setCelebrationPlaying(true);
-		wordsAudio.play().catch((error) => {
-			finishCelebration();
-			console.error("No se pudo reproducir el audio logropalabras.mp3.", error);
-		});
+	function handleEvolvedMonsterClick() {
+		if (!selectedMonsterEvolved || !selectedOption || teleport || evolvedMonsterArriving || wordSequenceActive.current) return;
+		const letter = selectedOption;
+		const sequenceId = wordSequenceId.current + 1;
+		wordSequenceId.current = sequenceId;
+		wordSequenceActive.current = true;
+		wordSequenceLetter.current = letter;
+
+		introAudio.onended = null;
+		introAudio.pause();
+		stopMenuAudios();
+		stopTalking();
+		startWordAudioSequence(letter, sequenceId);
 	}
 
 	function isActivityAvailable(index) {
@@ -367,6 +425,7 @@ export default function Mundo1() {
 
 	function selectMenuOption(optionKey) {
 		if (teleport) return;
+		cancelWordAudioSequence();
 		setCompactMenuOpen(false);
 		// Otra letra: se olvida la última actividad (deja de brillar y el personaje vuelve a su lugar).
 		if (optionKey !== selectedOption && location.state?.activityIndex !== undefined) {
@@ -380,7 +439,7 @@ export default function Mundo1() {
 
 	function openPathActivity(index) {
 		const route = PATH_ROUTES[index];
-		if (!route || !isActivityAvailable(index) || teleport) {
+		if (!route || !isActivityAvailable(index) || teleport || wordSequenceActive.current) {
 			return;
 		}
 		const nextPerches = { ...savedPerches, [selectedOption]: index };
@@ -507,7 +566,7 @@ export default function Mundo1() {
 					<img className="mundo1-background" src={img("FONDOM1.jpg")} alt="" draggable={false} onLoad={scrollToPerch} />
 					{PATH_BUTTONS.map(({ left, top }, index) => (
 						<div
-							className={`${selectedOption && !isActivityAvailable(index) ? "path-activity path-activity-unavailable" : "path-activity"}${index === characterIndex ? " path-activity-current" : ""}`}
+							className={`${index >= 7 && !wordPathUnlocked ? "path-activity-hidden " : ""}${selectedOption && !isActivityAvailable(index) ? "path-activity path-activity-unavailable" : "path-activity"}${index === characterIndex ? " path-activity-current" : ""}`}
 							key={`${left}-${top}`}
 							style={{ left: `${left}%`, top: `${top}%` }}
 						>
@@ -529,11 +588,27 @@ export default function Mundo1() {
 							</button>
 						</div>
 					))}
-					<img className="mundo1-word-sign" src={img("cartelPALABRAS.png")} alt="" draggable={false} />
-					{selectedOption === "s" && (
-						<button className="mundo1-festejo" type="button" aria-label="Reproducir festejo" onClick={playCelebration}>
-							<img src={CELEBRATION_FRAMES[celebrationFrame]} alt="" draggable={false} />
-						</button>
+					<img
+						className={`mundo1-word-sign${selectedMonsterEvolved ? " unlocked" : " locked"}`}
+						src={img("cartelPALABRAS.png")}
+						alt={selectedMonsterEvolved ? "Cartel Palabras desbloqueado" : "Cartel Palabras bloqueado hasta evolucionar el monstruo"}
+						draggable={false}
+					/>
+					{selectedMonsterEvolved && (
+						<div className="mundo1-evolved-monster" key={selectedOption}>
+							<div className={evolvedMonsterArriving ? PUF_CHARACTER_CLASS.in : undefined}>
+								{selectedOption === "s" ? (
+									<button className="mundo1-festejo" type="button" aria-label="Ir al monstruo y escuchar las palabras" onClick={handleEvolvedMonsterClick}>
+										<img src={CELEBRATION_FRAMES[celebrationFrame]} alt="" draggable={false} />
+									</button>
+								) : (
+									<button className="mundo1-festejo mundo1-festejo-static" type="button" aria-label="Ir al monstruo y escuchar las palabras" onClick={handleEvolvedMonsterClick}>
+										<Monstruo letra={selectedOption} evolucionado className="mundo1-evolved-monster__image" />
+									</button>
+								)}
+							</div>
+							{evolvedMonsterArriving && <PufCrema mode="in" className="mundo1-evolved-monster__puf" />}
+						</div>
 					)}
 					{character && (
 						<div

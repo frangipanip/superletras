@@ -453,6 +453,10 @@
 		opacity: 0.62;
 	}
 
+	.path-activity-hidden {
+		display: none;
+	}
+
 	.mundo1-word-sign {
 		--mundo1-word-sign-left: 127%;
 		--mundo1-word-sign-top: 57.5%;
@@ -467,9 +471,20 @@
 		transform: translate(-50%, -50%);
 		pointer-events: none;
 		user-select: none;
+		transition: filter 220ms ease, opacity 220ms ease;
 	}
 
-	.mundo1-festejo {
+	.mundo1-word-sign.locked {
+		filter: grayscale(1);
+		opacity: 0.55;
+	}
+
+	.mundo1-word-sign.unlocked {
+		filter: drop-shadow(0 0 12px rgba(255, 245, 170, 0.9));
+		opacity: 1;
+	}
+
+	.mundo1-evolved-monster {
 		--mundo1-festejo-left: 126%;
 		--mundo1-festejo-top: 73%;
 		--mundo1-festejo-width: min(32.3vmin, 230px);
@@ -478,17 +493,41 @@
 		left: var(--mundo1-festejo-left);
 		z-index: 3;
 		width: var(--mundo1-festejo-width);
+		transform: translate(-50%, -50%);
+	}
+
+	.mundo1-festejo {
+		display: block;
+		width: 100%;
 		padding: 0;
 		border: 0;
 		background: transparent;
-		transform: translate(-50%, -50%);
 		cursor: pointer;
 	}
 
-	.mundo1-festejo img {
+	.mundo1-festejo:hover,
+	.mundo1-festejo:focus-visible {
+		transform: scale(1.06);
+	}
+
+	.mundo1-festejo-static .monstruo {
 		display: block;
 		width: 100%;
 		height: auto;
+	}
+
+	.mundo1-festejo img,
+	.mundo1-evolved-monster__image {
+		display: block;
+		width: 100%;
+		height: auto;
+	}
+
+	.mundo1-evolved-monster__puf {
+		top: -10%;
+		right: -24%;
+		bottom: -8%;
+		left: -24%;
 	}
 
 	.path-activity-sign {

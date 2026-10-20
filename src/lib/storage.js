@@ -7,6 +7,7 @@ export const STORAGE_KEYS = {
 	mundo3MenuOption: "superletras-mundo3-menu-option",
 	mundo4MenuOption: "superletras-mundo4-menu-option",
 	mundo1Perches: "superletras-mundo1-perches",
+	mundo1WordPathsUnlocked: "superletras-mundo1-word-paths-unlocked",
 	selectedWorld: "superletras-selected-world",
 	installPromptDismissedAt: "superletras-install-dismissed-at",
 	// Recompensas (ver src/lib/recompensas.js).
