@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useLocation } from "react-router";
 import { MOUTH_IMAGES, MUNDO1_MOUTH_IMAGES } from "../lib/assets";
 
@@ -15,24 +15,28 @@ export function useTalkingMouth(runtime, mouthImages) {
 		setMouth((current) => ({ ...current, ...changes }));
 	}
 
-	function clearMouthTimer() {
+	const clearMouthTimer = useCallback(() => {
 		runtime.clearInterval(timerRef.current);
-	}
+	}, [runtime]);
 
-	function startTalking() {
+	const startTalking = useCallback(() => {
 		clearMouthTimer();
 		let index = 0;
 		setMouth({ visible: true, src: selectedMouthImages[0], shifted: false });
 		timerRef.current = runtime.setInterval(() => {
 			index = (index + 1) % selectedMouthImages.length;
-			patchMouth({ src: selectedMouthImages[index], shifted: index > 0 });
+			setMouth((current) => ({
+				...current,
+				src: selectedMouthImages[index],
+				shifted: index > 0
+			}));
 		}, 220);
-	}
+	}, [clearMouthTimer, runtime, selectedMouthImages]);
 
-	function stopTalking() {
+	const stopTalking = useCallback(() => {
 		clearMouthTimer();
-		patchMouth({ visible: false, shifted: false });
-	}
+		setMouth((current) => ({ ...current, visible: false, shifted: false }));
+	}, [clearMouthTimer]);
 
 	return { mouth, patchMouth, clearMouthTimer, startTalking, stopTalking };
 }

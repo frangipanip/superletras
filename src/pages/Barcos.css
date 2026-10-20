@@ -1,0 +1,95 @@
+.barcos-page {
+	background: url("/assets/imagenes/fondopalabras.png") center / cover no-repeat;
+}
+
+.barcos-scene {
+	position: relative;
+	width: 100%;
+	height: 100vh;
+	overflow: hidden;
+}
+
+.barcos-character-wrap {
+	position: fixed;
+	left: 0;
+	top: 57%;
+	z-index: 4;
+	width: clamp(130px, 26vmin, 260px);
+	transform: translateY(-50%);
+	pointer-events: none;
+}
+
+.barcos-character-wrap .selected-character {
+	position: relative;
+	left: auto;
+	top: auto;
+	width: 100%;
+	transform: none;
+	pointer-events: auto;
+	cursor: pointer;
+}
+
+.boat-button {
+	position: absolute;
+	z-index: 2;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	cursor: pointer;
+	transform: translate(-50%, -50%);
+	transition: transform 180ms ease;
+}
+
+.boat-button:hover,
+.boat-button:focus-visible {
+	transform: translate(-50%, -50%) scale(1.05);
+}
+
+.boat-button.boat-correct.selected {
+	transform: translate(-50%, -50%) scale(1.12);
+}
+
+.boat-content {
+	position: relative;
+	display: block;
+}
+
+.boat-image {
+	display: block;
+	width: clamp(100px, 24vmin, 230px);
+	height: auto;
+	filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.25));
+}
+
+.boat-word {
+	position: absolute;
+	left: 50%;
+	top: 37.5%;
+	padding: 0.3rem 0.55rem;
+	border-radius: 0.5rem;
+	visibility: hidden;
+	opacity: 0;
+	color: #214f7c;
+	font: 700 clamp(0.9rem, 2.8vmin, 1.6rem) Arial, Helvetica, sans-serif;
+	transform: translate(-50%, -50%);
+	white-space: nowrap;
+}
+
+.boat-button.boat-ready .boat-word {
+	visibility: visible;
+	opacity: 1;
+}
+
+.boat-button.boat-eliminated .boat-content {
+	filter: grayscale(1);
+	opacity: 0.62;
+}
+
+.boat-button.boat-floating .boat-content {
+	animation: boat-float 0.7s ease-in-out infinite alternate;
+}
+
+@keyframes boat-float {
+	from { transform: translateY(0); }
+	to { transform: translateY(-8px); }
+}
