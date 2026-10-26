@@ -144,6 +144,8 @@ export default function Mariposas() {
 	const [celebrating, setCelebrating] = useState(false);
 	const [jarOpen, setJarOpen] = useState(false);
 	const [celebrationAudio] = useState(() => runtime.audio(sound("Fabuloso.mp3")));
+	const [correctFeedbackAudio] = useState(() => runtime.audio(sound(isMundo2 ? "aleteo.mp3" : "correcto.mp3"), { preload: true }));
+	const [errorFeedbackAudio] = useState(() => runtime.audio(sound("error.mp3"), { preload: true }));
 	const [premio, otorgarPremio] = useRecompensa("mariposas", mode);
 	const pageRef = useRef(null);
 	const fieldRef = useRef(null);
@@ -236,7 +238,8 @@ export default function Mariposas() {
 			return;
 		}
 		stopFeedbackSound();
-		state.feedbackAudio = runtime.audio(sound(isCorrect ? "aleteo.mp3" : "error.mp3"));
+		state.feedbackAudio = isCorrect ? correctFeedbackAudio : errorFeedbackAudio;
+		state.feedbackAudio.currentTime = 0;
 		state.feedbackAudio.play().catch(() => {});
 	}
 
