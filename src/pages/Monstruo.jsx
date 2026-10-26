@@ -26,8 +26,8 @@ const SECUENCIA_COMER = [
 ];
 // Dónde está la boca dentro de la imagen del monstruo (fracción del ancho y del alto).
 const BOCA = { x: 0.5, y: 0.54 };
-// Botones de evolucionar/desevolucionar: solo se ven con este código (ver server/index.js).
-const CODIGO_DEBUG = "QDM7-9YVF";
+// Botones de evolucionar/desevolucionar: solo se ven con estos códigos (ver server/index.js).
+const CODIGOS_DEBUG = new Set(["QDM7-9YVF", "Y86M-CQ2R"]);
 
 export default function MonstruoPage() {
 	const location = useLocation();
@@ -245,7 +245,7 @@ export default function MonstruoPage() {
 				</section>
 
 				<section className="monstruo-centro" aria-live="polite">
-					{codigo === CODIGO_DEBUG && (
+					{CODIGOS_DEBUG.has(codigo) && (
 						<div className="monstruo-debug">
 							<button type="button" className="monstruo-debug__boton" onClick={evolucionarDebug}>
 								Evolucionar
