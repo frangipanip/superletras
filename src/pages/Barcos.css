@@ -10,6 +10,22 @@
 	overflow: hidden;
 }
 
+.barcos-prompt {
+	position: absolute;
+	top: clamp(1rem, 4vh, 2.5rem);
+	left: 50%;
+	z-index: 3;
+	padding: 0.35em 0.8em;
+	border: 3px solid #2f8498;
+	border-radius: 0.6em;
+	background: linear-gradient(180deg, #fff 0%, #d6f8ff 100%);
+	box-shadow: 0 3px 0 #286f84, 0 5px 8px rgba(0, 0, 0, 0.25);
+	color: #6b3f24;
+	font: 800 clamp(1.75rem, 6vmin, 3.5rem) Arial, Helvetica, sans-serif;
+	line-height: 1;
+	transform: translateX(-50%);
+}
+
 .barcos-character-wrap {
 	position: fixed;
 	left: 5%;

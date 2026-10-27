@@ -1,0 +1,222 @@
+.page-pastel {
+	position: relative;
+	overflow: hidden;
+	background: url("/assets/imagenes/fondosumasilabas.png") center / cover no-repeat;
+}
+
+.page-pastel .selected-character {
+	position: fixed;
+	top: auto;
+	bottom: clamp(0.5rem, 2vh, 1.25rem);
+	left: clamp(0.5rem, 3vw, 2rem);
+	z-index: 4;
+	width: clamp(210px, 50vmin, 380px);
+	transform: none;
+	transition: left 650ms ease, top 650ms ease, bottom 650ms ease, transform 650ms ease;
+}
+
+.page-pastel.pastel-intro .selected-character {
+	top: 50%;
+	bottom: auto;
+	left: 50%;
+	transform: translate(-50%, -50%) scale(1.3125);
+}
+
+.page-pastel.pastel-retiring .selected-character {
+	top: 50%;
+	bottom: auto;
+	left: 50%;
+	transform: translate(calc(clamp(0.5rem, 3vw, 2rem) - 50vw), calc(50vh - 100% - clamp(0.5rem, 2vh, 1.25rem)));
+}
+
+.page-pastel.pastel-welcome .pastel-scene {
+	visibility: hidden;
+}
+
+.pastel-scene {
+	position: absolute;
+	inset: 0;
+}
+
+.pastel-drop-slots {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: max(100vw, 177.87234vh);
+	height: max(100vh, 56.2201vw);
+	pointer-events: none;
+	transform: translate(-50%, -50%);
+}
+
+.pastel-drop-slot {
+	position: absolute;
+	top: 58.4%;
+	display: grid;
+	place-items: center;
+	width: 18.2%;
+	aspect-ratio: 2.35;
+	padding: 0;
+	overflow: visible;
+	border: 0;
+	border-radius: 1.4rem;
+	background: transparent;
+	cursor: default;
+	pointer-events: auto;
+	transform: translate(-50%, -50%);
+	transition: transform 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
+}
+
+.pastel-drop-slot:first-child {
+	left: 38.6%;
+}
+
+.pastel-drop-slot:nth-child(2) {
+	left: 59.1%;
+}
+
+.pastel-drop-slot.can-select:hover,
+.pastel-drop-slot.can-select:focus-visible {
+	transform: translate(-50%, -50%) scale(1.04);
+	background: rgba(255, 230, 112, 0.2);
+	box-shadow: 0 0 0 3px rgba(255, 245, 180, 0.75);
+}
+
+.pastel-drop-slot.filled {
+	background: transparent;
+	box-shadow: none;
+	cursor: default;
+}
+
+.pastel-placed-token {
+	position: relative;
+	display: grid;
+	place-items: center;
+	width: 112%;
+	height: 120%;
+	animation: pastel-place 240ms ease-out both;
+}
+
+.pastel-placed-token img,
+.pastel-token img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: fill;
+	user-select: none;
+	-webkit-user-drag: none;
+}
+
+.pastel-placed-token span,
+.pastel-token span {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	color: #3a526e;
+	font: 800 clamp(1.4rem, 5vmin, 3rem) Arial, Helvetica, sans-serif;
+	text-shadow: 0 1px 1px rgba(255, 255, 255, 0.8);
+	transform: translate(-50%, -50%);
+	pointer-events: none;
+}
+
+.pastel-placed-token span {
+	font-size: clamp(1.7rem, 6.2vmin, 3.8rem);
+}
+
+.pastel-slot-hint {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	color: #fff;
+	font: 800 clamp(1.5rem, 5.2vmin, 3.2rem) Arial, Helvetica, sans-serif;
+	text-shadow: 0 2px 4px rgba(88, 42, 75, 0.8);
+	transform: translate(-50%, -50%);
+	pointer-events: none;
+}
+
+@keyframes pastel-place {
+	from { transform: scale(0.88); }
+	to { transform: scale(1); }
+}
+
+.pastel-options {
+	position: absolute;
+	inset: 0;
+	z-index: 3;
+	pointer-events: none;
+}
+
+.pastel-token {
+	position: absolute;
+	left: 50%;
+	top: 30%;
+	--pastel-token-gap: clamp(0.5rem, 2vw, 1.25rem);
+	display: grid;
+	place-items: center;
+	width: clamp(108px, 17vw, 210px);
+	aspect-ratio: 335 / 180;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	cursor: grab;
+	pointer-events: auto;
+	touch-action: none;
+	transition: transform 160ms ease;
+}
+
+.pastel-token:first-child {
+	transform: translate(calc(-100% - var(--pastel-token-gap)), -50%);
+}
+
+.pastel-token:last-child {
+	transform: translate(var(--pastel-token-gap), -50%);
+}
+
+.pastel-token:hover,
+.pastel-token:focus-visible,
+.pastel-token.selected {
+	filter: drop-shadow(0 5px 8px rgba(94, 48, 71, 0.35));
+}
+
+.pastel-token:first-child:hover,
+.pastel-token:first-child:focus-visible,
+.pastel-token:first-child.selected {
+	transform: translate(calc(-100% - var(--pastel-token-gap)), -50%) scale(1.08);
+}
+
+.pastel-token:last-child:hover,
+.pastel-token:last-child:focus-visible,
+.pastel-token:last-child.selected {
+	transform: translate(var(--pastel-token-gap), -50%) scale(1.08);
+}
+
+.pastel-token:disabled {
+	visibility: hidden;
+	pointer-events: none;
+}
+
+.pastel-token.pastel-token-dragging {
+	position: fixed;
+	z-index: 8;
+	pointer-events: none;
+	cursor: grabbing;
+	filter: drop-shadow(0 8px 12px rgba(75, 38, 64, 0.4));
+	transform: none;
+}
+
+@media (max-width: 600px), (max-height: 500px) {
+	.pastel-token {
+		top: 30%;
+		width: clamp(96px, 20vw, 145px);
+		--pastel-token-gap: clamp(0.35rem, 1.5vw, 0.75rem);
+	}
+
+	.page-pastel .selected-character {
+		width: clamp(180px, 44vmin, 280px);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.pastel-placed-token {
+		animation: none;
+	}
+}
