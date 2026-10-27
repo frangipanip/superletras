@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import BackButton from "../components/BackButton";
 import Character from "../components/Character";
 import FullscreenButton from "../components/FullscreenButton";
+import RioChocolate from "../components/RioChocolate";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
@@ -244,6 +245,7 @@ export default function Barcos() {
 
 	return (
 		<div className="page activity-page barcos-page">
+			<RioChocolate runtime={runtime} />
 			<BackButton />
 			<FullscreenButton toggle />
 			<div className="activity-controls">

@@ -1,0 +1,108 @@
+/* Todo se ubica en píxeles de fondopalabras.png (1933x1080); .rio-plano se escala
+   desde JS igual que el fondo (center / cover). Las cajas, los tiles y las
+   velocidades salen de scripts/generar-rio-chocolate.py y de VELOCIDAD_RIO en
+   rioChocolateAnimacion.js: si cambian allá, cambiarlos acá. */
+.rio-chocolate {
+	position: absolute;
+	inset: 0;
+	z-index: 0;
+	overflow: hidden;
+	pointer-events: none;
+}
+
+.rio-chocolate .rio-plano {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 1933px;
+	height: 1080px;
+	transform-origin: 0 0;
+}
+
+/* Tapa las burbujas pintadas del pozo, donde el río no se desplaza. */
+.rio-chocolate .rio-parche {
+	position: absolute;
+	left: 420px;
+	top: 596px;
+	width: 110px;
+	height: 128px;
+	background: url("/assets/imagenes/rio-chocolate-parche.png") 0 0 / 100% 100% no-repeat;
+}
+
+.rio-chocolate .rio-superficie {
+	position: absolute;
+	left: 180px;
+	top: 580px;
+	width: 1753px;
+	height: 188px;
+	overflow: hidden;
+	-webkit-mask: url("/assets/imagenes/rio-chocolate-mascara.png") 0 0 / 100% 100% no-repeat;
+	mask: url("/assets/imagenes/rio-chocolate-mascara.png") 0 0 / 100% 100% no-repeat;
+}
+
+.rio-chocolate .rio-capa {
+	position: absolute;
+	top: 0;
+	height: 100%;
+	background-repeat: repeat-x;
+	background-position: 0 0;
+	will-change: transform;
+	animation: linear infinite;
+}
+
+/* Cada capa empieza un tile a la izquierda y avanza exactamente un tile por vuelta. */
+.rio-chocolate .rio-capa-base {
+	left: -1200px;
+	width: 2953px;
+	background-image: url("/assets/imagenes/rio-chocolate-base.jpg");
+	background-size: 1200px 188px;
+	animation-name: rio-avanza-1200;
+	animation-duration: 42.86s;
+}
+
+.rio-chocolate .rio-capa-brillos {
+	left: -1024px;
+	width: 2777px;
+	background-image: url("/assets/imagenes/rio-chocolate-brillos.png");
+	background-size: 1024px 188px;
+	animation-name: rio-avanza-1024;
+	animation-duration: 28.44s;
+}
+
+@keyframes rio-avanza-1200 {
+	from { transform: translate3d(0, 0, 0); }
+	to { transform: translate3d(1200px, 0, 0); }
+}
+
+@keyframes rio-avanza-1024 {
+	from { transform: translate3d(0, 0, 0); }
+	to { transform: translate3d(1024px, 0, 0); }
+}
+
+/* Los brillos se mecen y respiran mientras avanzan. */
+.rio-chocolate .rio-vaiven {
+	position: absolute;
+	inset: 0;
+	animation: rio-vaiven 4.6s ease-in-out infinite alternate;
+}
+
+@keyframes rio-vaiven {
+	from { transform: translate3d(0, -1.5px, 0); opacity: 0.8; }
+	to { transform: translate3d(0, 1.5px, 0); opacity: 1; }
+}
+
+.rio-chocolate .rio-orillas {
+	position: absolute;
+	inset: 0;
+	background: url("/assets/imagenes/rio-chocolate-orillas.png") 0 0 / 100% 100% no-repeat;
+}
+
+.rio-chocolate .rio-lienzo {
+	position: absolute;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.rio-chocolate {
+		display: none;
+	}
+}

@@ -27,7 +27,7 @@ const SECUENCIA_COMER = [
 // Dónde está la boca dentro de la imagen del monstruo (fracción del ancho y del alto).
 const BOCA = { x: 0.5, y: 0.54 };
 // Botones de evolucionar/desevolucionar: solo se ven con estos códigos (ver server/index.js).
-const CODIGOS_DEBUG = new Set(["QDM7-9YVF", "Y86M-CQ2R"]);
+const CODIGOS_DEBUG = new Set(["QDM7-9YVF", "Y86M-CQ2R", "PQ4E-EXQ4"]);
 
 export default function MonstruoPage() {
 	const location = useLocation();
@@ -164,7 +164,7 @@ export default function MonstruoPage() {
 			}
 			const audio = quedaLleno ? audios.lleno : audios.comer;
 			audio.currentTime = 0;
-			audio.play().catch(() => {});
+			audio.play().catch(() => { });
 		}, VUELO_MS);
 		vueloTimers.current.push(timer);
 	}
@@ -185,7 +185,7 @@ export default function MonstruoPage() {
 		setCuadro(CUADROS_MONSTRUO.feliz);
 		setEvolucionando(true);
 		audios.lleno.currentTime = 0;
-		audios.lleno.play().catch(() => {});
+		audios.lleno.play().catch(() => { });
 		evolucionTimer.current = runtime.setTimeout(() => {
 			evolucionTimer.current = null;
 			setEvolucionPendiente(false);

@@ -12,7 +12,7 @@ const PORT = Number(process.env.PORT) || 3001;
 const DB_PATH = process.env.DB_PATH || fileURLToPath(new URL("../datos/superletras.db", import.meta.url));
 const MAX_BODY = 10 * 1024;
 // Botones de evolucionar/desevolucionar en la pantalla del monstruo (ver Monstruo.jsx).
-const CODIGOS_DEBUG = new Set(["QDM7-9YVF", "Y86M-CQ2R"]);
+const CODIGOS_DEBUG = new Set(["QDM7-9YVF", "Y86M-CQ2R", "PQ4E-EXQ4"]);
 
 mkdirSync(dirname(DB_PATH), { recursive: true });
 const db = new DatabaseSync(DB_PATH);

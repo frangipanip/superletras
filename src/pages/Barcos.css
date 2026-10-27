@@ -1,4 +1,5 @@
 .barcos-page {
+	position: relative;
 	background: url("/assets/imagenes/fondopalabras.png") center / cover no-repeat;
 }
 

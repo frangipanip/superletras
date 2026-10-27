@@ -8,8 +8,8 @@ const MAX_WAIT_MS = 30000;
 const FADE_MS = 300;
 const CSS_URL = /url\(\s*(['"]?)(.*?)\1\s*\)/g;
 
-// Junta las imágenes de la pantalla: <img> y fondos de CSS (también ::before/::after).
-// Las del propio cartel de carga no cuentan.
+// Junta las imágenes de la pantalla: <img>, fondos y máscaras de CSS (también
+// ::before/::after). Las del propio cartel de carga no cuentan.
 function collectImages(root) {
 	const urls = new Map();
 	const inLoader = (element) => element.closest(".page-loader");
@@ -24,15 +24,17 @@ function collectImages(root) {
 			return;
 		}
 		[null, "::before", "::after"].forEach((pseudo) => {
-			const background = window.getComputedStyle(element, pseudo).backgroundImage;
-			if (!background || background === "none") {
-				return;
-			}
-			for (const [, , url] of background.matchAll(CSS_URL)) {
-				if (url && !urls.has(url)) {
-					urls.set(url, null);
+			const style = window.getComputedStyle(element, pseudo);
+			[style.backgroundImage, style.maskImage, style.webkitMaskImage].forEach((value) => {
+				if (!value || value === "none") {
+					return;
 				}
-			}
+				for (const [, , url] of value.matchAll(CSS_URL)) {
+					if (url && !urls.has(url)) {
+						urls.set(url, null);
+					}
+				}
+			});
 		});
 	});
 	return urls;
