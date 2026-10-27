@@ -41,16 +41,12 @@ const GROUPS = {
 	}
 };
 
-const BOAT_IMAGES = [
-	[img("baco10.png"), img("baco11.png"), img("baco12.png")],
-	[img("baco20.png"), img("baco21.png"), img("baco22.png")],
-	[img("baco30.png"), img("baco31.png"), img("baco32.png")]
-];
+const COOKIE_IMAGES = [1, 2, 3, 4, 5, 6].map((cookie) => img(`cookie${cookie}.png`));
 
 const BOAT_POSITIONS = [
-	{ left: 34, top: 52 },
-	{ left: 50, top: 63 },
-	{ left: 65, top: 54 }
+	{ left: 32, top: 62 },
+	{ left: 54, top: 62 },
+	{ left: 76, top: 62 }
 ];
 
 function getAvailableSyllables(letter) {
@@ -67,12 +63,13 @@ function pickWordGroup(letter, prompt) {
 	const correctWords = group.items.filter((word) => word.startsWith(prompt));
 	const target = correctWords[Math.floor(Math.random() * correctWords.length)];
 	const incorrect = shuffle(group.items.filter((word) => !word.startsWith(prompt))).slice(0, 2);
+	const cookies = shuffle(COOKIE_IMAGES).slice(0, BOAT_POSITIONS.length);
 	const boats = shuffle([target, ...incorrect]).map((word, index) => ({
 		id: `${word}-${index}`,
 		word,
 		correct: word === target,
 		position: BOAT_POSITIONS[index],
-		frameGroup: index % BOAT_IMAGES.length
+		cookieImage: cookies[index]
 	}));
 	return { target, boats, prompt, letter: safeLetter };
 }
@@ -104,11 +101,14 @@ export default function Barcos() {
 	const { round } = activity;
 	const [selectedBoat, setSelectedBoat] = useState(null);
 	const [incorrectBoats, setIncorrectBoats] = useState([]);
+	const [sinkingBoats, setSinkingBoats] = useState([]);
 	const [celebrating, setCelebrating] = useState(false);
+	const [successReady, setSuccessReady] = useState(false);
 	const [boatFrame, setBoatFrame] = useState(0);
 	const boats = round.boats;
-	const game = useRef({ promptSequence: 0 });
+	const game = useRef({ promptSequence: 0, feedbackSequence: 0 });
 	const promptAudioRef = useRef(null);
+	const feedbackTimerRef = useRef(null);
 
 	useEffect(() => {
 		setActivity(createActivity(letter));
@@ -119,15 +119,26 @@ export default function Barcos() {
 
 	useEffect(() => {
 		setBoatFrame(0);
-		let frame = 0;
-		const timer = runtime.setInterval(() => {
-			frame += 1;
-			setBoatFrame(frame);
-			if (frame >= 2) {
-				runtime.clearInterval(timer);
+		setSinkingBoats([]);
+		setSuccessReady(false);
+		let activa = true;
+		let timer = null;
+		runtime.requestAnimationFrame(() => {
+			if (!activa) return;
+			setBoatFrame(1);
+			timer = runtime.setTimeout(() => {
+				if (activa) setBoatFrame(2);
+			}, 760);
+		});
+		return () => {
+			activa = false;
+			game.current.feedbackSequence += 1;
+			if (timer !== null) runtime.clearTimeout(timer);
+			if (feedbackTimerRef.current !== null) {
+				runtime.clearTimeout(feedbackTimerRef.current);
+				feedbackTimerRef.current = null;
 			}
-		}, 220);
-		return () => runtime.clearInterval(timer);
+		};
 	}, [round, runtime]);
 
 	const playPromptAudio = useCallback((promptRound) => {
@@ -190,12 +201,24 @@ export default function Barcos() {
 
 	function handleBoatClick(boat) {
 		if (selectedBoat || celebrating || incorrectBoats.includes(boat.id)) return;
+		const feedbackSequence = game.current.feedbackSequence + 1;
+		game.current.feedbackSequence = feedbackSequence;
+		const feedbackVigente = () => game.current.feedbackSequence === feedbackSequence;
 		stopPromptAudio(game.current.promptSequence);
 		setSelectedBoat(boat);
 		if (boat.correct) {
 			setCelebrating(true);
+			const boatsToSink = boats.filter((option) => !option.correct).map((option) => option.id);
+			setSuccessReady(true);
+			setSinkingBoats(boatsToSink);
+			feedbackTimerRef.current = runtime.setTimeout(() => {
+				if (!feedbackVigente()) return;
+				setIncorrectBoats(boatsToSink);
+				setSinkingBoats([]);
+			}, 520);
 			const successAudio = runtime.audio(sound("correcto.mp3"), { preload: true });
 			const advanceToNextPrompt = () => {
+				if (!feedbackVigente()) return;
 				successAudio.onended = null;
 				setSelectedBoat(null);
 				setCelebrating(false);
@@ -214,32 +237,48 @@ export default function Barcos() {
 					};
 				});
 			};
-			successAudio.onended = () => {
-				advanceToNextPrompt();
-			};
+			successAudio.onended = advanceToNextPrompt;
 			successAudio.play().catch((error) => {
+				if (!feedbackVigente()) return;
 				setSelectedBoat(null);
 				setCelebrating(false);
+				setSuccessReady(false);
+				setSinkingBoats([]);
+				if (feedbackTimerRef.current !== null) {
+					runtime.clearTimeout(feedbackTimerRef.current);
+					feedbackTimerRef.current = null;
+				}
 				console.error("No se pudo reproducir el audio de respuesta correcta.", error);
 			});
 			return;
 		}
-		setIncorrectBoats((current) => [...current, boat.id]);
-		const errorAudio = runtime.audio(sound("error.mp3"), { preload: true });
-		errorAudio.onended = () => {
-			errorAudio.onended = null;
-			setSelectedBoat(null);
-		};
-		errorAudio.play().catch((error) => {
-			setSelectedBoat(null);
-			console.error("No se pudo reproducir el audio de error.", error);
+		const splashAudio = runtime.audio("/assets/sonido/splash.mp3", { preload: true });
+		splashAudio.play().catch((error) => {
+			if (feedbackVigente()) {
+				console.error("No se pudo reproducir el sonido splash.", error);
+			}
 		});
+		setSinkingBoats([boat.id]);
+		feedbackTimerRef.current = runtime.setTimeout(() => {
+			if (!feedbackVigente()) return;
+			feedbackTimerRef.current = null;
+			setIncorrectBoats((current) => [...current, boat.id]);
+			setSinkingBoats([]);
+			setSelectedBoat(null);
+		}, 520);
 	}
 
 	function restartRound() {
+		game.current.feedbackSequence += 1;
+		if (feedbackTimerRef.current !== null) {
+			runtime.clearTimeout(feedbackTimerRef.current);
+			feedbackTimerRef.current = null;
+		}
 		setSelectedBoat(null);
 		setIncorrectBoats([]);
+		setSinkingBoats([]);
 		setCelebrating(false);
+		setSuccessReady(false);
 		setActivity(createActivity(letter));
 	}
 
@@ -266,20 +305,24 @@ export default function Barcos() {
 			<main className="barcos-scene" aria-label="Actividad de barcos">
 				{boats.map((boat) => {
 					const isSelected = selectedBoat?.id === boat.id;
-					const boatImage = BOAT_IMAGES[boat.frameGroup][Math.min(boatFrame, 2)];
 					return (
 						<button
 							key={boat.id}
 							type="button"
-							className={`boat-button ${boat.correct ? "boat-correct" : "boat-incorrect"}${incorrectBoats.includes(boat.id) ? " boat-eliminated" : ""}${isSelected ? " selected" : ""}${boatFrame === 2 || celebrating ? " boat-floating" : ""}${boatFrame === 2 ? " boat-ready" : ""}`}
+							className={`boat-button ${boat.correct ? "boat-correct" : "boat-incorrect"}${incorrectBoats.includes(boat.id) ? " boat-eliminated" : ""}${sinkingBoats.includes(boat.id) ? " boat-sinking" : ""}${isSelected ? " selected" : ""}${boat.correct && successReady ? " boat-success-ready" : ""}${boatFrame >= 1 ? " boat-entered" : ""}${boatFrame === 2 || (celebrating && successReady) ? " boat-floating" : ""}${boatFrame === 2 ? " boat-ready" : ""}`}
 							disabled={boatFrame < 2 || (selectedBoat && !isSelected) || incorrectBoats.includes(boat.id)}
-							style={{ left: `${boat.position.left}%`, top: `${boat.position.top}%` }}
+							style={{
+								left: `${boat.correct && successReady ? 50 : boat.position.left}%`,
+								top: `${boat.correct && successReady ? 50 : boat.position.top}%`
+							}}
 							onClick={() => handleBoatClick(boat)}
 							aria-label={`Elegir barco ${boat.word}`}
 						>
 							<span className="boat-content">
-								<img className="boat-image" src={boatImage} alt={boat.word} draggable={false} />
-								<span className="boat-word">{boat.word}</span>
+								<span className="boat-float">
+									<img className="cookie-image" src={boat.cookieImage} alt="" draggable={false} />
+									<span className="boat-word">{boat.word}</span>
+								</span>
 							</span>
 						</button>
 					);
