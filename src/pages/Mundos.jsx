@@ -2,8 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router";
 import UserNav from "../components/UserNav";
 import { usePageTitle } from "../hooks/usePageTitle";
-import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
-import { CHARACTERS, img, preloadImages } from "../lib/assets";
+import { img, preloadImages } from "../lib/assets";
 import { writeStorage, STORAGE_KEYS } from "../lib/storage";
 import { MUNDO1_IMAGES } from "./Mundo1";
 import { MUNDO2_IMAGES } from "./Mundo2";
@@ -11,73 +10,53 @@ import { MUNDO3_IMAGES } from "./Mundo3";
 import { MUNDO4_IMAGES } from "./Mundo4";
 import "./Mundos.css";
 
-const LEVEL_ROWS = [
-	[1, 2, 3],
-	[4, 5, 6]
-];
-
-const LEVEL_LETTERS = {
-	1: "A - L - M - S - T",
-	2: "P - N - D - F - H",
-	3: "R - RR - AR - Y - LL",
-	4: "C - CE - Q - Z - CH",
-	5: "G - GE - GU - J - GÜ",
-	6: "B - V - Ñ - K - X"
-};
-
 const LEVEL_ROUTES = { 1: "/mundo1", 2: "/mundo2", 3: "/mundo3", 4: "/mundo4" };
+const WORLDS = [1, 2, 3, 4, 5, 6];
 
 export default function Mundos() {
 	usePageTitle("Superletras - Mundos");
 	const navigate = useNavigate();
-	const [character, selectCharacter] = useSelectedCharacter();
 
-	// Mientras se elige personaje y nivel, se van bajando las imágenes de ambos mundos.
 	useEffect(() => {
-		preloadImages([...MUNDO1_IMAGES, ...MUNDO2_IMAGES, ...MUNDO3_IMAGES, ...MUNDO4_IMAGES]);
+		preloadImages([
+			...WORLDS.map((world) => img(`mundo${world}.png`)),
+			...MUNDO1_IMAGES,
+			...MUNDO2_IMAGES,
+			...MUNDO3_IMAGES,
+			...MUNDO4_IMAGES
+		]);
 	}, []);
 
 	return (
 		<div className="page page-mundos">
 			<UserNav />
 
-			<main className={character ? "worlds-row has-selection" : "worlds-row"} aria-label="Selección de mundo">
-				{Object.entries(CHARACTERS).map(([id, { image, alt }]) => (
+			<main className="worlds-row" aria-label="Selección de mundo">
+				<svg className="journey-path" viewBox="0 0 1000 562" preserveAspectRatio="none" aria-hidden="true">
+					<path className="journey-path-shadow" d="M164 152 H450 H735 C875 183 880 335 735 416 H450 H164" />
+					<path className="journey-path-line" d="M164 152 H450 H735 C875 183 880 335 735 416 H450 H164" />
+					<path className="journey-arrow" d="M-8 -8 L8 0 L-8 8 Z" transform="translate(307 152)" />
+					<path className="journey-arrow" d="M-8 -8 L8 0 L-8 8 Z" transform="translate(593 152)" />
+					<path className="journey-arrow" d="M-8 -8 L8 0 L-8 8 Z" transform="translate(868 286) rotate(90)" />
+					<path className="journey-arrow" d="M-8 -8 L8 0 L-8 8 Z" transform="translate(593 416) rotate(180)" />
+					<path className="journey-arrow" d="M-8 -8 L8 0 L-8 8 Z" transform="translate(307 416) rotate(180)" />
+				</svg>
+
+				{WORLDS.map((world) => (
 					<button
-						key={id}
-						className={character === id ? "hero-button selected" : "hero-button"}
+						key={world}
+						className={`world-button world-button-${world}`}
 						type="button"
-						data-character={id}
-						aria-label={`Elegir ${alt}`}
-						aria-pressed={character === id}
-						onClick={() => selectCharacter(id)}
+						disabled={!LEVEL_ROUTES[world]}
+						aria-label={`Mundo ${world}${LEVEL_ROUTES[world] ? "" : " (próximamente)"}`}
+						onClick={LEVEL_ROUTES[world] ? () => {
+							writeStorage(STORAGE_KEYS.selectedWorld, world);
+							navigate(LEVEL_ROUTES[world]);
+						} : undefined}
 					>
-						<img src={image} alt={alt} />
+						<img src={img(`mundo${world}.png`)} alt="" />
 					</button>
 				))}
-
-				<section className="levels-layout" aria-label="Selección de nivel">
-					{LEVEL_ROWS.map((row) => (
-						<div className="level-row" key={row[0]}>
-							{row.map((level) => (
-								<button
-									key={level}
-									className={LEVEL_ROUTES[level] ? "level-button" : "level-button unavailable"}
-									type="button"
-									disabled={!LEVEL_ROUTES[level]}
-									aria-label={`Nivel ${level}`}
-									onClick={LEVEL_ROUTES[level] ? () => {
-										writeStorage(STORAGE_KEYS.selectedWorld, level);
-										navigate(LEVEL_ROUTES[level]);
-									} : undefined}
-								>
-									<span className="level-letters" aria-hidden="true">{LEVEL_LETTERS[level]}</span>
-									<img src={img(`${level}btn.png`)} alt={`Nivel ${level}`} />
-								</button>
-							))}
-						</div>
-					))}
-				</section>
 			</main>
 		</div>
 	);
