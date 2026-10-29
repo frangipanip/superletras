@@ -10,20 +10,31 @@
 	overflow: hidden;
 }
 
-.barcos-prompt {
+.barcos-tray {
 	position: absolute;
-	top: clamp(1rem, 4vh, 2.5rem);
-	left: 50%;
-	z-index: 3;
-	padding: 0.35em 0.8em;
-	border: 3px solid #2f8498;
-	border-radius: 0.6em;
-	background: linear-gradient(180deg, #fff 0%, #d6f8ff 100%);
-	box-shadow: 0 3px 0 #286f84, 0 5px 8px rgba(0, 0, 0, 0.25);
-	color: #6b3f24;
-	font: 800 clamp(1.75rem, 6vmin, 3.5rem) Arial, Helvetica, sans-serif;
-	line-height: 1;
+	bottom: 1.5%;
+	left: 58%;
+	z-index: 1;
+	width: clamp(280px, 38vw, 535px);
 	transform: translateX(-50%);
+	pointer-events: none;
+}
+
+.barcos-tray-image {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+.barcos-tray-label {
+	position: absolute;
+	top: 73%;
+	left: 50%;
+	color: #6b3f24;
+	font: 900 clamp(1.5rem, 6vmin, 2.5rem) Arial, Helvetica, sans-serif;
+	line-height: 1;
+	transform: translate(-50%, -50%);
+	white-space: nowrap;
 }
 
 .barcos-character-wrap {
@@ -109,7 +120,7 @@
 
 .cookie-image {
 	display: block;
-	width: clamp(100px, 24vmin, 230px);
+	width: clamp(230px, 55.2vmin, 264.5px);
 	height: auto;
 	filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.25));
 }
@@ -141,13 +152,13 @@
 .boat-word {
 	position: absolute;
 	left: 50%;
-	top: 50%;
+	top: 40%;
 	padding: 0.3rem 0.55rem;
 	border-radius: 0.5rem;
 	visibility: hidden;
 	opacity: 0;
-	color: #e59d31;
-	font: 700 clamp(0.9rem, 2.8vmin, 1.6rem) Arial, Helvetica, sans-serif;
+	color: #6b3f24;
+	font: 900 clamp(1.35rem, 4.2vmin, 1.55rem) Arial, Helvetica, sans-serif;
 	transform: translate(-50%, -50%);
 	white-space: nowrap;
 }

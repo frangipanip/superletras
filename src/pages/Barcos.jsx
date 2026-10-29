@@ -14,12 +14,13 @@ import { shuffle } from "../lib/shuffle";
 import "./actividad.css";
 import "./Barcos.css";
 
-const COOKIE_IMAGES = [1, 2, 3, 4, 5, 6].map((cookie) => img(`cookie${cookie}.png`));
+const COOKIE_IMAGE = img("cookie1.png");
+const TRAY_IMAGE = img("bandeja.png");
 
 const BOAT_POSITIONS = [
-	{ left: 32, top: 62 },
-	{ left: 54, top: 62 },
-	{ left: 76, top: 62 }
+	{ left: 36, top: 62 },
+	{ left: 57, top: 62 },
+	{ left: 79, top: 62 }
 ];
 
 function getAvailableSyllables(letter) {
@@ -36,13 +37,12 @@ function pickWordGroup(letter, prompt) {
 	const correctWords = group.items.filter((word) => word.startsWith(prompt));
 	const target = correctWords[Math.floor(Math.random() * correctWords.length)];
 	const incorrect = shuffle(group.items.filter((word) => !word.startsWith(prompt))).slice(0, 2);
-	const cookies = shuffle(COOKIE_IMAGES).slice(0, BOAT_POSITIONS.length);
 	const boats = shuffle([target, ...incorrect]).map((word, index) => ({
 		id: `${word}-${index}`,
 		word,
 		correct: word === target,
 		position: BOAT_POSITIONS[index],
-		cookieImage: cookies[index]
+		cookieImage: COOKIE_IMAGE
 	}));
 	return { target, boats, prompt, letter: safeLetter };
 }
@@ -276,8 +276,11 @@ export default function Barcos() {
 				</div>
 			)}
 			<main className="barcos-scene" aria-label="Actividad de barcos">
-				<div className="barcos-prompt" aria-live="polite">
-					{round.prompt}
+				<div className="barcos-tray">
+					<img className="barcos-tray-image" src={TRAY_IMAGE} alt="" draggable={false} />
+					<span className="barcos-tray-label" aria-live="polite">
+						{round.prompt}
+					</span>
 				</div>
 				{boats.map((boat) => {
 					const isSelected = selectedBoat?.id === boat.id;
