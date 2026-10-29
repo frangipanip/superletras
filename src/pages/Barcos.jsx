@@ -284,15 +284,17 @@ export default function Barcos() {
 				</div>
 				{boats.map((boat) => {
 					const isSelected = selectedBoat?.id === boat.id;
+					const isMovingToTray = boat.correct && successReady;
+					const isFloating = !isMovingToTray && (boatFrame === 2 || (celebrating && successReady));
 					return (
 						<button
 							key={boat.id}
 							type="button"
-							className={`boat-button ${boat.correct ? "boat-correct" : "boat-incorrect"}${incorrectBoats.includes(boat.id) ? " boat-eliminated" : ""}${sinkingBoats.includes(boat.id) ? " boat-sinking" : ""}${isSelected ? " selected" : ""}${boat.correct && successReady ? " boat-success-ready" : ""}${boatFrame >= 1 ? " boat-entered" : ""}${boatFrame === 2 || (celebrating && successReady) ? " boat-floating" : ""}${boatFrame === 2 ? " boat-ready" : ""}`}
+							className={`boat-button ${boat.correct ? "boat-correct" : "boat-incorrect"}${incorrectBoats.includes(boat.id) ? " boat-eliminated" : ""}${sinkingBoats.includes(boat.id) ? " boat-sinking" : ""}${isSelected ? " selected" : ""}${isMovingToTray ? " boat-success-ready" : ""}${boatFrame >= 1 ? " boat-entered" : ""}${isFloating ? " boat-floating" : ""}${boatFrame === 2 ? " boat-ready" : ""}`}
 							disabled={boatFrame < 2 || (selectedBoat && !isSelected) || incorrectBoats.includes(boat.id)}
 							style={{
-								left: `${boat.correct && successReady ? 50 : boat.position.left}%`,
-								top: `${boat.correct && successReady ? 50 : boat.position.top}%`
+								left: `${isMovingToTray ? 58 : boat.position.left}%`,
+								top: `${isMovingToTray ? 85 : boat.position.top}%`
 							}}
 							onClick={() => handleBoatClick(boat)}
 							aria-label={`Elegir barco ${boat.word}`}
