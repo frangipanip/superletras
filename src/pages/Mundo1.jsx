@@ -56,7 +56,9 @@ const ACTIVITY_SIGN_IMAGES = [
 	"DIBUJARbtn.png",
 	"MEMOTESTbtn.png",
 	"BARCOSbtn.png",
-	"PASTELbtn.png"
+	"PASTELbtn.png",
+	// Puzzle usa el cartel de globos hasta que esté su etiqueta.
+	"GLOBOSbtn.png"
 ];
 
 // Todo lo que muestra la pantalla al entrar; Mundos lo precarga para que no aparezca de a partes.
@@ -80,19 +82,19 @@ export const MUNDO1_IMAGES = [
 	...MUNDO1_MOUTH_IMAGES
 ];
 
-// Un botón por actividad (en el orden de ACTIVIDADES) y uno más al final que todavía no abre nada.
-const PATH_ROUTES = [...ACTIVIDADES.map(({ clave }) => `/${clave}`), null];
+// Un botón por actividad, en el orden de ACTIVIDADES.
+const PATH_ROUTES = ACTIVIDADES.map(({ clave }) => `/${clave}`);
 // Desde acá el camino es de palabras: queda oculto hasta evolucionar el monstruo de la letra.
 const FIRST_WORD_PATH_INDEX = ACTIVIDADES.findIndex(({ tipo }) => tipo === TIPOS_ACTIVIDAD.palabras);
 
 // Índices de PATH_ROUTES habilitados por letra: el resto del camino queda apagado
 // hasta que la actividad tenga los audios de esa letra. Sin entrada, la letra no abre nada.
 const AVAILABLE_ACTIVITIES = {
-	a: [0, 1, 2, 3, 4, 5, 6, 7, 8],
-	l: [0, 1, 2, 3, 4, 5, 6, 7, 8],
-	m: [0, 1, 2, 3, 4, 5, 6, 7, 8],
-	s: [0, 1, 2, 3, 4, 5, 6, 7, 8],
-	t: [0, 1, 2, 3, 4, 5, 6, 7, 8]
+	a: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+	l: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+	m: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+	s: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+	t: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 };
 
 // Desplazamiento con el mouse: se arrastra la escena con click sostenido.
