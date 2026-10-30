@@ -555,7 +555,7 @@ export default function Mundo1() {
 			{/* Fijo arriba al centro: sigue ahí aunque se recorra el camino. */}
 			<button className="mundo1-monster-button" type="button" aria-label="Ver al monstruo y sus comidas" onClick={openMonster}>
 				<img className="mundo1-monster-cloud" src={img("nube.png")} alt="" aria-hidden="true" draggable={false} />
-				<Monstruo letra={selectedOption || "a"} />
+				<Monstruo letra={selectedOption || "a"} evolucionado={selectedMonsterEvolved} />
 			</button>
 			{characterOffscreen && character && (
 				<button className={`mundo1-character-locator direction-${characterDirection}`} type="button" aria-label="Ir hasta mi personaje" onClick={scrollToCharacter}>

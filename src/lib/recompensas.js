@@ -213,6 +213,23 @@ export async function forzarMonstruo(letra, evolucionar) {
 	}
 }
 
+// Debug: suma comida de cada tipo para darle a todos los monstruos (ver server/index.js).
+export async function sumarComidaPrueba() {
+	if (!state.codigo) {
+		return false;
+	}
+	try {
+		const { status, datos } = await pedir("POST", `/api/jugadores/${encodeURIComponent(state.codigo)}/comida-prueba`);
+		if (status !== 200) {
+			return false;
+		}
+		setState({ letras: datos.letras || {} });
+		return true;
+	} catch {
+		return false;
+	}
+}
+
 export function startRecompensas() {
 	sincronizar();
 	window.addEventListener("online", sincronizar);

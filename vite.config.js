@@ -28,11 +28,13 @@ const apiProxy = { "/api": `http://localhost:${API_PORT}` };
 
 function rewardsApi() {
 	let child = null;
-	function start() {
+	// En dev se reinicia sola si cambia el código de la API (node --watch).
+	function start(watch = false) {
 		if (child) {
 			return;
 		}
-		child = spawn(process.execPath, ["server/index.js"], {
+		const args = watch ? ["--watch-path=server", "--watch-path=shared", "server/index.js"] : ["server/index.js"];
+		child = spawn(process.execPath, args, {
 			env: { ...process.env, PORT: String(API_PORT) },
 			stdio: ["ignore", "inherit", "pipe"]
 		});
@@ -57,7 +59,7 @@ function rewardsApi() {
 	return {
 		name: "superletras-rewards-api",
 		configureServer(server) {
-			start();
+			start(true);
 			server.httpServer?.once("close", () => child?.kill());
 		},
 		configurePreviewServer(server) {

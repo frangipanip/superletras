@@ -6,13 +6,15 @@ import { createServer } from "node:http";
 import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { DatabaseSync } from "node:sqlite";
-import { COMIDA_POR_ACTIVIDAD, COMIDA_POR_CLAVE, COMIDAS, premioPorErrores } from "../shared/comidas.js";
+import { COMIDA_POR_ACTIVIDAD, COMIDA_POR_CLAVE, COMIDAS, LETRAS, premioPorErrores } from "../shared/comidas.js";
 
 const PORT = Number(process.env.PORT) || 3001;
 const DB_PATH = process.env.DB_PATH || fileURLToPath(new URL("../datos/superletras.db", import.meta.url));
 const MAX_BODY = 10 * 1024;
 // Botones de evolucionar/desevolucionar en la pantalla del monstruo (ver Monstruo.jsx).
 const CODIGOS_DEBUG = new Set(["QDM7-9YVF", "Y86M-CQ2R", "PQ4E-EXQ4"]);
+// Botón "Comida de prueba" (debug): cuántas de cada comida quedan para darle a cada monstruo.
+const COMIDA_PRUEBA = 5;
 
 mkdirSync(dirname(DB_PATH), { recursive: true });
 const db = new DatabaseSync(DB_PATH);
@@ -229,6 +231,26 @@ const server = createServer(async (req, res) => {
 			for (const comida of COMIDAS) {
 				const cantidad = tope ? comida.necesarias : 0;
 				sql.guardarComida.run(codigoDebug, letraDebug, comida.clave, cantidad, cantidad);
+			}
+			return responder(res, 200, { codigo: codigoDebug, letras: leerComidas(codigoDebug) });
+		}
+
+		// POST /api/jugadores/:codigo/comida-prueba → debug: suma COMIDA_PRUEBA de cada comida para
+		// darle a cada monstruo (pasa el tope a propósito, para ver comer también al evolucionado).
+		const rutaPrueba = pathname.match(/^\/api\/jugadores\/([^/]+)\/comida-prueba$/);
+		if (rutaPrueba && req.method === "POST") {
+			const codigoDebug = normalizarCodigo(decodeURIComponent(rutaPrueba[1]));
+			if (!CODIGOS_DEBUG.has(codigoDebug)) {
+				return responder(res, 403, { error: "No autorizado" });
+			}
+			if (!sql.existeJugador.get(codigoDebug)) {
+				sql.crearJugador.run(codigoDebug, null);
+			}
+			for (const letra of LETRAS) {
+				for (const comida of COMIDAS) {
+					const actual = sql.comida.get(codigoDebug, letra, comida.clave) || { ganadas: 0, dadas: 0 };
+					sql.guardarComida.run(codigoDebug, letra, comida.clave, actual.dadas + COMIDA_PRUEBA, actual.dadas);
+				}
 			}
 			return responder(res, 200, { codigo: codigoDebug, letras: leerComidas(codigoDebug) });
 		}

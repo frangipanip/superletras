@@ -3,12 +3,12 @@ import { useLocation } from "react-router";
 import { COMIDAS, LETRAS } from "../../shared/comidas.js";
 import BackButton from "../components/BackButton";
 import FullscreenButton from "../components/FullscreenButton";
-import Monstruo, { CUADROS_MONSTRUO, imagenesMonstruo, imagenMonstruoNivel2 } from "../components/Monstruo";
+import Monstruo, { CUADROS_MONSTRUO, imagenesMonstruo, imagenesMonstruoNivel2, imagenMonstruoNivel2 } from "../components/Monstruo";
 import PufCrema from "../components/PufCrema";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { preloadImages, sound } from "../lib/assets";
-import { cantidadComida, darComida, forzarMonstruo, getRecompensas, sincronizar, subscribeRecompensas } from "../lib/recompensas";
+import { cantidadComida, darComida, forzarMonstruo, getRecompensas, sincronizar, subscribeRecompensas, sumarComidaPrueba } from "../lib/recompensas";
 import { readMenuOption, STORAGE_KEYS, writeStorage } from "../lib/storage";
 import "./actividad.css";
 import "./Monstruo.css";
@@ -69,6 +69,7 @@ export default function MonstruoPage() {
 	useEffect(() => {
 		preloadImages([
 			...imagenesMonstruo(letra),
+			...imagenesMonstruoNivel2(letra),
 			...LETRAS.map((otraLetra) => imagenMonstruoNivel2(otraLetra))
 		]);
 	}, [letra]);
@@ -123,7 +124,8 @@ export default function MonstruoPage() {
 
 	function darAlMonstruo(event, comida) {
 		const boton = event.currentTarget.getBoundingClientRect();
-		const quedaLleno = comidas.every(({ clave, dadas, necesarias }) => (clave === comida.clave ? dadas + 1 : dadas) >= necesarias);
+		// Si ya estaba evolucionado (comida de prueba) solo come: no vuelve a evolucionar.
+		const quedaLleno = !lleno && comidas.every(({ clave, dadas, necesarias }) => (clave === comida.clave ? dadas + 1 : dadas) >= necesarias);
 		if (quedaLleno) {
 			setEvolucionPendiente(true);
 		}
@@ -253,6 +255,9 @@ export default function MonstruoPage() {
 							<button type="button" className="monstruo-debug__boton" onClick={desevolucionarDebug}>
 								Desevolucionar
 							</button>
+							<button type="button" className="monstruo-debug__boton" onClick={sumarComidaPrueba}>
+								Comida de prueba
+							</button>
 						</div>
 					)}
 					<div ref={monstruoRef} className="monstruo-lugar">
@@ -263,7 +268,11 @@ export default function MonstruoPage() {
 								<Monstruo letra={letra} evolucionado className="monstruo-evolucion__nuevo" />
 							</div>
 						) : (
-							<Monstruo letra={letra} cuadro={lleno && cuadro === CUADROS_MONSTRUO.normal ? CUADROS_MONSTRUO.feliz : cuadro} lleno={lleno} evolucionado={lleno && !evolucionPendiente} />
+							<Monstruo
+								letra={letra}
+								cuadro={evolucionPendiente && cuadro === CUADROS_MONSTRUO.normal ? CUADROS_MONSTRUO.feliz : cuadro}
+								evolucionado={lleno && !evolucionPendiente}
+							/>
 						)}
 					</div>
 				</section>
