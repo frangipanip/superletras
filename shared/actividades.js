@@ -14,7 +14,8 @@ export const ACTIVIDADES = [
 	{ clave: "memotest", tipo: TIPOS_ACTIVIDAD.silabas },
 	{ clave: "barcos", tipo: TIPOS_ACTIVIDAD.palabras },
 	{ clave: "pastel", tipo: TIPOS_ACTIVIDAD.palabras },
-	{ clave: "puzzle", tipo: TIPOS_ACTIVIDAD.palabras }
+	{ clave: "puzzle", tipo: TIPOS_ACTIVIDAD.palabras },
+	{ clave: "decora", tipo: TIPOS_ACTIVIDAD.palabras }
 ];
 
 export const ACTIVIDAD_POR_CLAVE = Object.fromEntries(ACTIVIDADES.map((actividad) => [actividad.clave, actividad]));

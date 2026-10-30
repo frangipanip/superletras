@@ -1,0 +1,549 @@
+.decora-page {
+	position: relative;
+	overflow: hidden;
+	background: url("/assets/imagenes/fondoDecora.png") center / cover no-repeat;
+	transition: background-position 450ms ease;
+}
+
+.decora-page--fondo-arriba {
+	background-position: center 80%;
+	--decora-fondo-movimiento: min(0px, calc(30vh - 16.88vw));
+}
+
+.decora-page .activity-controls,
+.decora-page .corner-button,
+.decora-page .fullscreen-button {
+	z-index: 20;
+}
+
+.decora-scene {
+	position: relative;
+	width: 100%;
+	height: 100vh;
+	height: 100dvh;
+	overflow: hidden;
+}
+
+.decora-cake {
+	position: absolute;
+	left: 50%;
+	bottom: 12%;
+	z-index: 2;
+	width: clamp(185px, 25vw, 420px);
+	transform: translateX(-50%);
+	transition: transform 450ms ease;
+	pointer-events: none;
+}
+
+.decora-scene--fondo-arriba .decora-cake {
+	transform: translate(-50%, var(--decora-fondo-movimiento));
+}
+
+.decora-cake img {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+.decora-cake--frosted {
+	z-index: 5;
+}
+
+.decora-character {
+	position: absolute;
+	top: 57%;
+	left: 4%;
+	z-index: 9;
+	width: clamp(130px, 21vmin, 240px);
+	transform: translateY(-50%);
+}
+
+.decora-character .selected-character {
+	position: relative;
+	top: auto;
+	left: auto;
+	width: 100%;
+	transform: none;
+	animation: decora-character-float 1.8s ease-in-out infinite alternate;
+}
+
+.decora-character .selected-character img {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+.decora-character .selected-character .character-mouth {
+	position: absolute;
+	top: 23%;
+	left: 50%;
+	width: 22%;
+	height: auto;
+	transform: translateX(-50%);
+}
+
+.decora-character .selected-character .character-mouth[hidden] {
+	display: none;
+}
+
+@keyframes decora-character-float {
+	from { transform: translateY(0); }
+	to { transform: translateY(-8px); }
+}
+
+.decora-layer {
+	position: absolute;
+	inset: 0;
+	z-index: 4;
+}
+
+.decora-layer[aria-hidden="true"] {
+	pointer-events: none;
+}
+
+.decora-mangas-image,
+.decora-mangas-choices {
+	position: absolute;
+	top: 0;
+	left: 50%;
+	width: clamp(580px, 82vh, 900px);
+	max-width: 100vw;
+	transform: translateX(calc(-50% + var(--decora-shift, 0%)));
+	transition: transform 650ms cubic-bezier(0.2, 0.8, 0.25, 1);
+}
+
+.decora-mangas-image {
+	display: block;
+	z-index: 2;
+	height: auto;
+	pointer-events: none;
+}
+
+.decora-mangas-choices {
+	z-index: 3;
+	aspect-ratio: 1738 / 905;
+}
+
+.decora-manga-choice {
+	position: absolute;
+	top: 0;
+	width: 30%;
+	height: 100%;
+}
+
+.decora-manga-choice:nth-child(1) { left: 6%; }
+.decora-manga-choice:nth-child(2) { left: 35%; }
+.decora-manga-choice:nth-child(3) { left: 64%; }
+
+.decora-choice {
+	display: block;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	cursor: pointer;
+}
+
+.decora-choice:disabled {
+	cursor: default;
+}
+
+.decora-choice:focus-visible {
+	outline: 4px solid #fff;
+	outline-offset: 3px;
+}
+
+.decora-label {
+	position: absolute;
+	left: 50%;
+	display: block;
+	max-width: 90%;
+	padding: 0.18em 0.36em;
+	border-radius: 0.25em;
+	color: #684021;
+	background: rgba(255, 250, 232, 0.72);
+	font: 900 clamp(1rem, 3vmin, 2rem) Arial, Helvetica, sans-serif;
+	line-height: 1;
+	text-align: center;
+	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+	transform: translate(-50%, -50%);
+	white-space: nowrap;
+	pointer-events: none;
+}
+
+.decora-manga-choice .decora-label {
+	top: 52%;
+}
+
+.decora-layer--frascos {
+	top: auto;
+	bottom: 5%;
+	left: 50%;
+	z-index: 6;
+	display: grid;
+	width: min(56vw, 760px);
+	height: min(34vh, 270px);
+	grid-template-columns: repeat(3, 1fr);
+	transform: translateX(-50%);
+}
+
+.decora-jar {
+	position: relative;
+	min-width: 0;
+	height: 100%;
+}
+
+.decora-jar img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+}
+
+.decora-jar .decora-label {
+	top: 66%;
+}
+
+.decora-layer--frutillas {
+	top: 10%;
+	bottom: 9%;
+	left: 34%;
+	display: flex;
+	width: min(66vw, 1020px);
+	flex-direction: column;
+	gap: 0;
+}
+
+.decora-strawberry-box {
+	position: relative;
+	flex: 1 1 0;
+	min-height: 0;
+}
+
+.decora-strawberry-box img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+}
+
+.decora-strawberry-box .decora-label {
+	top: 63%;
+}
+
+.decora-layer--velas {
+	top: auto;
+	bottom: 7%;
+	left: 50%;
+	display: grid;
+	width: min(96vw, 1580px);
+	height: min(54vh, 500px);
+	grid-template-columns: repeat(3, 1fr);
+	transform: translateX(-50%);
+}
+
+.decora-candle-display {
+	position: relative;
+	min-width: 0;
+	height: 100%;
+}
+
+.decora-candle-display img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+}
+
+.decora-candle-display .decora-label {
+	top: 77%;
+}
+
+.decora-choice.is-wrong {
+	animation: decora-shake 480ms ease-in-out;
+}
+
+.decora-layer--frutillas .decora-choice.is-wrong img,
+.decora-layer--velas .decora-choice.is-wrong img {
+	filter: grayscale(1);
+}
+
+@keyframes decora-shake {
+	0%, 100% { transform: translateX(0); }
+	20%, 60% { transform: translateX(-7px); }
+	40%, 80% { transform: translateX(7px); }
+}
+
+.decora-drops {
+	position: absolute;
+	top: 48%;
+	z-index: 6;
+	display: flex;
+	width: clamp(160px, 24vw, 240px);
+	justify-content: center;
+	transform: translateX(-50%);
+	pointer-events: none;
+}
+
+.decora-drops--0,
+.decora-drops--1,
+.decora-drops--2 { left: 50%; }
+
+.decora-drops img {
+	width: 48%;
+	height: auto;
+	animation: decora-drop-fall 700ms ease-in forwards;
+}
+
+.decora-drops img:nth-child(2) {
+	animation-delay: 80ms;
+}
+
+@keyframes decora-drop-fall {
+	from { opacity: 0; transform: translateY(-15px) scale(0.5); }
+	30% { opacity: 1; }
+	to { opacity: 0; transform: translateY(60px) scale(0.8); }
+}
+
+.decora-cream {
+	position: absolute;
+	top: 35%;
+	left: 49.5%;
+	z-index: 3;
+	width: clamp(100px, 13vw, 205px);
+	height: auto;
+	animation: decora-cream-fall 200ms cubic-bezier(0.2, 0.7, 0.25, 1) both;
+	transform-origin: center top;
+	pointer-events: none;
+}
+
+.decora-scene--fondo-arriba .decora-cream {
+	top: calc(35% + var(--decora-fondo-movimiento));
+}
+
+@keyframes decora-cream-fall {
+	from { opacity: 0; transform: translate(-50%, -70px) scale(0.7) rotate(-8deg); }
+	70% { opacity: 1; transform: translate(-50%, 8px) scale(1.05) rotate(3deg); }
+	to { opacity: 1; transform: translate(-50%, 0) scale(1) rotate(0); }
+}
+
+.decora-flying {
+	position: absolute;
+	inset: 0;
+	z-index: 7;
+	pointer-events: none;
+}
+
+.decora-scene--fondo-arriba .decora-flying {
+	transform: translateY(var(--decora-fondo-movimiento));
+	transition: transform 450ms ease;
+}
+
+.decora-flying img {
+	position: absolute;
+	top: var(--flight-y);
+	left: var(--flight-x);
+	width: clamp(58px, 9vw, 125px);
+	height: auto;
+	animation: decora-fly-to-cake 1.05s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+	animation-delay: var(--flight-delay, 0ms);
+}
+
+.decora-flying--granas img {
+	width: clamp(100px, 13vw, 180px);
+}
+
+.decora-flying--velas img {
+	width: clamp(32px, 4vw, 55px);
+}
+
+@keyframes decora-fly-to-cake {
+	from { opacity: 0; transform: translate(-50%, -20px) rotate(-18deg) scale(0.7); }
+	15% { opacity: 1; }
+	to { opacity: 0.25; transform: translate(-50%, var(--flight-dy, -18vh)) rotate(10deg) scale(0.42); }
+}
+
+.decora-confetti {
+	position: absolute;
+	inset: 0;
+	z-index: 11;
+	overflow: hidden;
+	pointer-events: none;
+}
+
+.decora-confetti span {
+	position: absolute;
+	top: -8%;
+	left: var(--confetti-left);
+	width: 11px;
+	height: 18px;
+	border-radius: 2px;
+	background: var(--confetti-color);
+	animation: decora-confetti-fall 2.8s linear var(--confetti-delay) both;
+}
+
+@keyframes decora-confetti-fall {
+	to { transform: translate3d(35px, 115vh, 0) rotate(760deg); }
+}
+
+.decora-fabulous {
+	position: absolute;
+	top: 20%;
+	left: 50%;
+	z-index: 12;
+	color: #fff;
+	font: 1000 clamp(2.4rem, 8vmin, 6rem) Arial, Helvetica, sans-serif;
+	text-align: center;
+	text-shadow: 0 4px 0 #e25191, 0 8px 12px rgba(0, 0, 0, 0.45);
+	transform: translateX(-50%);
+	animation: decora-fabulous-pop 550ms cubic-bezier(0.2, 0.8, 0.25, 1) both;
+	pointer-events: none;
+}
+
+@keyframes decora-fabulous-pop {
+	from { opacity: 0; transform: translateX(-50%) scale(0.35); }
+	to { opacity: 1; transform: translateX(-50%) scale(1); }
+}
+
+.decora-enter-right .decora-mangas-image,
+.decora-enter-right .decora-mangas-choices {
+	animation: decora-mangas-enter 950ms cubic-bezier(0.2, 0.8, 0.25, 1) both;
+}
+
+@keyframes decora-mangas-enter {
+	from { transform: translateX(100vw); }
+	to { transform: translateX(calc(-50% + var(--decora-shift, 0%))); }
+}
+
+.decora-enter-bottom .decora-jar {
+	animation: decora-jars-enter 700ms cubic-bezier(0.2, 0.8, 0.25, 1) both;
+	animation-delay: calc(var(--choice-index, 0) * 180ms);
+}
+
+@keyframes decora-jars-enter {
+	from { opacity: 0; transform: translateX(-110vw); }
+	to { opacity: 1; transform: translate(0, 0); }
+}
+
+.decora-enter-right .decora-strawberry-box {
+	animation: decora-boxes-enter 950ms cubic-bezier(0.2, 0.8, 0.25, 1) both;
+	animation-delay: var(--choice-delay, 0ms);
+}
+
+@keyframes decora-boxes-enter {
+	from { opacity: 0; transform: translateX(110vw); }
+	to { opacity: 1; transform: translateX(0); }
+}
+
+.decora-enter-left .decora-candle-display {
+	animation: decora-displays-enter 950ms cubic-bezier(0.2, 0.8, 0.25, 1) both;
+	animation-delay: var(--choice-delay, 0ms);
+}
+
+@keyframes decora-displays-enter {
+	from { opacity: 0; transform: translateX(-110vw); }
+	to { opacity: 1; transform: translateX(0); }
+}
+
+.decora-exit-left .decora-mangas-image,
+.decora-exit-left .decora-mangas-choices,
+.decora-exit-left .decora-choice {
+	animation: decora-exit-left 950ms ease-in both;
+}
+
+.decora-exit-right .decora-choice {
+	animation: decora-exit-right 950ms ease-in both;
+}
+
+@keyframes decora-exit-left {
+	to { opacity: 0; transform: translateX(-110vw); }
+}
+
+@keyframes decora-exit-right {
+	to { opacity: 0; transform: translateX(110vw); }
+}
+
+@media (max-width: 760px) {
+	.decora-cake {
+		bottom: 11%;
+		width: clamp(155px, 30vw, 250px);
+	}
+
+	.decora-character {
+		left: 2%;
+		width: clamp(100px, 20vmin, 160px);
+	}
+
+	.decora-layer--frascos {
+		width: min(70vw, 550px);
+		height: min(29vh, 195px);
+	}
+
+	.decora-layer--frutillas {
+		left: 27%;
+		width: 71vw;
+	}
+
+	.decora-layer--velas {
+		width: 98vw;
+		height: min(47vh, 350px);
+	}
+
+	.decora-label {
+		font-size: clamp(0.8rem, 3.2vmin, 1.4rem);
+	}
+}
+
+@media (max-width: 480px) {
+	.decora-layer--frascos {
+		bottom: 10%;
+	}
+}
+
+@media (min-width: 761px) and (max-width: 1300px) and (min-height: 451px) and (max-height: 900px) {
+	.decora-cake {
+		bottom: 18%;
+		width: min(23vw, 280px);
+	}
+
+	.decora-layer--frascos {
+		bottom: 2%;
+	}
+}
+
+@media (max-width: 900px) and (max-height: 450px) {
+	.decora-mangas-image,
+	.decora-mangas-choices {
+		width: min(46vw, 104vh, 420px);
+	}
+
+	.decora-cake {
+		bottom: 8%;
+		width: min(23vw, 200px);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.decora-character .selected-character,
+	.decora-choice.is-wrong,
+	.decora-drops img,
+	.decora-cream,
+	.decora-flying img,
+	.decora-confetti span,
+	.decora-fabulous,
+	.decora-enter-right .decora-mangas-image,
+	.decora-enter-right .decora-mangas-choices,
+	.decora-enter-bottom .decora-jar,
+	.decora-enter-right .decora-strawberry-box,
+	.decora-enter-left .decora-candle-display,
+	.decora-exit-left .decora-mangas-image,
+	.decora-exit-left .decora-mangas-choices,
+	.decora-exit-left .decora-choice,
+	.decora-exit-right .decora-choice {
+		animation: none;
+	}
+
+	.decora-mangas-image,
+	.decora-mangas-choices {
+		transition: none;
+	}
+}

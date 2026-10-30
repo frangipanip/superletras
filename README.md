@@ -29,6 +29,7 @@ npm run preview  # sirve dist/ localmente
 | `/silabas` | `SILABASAM1.html` |
 | `/mariposas`, `/tren`, `/flores` | `mariposas.html`, `tren.html`, `flores.html` |
 | `/globos`, `/iniciales`, `/peluches` | `globos.html`, `iniciales.html`, `peluches.html` |
+| `/decora` | Actividad de decorar el pastel |
 
 Las URLs viejas `*.html` redirigen a las nuevas.
 

@@ -41,8 +41,17 @@ const PATH_BUTTONS = [
 	{ left: 109, top: 77 },
 	{ left: 145, top: 72 },
 	{ left: 163, top: 77 },
-	{ left: 176, top: 83 }
-];
+	{ left: 176, top: 83 },
+	{ left: 191, top: 76.5 },
+	{ left: 203, top: 75 },
+	{ left: 215.5, top: 71 },
+	{ left: 228.5, top: 73 },
+	{ left: 241, top: 77 },
+	{ left: 253, top: 77 },
+	{ left: 267, top: 74.5 },
+	{ left: 274, top: 74.5 },
+	{ left: 289.5, top: 80 }];
+const BACKGROUND_EXTENSION_COUNT = 3;
 const CELEBRATION_FRAMES = Array.from({ length: 29 }, (_, index) =>
 	img(`monstruos/festejoS${index}.png`)
 );
@@ -57,8 +66,8 @@ const ACTIVITY_SIGN_IMAGES = [
 	"MEMOTESTbtn.png",
 	"BARCOSbtn.png",
 	"PASTELbtn.png",
-	// Puzzle usa el cartel de globos hasta que esté su etiqueta.
-	"GLOBOSbtn.png"
+	"PUZZLEbtn.png",
+	"DECORAbtn.png"
 ];
 
 // Todo lo que muestra la pantalla al entrar; Mundos lo precarga para que no aparezca de a partes.
@@ -90,11 +99,11 @@ const FIRST_WORD_PATH_INDEX = ACTIVIDADES.findIndex(({ tipo }) => tipo === TIPOS
 // Índices de PATH_ROUTES habilitados por letra: el resto del camino queda apagado
 // hasta que la actividad tenga los audios de esa letra. Sin entrada, la letra no abre nada.
 const AVAILABLE_ACTIVITIES = {
-	a: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-	l: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-	m: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-	s: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-	t: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+	a: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+	l: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+	m: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+	s: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+	t: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 };
 
 // Desplazamiento con el mouse: se arrastra la escena con click sostenido.
@@ -573,7 +582,7 @@ export default function Mundo1() {
 					<img className="mundo1-background" src={img("FONDOM1.jpg")} alt="" draggable={false} onLoad={scrollToPerch} />
 					{PATH_BUTTONS.map(({ left, top }, index) => (
 						<div
-							className={`${index >= FIRST_WORD_PATH_INDEX && !wordPathUnlocked ? "path-activity-hidden " : ""}${selectedOption && !isActivityAvailable(index) ? "path-activity path-activity-unavailable" : "path-activity"}${index === characterIndex ? " path-activity-current" : ""}`}
+							className={`${index >= FIRST_WORD_PATH_INDEX && index < PATH_ROUTES.length && !wordPathUnlocked ? "path-activity-hidden " : ""}${selectedOption && !isActivityAvailable(index) ? "path-activity path-activity-unavailable" : "path-activity"}${index === characterIndex ? " path-activity-current" : ""}`}
 							key={`${left}-${top}`}
 							style={{ left: `${left}%`, top: `${top}%` }}
 						>
@@ -655,7 +664,15 @@ export default function Mundo1() {
 						))}
 					</aside>
 				</div>
-				<img className="mundo1-background-extension" src={img("FONDOM1bis.jpg")} alt="" draggable={false} />
+				{Array.from({ length: BACKGROUND_EXTENSION_COUNT }, (_, index) => (
+					<img
+						key={index}
+						className="mundo1-background-extension"
+						src={img("FONDOM1bis.jpg")}
+						alt=""
+						draggable={false}
+					/>
+				))}
 			</div>
 		</div>
 	);

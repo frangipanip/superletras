@@ -16,6 +16,7 @@ import Dibujar from "./pages/Dibujar";
 import Memotest from "./pages/Memotest";
 import Monstruo from "./pages/Monstruo";
 import Barcos from "./pages/Barcos";
+import Decora from "./pages/Decora";
 import Pastel from "./pages/Pastel";
 import Puzzle from "./pages/Puzzle";
 import PlaceholderActivity from "./pages/PlaceholderActivity";
@@ -54,6 +55,7 @@ export default function App() {
 			<Route path="/memotest" element={<Memotest />} />
 			<Route path="/monstruo" element={<Monstruo />} />
 			<Route path="/barcos" element={<Barcos />} />
+			<Route path="/decora" element={<Decora />} />
 			<Route path="/pastel" element={<Pastel />} />
 			<Route path="/puzzle" element={<Puzzle />} />
 			<Route path="/prueba" element={<Prueba />} />

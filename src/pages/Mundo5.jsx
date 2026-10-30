@@ -21,7 +21,7 @@ const ACTIVITY_SIGN_IMAGES = [
 	"PASTELbtn.png",
 	"GLOBOSbtn.png"
 ];
-const PATH_BUTTONS = [8, 17, 26, 35, 44, 53, 62, 71, 80, 90];
+const PATH_BUTTONS = [8, 17, 26, 35, 44, 53, 62, 71, 80, 90, 12.5, 21.5, 30.5, 39.5, 48.5, 57.5, 66.5, 75.5, 85];
 const LETTER_COLORS = {
 	G: "red",
 	GE: "yellow",
@@ -133,7 +133,7 @@ export default function Mundo5() {
 				<div className="mundo5-path" aria-label="Camino de actividades">
 					{PATH_BUTTONS.map((left, index) => (
 						<div className="mundo5-path-activity" key={left} style={{ left: `${left}%` }}>
-							<img className="mundo5-path-sign" src={img(ACTIVITY_SIGN_IMAGES[index])} alt="" draggable={false} />
+							<img className="mundo5-path-sign" src={img(ACTIVITY_SIGN_IMAGES[index] || "GLOBOSbtn.png")} alt="" draggable={false} />
 							<button
 								className={`mundo5-path-button${selectedLetter ? ` path-letter-${LETTER_COLORS[selectedLetter]}` : " path-letter-default"}`}
 								type="button"
