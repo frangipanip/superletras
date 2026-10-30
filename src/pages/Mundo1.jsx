@@ -10,6 +10,7 @@ import { useTalkingMouth } from "../hooks/useTalkingMouth";
 import { useTeleport } from "../hooks/useTeleport";
 import { img, MUNDO1_CHARACTERS, MUNDO1_MOUTH_IMAGES, sound } from "../lib/assets";
 import { STORAGE_KEYS, readStorage, writeStorage } from "../lib/storage";
+import { ACTIVIDADES, TIPOS_ACTIVIDAD } from "../../shared/actividades.js";
 import { COMIDAS } from "../../shared/comidas.js";
 import { cantidadComida, getRecompensas, subscribeRecompensas } from "../lib/recompensas";
 import "./Mundo1.css";
@@ -79,7 +80,10 @@ export const MUNDO1_IMAGES = [
 	...MUNDO1_MOUTH_IMAGES
 ];
 
-const PATH_ROUTES = ["/inicio", "/mariposas", "/flores", "/peluches", "/tren", "/dibujar", "/memotest", "/barcos", "/pastel", null];
+// Un botón por actividad (en el orden de ACTIVIDADES) y uno más al final que todavía no abre nada.
+const PATH_ROUTES = [...ACTIVIDADES.map(({ clave }) => `/${clave}`), null];
+// Desde acá el camino es de palabras: queda oculto hasta evolucionar el monstruo de la letra.
+const FIRST_WORD_PATH_INDEX = ACTIVIDADES.findIndex(({ tipo }) => tipo === TIPOS_ACTIVIDAD.palabras);
 
 // Índices de PATH_ROUTES habilitados por letra: el resto del camino queda apagado
 // hasta que la actividad tenga los audios de esa letra. Sin entrada, la letra no abre nada.
@@ -221,16 +225,15 @@ export default function Mundo1() {
 			setUnlockedWordPaths(nextUnlockedWordPaths);
 			writeStorage(STORAGE_KEYS.mundo1WordPathsUnlocked, JSON.stringify(nextUnlockedWordPaths));
 
-			const firstWordPathIndex = 7;
-			const nextPerches = { ...savedPerches, [letter]: firstWordPathIndex };
+			const nextPerches = { ...savedPerches, [letter]: FIRST_WORD_PATH_INDEX };
 			setSavedPerches(nextPerches);
 			writeStorage(STORAGE_KEYS.mundo1Perches, JSON.stringify(nextPerches));
 			if (location.state?.activityIndex !== undefined) {
 				const { activityIndex, ...state } = location.state;
 				navigate(location.pathname, { replace: true, state });
 			}
-			if (character && perchIndex !== firstWordPathIndex) {
-				teleportCharacter(perchIndex, firstWordPathIndex);
+			if (character && perchIndex !== FIRST_WORD_PATH_INDEX) {
+				teleportCharacter(perchIndex, FIRST_WORD_PATH_INDEX);
 			}
 		}
 	}
@@ -568,7 +571,7 @@ export default function Mundo1() {
 					<img className="mundo1-background" src={img("FONDOM1.jpg")} alt="" draggable={false} onLoad={scrollToPerch} />
 					{PATH_BUTTONS.map(({ left, top }, index) => (
 						<div
-							className={`${index >= 7 && !wordPathUnlocked ? "path-activity-hidden " : ""}${selectedOption && !isActivityAvailable(index) ? "path-activity path-activity-unavailable" : "path-activity"}${index === characterIndex ? " path-activity-current" : ""}`}
+							className={`${index >= FIRST_WORD_PATH_INDEX && !wordPathUnlocked ? "path-activity-hidden " : ""}${selectedOption && !isActivityAvailable(index) ? "path-activity path-activity-unavailable" : "path-activity"}${index === characterIndex ? " path-activity-current" : ""}`}
 							key={`${left}-${top}`}
 							style={{ left: `${left}%`, top: `${top}%` }}
 						>
