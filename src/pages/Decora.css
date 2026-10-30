@@ -3,11 +3,13 @@
 	overflow: hidden;
 	background: url("/assets/imagenes/fondoDecora.png") center / cover no-repeat;
 	transition: background-position 450ms ease;
+	--decora-jar-offset: min(18.6667vw, 253.333px);
+	--decora-caja-solapamiento: 41px;
 }
 
 .decora-page--fondo-arriba {
-	background-position: center 80%;
-	--decora-fondo-movimiento: min(0px, calc(30vh - 16.88vw));
+	background-position: center 90%;
+	--decora-fondo-movimiento: min(0px, calc(40vh - 22.5vw));
 }
 
 .decora-page .activity-controls,
@@ -45,6 +47,10 @@
 	height: auto;
 }
 
+.decora-cake--velas img {
+	transform: translateY(-6%);
+}
+
 .decora-cake--frosted {
 	z-index: 5;
 }
@@ -53,8 +59,8 @@
 	position: absolute;
 	top: 57%;
 	left: 4%;
-	z-index: 9;
-	width: clamp(130px, 21vmin, 240px);
+	z-index: 1;
+	width: clamp(195px, 31.5vmin, 360px);
 	transform: translateY(-50%);
 }
 
@@ -99,6 +105,10 @@
 
 .decora-layer[aria-hidden="true"] {
 	pointer-events: none;
+}
+
+.decora-layer--mangas {
+	z-index: 0;
 }
 
 .decora-mangas-image,
@@ -176,7 +186,7 @@
 
 .decora-layer--frascos {
 	top: auto;
-	bottom: 5%;
+	bottom: 7%;
 	left: 50%;
 	z-index: 6;
 	display: grid;
@@ -204,19 +214,50 @@
 }
 
 .decora-layer--frutillas {
-	top: 10%;
-	bottom: 9%;
-	left: 34%;
+	top: auto;
+	bottom: 2.37%;
+	left: 61.49%;
 	display: flex;
-	width: min(66vw, 1020px);
+	width: min(42.07vw, 650.4px);
+	height: min(53.56vh, 459px);
 	flex-direction: column;
 	gap: 0;
+	overflow: visible;
 }
 
 .decora-strawberry-box {
-	position: relative;
-	flex: 1 1 0;
-	min-height: 0;
+	position: absolute;
+	left: 0;
+	width: 100%;
+	height: 33.333%;
+	transition: top 350ms ease;
+}
+
+.decora-strawberry-box:nth-child(1) {
+	top: 0;
+	z-index: 3;
+}
+
+.decora-strawberry-box:nth-child(2) {
+	top: calc(33.333% - var(--decora-caja-solapamiento));
+	z-index: 2;
+}
+
+.decora-strawberry-box:nth-child(3) {
+	top: calc(66.666% - var(--decora-caja-solapamiento) * 2);
+	z-index: 1;
+}
+
+.decora-layer--frutillas.is-correct .decora-strawberry-box:nth-child(1) {
+	top: calc(var(--decora-caja-solapamiento) * -2);
+}
+
+.decora-layer--frutillas.is-correct .decora-strawberry-box:nth-child(2) {
+	top: calc(33.333% - var(--decora-caja-solapamiento) * 2);
+}
+
+.decora-layer--frutillas.is-correct .decora-strawberry-box:nth-child(3) {
+	top: calc(66.666% - var(--decora-caja-solapamiento) * 2);
 }
 
 .decora-strawberry-box img {
@@ -227,12 +268,18 @@
 }
 
 .decora-strawberry-box .decora-label {
-	top: 63%;
+	top: 70%;
+	width: 48%;
+	max-width: 48%;
+	padding: 0.1em 0.08em;
+	background: transparent;
+	font-size: clamp(0.7rem, 2.2vmin, 1.2rem);
+	overflow: hidden;
 }
 
 .decora-layer--velas {
 	top: auto;
-	bottom: 7%;
+	bottom: 1%;
 	left: 50%;
 	display: grid;
 	width: min(96vw, 1580px);
@@ -255,7 +302,14 @@
 }
 
 .decora-candle-display .decora-label {
-	top: 77%;
+	top: 70%;
+	width: 50%;
+	max-width: 50%;
+	padding: 0.1em 0.08em;
+	background: transparent;
+	font-size: clamp(0.85rem, 3vmin, 1.5rem);
+	font-weight: 1000;
+	overflow: hidden;
 }
 
 .decora-choice.is-wrong {
@@ -329,7 +383,7 @@
 .decora-flying {
 	position: absolute;
 	inset: 0;
-	z-index: 7;
+	z-index: 8;
 	pointer-events: none;
 }
 
@@ -349,11 +403,66 @@
 }
 
 .decora-flying--granas img {
-	width: clamp(100px, 13vw, 180px);
+	width: clamp(140px, 18vw, 250px);
+	animation-name: decora-granas-to-cake;
+	animation-duration: 950ms;
+}
+
+.decora-flying--frutillas img {
+	animation-name: decora-frutillas-to-cake;
+}
+
+@keyframes decora-frutillas-to-cake {
+	from {
+		left: var(--flight-fruit-x);
+		top: var(--flight-fruit-y);
+		opacity: 0;
+		transform: translate(-50%, -50%) scale(0.35) rotate(-18deg);
+	}
+	15% { opacity: 1; }
+	to {
+		left: 50%;
+		top: 55%;
+		opacity: 0.3;
+		transform: translate(-50%, -50%) scale(0.75) rotate(14deg);
+	}
+}
+
+@keyframes decora-granas-to-cake {
+	from {
+		left: var(--flight-x);
+		top: var(--flight-y);
+		opacity: 0;
+		transform: translate(-50%, -50%) scale(0.75) rotate(-12deg);
+	}
+	15% { opacity: 1; }
+	to {
+		left: 50%;
+		top: 55%;
+		opacity: 0.25;
+		transform: translate(-50%, -50%) scale(0.55) rotate(8deg);
+	}
 }
 
 .decora-flying--velas img {
-	width: clamp(32px, 4vw, 55px);
+	width: clamp(52px, 6vw, 78px);
+	animation-name: decora-candles-to-cake;
+}
+
+@keyframes decora-candles-to-cake {
+	from {
+		left: var(--flight-candle-x);
+		top: var(--flight-candle-y);
+		opacity: 0;
+		transform: translate(-50%, -50%) rotate(-18deg) scale(0.7);
+	}
+	15% { opacity: 1; }
+	to {
+		left: var(--flight-candle-target-x);
+		top: var(--flight-candle-target-y);
+		opacity: 0.85;
+		transform: translate(-50%, -50%) rotate(8deg) scale(0.9);
+	}
 }
 
 @keyframes decora-fly-to-cake {
@@ -383,25 +492,6 @@
 
 @keyframes decora-confetti-fall {
 	to { transform: translate3d(35px, 115vh, 0) rotate(760deg); }
-}
-
-.decora-fabulous {
-	position: absolute;
-	top: 20%;
-	left: 50%;
-	z-index: 12;
-	color: #fff;
-	font: 1000 clamp(2.4rem, 8vmin, 6rem) Arial, Helvetica, sans-serif;
-	text-align: center;
-	text-shadow: 0 4px 0 #e25191, 0 8px 12px rgba(0, 0, 0, 0.45);
-	transform: translateX(-50%);
-	animation: decora-fabulous-pop 550ms cubic-bezier(0.2, 0.8, 0.25, 1) both;
-	pointer-events: none;
-}
-
-@keyframes decora-fabulous-pop {
-	from { opacity: 0; transform: translateX(-50%) scale(0.35); }
-	to { opacity: 1; transform: translateX(-50%) scale(1); }
 }
 
 .decora-enter-right .decora-mangas-image,
@@ -463,6 +553,10 @@
 }
 
 @media (max-width: 760px) {
+	.decora-page {
+		--decora-jar-offset: min(23.3333vw, 183.333px);
+	}
+
 	.decora-cake {
 		bottom: 11%;
 		width: clamp(155px, 30vw, 250px);
@@ -470,7 +564,7 @@
 
 	.decora-character {
 		left: 2%;
-		width: clamp(100px, 20vmin, 160px);
+		width: clamp(150px, 30vmin, 240px);
 	}
 
 	.decora-layer--frascos {
@@ -479,13 +573,14 @@
 	}
 
 	.decora-layer--frutillas {
-		left: 27%;
-		width: 71vw;
+		left: 47.54%;
+		width: min(53.56vw, 484.5px);
+		height: min(53.56vh, 306px);
 	}
 
 	.decora-layer--velas {
-		width: 98vw;
-		height: min(47vh, 350px);
+		width: 88vw;
+		height: min(42vh, 300px);
 	}
 
 	.decora-label {
@@ -495,7 +590,7 @@
 
 @media (max-width: 480px) {
 	.decora-layer--frascos {
-		bottom: 10%;
+		bottom: 20%;
 	}
 }
 
@@ -508,9 +603,31 @@
 	.decora-layer--frascos {
 		bottom: 2%;
 	}
+
+	.decora-layer--velas {
+		bottom: -6%;
+	}
+
+	.decora-candle-display .decora-label {
+		top: 60%;
+	}
 }
 
 @media (max-width: 900px) and (max-height: 450px) {
+	.decora-page {
+		--decora-caja-solapamiento: 12px;
+	}
+
+	.decora-layer--frascos {
+		bottom: 10%;
+	}
+
+	.decora-layer--frutillas {
+		left: calc(107.56% - 60vw);
+		width: min(60vw, 540px);
+		height: min(65vh, 300px);
+	}
+
 	.decora-mangas-image,
 	.decora-mangas-choices {
 		width: min(46vw, 104vh, 420px);
@@ -519,6 +636,11 @@
 	.decora-cake {
 		bottom: 8%;
 		width: min(23vw, 200px);
+	}
+
+	.decora-layer--velas {
+		width: 82vw;
+		height: 40vh;
 	}
 }
 
@@ -529,7 +651,6 @@
 	.decora-cream,
 	.decora-flying img,
 	.decora-confetti span,
-	.decora-fabulous,
 	.decora-enter-right .decora-mangas-image,
 	.decora-enter-right .decora-mangas-choices,
 	.decora-enter-bottom .decora-jar,
@@ -543,7 +664,8 @@
 	}
 
 	.decora-mangas-image,
-	.decora-mangas-choices {
+	.decora-mangas-choices,
+	.decora-strawberry-box {
 		transition: none;
 	}
 }

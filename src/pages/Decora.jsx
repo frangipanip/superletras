@@ -92,6 +92,9 @@ export default function Decora() {
 	const [confetiVisible, setConfetiVisible] = useState(false);
 	const [entradaInicial, setEntradaInicial] = useState(true);
 	const interactionRef = useRef(false);
+	const sceneRef = useRef(null);
+	const strawberryBoxRefs = useRef([]);
+	const candleDisplayRefs = useRef([]);
 	const audioRef = useRef(null);
 	const audioSequenceRef = useRef(0);
 	const timersRef = useRef(new Set());
@@ -261,19 +264,67 @@ export default function Decora() {
 			programar(() => {
 				setDecoracionPastel("granas");
 				setBizcochueloConCremaVisible(false);
-			}, 1150);
+			}, 930);
 			programar(() => pasarEtapa(2, opcion.id), 1900);
 			return;
 		}
 
 		if (etapa === 2) {
-			setEfecto({ tipo: "frutillas", indice: ronda.opciones.indexOf(opcion) });
-			programar(() => setDecoracionPastel("frutillas"), 1500);
+			programar(() => {
+				const indice = ronda.opciones.indexOf(opcion);
+				const caja = strawberryBoxRefs.current[indice];
+				const escena = sceneRef.current;
+				const imagen = caja?.querySelector("img");
+				if (!caja || !escena || !imagen || !imagen.naturalWidth || !imagen.naturalHeight) {
+					console.error("No se pudo determinar el punto de salida de las frutillas.");
+					return;
+				}
+
+				const cajaRect = imagen.getBoundingClientRect();
+				const escenaRect = escena.getBoundingClientRect();
+				const escala = Math.min(
+					cajaRect.width / imagen.naturalWidth,
+					cajaRect.height / imagen.naturalHeight
+				);
+				const anchoImagen = imagen.naturalWidth * escala;
+				const altoImagen = imagen.naturalHeight * escala;
+				const izquierdaImagen = cajaRect.left + (cajaRect.width - anchoImagen) / 2;
+				const arribaImagen = cajaRect.top + (cajaRect.height - altoImagen) / 2;
+				const origen = {
+					x: izquierdaImagen + anchoImagen / 2 - escenaRect.left,
+					y: arribaImagen + altoImagen * 0.25 - escenaRect.top
+				};
+				setEfecto({ tipo: "frutillas", indice, origen });
+			}, 350);
+			programar(() => setDecoracionPastel("frutillas"), 1780);
 			programar(() => pasarEtapa(3, opcion.id), 2000);
 			return;
 		}
 
-		setEfecto({ tipo: "velas", indice: ronda.opciones.indexOf(opcion) });
+		const indice = ronda.opciones.indexOf(opcion);
+		const escena = sceneRef.current;
+		const exhibidor = candleDisplayRefs.current[indice];
+		const torta = escena?.querySelector(".decora-cake");
+		if (!escena || !exhibidor || !torta) {
+			console.error("No se pudo determinar el recorrido de las velas desde el exhibidor hasta la torta.");
+		} else {
+			const escenaRect = escena.getBoundingClientRect();
+			const exhibidorRect = exhibidor.getBoundingClientRect();
+			const tortaRect = torta.getBoundingClientRect();
+			setEfecto({
+				tipo: "velas",
+				origen: {
+					x: exhibidorRect.left + exhibidorRect.width / 2 - escenaRect.left,
+					y: exhibidorRect.top + exhibidorRect.height * 0.24 - escenaRect.top,
+					separacion: exhibidorRect.width * 0.12
+				},
+				destino: {
+					x: tortaRect.left + tortaRect.width / 2 - escenaRect.left,
+					y: tortaRect.top + tortaRect.height * 0.2 - escenaRect.top,
+					separacion: tortaRect.width * 0.14
+				}
+			});
+		}
 		programar(() => {
 			setDecoracionPastel("velas");
 			setFase("complete");
@@ -356,7 +407,13 @@ export default function Decora() {
 
 		if (etapaOpciones === 2) {
 			return (
-				<button key={opcion.id} {...props} style={estiloIndice} className={`${clase} decora-strawberry-box`}>
+				<button
+					key={opcion.id}
+					ref={(element) => { strawberryBoxRefs.current[indice] = element; }}
+					{...props}
+					style={estiloIndice}
+					className={`${clase} decora-strawberry-box`}
+				>
 					<img src={img("cajonfrutillas.png")} alt="" draggable={false} />
 					<span className="decora-label">{opcion.valor}</span>
 				</button>
@@ -367,7 +424,13 @@ export default function Decora() {
 			? "excibidorvacio.png"
 			: "excibidorvelas.png";
 		return (
-			<button key={opcion.id} {...props} style={estiloIndice} className={`${clase} decora-candle-display`}>
+			<button
+				key={opcion.id}
+				ref={(element) => { candleDisplayRefs.current[indice] = element; }}
+				{...props}
+				style={estiloIndice}
+				className={`${clase} decora-candle-display`}
+			>
 				<img src={img(imagen)} alt="" draggable={false} />
 				<span className="decora-label">{opcion.valor}</span>
 			</button>
@@ -422,7 +485,7 @@ export default function Decora() {
 
 		if (etapaRender === 2) {
 			return (
-				<div className={`decora-layer decora-layer--${nombreEtapa} ${claseEntradaEtapa} ${claseSalidaEtapa}`} aria-hidden={!lectura}>
+				<div className={`decora-layer decora-layer--${nombreEtapa}${estadoRender === "correct" ? " is-correct" : ""} ${claseEntradaEtapa} ${claseSalidaEtapa}`} aria-hidden={!lectura}>
 					{rondaRender.opciones.map((opcion, indice) => renderOpcion(
 						opcion,
 						indice,
@@ -475,8 +538,8 @@ export default function Decora() {
 					/>
 				</div>
 			)}
-			<main className={`decora-scene${fase === "complete" ? " is-complete" : ""}${fondoArriba ? " decora-scene--fondo-arriba" : ""}`} aria-label="Actividad de decorar el pastel">
-				<div className="decora-cake" aria-live="polite">
+			<main ref={sceneRef} className={`decora-scene${fase === "complete" ? " is-complete" : ""}${fondoArriba ? " decora-scene--fondo-arriba" : ""}`} aria-label="Actividad de decorar el pastel">
+				<div className={`decora-cake${decoracionPastel === "velas" ? " decora-cake--velas" : ""}`} aria-live="polite">
 					<img
 						src={img(mostrandoBizcochueloBase ? "bizcochuelo.png" : imagenPastel)}
 						alt={mostrandoBizcochueloBase ? "" : "Pastel en decoración"}
@@ -496,9 +559,21 @@ export default function Decora() {
 								draggable={false}
 								style={{
 									"--flight-delay": `${indice * 100}ms`,
-									"--flight-x": `${efecto.tipo === "frutillas" ? 43 + efecto.indice * 7 + indice * 2 : efecto.tipo === "velas" ? 14 + efecto.indice * 34 : 15 + efecto.indice * 35}%`,
-									"--flight-y": `${efecto.tipo === "frutillas" ? 22 + efecto.indice * 26 : efecto.tipo === "velas" ? 49 : 65}%`,
-									"--flight-dy": efecto.tipo === "velas" ? "12vh" : "-18vh"
+									"--flight-fruit-x": efecto.tipo === "frutillas" ? `${efecto.origen.x + (indice - 2) * 12}px` : "50%",
+									"--flight-fruit-y": efecto.tipo === "frutillas" ? `${efecto.origen.y + (indice % 2) * 8}px` : "50%",
+									"--flight-candle-x": efecto.tipo === "velas" ? `${efecto.origen.x + (indice - 2) * efecto.origen.separacion}px` : "50%",
+									"--flight-candle-y": efecto.tipo === "velas" ? `${efecto.origen.y}px` : "50%",
+									"--flight-candle-target-x": efecto.tipo === "velas" ? `${efecto.destino.x + (indice - 2) * efecto.destino.separacion}px` : "50%",
+									"--flight-candle-target-y": efecto.tipo === "velas" ? `${efecto.destino.y}px` : "50%",
+									"--flight-x": efecto.tipo === "granas"
+										? efecto.indice === 0
+											? "calc(50% - var(--decora-jar-offset))"
+											: efecto.indice === 2
+												? "calc(50% + var(--decora-jar-offset))"
+												: "50%"
+										: `${efecto.tipo === "frutillas" ? 43 + efecto.indice * 7 + indice * 2 : 14 + efecto.indice * 34}%`,
+									"--flight-y": `${efecto.tipo === "frutillas" ? 22 + efecto.indice * 26 : efecto.tipo === "velas" ? 49 : 70}%`,
+									"--flight-dy": "-18vh"
 								}}
 							/>
 						))}
@@ -547,7 +622,6 @@ export default function Decora() {
 						))}
 					</div>
 				)}
-				{fase === "complete" && <div className="decora-fabulous" role="status">¡FABULOSO!</div>}
 			</main>
 		</div>
 	);
