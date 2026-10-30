@@ -49,6 +49,34 @@ export const MUNDO2_CHARACTER_FRAMES = {
 		img("PERSONAJES/superneneMariposa1.png")
 	]
 };
+export const MUNDO4_MOUTH_IMAGES = [1, 2, 3].map((index) => img(`PERSONAJES/superbocaSirena${index}.png`));
+export const MUNDO4_CHARACTERS = {
+	supernena: { image: img("PERSONAJES/supernenaSirena.png"), alt: "Supernena sirena" },
+	supernene: { image: img("PERSONAJES/superneneSirena.png"), alt: "Supernene sirena" }
+};
+export const MUNDO4_CHARACTER_FRAMES = {
+	supernena: [
+		MUNDO4_CHARACTERS.supernena.image,
+		img("PERSONAJES/supernenaSirena1.png"),
+		img("PERSONAJES/supernenaSirena2.png"),
+		img("PERSONAJES/supernenaSirena3.png"),
+		img("PERSONAJES/supernenaSirena2.png"),
+		img("PERSONAJES/supernenaSirena1.png")
+	],
+	supernene: [
+		MUNDO4_CHARACTERS.supernene.image,
+		img("PERSONAJES/superneneSirena1.png"),
+		img("PERSONAJES/superneneSirena2.png"),
+		img("PERSONAJES/superneneSirena3.png"),
+		img("PERSONAJES/superneneSirena2.png"),
+		img("PERSONAJES/superneneSirena1.png")
+	]
+};
+export const MUNDO5_MOUTH_IMAGES = [1, 2, 3].map((index) => img(`PERSONAJES/superbocaRobot${index}.png`));
+export const MUNDO5_CHARACTERS = {
+	supernena: { image: img("PERSONAJES/supernenaRobot.png"), alt: "Supernena robot" },
+	supernene: { image: img("PERSONAJES/superneneRobot.png"), alt: "Supernene robot" }
+};
 
 export const CHARACTERS = {
 	supernena: { image: img("supernena.png"), alt: "Supernena" },

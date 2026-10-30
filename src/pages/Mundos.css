@@ -72,38 +72,38 @@
 
 	.world-button img {
 		display: block;
-		width: 100%;
+		width: 80%;
 		height: auto;
 	}
 
 	.world-button-1 {
 		top: 27%;
-		left: 16.4%;
+		left: 26.4%;
 	}
 
 	.world-button-2 {
 		top: 27%;
-		left: 45%;
+		left: 50%;
 	}
 
 	.world-button-3 {
 		top: 27%;
-		left: 73.5%;
+		left: 75%;
 	}
 
 	.world-button-4 {
 		top: 74%;
-		left: 73.5%;
+		left: 75%;
 	}
 
 	.world-button-5 {
 		top: 74%;
-		left: 45%;
+		left: 50%;
 	}
 
 	.world-button-6 {
 		top: 74%;
-		left: 16.4%;
+		left: 26.4%;
 	}
 
 	@media (max-width: 600px) {

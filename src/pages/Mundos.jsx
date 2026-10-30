@@ -8,9 +8,10 @@ import { MUNDO1_IMAGES } from "./Mundo1";
 import { MUNDO2_IMAGES } from "./Mundo2";
 import { MUNDO3_IMAGES } from "./Mundo3";
 import { MUNDO4_IMAGES } from "./Mundo4";
+import { MUNDO5_IMAGES } from "./Mundo5";
 import "./Mundos.css";
 
-const LEVEL_ROUTES = { 1: "/mundo1", 2: "/mundo2", 3: "/mundo3", 4: "/mundo4" };
+const LEVEL_ROUTES = { 1: "/mundo1", 2: "/mundo2", 3: "/mundo3", 4: "/mundo4", 5: "/mundo5" };
 const WORLDS = [1, 2, 3, 4, 5, 6];
 
 export default function Mundos() {
@@ -23,7 +24,8 @@ export default function Mundos() {
 			...MUNDO1_IMAGES,
 			...MUNDO2_IMAGES,
 			...MUNDO3_IMAGES,
-			...MUNDO4_IMAGES
+			...MUNDO4_IMAGES,
+			...MUNDO5_IMAGES
 		]);
 	}, []);
 

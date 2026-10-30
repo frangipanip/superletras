@@ -142,16 +142,33 @@
 	display: flex;
 	justify-content: center;
 	width: var(--mundo4-character-area-width);
+	padding: 0;
+	border: 0;
+	background: transparent;
 	transform: scale(1.1);
 	transform-origin: center bottom;
 	filter: drop-shadow(0 5px 7px rgba(20, 54, 65, 0.38));
+	cursor: pointer;
 }
 
-.mundo4-character img {
+.mundo4-character .mundo4-character-image {
 	display: block;
 	width: var(--mundo4-character-width);
 	max-width: 100%;
 	height: auto;
+}
+
+.mundo4-character .mundo4-character-mouth {
+	position: absolute;
+	top: 0;
+	left: 50%;
+	z-index: 1;
+	width: var(--mundo4-character-width);
+	max-width: 100%;
+	height: auto;
+	filter: none;
+	pointer-events: none;
+	transform: translateX(-50%);
 }
 
 @media (max-width: 700px) {
