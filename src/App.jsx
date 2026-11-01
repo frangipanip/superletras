@@ -19,6 +19,7 @@ import Barcos from "./pages/Barcos";
 import Decora from "./pages/Decora";
 import Pastel from "./pages/Pastel";
 import Puzzle from "./pages/Puzzle";
+import Escribir from "./pages/Escribir";
 import PlaceholderActivity from "./pages/PlaceholderActivity";
 import Prueba from "./pages/Prueba";
 
@@ -58,6 +59,7 @@ export default function App() {
 			<Route path="/decora" element={<Decora />} />
 			<Route path="/pastel" element={<Pastel />} />
 			<Route path="/puzzle" element={<Puzzle />} />
+			<Route path="/escribir" element={<Escribir />} />
 			<Route path="/prueba" element={<Prueba />} />
 			<Route path="/globos" element={<PlaceholderActivity key="globos" title="Globos" />} />
 			<Route path="/iniciales" element={<Navigate to="/peluches" replace />} />

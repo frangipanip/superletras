@@ -1,0 +1,540 @@
+.page-escribir {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+/* Pantalla de elegir sabor */
+
+.escribir-elegir {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: clamp(1rem, 3vmin, 2.5rem);
+	width: 100%;
+	max-width: 70rem;
+	padding: clamp(1rem, 4vmin, 2rem);
+}
+
+.escribir-sabor-boton {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.6rem;
+	padding: clamp(0.9rem, 2.5vmin, 1.4rem);
+	border: 4px solid #2f8498;
+	border-radius: 1.5rem;
+	background: linear-gradient(180deg, #fff3fb 0%, #ffd8ef 70%, #ffbfe3 100%);
+	box-shadow: 0 5px 0 #286f84, 0 8px 12px rgba(0, 0, 0, 0.3);
+	cursor: pointer;
+	transition: transform 180ms ease, filter 180ms ease;
+}
+
+.escribir-sabor-boton:hover,
+.escribir-sabor-boton:focus-visible {
+	transform: translateY(-4px) scale(1.04);
+	filter: brightness(1.05) drop-shadow(0 0 10px rgba(255, 255, 255, 0.6));
+}
+
+.escribir-sabor-icono {
+	position: relative;
+	width: clamp(80px, 16vmin, 130px);
+	aspect-ratio: 3 / 4;
+}
+
+.escribir-sabor-nombre {
+	color: #6b3f24;
+	font: 800 clamp(1rem, 2.6vmin, 1.4rem) Arial, Helvetica, sans-serif;
+	text-transform: uppercase;
+}
+
+/* Escena de la máquina */
+
+.escribir-escena {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: clamp(0.75rem, 2.5vmin, 2rem);
+	width: 100%;
+	max-width: 68rem;
+	padding: clamp(1rem, 3vmin, 2rem);
+}
+
+.escribir-pasos {
+	display: flex;
+	flex-direction: column;
+	gap: clamp(0.5rem, 1.6vmin, 1rem);
+}
+
+.escribir-paso {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.4rem 0.6rem;
+	border-radius: 1rem;
+	background: rgba(255, 255, 255, 0.35);
+	opacity: 0.55;
+	transition: opacity 240ms ease, background 240ms ease;
+}
+
+.escribir-paso.actual {
+	opacity: 1;
+	background: rgba(255, 255, 255, 0.7);
+	box-shadow: 0 0 0 3px #ffd23f;
+}
+
+.escribir-paso.hecho {
+	opacity: 1;
+	background: rgba(186, 255, 201, 0.65);
+}
+
+.escribir-paso-numero {
+	display: grid;
+	place-items: center;
+	width: clamp(1.3rem, 3vmin, 1.8rem);
+	aspect-ratio: 1;
+	border-radius: 50%;
+	background: #8d62dd;
+	color: #fff;
+	font: 800 clamp(0.75rem, 2vmin, 1rem) Arial, Helvetica, sans-serif;
+}
+
+.escribir-paso-icono {
+	position: relative;
+	width: clamp(40px, 7vmin, 60px);
+	aspect-ratio: 3 / 4;
+}
+
+.escribir-maquina {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: clamp(0.6rem, 2vmin, 1.1rem);
+	padding: clamp(1rem, 2.6vmin, 1.6rem);
+	border: 6px solid #e05fb0;
+	border-radius: 2rem;
+	background: linear-gradient(180deg, #ffe3f3 0%, #ffc7e6 60%, #ffb0db 100%);
+	box-shadow: 0 6px 0 #b83f87, 0 10px 16px rgba(0, 0, 0, 0.3);
+}
+
+.escribir-maquina-mal {
+	animation: escribir-sacudida 420ms ease;
+}
+
+@keyframes escribir-sacudida {
+	0%, 100% { transform: translateX(0); }
+	20% { transform: translateX(-10px) rotate(-1deg); }
+	40% { transform: translateX(9px) rotate(1deg); }
+	60% { transform: translateX(-7px) rotate(-1deg); }
+	80% { transform: translateX(6px) rotate(1deg); }
+}
+
+.escribir-visor {
+	display: flex;
+	align-items: center;
+	gap: clamp(0.5rem, 1.6vmin, 1rem);
+	padding: clamp(0.5rem, 1.6vmin, 0.9rem) clamp(0.8rem, 2.4vmin, 1.4rem);
+	border: 3px solid #8d62dd;
+	border-radius: 1.2rem;
+	background: #fffaf0;
+	box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.escribir-visor-icono {
+	position: relative;
+	width: clamp(46px, 8vmin, 70px);
+	aspect-ratio: 3 / 4;
+	flex: 0 0 auto;
+}
+
+.escribir-visor-igual {
+	color: #8d62dd;
+	font: 800 clamp(1.3rem, 3.4vmin, 2rem) Arial, Helvetica, sans-serif;
+}
+
+.escribir-visor-palabra {
+	color: #6b3f24;
+	font: 800 clamp(1.3rem, 3.6vmin, 2.2rem) Arial, Helvetica, sans-serif;
+	letter-spacing: 0.08em;
+}
+
+.escribir-casillas {
+	display: flex;
+	gap: clamp(0.4rem, 1.2vmin, 0.7rem);
+}
+
+.escribir-casilla {
+	display: grid;
+	place-items: center;
+	width: clamp(2.2rem, 6vmin, 3.2rem);
+	aspect-ratio: 1;
+	border: 3px solid #5fb5cb;
+	border-radius: 0.6rem;
+	background: #eaffff;
+	color: #286f84;
+	font: 800 clamp(1.1rem, 3vmin, 1.7rem) Arial, Helvetica, sans-serif;
+	box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.12);
+}
+
+.escribir-casilla.llena {
+	background: #d6f8ff;
+	animation: escribir-llenar 180ms ease-out both;
+}
+
+@keyframes escribir-llenar {
+	from { transform: scale(0.6); opacity: 0.4; }
+	to { transform: scale(1); opacity: 1; }
+}
+
+.escribir-teclado {
+	display: flex;
+	flex-direction: column;
+	gap: clamp(0.4rem, 1.2vmin, 0.6rem);
+}
+
+.escribir-fila-teclado {
+	display: flex;
+	justify-content: center;
+	gap: clamp(0.35rem, 1vmin, 0.6rem);
+}
+
+.escribir-tecla {
+	display: grid;
+	place-items: center;
+	width: clamp(2.3rem, 6vmin, 3.4rem);
+	aspect-ratio: 1;
+	border: 0;
+	border-radius: 0.8rem;
+	color: #fff;
+	font: 800 clamp(1rem, 2.8vmin, 1.5rem) Arial, Helvetica, sans-serif;
+	cursor: pointer;
+	transition: transform 140ms ease, filter 140ms ease;
+}
+
+.escribir-fila-teclado-consonantes .escribir-tecla {
+	background: linear-gradient(180deg, #a67cf0 0%, #8d62dd 60%, #6f46bd 100%);
+	box-shadow: 0 3px 0 #5a35a0;
+}
+
+.escribir-fila-teclado-vocales .escribir-tecla {
+	background: linear-gradient(180deg, #ff9cc8 0%, #ff6fa8 60%, #e8639f 100%);
+	box-shadow: 0 3px 0 #c84b84;
+}
+
+.escribir-tecla:hover:not(:disabled),
+.escribir-tecla:focus-visible:not(:disabled) {
+	transform: translateY(-2px) scale(1.06);
+	filter: brightness(1.08);
+}
+
+.escribir-tecla:disabled {
+	opacity: 0.45;
+	cursor: default;
+}
+
+.escribir-controles-maquina {
+	display: flex;
+	gap: clamp(0.6rem, 2vmin, 1.1rem);
+}
+
+.escribir-boton-borrar,
+.escribir-boton-confirmar {
+	display: grid;
+	place-items: center;
+	width: clamp(3rem, 8vmin, 4rem);
+	aspect-ratio: 1;
+	border: 3px solid #2f8498;
+	border-radius: 1rem;
+	font: 800 clamp(1.2rem, 3.2vmin, 1.8rem) Arial, Helvetica, sans-serif;
+	cursor: pointer;
+	transition: transform 140ms ease, filter 140ms ease;
+}
+
+.escribir-boton-borrar {
+	background: linear-gradient(180deg, #d6f8ff 0%, #7bcfe3 75%, #5fb5cb 100%);
+	box-shadow: 0 3px 0 #286f84;
+	color: #6b3f24;
+}
+
+.escribir-boton-confirmar {
+	background: linear-gradient(180deg, #b8f7c3 0%, #6fd988 70%, #4bbf69 100%);
+	box-shadow: 0 3px 0 #2f8a46;
+	color: #1f4a2b;
+	border-color: #2f8a46;
+}
+
+.escribir-boton-borrar:hover:not(:disabled),
+.escribir-boton-borrar:focus-visible:not(:disabled),
+.escribir-boton-confirmar:hover:not(:disabled),
+.escribir-boton-confirmar:focus-visible:not(:disabled) {
+	transform: translateY(-2px) scale(1.06);
+	filter: brightness(1.08);
+}
+
+.escribir-boton-borrar:disabled,
+.escribir-boton-confirmar:disabled {
+	opacity: 0.4;
+	cursor: default;
+}
+
+.escribir-entrega {
+	position: relative;
+	display: grid;
+	place-items: center;
+	width: clamp(160px, 24vmin, 240px);
+	aspect-ratio: 3 / 4;
+}
+
+.escribir-tunel {
+	position: absolute;
+	inset: 0;
+	border-radius: 1.4rem;
+	background: radial-gradient(circle at 50% 35%, #fff6b0 0%, #ffd23f 35%, #e05fb0 80%);
+	box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.35), 0 0 24px rgba(255, 210, 63, 0.6);
+	animation: escribir-tunel-brillo 1.8s ease-in-out infinite alternate;
+}
+
+@keyframes escribir-tunel-brillo {
+	from { filter: brightness(1); }
+	to { filter: brightness(1.18); }
+}
+
+.escribir-entrega-producto {
+	position: relative;
+	width: 72%;
+	aspect-ratio: 3 / 4;
+	z-index: 1;
+}
+
+/* Pantalla final */
+
+.escribir-listo {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: clamp(0.6rem, 2vmin, 1.1rem);
+	padding: clamp(1.2rem, 3vmin, 2rem) clamp(1.5rem, 4vmin, 2.5rem);
+	border: 6px solid #ffd23f;
+	border-radius: 2rem;
+	background: linear-gradient(180deg, #fffcf3 0%, #fdf3dd 70%, #f6e4bd 100%);
+	box-shadow: 0 6px 0 #d8a93f, 0 10px 16px rgba(0, 0, 0, 0.3);
+}
+
+.escribir-listo-producto {
+	position: relative;
+	width: clamp(150px, 26vmin, 230px);
+	aspect-ratio: 3 / 4;
+}
+
+.escribir-listo-texto {
+	margin: 0;
+	color: #e8639f;
+	font: 800 clamp(1.6rem, 4.4vmin, 2.6rem) Arial, Helvetica, sans-serif;
+	text-shadow: 2px 2px 0 rgba(255, 255, 255, 0.6);
+}
+
+.escribir-boton-otro {
+	padding: 0.7rem 1.4rem;
+	border: 3px solid #2f8498;
+	border-radius: 1rem;
+	background: linear-gradient(180deg, #d6f8ff 0%, #7bcfe3 75%, #5fb5cb 100%);
+	box-shadow: 0 3px 0 #286f84;
+	color: #6b3f24;
+	font: 800 clamp(0.9rem, 2.4vmin, 1.2rem) Arial, Helvetica, sans-serif;
+	cursor: pointer;
+	transition: transform 140ms ease, filter 140ms ease;
+}
+
+.escribir-boton-otro:hover,
+.escribir-boton-otro:focus-visible {
+	transform: translateY(-2px) scale(1.04);
+	filter: brightness(1.06);
+}
+
+/* Piezas de los productos: posicionadas en % dentro de su contenedor (.escribir-producto o un
+   ícono chico), para que la misma pieza sirva en cualquier tamaño de caja. */
+
+.escribir-producto {
+	position: relative;
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+.escribir-capa {
+	position: absolute;
+	inset: 0;
+	opacity: 0;
+	transform: scale(0.6);
+	transition: opacity 320ms ease, transform 320ms ease;
+}
+
+.escribir-capa.visible {
+	opacity: 1;
+	transform: scale(1);
+}
+
+.escribir-pieza-grupo {
+	position: absolute;
+	inset: 0;
+	display: block;
+}
+
+.escribir-cono {
+	position: absolute;
+	left: 22%;
+	top: 36%;
+	width: 56%;
+	height: 58%;
+	clip-path: polygon(50% 100%, 16% 0%, 84% 0%);
+	background: linear-gradient(160deg, #f3c26b, #caa05a 60%, #a97c3c);
+	box-shadow: inset 0 -10px 14px rgba(120, 70, 20, 0.35);
+}
+
+.escribir-cono::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	clip-path: polygon(50% 100%, 16% 0%, 84% 0%);
+	background: repeating-linear-gradient(55deg, transparent 0 14%, rgba(255, 255, 255, 0.28) 14% 18%);
+}
+
+.escribir-swirl {
+	position: absolute;
+	left: 15%;
+	top: 0%;
+	width: 70%;
+	height: 56%;
+	border-radius: 50% 50% 45% 45% / 62% 62% 38% 38%;
+}
+
+.escribir-swirl-rosa {
+	top: 4%;
+	background: radial-gradient(circle at 35% 30%, #ffe3f0, #ff9ac6 55%, #e8639f 100%);
+}
+
+.escribir-swirl-lila {
+	top: 6%;
+	height: 48%;
+	background: radial-gradient(circle at 35% 30%, #efe3ff, #c9a6f5 55%, #9f6bd9 100%);
+}
+
+.escribir-swirl-blanca {
+	top: 6%;
+	height: 40%;
+	background: radial-gradient(circle at 35% 30%, #ffffff, #eef7ff 55%, #cfe9fb 100%);
+}
+
+.escribir-chispitas {
+	position: absolute;
+	left: 18%;
+	top: 4%;
+	width: 64%;
+	height: 40%;
+}
+
+.escribir-chispitas span {
+	position: absolute;
+	left: var(--chispita-x);
+	top: var(--chispita-y);
+	width: 14%;
+	height: 5%;
+	border-radius: 2px;
+	background: var(--chispita-color);
+	transform: rotate(var(--chispita-rot));
+}
+
+.escribir-capelina {
+	position: absolute;
+	left: 18%;
+	top: 58%;
+	width: 64%;
+	height: 30%;
+	clip-path: polygon(10% 0%, 90% 0%, 100% 100%, 0% 100%);
+	background: repeating-linear-gradient(90deg, #ff9fc0 0 10%, #ffd3e4 10% 20%);
+}
+
+.escribir-bizcocho {
+	position: absolute;
+	left: 22%;
+	top: 38%;
+	width: 56%;
+	height: 28%;
+	border-radius: 50% 50% 18% 18% / 70% 70% 15% 15%;
+	background: linear-gradient(160deg, #f4cf8a, #dba652);
+}
+
+.escribir-cereza {
+	position: absolute;
+	left: 44%;
+	top: 4%;
+	width: 12%;
+	height: 12%;
+	border-radius: 50%;
+	background: radial-gradient(circle at 35% 30%, #ff8d9c, #e2314f);
+}
+
+.escribir-cereza::before {
+	content: "";
+	position: absolute;
+	left: 50%;
+	top: -65%;
+	width: 2px;
+	height: 65%;
+	background: #4caf50;
+	transform: rotate(-18deg);
+	transform-origin: bottom center;
+}
+
+.escribir-vaso {
+	position: absolute;
+	left: 24%;
+	top: 20%;
+	width: 52%;
+	height: 70%;
+	box-sizing: border-box;
+	clip-path: polygon(15% 0%, 85% 0%, 75% 100%, 25% 100%);
+	background: linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(190, 225, 245, 0.55));
+	border: 3px solid rgba(255, 255, 255, 0.85);
+}
+
+.escribir-relleno {
+	position: absolute;
+	left: 28%;
+	top: 44%;
+	width: 44%;
+	height: 44%;
+	clip-path: polygon(15% 0%, 85% 0%, 78% 100%, 22% 100%);
+	background: linear-gradient(180deg, #ff6fa8, #d6368c);
+}
+
+.escribir-sorbete {
+	position: absolute;
+	left: 58%;
+	top: -8%;
+	width: 8%;
+	height: 55%;
+	border-radius: 3px;
+	background: repeating-linear-gradient(0deg, #ff5577 0 15%, #ffffff 15% 30%);
+	transform: rotate(18deg);
+	transform-origin: bottom center;
+}
+
+@media (max-width: 760px) {
+	.escribir-pasos {
+		flex-direction: row;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.escribir-tunel {
+		animation: none;
+	}
+
+	.escribir-maquina-mal {
+		animation: none;
+	}
+}
