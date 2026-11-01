@@ -7,7 +7,7 @@ import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
 import { useActivityMenuOption } from "../hooks/useActivityMenuOption";
-import { sound } from "../lib/assets";
+import { img, sound } from "../lib/assets";
 import { GROUPS } from "../lib/palabras";
 import "./actividad.css";
 import "./Escribir.css";
@@ -23,97 +23,19 @@ const SABORES = {
 	bebida: { nombre: "Bebida" }
 };
 
-// Piezas que entrega la máquina en cada etapa, según lo que pidió Paula para cada sabor.
-const ETAPA_PIEZAS = {
-	helado: [["cono"], ["swirl-rosa"], ["chispitas"]],
-	cupcake: [["capelina", "bizcocho"], ["swirl-lila"], ["cereza"]],
-	bebida: [["vaso"], ["relleno"], ["swirl-blanca", "sorbete"]]
+// Foto del producto acumulado luego de cada etapa (recortada y compuesta a partir de las
+// imágenes que mandó Paula de la máquina de golosinas). Cada imagen ya incluye las piezas
+// de las etapas anteriores, lista para mostrar tal cual según cuántas se entregaron.
+const ETAPA_IMAGENES = {
+	helado: [img("escribirHeladoPaso1.png"), img("escribirHeladoPaso2.png"), img("escribirHeladoPaso3.png")],
+	cupcake: [img("escribirCupcakePaso1.png"), img("escribirCupcakePaso2.png"), img("escribirCupcakePaso3.png")],
+	bebida: [img("escribirBebidaPaso1.png"), img("escribirBebidaPaso2.png"), img("escribirBebidaPaso3.png")]
 };
-
-const CHISPITAS = [
-	{ x: "6%", y: "10%", rot: "20deg", color: "#ff6f91" },
-	{ x: "32%", y: "2%", rot: "-15deg", color: "#5fd9c2" },
-	{ x: "58%", y: "14%", rot: "40deg", color: "#ffd23f" },
-	{ x: "78%", y: "4%", rot: "-30deg", color: "#8d62dd" },
-	{ x: "16%", y: "38%", rot: "-10deg", color: "#ffd23f" },
-	{ x: "46%", y: "34%", rot: "25deg", color: "#ff6f91" },
-	{ x: "68%", y: "40%", rot: "-25deg", color: "#5fd9c2" }
-];
 
 function elegirPalabra(letra, anterior) {
 	const grupo = GROUPS[Object.hasOwn(GROUPS, letra) ? letra : "l"];
 	const candidatas = grupo.items.filter((palabra) => palabra !== anterior);
 	return candidatas[Math.floor(Math.random() * candidatas.length)];
-}
-
-function PiezaProducto({ pieza }) {
-	switch (pieza) {
-		case "cono":
-			return <span className="escribir-cono" />;
-		case "swirl-rosa":
-			return <span className="escribir-swirl escribir-swirl-rosa" />;
-		case "chispitas":
-			return (
-				<span className="escribir-chispitas" aria-hidden="true">
-					{CHISPITAS.map((chispita, indice) => (
-						<span
-							key={indice}
-							style={{
-								"--chispita-x": chispita.x,
-								"--chispita-y": chispita.y,
-								"--chispita-rot": chispita.rot,
-								"--chispita-color": chispita.color
-							}}
-						/>
-					))}
-				</span>
-			);
-		case "capelina":
-			return <span className="escribir-capelina" />;
-		case "bizcocho":
-			return <span className="escribir-bizcocho" />;
-		case "swirl-lila":
-			return <span className="escribir-swirl escribir-swirl-lila" />;
-		case "cereza":
-			return <span className="escribir-cereza" />;
-		case "vaso":
-			return <span className="escribir-vaso" />;
-		case "relleno":
-			return <span className="escribir-relleno" />;
-		case "swirl-blanca":
-			return <span className="escribir-swirl escribir-swirl-blanca" />;
-		case "sorbete":
-			return <span className="escribir-sorbete" />;
-		default:
-			return null;
-	}
-}
-
-function PiezaGrupo({ sabor, piezas }) {
-	if (!sabor || !piezas) {
-		return null;
-	}
-	return (
-		<span className="escribir-pieza-grupo">
-			{piezas.map((pieza) => <PiezaProducto key={pieza} pieza={pieza} />)}
-		</span>
-	);
-}
-
-// completas: cuántas etapas ya se entregaron (0 a 3). Cada capa queda superpuesta a las anteriores.
-function ProductoVisual({ sabor, completas }) {
-	if (!sabor) {
-		return null;
-	}
-	return (
-		<span className="escribir-producto">
-			{ETAPA_PIEZAS[sabor].map((piezas, indice) => (
-				<span key={indice} className={`escribir-capa${completas > indice ? " visible" : ""}`}>
-					<PiezaGrupo sabor={sabor} piezas={piezas} />
-				</span>
-			))}
-		</span>
-	);
 }
 
 export default function Escribir() {
@@ -302,7 +224,7 @@ export default function Escribir() {
 					{Object.entries(SABORES).map(([clave, datos]) => (
 						<button key={clave} type="button" className="escribir-sabor-boton" onClick={() => elegirSabor(clave)}>
 							<span className="escribir-sabor-icono">
-								<ProductoVisual sabor={clave} completas={3} />
+								<img src={ETAPA_IMAGENES[clave][2]} alt="" />
 							</span>
 							<span className="escribir-sabor-nombre">{datos.nombre}</span>
 						</button>
@@ -313,11 +235,11 @@ export default function Escribir() {
 			{fase === "maquina" && palabra && (
 				<main className="escribir-escena" aria-label="Actividad de escribir palabras">
 					<div className="escribir-pasos" aria-hidden="true">
-						{ETAPA_PIEZAS[sabor].map((piezas, indice) => (
+						{ETAPA_IMAGENES[sabor].map((src, indice) => (
 							<span key={indice} className={`escribir-paso${etapa > indice ? " hecho" : etapa === indice ? " actual" : ""}`}>
 								<span className="escribir-paso-numero">{indice + 1}</span>
 								<span className="escribir-paso-icono">
-									<PiezaGrupo sabor={sabor} piezas={piezas} />
+									<img src={src} alt="" />
 								</span>
 							</span>
 						))}
@@ -326,7 +248,7 @@ export default function Escribir() {
 					<div className={`escribir-maquina${estado === "mal" ? " escribir-maquina-mal" : ""}`}>
 						<div className="escribir-visor">
 							<span className="escribir-visor-icono">
-								<PiezaGrupo sabor={sabor} piezas={ETAPA_PIEZAS[sabor][etapa]} />
+								<img src={ETAPA_IMAGENES[sabor][etapa]} alt="" />
 							</span>
 							<span className="escribir-visor-igual">=</span>
 							<span className="escribir-visor-palabra">{palabra}</span>
@@ -381,7 +303,7 @@ export default function Escribir() {
 					<div className="escribir-entrega">
 						<span className="escribir-tunel" aria-hidden="true" />
 						<span className="escribir-entrega-producto">
-							<ProductoVisual sabor={sabor} completas={etapa} />
+							{etapa > 0 && <img key={etapa} src={ETAPA_IMAGENES[sabor][etapa - 1]} alt="" />}
 						</span>
 					</div>
 				</main>
@@ -390,7 +312,7 @@ export default function Escribir() {
 			{fase === "listo" && (
 				<main className="escribir-listo" aria-label="Pedido listo">
 					<span className="escribir-listo-producto">
-						<ProductoVisual sabor={sabor} completas={3} />
+						<img src={ETAPA_IMAGENES[sabor][2]} alt="" />
 					</span>
 					<p className="escribir-listo-texto">&iexcl;Fabuloso!</p>
 					<button type="button" className="escribir-boton-otro" onClick={reiniciar}>

@@ -354,173 +354,28 @@
 	filter: brightness(1.06);
 }
 
-/* Piezas de los productos: posicionadas en % dentro de su contenedor (.escribir-producto o un
-   ícono chico), para que la misma pieza sirva en cualquier tamaño de caja. */
+/* Fotos del producto: recortadas y compuestas a partir de las imágenes de la máquina de
+   golosinas. El contenedor (ícono chico o caja grande) ya trae su tamaño/aspect-ratio. */
 
-.escribir-producto {
-	position: relative;
+.escribir-sabor-icono img,
+.escribir-paso-icono img,
+.escribir-visor-icono img,
+.escribir-entrega-producto img,
+.escribir-listo-producto img {
 	display: block;
 	width: 100%;
 	height: 100%;
+	object-fit: contain;
+	object-position: center bottom;
 }
 
-.escribir-capa {
-	position: absolute;
-	inset: 0;
-	opacity: 0;
-	transform: scale(0.6);
-	transition: opacity 320ms ease, transform 320ms ease;
+.escribir-entrega-producto img {
+	animation: escribir-pieza-aparece 320ms ease both;
 }
 
-.escribir-capa.visible {
-	opacity: 1;
-	transform: scale(1);
-}
-
-.escribir-pieza-grupo {
-	position: absolute;
-	inset: 0;
-	display: block;
-}
-
-.escribir-cono {
-	position: absolute;
-	left: 22%;
-	top: 36%;
-	width: 56%;
-	height: 58%;
-	clip-path: polygon(50% 100%, 16% 0%, 84% 0%);
-	background: linear-gradient(160deg, #f3c26b, #caa05a 60%, #a97c3c);
-	box-shadow: inset 0 -10px 14px rgba(120, 70, 20, 0.35);
-}
-
-.escribir-cono::after {
-	content: "";
-	position: absolute;
-	inset: 0;
-	clip-path: polygon(50% 100%, 16% 0%, 84% 0%);
-	background: repeating-linear-gradient(55deg, transparent 0 14%, rgba(255, 255, 255, 0.28) 14% 18%);
-}
-
-.escribir-swirl {
-	position: absolute;
-	left: 15%;
-	top: 0%;
-	width: 70%;
-	height: 56%;
-	border-radius: 50% 50% 45% 45% / 62% 62% 38% 38%;
-}
-
-.escribir-swirl-rosa {
-	top: 4%;
-	background: radial-gradient(circle at 35% 30%, #ffe3f0, #ff9ac6 55%, #e8639f 100%);
-}
-
-.escribir-swirl-lila {
-	top: 6%;
-	height: 48%;
-	background: radial-gradient(circle at 35% 30%, #efe3ff, #c9a6f5 55%, #9f6bd9 100%);
-}
-
-.escribir-swirl-blanca {
-	top: 6%;
-	height: 40%;
-	background: radial-gradient(circle at 35% 30%, #ffffff, #eef7ff 55%, #cfe9fb 100%);
-}
-
-.escribir-chispitas {
-	position: absolute;
-	left: 18%;
-	top: 4%;
-	width: 64%;
-	height: 40%;
-}
-
-.escribir-chispitas span {
-	position: absolute;
-	left: var(--chispita-x);
-	top: var(--chispita-y);
-	width: 14%;
-	height: 5%;
-	border-radius: 2px;
-	background: var(--chispita-color);
-	transform: rotate(var(--chispita-rot));
-}
-
-.escribir-capelina {
-	position: absolute;
-	left: 18%;
-	top: 58%;
-	width: 64%;
-	height: 30%;
-	clip-path: polygon(10% 0%, 90% 0%, 100% 100%, 0% 100%);
-	background: repeating-linear-gradient(90deg, #ff9fc0 0 10%, #ffd3e4 10% 20%);
-}
-
-.escribir-bizcocho {
-	position: absolute;
-	left: 22%;
-	top: 38%;
-	width: 56%;
-	height: 28%;
-	border-radius: 50% 50% 18% 18% / 70% 70% 15% 15%;
-	background: linear-gradient(160deg, #f4cf8a, #dba652);
-}
-
-.escribir-cereza {
-	position: absolute;
-	left: 44%;
-	top: 4%;
-	width: 12%;
-	height: 12%;
-	border-radius: 50%;
-	background: radial-gradient(circle at 35% 30%, #ff8d9c, #e2314f);
-}
-
-.escribir-cereza::before {
-	content: "";
-	position: absolute;
-	left: 50%;
-	top: -65%;
-	width: 2px;
-	height: 65%;
-	background: #4caf50;
-	transform: rotate(-18deg);
-	transform-origin: bottom center;
-}
-
-.escribir-vaso {
-	position: absolute;
-	left: 24%;
-	top: 20%;
-	width: 52%;
-	height: 70%;
-	box-sizing: border-box;
-	clip-path: polygon(15% 0%, 85% 0%, 75% 100%, 25% 100%);
-	background: linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(190, 225, 245, 0.55));
-	border: 3px solid rgba(255, 255, 255, 0.85);
-}
-
-.escribir-relleno {
-	position: absolute;
-	left: 28%;
-	top: 44%;
-	width: 44%;
-	height: 44%;
-	clip-path: polygon(15% 0%, 85% 0%, 78% 100%, 22% 100%);
-	background: linear-gradient(180deg, #ff6fa8, #d6368c);
-}
-
-.escribir-sorbete {
-	position: absolute;
-	left: 58%;
-	top: -8%;
-	width: 8%;
-	height: 55%;
-	border-radius: 3px;
-	background: repeating-linear-gradient(0deg, #ff5577 0 15%, #ffffff 15% 30%);
-	transform: rotate(18deg);
-	transform-origin: bottom center;
+@keyframes escribir-pieza-aparece {
+	from { opacity: 0; transform: scale(0.6); }
+	to { opacity: 1; transform: scale(1); }
 }
 
 @media (max-width: 760px) {
