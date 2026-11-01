@@ -12,10 +12,7 @@ import { GROUPS } from "../lib/palabras";
 import "./actividad.css";
 import "./Escribir.css";
 
-const TECLADO = [
-	{ clase: "consonantes", letras: ["L", "M", "S", "T"] },
-	{ clase: "vocales", letras: ["A", "E", "I", "O", "U"] }
-];
+const LETRAS = ["L", "M", "S", "T", "A", "E", "I", "O", "U"];
 
 const SABORES = {
 	helado: { nombre: "Helado" },
@@ -31,6 +28,36 @@ const ETAPA_IMAGENES = {
 	cupcake: [img("escribirCupcakePaso1.png"), img("escribirCupcakePaso2.png"), img("escribirCupcakePaso3.png")],
 	bebida: [img("escribirBebidaPaso1.png"), img("escribirBebidaPaso2.png"), img("escribirBebidaPaso3.png")]
 };
+
+// La foto de la máquina de Paula, con la palabra de ejemplo y el ícono fijo "despintados"
+// para poner ahí encima el ícono/palabra de cada ronda. El resto (teclado, casillas, botones,
+// pasos 1-2-3, túnel) se usa tal cual: los controles se ubican por encima en las mismas
+// coordenadas (en % sobre la foto) donde están dibujados en la imagen.
+const FONDO_FABRICA = {
+	helado: img("escribirMaquinaHelado.jpg"),
+	cupcake: img("escribirMaquinaCupcake.jpg"),
+	bebida: img("escribirMaquinaBebida.jpg")
+};
+
+// Posición (en % sobre la foto) de cada tecla, tomada de dónde está dibujada en la imagen.
+const TECLA_POSICION = {
+	L: { left: 30.62, top: 59.32, width: 6.88, height: 8.31 },
+	M: { left: 39.37, top: 59.32, width: 6.88, height: 8.31 },
+	S: { left: 48.12, top: 59.32, width: 6.88, height: 8.31 },
+	T: { left: 56.87, top: 59.32, width: 6.88, height: 8.31 },
+	A: { left: 28.44, top: 70.48, width: 6.25, height: 8.88 },
+	E: { left: 36.25, top: 70.48, width: 6.25, height: 8.88 },
+	I: { left: 44.06, top: 70.48, width: 6.25, height: 8.88 },
+	O: { left: 51.56, top: 70.48, width: 6.25, height: 8.88 },
+	U: { left: 59.06, top: 70.48, width: 6.25, height: 8.88 }
+};
+
+// Posición (en %) del círculo 1-2-3 que ya trae la foto, para dibujar el aro de "actual/hecho" encima.
+const PASO_POSICION = [
+	{ left: 8.1, top: 32.6, size: 11 },
+	{ left: 8.1, top: 53.4, size: 11 },
+	{ left: 8.1, top: 72.7, size: 11 }
+];
 
 function elegirPalabra(letra, anterior) {
 	const grupo = GROUPS[Object.hasOwn(GROUPS, letra) ? letra : "l"];
@@ -233,78 +260,70 @@ export default function Escribir() {
 			)}
 
 			{fase === "maquina" && palabra && (
-				<main className="escribir-escena" aria-label="Actividad de escribir palabras">
-					<div className="escribir-pasos" aria-hidden="true">
-						{ETAPA_IMAGENES[sabor].map((src, indice) => (
-							<span key={indice} className={`escribir-paso${etapa > indice ? " hecho" : etapa === indice ? " actual" : ""}`}>
-								<span className="escribir-paso-numero">{indice + 1}</span>
-								<span className="escribir-paso-icono">
-									<img src={src} alt="" />
-								</span>
-							</span>
-						))}
-					</div>
+				<main className="escribir-fabrica" aria-label="Actividad de escribir palabras">
+					<div className={`escribir-foto-maquina${estado === "mal" ? " escribir-sacudida" : ""}`}>
+						<img className="escribir-fondo-maquina" src={FONDO_FABRICA[sabor]} alt="" />
 
-					<div className={`escribir-maquina${estado === "mal" ? " escribir-maquina-mal" : ""}`}>
-						<div className="escribir-visor">
+						{PASO_POSICION.map((posicion, indice) => (
+							<span
+								key={indice}
+								aria-hidden="true"
+								className={`escribir-paso-aro${etapa > indice ? " hecho" : etapa === indice ? " actual" : ""}`}
+								style={{ left: `${posicion.left}%`, top: `${posicion.top}%`, width: `${posicion.size}%`, height: `${posicion.size}%` }}
+							/>
+						))}
+
+						<div className="escribir-visor-overlay">
 							<span className="escribir-visor-icono">
 								<img src={ETAPA_IMAGENES[sabor][etapa]} alt="" />
 							</span>
 							<span className="escribir-visor-igual">=</span>
 							<span className="escribir-visor-palabra">{palabra}</span>
 						</div>
-						<div className="escribir-casillas" aria-label={`Escribí ${palabra}`}>
+
+						<div className="escribir-casillas-overlay" aria-label={`Escribí ${palabra}`}>
 							{Array.from({ length: palabra.length }, (_, indice) => (
-								<span key={indice} className={`escribir-casilla${escrito[indice] ? " llena" : ""}`}>
+								<span key={indice} className={`escribir-casilla-overlay${escrito[indice] ? " llena" : ""}`}>
 									{escrito[indice] || ""}
 								</span>
 							))}
 						</div>
-						<div className="escribir-teclado">
-							{TECLADO.map((fila) => (
-								<div key={fila.clase} className={`escribir-fila-teclado escribir-fila-teclado-${fila.clase}`}>
-									{fila.letras.map((letra) => (
-										<button
-											key={letra}
-											type="button"
-											className="escribir-tecla"
-											disabled={bloqueado || escrito.length >= palabra.length}
-											aria-label={`Letra ${letra}`}
-											onClick={() => presionarLetra(letra)}
-										>
-											{letra}
-										</button>
-									))}
-								</div>
-							))}
-						</div>
-						<div className="escribir-controles-maquina">
-							<button
-								type="button"
-								className="escribir-boton-borrar"
-								aria-label="Borrar letra"
-								disabled={bloqueado || escrito.length === 0}
-								onClick={borrarLetra}
-							>
-								&#x2190;
-							</button>
-							<button
-								type="button"
-								className="escribir-boton-confirmar"
-								aria-label="Confirmar palabra"
-								disabled={bloqueado || escrito.length !== palabra.length}
-								onClick={confirmar}
-							>
-								&#x2713;
-							</button>
-						</div>
-					</div>
 
-					<div className="escribir-entrega">
-						<span className="escribir-tunel" aria-hidden="true" />
-						<span className="escribir-entrega-producto">
+						{LETRAS.map((letra) => (
+							<button
+								key={letra}
+								type="button"
+								className="escribir-tecla-overlay"
+								style={{
+									left: `${TECLA_POSICION[letra].left}%`,
+									top: `${TECLA_POSICION[letra].top}%`,
+									width: `${TECLA_POSICION[letra].width}%`,
+									height: `${TECLA_POSICION[letra].height}%`
+								}}
+								disabled={bloqueado || escrito.length >= palabra.length}
+								aria-label={`Letra ${letra}`}
+								onClick={() => presionarLetra(letra)}
+							/>
+						))}
+
+						<button
+							type="button"
+							className="escribir-boton-overlay escribir-boton-borrar-overlay"
+							aria-label="Borrar letra"
+							disabled={bloqueado || escrito.length === 0}
+							onClick={borrarLetra}
+						/>
+						<button
+							type="button"
+							className="escribir-boton-overlay escribir-boton-confirmar-overlay"
+							aria-label="Confirmar palabra"
+							disabled={bloqueado || escrito.length !== palabra.length}
+							onClick={confirmar}
+						/>
+
+						<div className="escribir-entrega-overlay">
 							{etapa > 0 && <img key={etapa} src={ETAPA_IMAGENES[sabor][etapa - 1]} alt="" />}
-						</span>
+						</div>
 					</div>
 				</main>
 			)}

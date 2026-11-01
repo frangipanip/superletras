@@ -49,138 +49,124 @@
 	text-transform: uppercase;
 }
 
-/* Escena de la máquina */
+/* Escena de la máquina: la foto de la fábrica de Paula es la interfaz real. El teclado, las
+   casillas, los botones y el túnel ya están dibujados en la foto; acá solo se posicionan los
+   controles interactivos y lo dinámico (ícono, palabra, letras tipeadas) encima, en % sobre
+   la foto, para que funcione igual en cualquier tamaño de pantalla. */
 
-.escribir-escena {
+.escribir-fabrica {
 	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
 	justify-content: center;
-	gap: clamp(0.75rem, 2.5vmin, 2rem);
 	width: 100%;
 	max-width: 68rem;
-	padding: clamp(1rem, 3vmin, 2rem);
+	padding: clamp(0.5rem, 2vmin, 1.5rem);
 }
 
-.escribir-pasos {
-	display: flex;
-	flex-direction: column;
-	gap: clamp(0.5rem, 1.6vmin, 1rem);
-}
-
-.escribir-paso {
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-	padding: 0.4rem 0.6rem;
-	border-radius: 1rem;
-	background: rgba(255, 255, 255, 0.35);
-	opacity: 0.55;
-	transition: opacity 240ms ease, background 240ms ease;
-}
-
-.escribir-paso.actual {
-	opacity: 1;
-	background: rgba(255, 255, 255, 0.7);
-	box-shadow: 0 0 0 3px #ffd23f;
-}
-
-.escribir-paso.hecho {
-	opacity: 1;
-	background: rgba(186, 255, 201, 0.65);
-}
-
-.escribir-paso-numero {
-	display: grid;
-	place-items: center;
-	width: clamp(1.3rem, 3vmin, 1.8rem);
-	aspect-ratio: 1;
-	border-radius: 50%;
-	background: #8d62dd;
-	color: #fff;
-	font: 800 clamp(0.75rem, 2vmin, 1rem) Arial, Helvetica, sans-serif;
-}
-
-.escribir-paso-icono {
+.escribir-foto-maquina {
 	position: relative;
-	width: clamp(40px, 7vmin, 60px);
-	aspect-ratio: 3 / 4;
+	width: 100%;
+	aspect-ratio: 16 / 9;
+	border-radius: 1.4rem;
+	overflow: hidden;
+	box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
 }
 
-.escribir-maquina {
-	position: relative;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: clamp(0.6rem, 2vmin, 1.1rem);
-	padding: clamp(1rem, 2.6vmin, 1.6rem);
-	border: 6px solid #e05fb0;
-	border-radius: 2rem;
-	background: linear-gradient(180deg, #ffe3f3 0%, #ffc7e6 60%, #ffb0db 100%);
-	box-shadow: 0 6px 0 #b83f87, 0 10px 16px rgba(0, 0, 0, 0.3);
-}
-
-.escribir-maquina-mal {
+.escribir-sacudida {
 	animation: escribir-sacudida 420ms ease;
 }
 
 @keyframes escribir-sacudida {
 	0%, 100% { transform: translateX(0); }
-	20% { transform: translateX(-10px) rotate(-1deg); }
-	40% { transform: translateX(9px) rotate(1deg); }
-	60% { transform: translateX(-7px) rotate(-1deg); }
-	80% { transform: translateX(6px) rotate(1deg); }
+	20% { transform: translateX(-2%) rotate(-1deg); }
+	40% { transform: translateX(1.8%) rotate(1deg); }
+	60% { transform: translateX(-1.4%) rotate(-1deg); }
+	80% { transform: translateX(1.2%) rotate(1deg); }
 }
 
-.escribir-visor {
+.escribir-fondo-maquina {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	display: block;
+	object-fit: cover;
+}
+
+.escribir-paso-aro {
+	position: absolute;
+	border-radius: 50%;
+	pointer-events: none;
+	box-shadow: 0 0 0 0 transparent;
+	transition: box-shadow 240ms ease;
+}
+
+.escribir-paso-aro.actual {
+	box-shadow: 0 0 0 4px #ffd23f, 0 0 14px 4px rgba(255, 210, 63, 0.85);
+	animation: escribir-paso-pulso 1.1s ease-in-out infinite alternate;
+}
+
+.escribir-paso-aro.hecho {
+	box-shadow: 0 0 0 4px #4bbf69, 0 0 10px 2px rgba(75, 191, 105, 0.7);
+}
+
+@keyframes escribir-paso-pulso {
+	from { filter: brightness(1); }
+	to { filter: brightness(1.25); }
+}
+
+.escribir-visor-overlay {
+	position: absolute;
 	display: flex;
 	align-items: center;
-	gap: clamp(0.5rem, 1.6vmin, 1rem);
-	padding: clamp(0.5rem, 1.6vmin, 0.9rem) clamp(0.8rem, 2.4vmin, 1.4rem);
-	border: 3px solid #8d62dd;
-	border-radius: 1.2rem;
-	background: #fffaf0;
-	box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.12);
+	justify-content: center;
+	gap: clamp(0.3rem, 1.4vmin, 0.9rem);
+	left: 28.25%;
+	top: 12.43%;
+	width: 40.65%;
+	height: 17.98%;
 }
 
 .escribir-visor-icono {
 	position: relative;
-	width: clamp(46px, 8vmin, 70px);
+	height: 82%;
 	aspect-ratio: 3 / 4;
 	flex: 0 0 auto;
 }
 
 .escribir-visor-igual {
 	color: #8d62dd;
-	font: 800 clamp(1.3rem, 3.4vmin, 2rem) Arial, Helvetica, sans-serif;
+	font: 800 clamp(1rem, 3vmin, 1.8rem) Arial, Helvetica, sans-serif;
+	flex: 0 0 auto;
 }
 
 .escribir-visor-palabra {
 	color: #6b3f24;
-	font: 800 clamp(1.3rem, 3.6vmin, 2.2rem) Arial, Helvetica, sans-serif;
-	letter-spacing: 0.08em;
+	font: 800 clamp(1rem, 3.2vmin, 2rem) Arial, Helvetica, sans-serif;
+	letter-spacing: 0.06em;
+	flex: 0 0 auto;
 }
 
-.escribir-casillas {
+.escribir-casillas-overlay {
+	position: absolute;
 	display: flex;
-	gap: clamp(0.4rem, 1.2vmin, 0.7rem);
+	align-items: center;
+	justify-content: space-between;
+	left: 33.75%;
+	top: 40.51%;
+	width: 29.38%;
+	height: 11.09%;
 }
 
-.escribir-casilla {
+.escribir-casilla-overlay {
+	flex: 0 0 21%;
 	display: grid;
 	place-items: center;
-	width: clamp(2.2rem, 6vmin, 3.2rem);
-	aspect-ratio: 1;
-	border: 3px solid #5fb5cb;
-	border-radius: 0.6rem;
-	background: #eaffff;
+	height: 100%;
 	color: #286f84;
-	font: 800 clamp(1.1rem, 3vmin, 1.7rem) Arial, Helvetica, sans-serif;
-	box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.12);
+	font: 800 clamp(0.9rem, 3vmin, 1.7rem) Arial, Helvetica, sans-serif;
 }
 
-.escribir-casilla.llena {
-	background: #d6f8ff;
+.escribir-casilla-overlay.llena {
 	animation: escribir-llenar 180ms ease-out both;
 }
 
@@ -189,124 +175,59 @@
 	to { transform: scale(1); opacity: 1; }
 }
 
-.escribir-teclado {
-	display: flex;
-	flex-direction: column;
-	gap: clamp(0.4rem, 1.2vmin, 0.6rem);
-}
-
-.escribir-fila-teclado {
-	display: flex;
-	justify-content: center;
-	gap: clamp(0.35rem, 1vmin, 0.6rem);
-}
-
-.escribir-tecla {
-	display: grid;
-	place-items: center;
-	width: clamp(2.3rem, 6vmin, 3.4rem);
-	aspect-ratio: 1;
+.escribir-tecla-overlay,
+.escribir-boton-overlay {
+	position: absolute;
 	border: 0;
 	border-radius: 0.8rem;
-	color: #fff;
-	font: 800 clamp(1rem, 2.8vmin, 1.5rem) Arial, Helvetica, sans-serif;
+	background: transparent;
 	cursor: pointer;
-	transition: transform 140ms ease, filter 140ms ease;
 }
 
-.escribir-fila-teclado-consonantes .escribir-tecla {
-	background: linear-gradient(180deg, #a67cf0 0%, #8d62dd 60%, #6f46bd 100%);
-	box-shadow: 0 3px 0 #5a35a0;
+.escribir-tecla-overlay:not(:disabled):hover,
+.escribir-tecla-overlay:not(:disabled):focus-visible,
+.escribir-boton-overlay:not(:disabled):hover,
+.escribir-boton-overlay:not(:disabled):focus-visible {
+	background: rgba(255, 255, 255, 0.3);
 }
 
-.escribir-fila-teclado-vocales .escribir-tecla {
-	background: linear-gradient(180deg, #ff9cc8 0%, #ff6fa8 60%, #e8639f 100%);
-	box-shadow: 0 3px 0 #c84b84;
-}
-
-.escribir-tecla:hover:not(:disabled),
-.escribir-tecla:focus-visible:not(:disabled) {
-	transform: translateY(-2px) scale(1.06);
-	filter: brightness(1.08);
-}
-
-.escribir-tecla:disabled {
-	opacity: 0.45;
+.escribir-tecla-overlay:disabled,
+.escribir-boton-overlay:disabled {
+	background: rgba(70, 40, 20, 0.35);
 	cursor: default;
 }
 
-.escribir-controles-maquina {
-	display: flex;
-	gap: clamp(0.6rem, 2vmin, 1.1rem);
+.escribir-boton-borrar-overlay {
+	left: 27.5%;
+	top: 83.8%;
+	width: 18.13%;
+	height: 10.54%;
+	border-radius: 2rem;
 }
 
-.escribir-boton-borrar,
-.escribir-boton-confirmar {
-	display: grid;
-	place-items: center;
-	width: clamp(3rem, 8vmin, 4rem);
-	aspect-ratio: 1;
-	border: 3px solid #2f8498;
-	border-radius: 1rem;
-	font: 800 clamp(1.2rem, 3.2vmin, 1.8rem) Arial, Helvetica, sans-serif;
-	cursor: pointer;
-	transition: transform 140ms ease, filter 140ms ease;
+.escribir-boton-confirmar-overlay {
+	left: 49.38%;
+	top: 83.8%;
+	width: 22.18%;
+	height: 10.54%;
+	border-radius: 2rem;
 }
 
-.escribir-boton-borrar {
-	background: linear-gradient(180deg, #d6f8ff 0%, #7bcfe3 75%, #5fb5cb 100%);
-	box-shadow: 0 3px 0 #286f84;
-	color: #6b3f24;
-}
-
-.escribir-boton-confirmar {
-	background: linear-gradient(180deg, #b8f7c3 0%, #6fd988 70%, #4bbf69 100%);
-	box-shadow: 0 3px 0 #2f8a46;
-	color: #1f4a2b;
-	border-color: #2f8a46;
-}
-
-.escribir-boton-borrar:hover:not(:disabled),
-.escribir-boton-borrar:focus-visible:not(:disabled),
-.escribir-boton-confirmar:hover:not(:disabled),
-.escribir-boton-confirmar:focus-visible:not(:disabled) {
-	transform: translateY(-2px) scale(1.06);
-	filter: brightness(1.08);
-}
-
-.escribir-boton-borrar:disabled,
-.escribir-boton-confirmar:disabled {
-	opacity: 0.4;
-	cursor: default;
-}
-
-.escribir-entrega {
-	position: relative;
-	display: grid;
-	place-items: center;
-	width: clamp(160px, 24vmin, 240px);
-	aspect-ratio: 3 / 4;
-}
-
-.escribir-tunel {
+.escribir-entrega-overlay {
 	position: absolute;
-	inset: 0;
-	border-radius: 1.4rem;
-	background: radial-gradient(circle at 50% 35%, #fff6b0 0%, #ffd23f 35%, #e05fb0 80%);
-	box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.35), 0 0 24px rgba(255, 210, 63, 0.6);
-	animation: escribir-tunel-brillo 1.8s ease-in-out infinite alternate;
+	display: grid;
+	place-items: center;
+	left: 76.56%;
+	top: 43.84%;
+	width: 15%;
+	height: 34.41%;
+	pointer-events: none;
 }
 
-@keyframes escribir-tunel-brillo {
-	from { filter: brightness(1); }
-	to { filter: brightness(1.18); }
-}
-
-.escribir-entrega-producto {
-	position: relative;
-	width: 72%;
-	aspect-ratio: 3 / 4;
-	z-index: 1;
+.escribir-entrega-overlay img {
+	max-width: 100%;
+	max-height: 100%;
+	object-fit: contain;
 }
 
 /* Pantalla final */
@@ -358,9 +279,7 @@
    golosinas. El contenedor (ícono chico o caja grande) ya trae su tamaño/aspect-ratio. */
 
 .escribir-sabor-icono img,
-.escribir-paso-icono img,
 .escribir-visor-icono img,
-.escribir-entrega-producto img,
 .escribir-listo-producto img {
 	display: block;
 	width: 100%;
@@ -369,7 +288,7 @@
 	object-position: center bottom;
 }
 
-.escribir-entrega-producto img {
+.escribir-entrega-overlay img {
 	animation: escribir-pieza-aparece 320ms ease both;
 }
 
@@ -378,18 +297,12 @@
 	to { opacity: 1; transform: scale(1); }
 }
 
-@media (max-width: 760px) {
-	.escribir-pasos {
-		flex-direction: row;
-	}
-}
-
 @media (prefers-reduced-motion: reduce) {
-	.escribir-tunel {
+	.escribir-sacudida {
 		animation: none;
 	}
 
-	.escribir-maquina-mal {
+	.escribir-paso-aro.actual {
 		animation: none;
 	}
 }
