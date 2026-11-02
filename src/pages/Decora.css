@@ -392,6 +392,11 @@
 	transition: transform 450ms ease;
 }
 
+.decora-scene--fondo-arriba .decora-flying--frutillas {
+	transform: none;
+	transition: none;
+}
+
 .decora-flying img {
 	position: absolute;
 	top: var(--flight-y);
@@ -409,6 +414,7 @@
 }
 
 .decora-flying--frutillas img {
+	width: clamp(40px, 6vw, 88px);
 	animation-name: decora-frutillas-to-cake;
 }
 
@@ -421,10 +427,10 @@
 	}
 	15% { opacity: 1; }
 	to {
-		left: 50%;
-		top: 55%;
-		opacity: 0.3;
-		transform: translate(-50%, -50%) scale(0.75) rotate(14deg);
+		left: var(--flight-fruit-target-x);
+		top: var(--flight-fruit-target-y);
+		opacity: 0.85;
+		transform: translate(-50%, -50%) scale(0.85) rotate(14deg);
 	}
 }
 

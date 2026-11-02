@@ -39,6 +39,13 @@ const IMAGENES_PASTEL = {
 		velas: "bizcochueloRosavelas.png"
 	}
 };
+const PUNTOS_FRUTILLAS = [
+	{ x: 0.3, y: 0.2 },
+	{ x: 0.7, y: 0.2 },
+	{ x: 0.19, y: 0.3 },
+	{ x: 0.81, y: 0.3 },
+	{ x: 0.5, y: 0.4 }
+];
 const CONFETI = Array.from({ length: 44 }, (_, index) => ({
 	left: `${(index * 37) % 100}%`,
 	delay: `${(index % 11) * 0.12}s`,
@@ -275,13 +282,15 @@ export default function Decora() {
 				const caja = strawberryBoxRefs.current[indice];
 				const escena = sceneRef.current;
 				const imagen = caja?.querySelector("img");
-				if (!caja || !escena || !imagen || !imagen.naturalWidth || !imagen.naturalHeight) {
+				const torta = escena?.querySelector(".decora-cake");
+				if (!caja || !escena || !imagen || !imagen.naturalWidth || !imagen.naturalHeight || !torta) {
 					console.error("No se pudo determinar el punto de salida de las frutillas.");
 					return;
 				}
 
 				const cajaRect = imagen.getBoundingClientRect();
 				const escenaRect = escena.getBoundingClientRect();
+				const tortaRect = torta.getBoundingClientRect();
 				const escala = Math.min(
 					cajaRect.width / imagen.naturalWidth,
 					cajaRect.height / imagen.naturalHeight
@@ -294,10 +303,17 @@ export default function Decora() {
 					x: izquierdaImagen + anchoImagen / 2 - escenaRect.left,
 					y: arribaImagen + altoImagen * 0.25 - escenaRect.top
 				};
-				setEfecto({ tipo: "frutillas", indice, origen });
+				const destinos = PUNTOS_FRUTILLAS.map(({ x, y }) => ({
+					x: tortaRect.left + tortaRect.width * x - escenaRect.left,
+					y: tortaRect.top + tortaRect.height * y - escenaRect.top
+				}));
+				setEfecto({ tipo: "frutillas", indice, origen, destinos });
 			}, 350);
-			programar(() => setDecoracionPastel("frutillas"), 1780);
-			programar(() => pasarEtapa(3, opcion.id), 2000);
+			programar(() => {
+				setDecoracionPastel("frutillas");
+				setEfecto(null);
+			}, 1900);
+			programar(() => pasarEtapa(3, opcion.id), 2200);
 			return;
 		}
 
@@ -561,6 +577,8 @@ export default function Decora() {
 									"--flight-delay": `${indice * 100}ms`,
 									"--flight-fruit-x": efecto.tipo === "frutillas" ? `${efecto.origen.x + (indice - 2) * 12}px` : "50%",
 									"--flight-fruit-y": efecto.tipo === "frutillas" ? `${efecto.origen.y + (indice % 2) * 8}px` : "50%",
+									"--flight-fruit-target-x": efecto.tipo === "frutillas" ? `${efecto.destinos[indice].x}px` : "50%",
+									"--flight-fruit-target-y": efecto.tipo === "frutillas" ? `${efecto.destinos[indice].y}px` : "50%",
 									"--flight-candle-x": efecto.tipo === "velas" ? `${efecto.origen.x + (indice - 2) * efecto.origen.separacion}px` : "50%",
 									"--flight-candle-y": efecto.tipo === "velas" ? `${efecto.origen.y}px` : "50%",
 									"--flight-candle-target-x": efecto.tipo === "velas" ? `${efecto.destino.x + (indice - 2) * efecto.destino.separacion}px` : "50%",
