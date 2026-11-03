@@ -7,86 +7,54 @@ import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
 import { useActivityMenuOption } from "../hooks/useActivityMenuOption";
-import { img, sound } from "../lib/assets";
-import { GROUPS } from "../lib/palabras";
+import { img, preloadImages, sound } from "../lib/assets";
 import "./actividad.css";
 import "./Escribir.css";
 
-const LETRAS = ["L", "M", "S", "T", "A", "E", "I", "O", "U"];
-
-const SABORES = {
-	helado: { nombre: "Helado" },
-	cupcake: { nombre: "Cupcake" },
-	bebida: { nombre: "Bebida" }
-};
-
-// Foto del producto acumulado luego de cada etapa (recortada y compuesta a partir de las
-// imágenes que mandó Paula de la máquina de golosinas). Cada imagen ya incluye las piezas
-// de las etapas anteriores, lista para mostrar tal cual según cuántas se entregaron.
-const ETAPA_IMAGENES = {
-	helado: [img("escribirHeladoPaso1.png"), img("escribirHeladoPaso2.png"), img("escribirHeladoPaso3.png")],
-	cupcake: [img("escribirCupcakePaso1.png"), img("escribirCupcakePaso2.png"), img("escribirCupcakePaso3.png")],
-	bebida: [img("escribirBebidaPaso1.png"), img("escribirBebidaPaso2.png"), img("escribirBebidaPaso3.png")]
-};
-
-// La foto de la máquina de Paula, con la palabra de ejemplo y el ícono fijo "despintados"
-// para poner ahí encima el ícono/palabra de cada ronda. El resto (teclado, casillas, botones,
-// pasos 1-2-3, túnel) se usa tal cual: los controles se ubican por encima en las mismas
-// coordenadas (en % sobre la foto) donde están dibujados en la imagen.
-const FONDO_FABRICA = {
-	helado: img("escribirMaquinaHelado.jpg"),
-	cupcake: img("escribirMaquinaCupcake.jpg"),
-	bebida: img("escribirMaquinaBebida.jpg")
-};
-
-// Posición (en % sobre la foto) de cada tecla, tomada de dónde está dibujada en la imagen.
-const TECLA_POSICION = {
-	L: { left: 30.62, top: 59.32, width: 6.88, height: 8.31 },
-	M: { left: 39.37, top: 59.32, width: 6.88, height: 8.31 },
-	S: { left: 48.12, top: 59.32, width: 6.88, height: 8.31 },
-	T: { left: 56.87, top: 59.32, width: 6.88, height: 8.31 },
-	A: { left: 28.44, top: 70.48, width: 6.25, height: 8.88 },
-	E: { left: 36.25, top: 70.48, width: 6.25, height: 8.88 },
-	I: { left: 44.06, top: 70.48, width: 6.25, height: 8.88 },
-	O: { left: 51.56, top: 70.48, width: 6.25, height: 8.88 },
-	U: { left: 59.06, top: 70.48, width: 6.25, height: 8.88 }
-};
-
-// Posición (en %) del círculo 1-2-3 que ya trae la foto, para dibujar el aro de "actual/hecho" encima.
-const PASO_POSICION = [
-	{ left: 8.1, top: 32.6, size: 11 },
-	{ left: 8.1, top: 53.4, size: 11 },
-	{ left: 8.1, top: 72.7, size: 11 }
+const MAQUINA_FRAMES = [0, 1, 2, 3, 2, 1].map((frame) => img(`maquina${frame}.png`));
+const OPCIONES = [
+	{ nombre: "Helado", imagen: img("ophelado.png"), habilitada: false },
+	{ nombre: "Cupcake", imagen: img("opcupcake.png"), habilitada: false },
+	{ nombre: "Bebida", imagen: img("opbebida.png"), habilitada: true }
 ];
+const RONDAS = [
+	{ palabra: "LULA", imagen: img("vaso.png"), audio: "PLlula.mp3", entrega: [1, 2, 3, 4] },
+	{ palabra: "OLA", imagen: img("vasolleno.png"), audio: "PLola.mp3", entrega: [5, 6, 7, 8, 9, 10, 11] },
+	{ palabra: "LALI", imagen: img("vasocrema.png"), audio: "PLlali.mp3", entrega: [12, 13, 14, 15] }
+];
+const FILAS_TECLADO = [["L", "M"], ["S", "T"], ["A", "E", "I"], ["O", "U"]];
+const LETRAS_VOCAL = new Set(["A", "E", "I", "O", "U"]);
 
-function elegirPalabra(letra, anterior) {
-	const grupo = GROUPS[Object.hasOwn(GROUPS, letra) ? letra : "l"];
-	const candidatas = grupo.items.filter((palabra) => palabra !== anterior);
-	return candidatas[Math.floor(Math.random() * candidatas.length)];
-}
+preloadImages([
+	...MAQUINA_FRAMES,
+	...OPCIONES.map((opcion) => opcion.imagen),
+	...RONDAS.map((ronda) => ronda.imagen),
+	...RONDAS.flatMap((ronda) => ronda.entrega.map((frame) => img(`vaso${frame}.png`)))
+]);
 
 export default function Escribir() {
 	usePageTitle("Escribir");
 	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
 	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime);
-	const menuOption = useActivityMenuOption();
-	const letter = Object.hasOwn(GROUPS, menuOption) ? menuOption : "l";
+	useActivityMenuOption();
 
 	const [fase, setFase] = useState("elegir");
-	const [sabor, setSabor] = useState(null);
-	const [etapa, setEtapa] = useState(0);
-	const [palabra, setPalabra] = useState(null);
+	const [ronda, setRonda] = useState(0);
 	const [escrito, setEscrito] = useState([]);
+	const [productoFrame, setProductoFrame] = useState(null);
+	const [maquinaFrame, setMaquinaFrame] = useState(0);
 	const [estado, setEstado] = useState("jugando");
 	const [bloqueado, setBloqueado] = useState(false);
 	const bloqueadoRef = useRef(false);
 	const audioRef = useRef(null);
+	const entregaTimerRef = useRef(0);
+	const errorTimerRef = useRef(0);
 
-	function fijarBloqueado(valor) {
+	const fijarBloqueado = useCallback((valor) => {
 		bloqueadoRef.current = valor;
 		setBloqueado(valor);
-	}
+	}, []);
 
 	const detenerAudio = useCallback(() => {
 		const audio = audioRef.current;
@@ -99,246 +67,227 @@ export default function Escribir() {
 		stopTalking();
 	}, [stopTalking]);
 
-	const reproducirPalabra = useCallback((palabraAReproducir) => {
+	const reproducirAudio = useCallback((archivo, hablar = false) => {
 		detenerAudio();
-		const audio = runtime.audio(sound(`PL${palabraAReproducir.toLowerCase()}.mp3`), { preload: true });
+		const audio = runtime.audio(sound(archivo), { preload: true });
 		audioRef.current = audio;
-		startTalking();
+		if (hablar) {
+			startTalking();
+		}
 		audio.onended = () => {
 			if (audioRef.current !== audio) return;
 			audioRef.current = null;
-			stopTalking();
+			if (hablar) stopTalking();
 		};
 		audio.play().catch((error) => {
 			if (audioRef.current !== audio) return;
 			audioRef.current = null;
-			stopTalking();
-			console.error(`No se pudo reproducir el audio de la palabra ${palabraAReproducir}.`, error);
+			if (hablar) stopTalking();
+			console.error(`No se pudo reproducir el audio ${archivo}.`, error);
 		});
 	}, [detenerAudio, runtime, startTalking, stopTalking]);
-
-	const reproducirFabuloso = useCallback(() => {
-		detenerAudio();
-		const audio = runtime.audio(sound("Fabuloso.mp3"), { preload: true });
-		audioRef.current = audio;
-		startTalking();
-		audio.onended = () => {
-			if (audioRef.current !== audio) return;
-			audioRef.current = null;
-			stopTalking();
-		};
-		audio.play().catch((error) => {
-			if (audioRef.current !== audio) return;
-			audioRef.current = null;
-			stopTalking();
-			console.error("No se pudo reproducir el audio de Fabuloso.", error);
-		});
-	}, [detenerAudio, runtime, startTalking, stopTalking]);
-
-	function reproducirCorrecto() {
-		const audio = runtime.audio(sound("correcto.mp3"), { preload: true });
-		audio.play().catch((error) => {
-			console.error("No se pudo reproducir el sonido correcto.", error);
-		});
-	}
-
-	function reproducirError() {
-		const audio = runtime.audio(sound("error.mp3"), { preload: true });
-		audio.play().catch((error) => {
-			console.error("No se pudo reproducir el sonido de error.", error);
-		});
-	}
 
 	useEffect(() => {
-		if (fase === "maquina" && palabra) {
-			reproducirPalabra(palabra);
+		const timer = runtime.setInterval(() => {
+			setMaquinaFrame((actual) => (actual + 1) % MAQUINA_FRAMES.length);
+		}, 180);
+		return () => runtime.clearInterval(timer);
+	}, [runtime]);
+
+	useEffect(() => {
+		if (fase === "jugando") {
+			reproducirAudio(RONDAS[ronda].audio, true);
 			return detenerAudio;
 		}
-		if (fase === "listo") {
-			reproducirFabuloso();
+		if (fase === "final") {
+			reproducirAudio("Fabuloso.mp3", true);
 			return detenerAudio;
 		}
 		return undefined;
-	}, [fase, palabra, reproducirPalabra, reproducirFabuloso, detenerAudio]);
+	}, [fase, ronda, reproducirAudio, detenerAudio]);
 
-	function reiniciar() {
+	const reiniciar = useCallback(() => {
+		runtime.clearInterval(entregaTimerRef.current);
+		runtime.clearTimeout(errorTimerRef.current);
+		entregaTimerRef.current = 0;
+		errorTimerRef.current = 0;
 		fijarBloqueado(false);
 		detenerAudio();
 		setFase("elegir");
-		setSabor(null);
-		setEtapa(0);
-		setPalabra(null);
+		setRonda(0);
 		setEscrito([]);
+		setProductoFrame(null);
 		setEstado("jugando");
-	}
+	}, [detenerAudio, fijarBloqueado, runtime]);
 
-	useEffect(() => {
-		reiniciar();
-	}, [letter]);
-
-	function elegirSabor(clave) {
-		fijarBloqueado(false);
-		setSabor(clave);
-		setEtapa(0);
-		setPalabra(elegirPalabra(letter));
+	function elegirBebida() {
+		setRonda(0);
 		setEscrito([]);
+		setProductoFrame(null);
 		setEstado("jugando");
-		setFase("maquina");
+		setFase("jugando");
 	}
 
 	function presionarLetra(letra) {
-		if (bloqueadoRef.current || !palabra) return;
-		setEscrito((actual) => (actual.length >= palabra.length ? actual : [...actual, letra]));
+		if (bloqueadoRef.current || fase !== "jugando") return;
+		setEscrito((actual) => (actual.length >= RONDAS[ronda].palabra.length ? actual : [...actual, letra]));
 	}
 
 	function borrarLetra() {
-		if (bloqueadoRef.current) return;
+		if (bloqueadoRef.current || fase !== "jugando") return;
 		setEscrito((actual) => actual.slice(0, -1));
 	}
 
+	function animarEntrega() {
+		const frames = RONDAS[ronda].entrega;
+		let indice = 0;
+		setProductoFrame(img(`vaso${frames[indice]}.png`));
+		entregaTimerRef.current = runtime.setInterval(() => {
+			indice += 1;
+			setProductoFrame(img(`vaso${frames[indice]}.png`));
+			if (indice === frames.length - 1) {
+				runtime.clearInterval(entregaTimerRef.current);
+				entregaTimerRef.current = runtime.setTimeout(() => {
+					entregaTimerRef.current = 0;
+					if (ronda === RONDAS.length - 1) {
+						setFase("final");
+					} else {
+						setRonda((actual) => actual + 1);
+						setEscrito([]);
+						setFase("jugando");
+					}
+					fijarBloqueado(false);
+				}, 500);
+			}
+		}, 140);
+	}
+
 	function confirmar() {
-		if (bloqueadoRef.current || !palabra || escrito.length !== palabra.length) return;
+		if (bloqueadoRef.current || fase !== "jugando" || escrito.length !== RONDAS[ronda].palabra.length) return;
 		fijarBloqueado(true);
 		detenerAudio();
-		if (escrito.join("") === palabra) {
-			reproducirCorrecto();
-			const siguienteEtapa = etapa + 1;
-			runtime.setTimeout(() => {
-				if (siguienteEtapa >= 3) {
-					setEtapa(3);
-					setFase("listo");
-					fijarBloqueado(false);
-				} else {
-					setEtapa(siguienteEtapa);
-					setPalabra(elegirPalabra(letter, palabra));
-					setEscrito([]);
-					fijarBloqueado(false);
-				}
-			}, 700);
+		if (escrito.join("") === RONDAS[ronda].palabra) {
+			reproducirAudio("correcto.mp3");
+			animarEntrega();
 			return;
 		}
-		reproducirError();
+
+		reproducirAudio("error.mp3");
 		setEstado("mal");
-		runtime.setTimeout(() => {
+		errorTimerRef.current = runtime.setTimeout(() => {
+			errorTimerRef.current = 0;
 			setEstado("jugando");
 			setEscrito([]);
 			fijarBloqueado(false);
-		}, 600);
+		}, 650);
 	}
+
+	const rondaActual = RONDAS[ronda];
 
 	return (
 		<div className="page activity-page page-escribir">
 			<BackButton />
 			<FullscreenButton toggle />
-			<div className="activity-controls">
-				<button className="restart-button" type="button" aria-label="Reiniciar actividad" onClick={reiniciar}>
-					&#x21bb; Reiniciar
-				</button>
-			</div>
-			{character && (
-				<div className="escribir-personaje">
+
+			<main className="escribir-escena" aria-label="Actividad de escribir">
+				<div className={`escribir-lienzo${estado === "mal" ? " escribir-sacudida" : ""}`}>
+					<img className="escribir-maquina" src={MAQUINA_FRAMES[maquinaFrame]} alt="" />
+					{productoFrame && <img className="escribir-producto" src={productoFrame} alt="" />}
+
+					{fase === "elegir" && (
+						<div className="escribir-opciones" aria-label="Elegí qué preparar">
+							{OPCIONES.map((opcion) => (
+								<button
+									key={opcion.nombre}
+									className="escribir-opcion"
+									type="button"
+									disabled={!opcion.habilitada}
+									aria-label={opcion.habilitada ? `Preparar ${opcion.nombre}` : `${opcion.nombre}, próximamente`}
+									onClick={opcion.habilitada ? elegirBebida : undefined}
+								>
+									<img src={opcion.imagen} alt="" />
+								</button>
+							))}
+						</div>
+					)}
+
+					{fase === "jugando" && rondaActual && (
+						<>
+							<div className="escribir-consigna" aria-live="polite">
+								<span className="escribir-consigna-icono" aria-hidden="true">
+									<img src={rondaActual.imagen} alt="" />
+								</span>
+								<span className="escribir-igual">=</span>
+								<span className="escribir-palabra">{rondaActual.palabra}</span>
+							</div>
+
+							<div className="escribir-casillas" aria-label={`Escribí ${rondaActual.palabra}`}>
+								{Array.from({ length: rondaActual.palabra.length }, (_, indice) => (
+									<span key={indice} className={`escribir-casilla${escrito[indice] ? " llena" : ""}`}>
+										{escrito[indice] || ""}
+									</span>
+								))}
+							</div>
+						</>
+					)}
+
+					{fase === "jugando" && (
+						<div className="escribir-teclado" aria-label="Teclado">
+							{FILAS_TECLADO.map((fila, indice) => (
+								<div className={`escribir-fila escribir-fila-${fila.length}`} key={indice}>
+									{fila.map((letra) => (
+										<button
+											key={letra}
+											className={`escribir-tecla${LETRAS_VOCAL.has(letra) ? " vocal" : " consonante"}`}
+											type="button"
+											disabled={bloqueado || escrito.length >= rondaActual.palabra.length}
+											onClick={() => presionarLetra(letra)}
+										>
+											{letra}
+										</button>
+									))}
+								</div>
+							))}
+							<div className="escribir-fila escribir-fila-acciones">
+								<button
+									className="escribir-tecla escribir-borrar"
+									type="button"
+									aria-label="Borrar última letra"
+									disabled={bloqueado || escrito.length === 0}
+									onClick={borrarLetra}
+								>
+									←
+								</button>
+								<button
+									className="escribir-tecla escribir-confirmar"
+									type="button"
+									aria-label="Confirmar palabra"
+									disabled={bloqueado || escrito.length !== rondaActual.palabra.length}
+									onClick={confirmar}
+								>
+									✓
+								</button>
+							</div>
+						</div>
+					)}
+
+					{fase === "final" && (
+						<div className="escribir-final">
+							<p>¡Fabuloso!</p>
+							<button type="button" onClick={reiniciar}>Otra bebida</button>
+						</div>
+					)}
+				</div>
+
+				{character && (
 					<Character
 						character={character}
 						mouth={mouth}
-						label={fase === "maquina" ? "Escuchar la palabra otra vez" : "Personaje"}
-						onClick={fase === "maquina" && palabra ? () => reproducirPalabra(palabra) : undefined}
+						label={fase === "jugando" ? "Escuchar la palabra otra vez" : "Personaje"}
+						onClick={fase === "jugando" && rondaActual ? () => reproducirAudio(rondaActual.audio, true) : undefined}
 					/>
-				</div>
-			)}
-
-			{fase === "elegir" && (
-				<main className="escribir-elegir" aria-label="Elegir qué preparar">
-					{Object.entries(SABORES).map(([clave, datos]) => (
-						<button key={clave} type="button" className="escribir-sabor-boton" onClick={() => elegirSabor(clave)}>
-							<span className="escribir-sabor-icono">
-								<img src={ETAPA_IMAGENES[clave][2]} alt="" />
-							</span>
-							<span className="escribir-sabor-nombre">{datos.nombre}</span>
-						</button>
-					))}
-				</main>
-			)}
-
-			{fase === "maquina" && palabra && (
-				<main className="escribir-fabrica" aria-label="Actividad de escribir palabras">
-					<div className={`escribir-foto-maquina${estado === "mal" ? " escribir-sacudida" : ""}`}>
-						<img className="escribir-fondo-maquina" src={FONDO_FABRICA[sabor]} alt="" />
-
-						{PASO_POSICION.map((posicion, indice) => (
-							<span
-								key={indice}
-								aria-hidden="true"
-								className={`escribir-paso-aro${etapa > indice ? " hecho" : etapa === indice ? " actual" : ""}`}
-								style={{ left: `${posicion.left}%`, top: `${posicion.top}%`, width: `${posicion.size}%`, height: `${posicion.size}%` }}
-							/>
-						))}
-
-						<div className="escribir-visor-overlay">
-							<span className="escribir-visor-icono">
-								<img src={ETAPA_IMAGENES[sabor][etapa]} alt="" />
-							</span>
-							<span className="escribir-visor-igual">=</span>
-							<span className="escribir-visor-palabra">{palabra}</span>
-						</div>
-
-						<div className="escribir-casillas-overlay" aria-label={`Escribí ${palabra}`}>
-							{Array.from({ length: palabra.length }, (_, indice) => (
-								<span key={indice} className={`escribir-casilla-overlay${escrito[indice] ? " llena" : ""}`}>
-									{escrito[indice] || ""}
-								</span>
-							))}
-						</div>
-
-						{LETRAS.map((letra) => (
-							<button
-								key={letra}
-								type="button"
-								className="escribir-tecla-overlay"
-								style={{
-									left: `${TECLA_POSICION[letra].left}%`,
-									top: `${TECLA_POSICION[letra].top}%`,
-									width: `${TECLA_POSICION[letra].width}%`,
-									height: `${TECLA_POSICION[letra].height}%`
-								}}
-								disabled={bloqueado || escrito.length >= palabra.length}
-								aria-label={`Letra ${letra}`}
-								onClick={() => presionarLetra(letra)}
-							/>
-						))}
-
-						<button
-							type="button"
-							className="escribir-boton-overlay escribir-boton-borrar-overlay"
-							aria-label="Borrar letra"
-							disabled={bloqueado || escrito.length === 0}
-							onClick={borrarLetra}
-						/>
-						<button
-							type="button"
-							className="escribir-boton-overlay escribir-boton-confirmar-overlay"
-							aria-label="Confirmar palabra"
-							disabled={bloqueado || escrito.length !== palabra.length}
-							onClick={confirmar}
-						/>
-
-						<div className="escribir-entrega-overlay">
-							{etapa > 0 && <img key={etapa} src={ETAPA_IMAGENES[sabor][etapa - 1]} alt="" />}
-						</div>
-					</div>
-				</main>
-			)}
-
-			{fase === "listo" && (
-				<main className="escribir-listo" aria-label="Pedido listo">
-					<span className="escribir-listo-producto">
-						<img src={ETAPA_IMAGENES[sabor][2]} alt="" />
-					</span>
-					<p className="escribir-listo-texto">&iexcl;Fabuloso!</p>
-					<button type="button" className="escribir-boton-otro" onClick={reiniciar}>
-						Elegir otro sabor
-					</button>
-				</main>
-			)}
+				)}
+			</main>
 		</div>
 	);
 }
