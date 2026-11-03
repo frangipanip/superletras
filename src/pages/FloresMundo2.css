@@ -1,0 +1,132 @@
+/* Flores en Mundo 2 (orugas): estética propia, independiente de Mundo 1. */
+.page-flores.world-mundo2 {
+	background: url("/assets/imagenes/fondoorugas.png") center / cover no-repeat;
+
+	.selected-character {
+		top: 35%;
+		right: auto;
+		left: 50%;
+		width: clamp(152.6px, 42vmin, 175.5px);
+		transform: translate(-50%, -50%);
+		animation: flores-m2-character-float 2.8s ease-in-out infinite;
+	}
+
+	.selected-character.celebrating {
+		top: 35%;
+		left: 50%;
+		width: clamp(122.1px, 33.7365vmin, 233.478px);
+		transform: translate(-50%, -50%) scale(1.35);
+		animation: none;
+	}
+
+	/*
+	 * Escenario de referencia: 903x408. Las orugas miden 144px de ancho, con 27px de separación,
+	 * en un campo del 92% del ancho.
+	 */
+	--flower-size: min(15.15vw, 25.5vh);
+	--flower-gap: min(3vw, 6.6vh);
+	--flower-field-width: min(92vw, 203.62vh);
+
+	.flower-field {
+		position: fixed;
+		top: 58%;
+		left: 52%;
+		display: grid;
+		grid-template-columns: repeat(4, var(--flower-size));
+		align-items: start;
+		justify-items: center;
+		justify-content: center;
+		gap: var(--flower-gap);
+		width: var(--flower-field-width);
+		transform: translateX(-50%);
+	}
+
+	.flower-button {
+		z-index: 0;
+		width: var(--flower-size);
+		transition: transform 180ms ease, filter 180ms ease;
+	}
+
+	.flower-button .flower-image {
+		display: block;
+		position: relative;
+		z-index: 1;
+		width: 100%;
+		height: auto;
+		filter: drop-shadow(0 5px 7px rgba(0, 0, 0, 0.4));
+		transition: transform 650ms ease, filter 220ms ease;
+	}
+
+	.flower-label {
+		position: absolute;
+		bottom: 2%;
+		left: 30%;
+		z-index: 3;
+		display: grid;
+		place-items: center;
+		min-width: min(3.36vw, 5.66vh);
+		min-height: min(3.36vw, 5.66vh);
+		padding: min(0.26vw, 0.43vh) min(0.76vw, 1.28vh);
+		border: min(0.32vw, 0.54vh) solid #fff;
+		border-radius: 50%;
+		background: rgba(255, 242, 196, 0.96);
+		box-shadow: 0 3px 7px rgba(0, 0, 0, 0.4);
+		color: #65352a;
+		font-family: Arial, Helvetica, sans-serif;
+		font-size: clamp(12px, min(2.41vw, 4.05vh), 23px);
+		font-weight: 800;
+		transform: translateX(-50%);
+	}
+
+	.flower-button:hover,
+	.flower-button:focus-visible {
+		transform: translateY(-5px) scale(1.04);
+		filter: brightness(1.08);
+	}
+
+	.flower-button.correct:hover,
+	.flower-button.correct:focus-visible {
+		transform: none;
+	}
+
+	.flower-button.correct .flower-image {
+		filter: drop-shadow(0 0 10px rgba(133, 237, 150, 1));
+		transform: none;
+	}
+
+	.flower-button.wrong .flower-image {
+		filter: drop-shadow(0 0 10px rgba(235, 86, 86, 0.95));
+	}
+}
+
+@media (max-width: 1200px) {
+	.page-flores.world-mundo2 {
+		.flower-button .flower-image,
+		.flower-button.correct .flower-image {
+			transform: scale(1.55);
+		}
+
+		.flower-button .flower-image {
+			transition: filter 220ms ease;
+		}
+	}
+}
+
+@media (min-width: 769px) and (max-width: 1200px) {
+	.page-flores.world-mundo2 {
+		.selected-character,
+		.selected-character.celebrating {
+			width: clamp(175.5px, 20vw, 240px);
+		}
+	}
+}
+
+@keyframes flores-m2-character-float {
+	0%,
+	100% {
+		transform: translate(-50%, -50%);
+	}
+	50% {
+		transform: translate(-50%, calc(-50% - 10px));
+	}
+}
