@@ -256,7 +256,9 @@ export default function Escribir() {
 									disabled={bloqueado || escrito.length === 0}
 									onClick={borrarLetra}
 								>
-									←
+									<svg className="escribir-icono" viewBox="0 0 48 32" aria-hidden="true">
+										<path className="escribir-icono-flecha" d="M4 16 21 3v7.5h21a2.5 2.5 0 0 1 2.5 2.5v6a2.5 2.5 0 0 1-2.5 2.5H21V29Z" />
+									</svg>
 								</button>
 								<button
 									className="escribir-tecla escribir-confirmar"
@@ -265,7 +267,10 @@ export default function Escribir() {
 									disabled={bloqueado || escrito.length !== rondaActual.palabra.length}
 									onClick={confirmar}
 								>
-									✓
+									<svg className="escribir-icono" viewBox="0 0 48 32" aria-hidden="true">
+										<path className="escribir-icono-borde" d="m12 16 8 8 16-16" />
+										<path className="escribir-icono-trazo" d="m12 16 8 8 16-16" />
+									</svg>
 								</button>
 							</div>
 						</div>
