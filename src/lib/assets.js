@@ -77,6 +77,14 @@ export const MUNDO5_CHARACTERS = {
 	supernena: { image: img("PERSONAJES/supernenaRobot.png"), alt: "Supernena robot" },
 	supernene: { image: img("PERSONAJES/superneneRobot.png"), alt: "Supernene robot" }
 };
+export const MUNDO6_CHARACTER_FRAMES = {
+	supernena: Array.from({ length: 12 }, (_, index) =>
+		img(`PERSONAJES/supernenaUnicornioFrame${String(index + 1).padStart(2, "0")}.png`)
+	),
+	supernene: Array.from({ length: 12 }, (_, index) =>
+		img(`PERSONAJES/superneneUnicornioSpriteFrame${String(index + 1).padStart(2, "0")}.png`)
+	)
+};
 
 export const CHARACTERS = {
 	supernena: { image: img("supernena.png"), alt: "Supernena" },

@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+import CharacterLocator from "../components/CharacterLocator";
 import UserNav from "../components/UserNav";
+import { useCharacterLocator } from "../hooks/useCharacterLocator";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
@@ -10,11 +12,19 @@ import SeaLifeEffects from "../components/SeaLifeEffects";
 import "./Mundo4.css";
 
 const LETTERS = ["C", "CE", "Q", "Z", "CH"];
+const LETTER_BLOCKS = {
+	C: img("almejaC.png"),
+	CE: img("almejaCE.png"),
+	Q: img("almejaQ.png"),
+	Z: img("almejaZ.png"),
+	CH: img("almejaCH.png")
+};
 const CHARACTER_FRAME_DURATION = 375;
 
 export const MUNDO4_IMAGES = [
 	img("FONDOM4.jpg"),
 	img("MENUM4.png"),
+	...Object.values(LETTER_BLOCKS),
 	...Object.values(MUNDO4_CHARACTERS).map(({ image }) => image),
 	...Object.values(MUNDO4_CHARACTER_FRAMES).flatMap((frames) => frames.slice(1, -1)),
 	...MUNDO4_MOUTH_IMAGES
@@ -31,9 +41,63 @@ export default function Mundo4() {
 		const saved = readStorage(STORAGE_KEYS.mundo4MenuOption);
 		return LETTERS.includes(saved) ? saved : null;
 	});
+	const [menuPanelVisible, setMenuPanelVisible] = useState(true);
+	const [compactMenuOpen, setCompactMenuOpen] = useState(false);
 	const pageRef = useRef(null);
+	const menuPanelRef = useRef(null);
+	const compactMenuRef = useRef(null);
+	const compactMenuToggleRef = useRef(null);
+	const characterSpotRef = useRef(null);
+	const { offscreen: characterOffscreen, direction: characterDirection, scrollToCharacter } =
+		useCharacterLocator(pageRef, characterSpotRef, character);
 	const drag = useRef({ pointerId: null, startX: 0, startScroll: 0, moved: false }).current;
 	const [dragging, setDragging] = useState(false);
+
+	useEffect(() => {
+		const page = pageRef.current;
+		const panel = menuPanelRef.current;
+		if (!page || !panel) return undefined;
+
+		function updateMenuPanelVisibility() {
+			const viewport = page.getBoundingClientRect();
+			const menu = panel.getBoundingClientRect();
+			const visibleWidth = Math.max(0, Math.min(menu.right, viewport.right) - Math.max(menu.left, viewport.left));
+			const visibleHeight = Math.max(0, Math.min(menu.bottom, viewport.bottom) - Math.max(menu.top, viewport.top));
+			const visibleRatio = menu.width && menu.height ? visibleWidth * visibleHeight / (menu.width * menu.height) : 0;
+			const visible = visibleRatio > 0.2;
+			setMenuPanelVisible(visible);
+			if (visible) setCompactMenuOpen(false);
+		}
+
+		updateMenuPanelVisibility();
+		page.addEventListener("scroll", updateMenuPanelVisibility, { passive: true });
+		window.addEventListener("resize", updateMenuPanelVisibility);
+		return () => {
+			page.removeEventListener("scroll", updateMenuPanelVisibility);
+			window.removeEventListener("resize", updateMenuPanelVisibility);
+		};
+	}, []);
+
+	useEffect(() => {
+		if (!compactMenuOpen) return undefined;
+
+		function closeCompactMenuOutside(event) {
+			if (!compactMenuRef.current?.contains(event.target)) setCompactMenuOpen(false);
+		}
+
+		function closeCompactMenuOnEscape(event) {
+			if (event.key !== "Escape") return;
+			setCompactMenuOpen(false);
+			compactMenuToggleRef.current?.focus();
+		}
+
+		document.addEventListener("pointerdown", closeCompactMenuOutside);
+		document.addEventListener("keydown", closeCompactMenuOnEscape);
+		return () => {
+			document.removeEventListener("pointerdown", closeCompactMenuOutside);
+			document.removeEventListener("keydown", closeCompactMenuOnEscape);
+		};
+	}, [compactMenuOpen]);
 
 	function playIntroAudio() {
 		introAudio.pause();
@@ -46,7 +110,7 @@ export default function Mundo4() {
 	function handlePointerDown(event) {
 		drag.moved = false;
 		if (event.pointerType !== "mouse" || event.button !== 0) return;
-		if (event.target.closest(".top-nav, .mundo4-menu-panel, .mundo4-character")) return;
+		if (event.target.closest(".top-nav, .mundo4-compact-menu, .mundo4-menu-panel, .mundo4-character, .character-locator")) return;
 		drag.pointerId = event.pointerId;
 		drag.startX = event.clientX;
 		drag.startScroll = pageRef.current.scrollLeft;
@@ -81,6 +145,7 @@ export default function Mundo4() {
 	function selectLetter(letter) {
 		setSelectedLetter(letter);
 		writeStorage(STORAGE_KEYS.mundo4MenuOption, letter);
+		setCompactMenuOpen(false);
 	}
 
 	useEffect(() => {
@@ -136,12 +201,46 @@ export default function Mundo4() {
 			onDragStart={(event) => event.preventDefault()}
 		>
 			<UserNav />
+			{characterOffscreen && (
+				<CharacterLocator character={character} direction={characterDirection} onClick={scrollToCharacter} />
+			)}
+			{!menuPanelVisible && (
+				<nav ref={compactMenuRef} className="mundo4-compact-menu" aria-label="Elegir letra">
+					<button
+						ref={compactMenuToggleRef}
+						className="mundo4-compact-menu__trigger"
+						type="button"
+						aria-label={`Elegir letra. Seleccionada ${selectedLetter || LETTERS[0]}`}
+						aria-expanded={compactMenuOpen}
+						aria-controls="mundo4-compact-menu-options"
+						onClick={() => setCompactMenuOpen((open) => !open)}
+					>
+						<img src={LETTER_BLOCKS[selectedLetter || LETTERS[0]]} alt="" draggable={false} />
+					</button>
+					{compactMenuOpen && (
+						<div className="mundo4-compact-menu__options" id="mundo4-compact-menu-options">
+							{LETTERS.map((letter) => (
+								<button
+									className={selectedLetter === letter ? "mundo4-compact-menu__option selected" : "mundo4-compact-menu__option"}
+									key={letter}
+									type="button"
+									aria-label={`Elegir letra ${letter}`}
+									aria-pressed={selectedLetter === letter}
+									onClick={() => selectLetter(letter)}
+								>
+									<img src={LETTER_BLOCKS[letter]} alt="" draggable={false} />
+								</button>
+							))}
+						</div>
+					)}
+				</nav>
+			)}
 			<main className="mundo4-scene">
 				<img className="mundo4-background" src={img("FONDOM4.jpg")} alt="" draggable={false} />
 				<SeaLifeEffects variant="mundo4" />
 
 				{character && (
-					<button className="mundo4-character" type="button" aria-label="Reproducir presentación" onClick={playIntroAudio}>
+					<button ref={characterSpotRef} className="mundo4-character" type="button" aria-label="Reproducir presentación" onClick={playIntroAudio}>
 						<img
 							className="mundo4-character-image"
 							src={MUNDO4_CHARACTER_FRAMES[character][characterFrame]}
@@ -152,7 +251,7 @@ export default function Mundo4() {
 					</button>
 				)}
 
-				<aside className="mundo4-menu-panel" aria-label="Letras del Mundo 4">
+				<aside ref={menuPanelRef} className="mundo4-menu-panel" aria-label="Letras del Mundo 4">
 					<img className="mundo4-menu-image" src={img("MENUM4.png")} alt="" draggable={false} />
 					{LETTERS.map((letter, index) => (
 						<button

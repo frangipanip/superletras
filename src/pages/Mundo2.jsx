@@ -49,13 +49,14 @@ const PATH_BUTTONS = [
 	[76, 67.25],
 	[83.5, 74.75]
 ];
-const ACTIVITY_ROUTES = ["/inicio", "/mariposas"];
+const ACTIVITY_ROUTES = ["/inicio", "/mariposas", "/flores"];
+const ACTIVITY_NAMES = ["Inicio", "Mariposas", "Flores"];
 
 function readSavedPerches() {
 	try {
 		const saved = JSON.parse(readStorage(STORAGE_KEYS.mundo2Perches) || "{}");
 		return Object.fromEntries(Object.entries(saved).filter(([letter, index]) =>
-			LETTERS.includes(letter) && Number.isInteger(index) && index <= 1 && PATH_BUTTONS[index]
+			LETTERS.includes(letter) && Number.isInteger(index) && index < ACTIVITY_ROUTES.length && PATH_BUTTONS[index]
 		));
 	} catch {
 		return {};
@@ -379,7 +380,7 @@ export default function Mundo2() {
 								className={`mundo2-path-button${selectedLetter ? ` path-letter-${selectedLetter.toLowerCase()}` : index === 0 ? " path-letter-p" : ""}`}
 								type="button"
 								disabled={index >= ACTIVITY_ROUTES.length || Boolean(teleport)}
-								aria-label={index < ACTIVITY_ROUTES.length ? `Actividad ${index === 0 ? "Inicio" : "Mariposas"}` : `Actividad ${index + 1}, no disponible`}
+								aria-label={index < ACTIVITY_ROUTES.length ? `Actividad ${ACTIVITY_NAMES[index]}` : `Actividad ${index + 1}, no disponible`}
 								onClick={index < ACTIVITY_ROUTES.length ? () => openPathActivity(index) : undefined}
 							>
 								<img src={img("boton.svg")} alt="" draggable={false} />

@@ -1,5 +1,7 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import CharacterLocator from "../components/CharacterLocator";
 import UserNav from "../components/UserNav";
+import { useCharacterLocator } from "../hooks/useCharacterLocator";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { img } from "../lib/assets";
@@ -7,6 +9,13 @@ import { STORAGE_KEYS, readStorage, writeStorage } from "../lib/storage";
 import "./Mundo3.css";
 
 const LETTERS = ["R", "RR", "AR", "Y", "LL"];
+const LETTER_BLOCKS = {
+	R: img("bloqueR.png"),
+	RR: img("bloqueRR.png"),
+	AR: img("bloqueAR.png"),
+	Y: img("bloqueY.png"),
+	LL: img("bloqueLL.png")
+};
 const CLOUDS = [
 	{ id: 1, direction: "right", left: "0%", top: "13%", width: "clamp(68px, 7vw, 116px)", duration: "38s", delay: "-11s", mid: "12vw", end: "34vw" },
 	{ id: 2, direction: "left", left: "8%", top: "28%", width: "clamp(95px, 10vw, 168px)", duration: "56s", delay: "-37s", mid: "-11vw", end: "-31vw" },
@@ -30,6 +39,7 @@ export const MUNDO3_IMAGES = [
 	img("FONDOM3.jpg"),
 	img("menuM3.png"),
 	img("nubeM3.png"),
+	...Object.values(LETTER_BLOCKS),
 	...Object.values(CHARACTER_IMAGES)
 ];
 
@@ -40,14 +50,68 @@ export default function Mundo3() {
 		const saved = readStorage(STORAGE_KEYS.mundo3MenuOption);
 		return LETTERS.includes(saved) ? saved : null;
 	});
+	const [menuPanelVisible, setMenuPanelVisible] = useState(true);
+	const [compactMenuOpen, setCompactMenuOpen] = useState(false);
 	const pageRef = useRef(null);
+	const menuPanelRef = useRef(null);
+	const compactMenuRef = useRef(null);
+	const compactMenuToggleRef = useRef(null);
+	const characterSpotRef = useRef(null);
+	const { offscreen: characterOffscreen, direction: characterDirection, scrollToCharacter } =
+		useCharacterLocator(pageRef, characterSpotRef, character);
 	const drag = useRef({ pointerId: null, startX: 0, startScroll: 0, moved: false }).current;
 	const [dragging, setDragging] = useState(false);
+
+	useEffect(() => {
+		const page = pageRef.current;
+		const panel = menuPanelRef.current;
+		if (!page || !panel) return undefined;
+
+		function updateMenuPanelVisibility() {
+			const viewport = page.getBoundingClientRect();
+			const menu = panel.getBoundingClientRect();
+			const visibleWidth = Math.max(0, Math.min(menu.right, viewport.right) - Math.max(menu.left, viewport.left));
+			const visibleHeight = Math.max(0, Math.min(menu.bottom, viewport.bottom) - Math.max(menu.top, viewport.top));
+			const visibleRatio = menu.width && menu.height ? visibleWidth * visibleHeight / (menu.width * menu.height) : 0;
+			const visible = visibleRatio > 0.2;
+			setMenuPanelVisible(visible);
+			if (visible) setCompactMenuOpen(false);
+		}
+
+		updateMenuPanelVisibility();
+		page.addEventListener("scroll", updateMenuPanelVisibility, { passive: true });
+		window.addEventListener("resize", updateMenuPanelVisibility);
+		return () => {
+			page.removeEventListener("scroll", updateMenuPanelVisibility);
+			window.removeEventListener("resize", updateMenuPanelVisibility);
+		};
+	}, []);
+
+	useEffect(() => {
+		if (!compactMenuOpen) return undefined;
+
+		function closeCompactMenuOutside(event) {
+			if (!compactMenuRef.current?.contains(event.target)) setCompactMenuOpen(false);
+		}
+
+		function closeCompactMenuOnEscape(event) {
+			if (event.key !== "Escape") return;
+			setCompactMenuOpen(false);
+			compactMenuToggleRef.current?.focus();
+		}
+
+		document.addEventListener("pointerdown", closeCompactMenuOutside);
+		document.addEventListener("keydown", closeCompactMenuOnEscape);
+		return () => {
+			document.removeEventListener("pointerdown", closeCompactMenuOutside);
+			document.removeEventListener("keydown", closeCompactMenuOnEscape);
+		};
+	}, [compactMenuOpen]);
 
 	function handlePointerDown(event) {
 		drag.moved = false;
 		if (event.pointerType !== "mouse" || event.button !== 0) return;
-		if (event.target.closest(".top-nav, .mundo3-menu-panel, .mundo3-character")) return;
+		if (event.target.closest(".top-nav, .mundo3-compact-menu, .mundo3-menu-panel, .mundo3-character, .character-locator")) return;
 		drag.pointerId = event.pointerId;
 		drag.startX = event.clientX;
 		drag.startScroll = pageRef.current.scrollLeft;
@@ -82,6 +146,7 @@ export default function Mundo3() {
 	function selectLetter(letter) {
 		setSelectedLetter(letter);
 		writeStorage(STORAGE_KEYS.mundo3MenuOption, letter);
+		setCompactMenuOpen(false);
 	}
 
 	return (
@@ -96,6 +161,40 @@ export default function Mundo3() {
 			onDragStart={(event) => event.preventDefault()}
 		>
 			<UserNav />
+			{characterOffscreen && (
+				<CharacterLocator character={character} direction={characterDirection} onClick={scrollToCharacter} />
+			)}
+			{!menuPanelVisible && (
+				<nav ref={compactMenuRef} className="mundo3-compact-menu" aria-label="Elegir letra">
+					<button
+						ref={compactMenuToggleRef}
+						className="mundo3-compact-menu__trigger"
+						type="button"
+						aria-label={`Elegir letra. Seleccionada ${selectedLetter || LETTERS[0]}`}
+						aria-expanded={compactMenuOpen}
+						aria-controls="mundo3-compact-menu-options"
+						onClick={() => setCompactMenuOpen((open) => !open)}
+					>
+						<img src={LETTER_BLOCKS[selectedLetter || LETTERS[0]]} alt="" draggable={false} />
+					</button>
+					{compactMenuOpen && (
+						<div className="mundo3-compact-menu__options" id="mundo3-compact-menu-options">
+							{LETTERS.map((letter) => (
+								<button
+									className={selectedLetter === letter ? "mundo3-compact-menu__option selected" : "mundo3-compact-menu__option"}
+									key={letter}
+									type="button"
+									aria-label={`Elegir letra ${letter}`}
+									aria-pressed={selectedLetter === letter}
+									onClick={() => selectLetter(letter)}
+								>
+									<img src={LETTER_BLOCKS[letter]} alt="" draggable={false} />
+								</button>
+							))}
+						</div>
+					)}
+				</nav>
+			)}
 			<main className="mundo3-scene">
 				<img className="mundo3-background" src={img("FONDOM3.jpg")} alt="" draggable={false} />
 				<div className="mundo3-clouds" aria-hidden="true">
@@ -120,12 +219,12 @@ export default function Mundo3() {
 				</div>
 
 				{character && (
-					<div className="mundo3-character">
+					<div className="mundo3-character" ref={characterSpotRef}>
 						<img src={CHARACTER_IMAGES[character]} alt={character === "supernena" ? "Supernena" : "Supernene"} draggable={false} />
 					</div>
 				)}
 
-				<aside className="mundo3-menu-panel" aria-label="Letras del Mundo 3">
+				<aside ref={menuPanelRef} className="mundo3-menu-panel" aria-label="Letras del Mundo 3">
 					<img className="mundo3-menu-image" src={img("menuM3.png")} alt="" draggable={false} />
 					{LETTERS.map((letter, index) => (
 						<button

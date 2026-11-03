@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router";
 import BackButton from "../components/BackButton";
 import Character from "../components/Character";
 import FullscreenButton from "../components/FullscreenButton";
@@ -7,7 +8,7 @@ import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
-import { img, sound } from "../lib/assets";
+import { img, MUNDO2_MOUTH_IMAGES, sound } from "../lib/assets";
 import { shuffle } from "../lib/shuffle";
 import { useActivityMenuOption } from "../hooks/useActivityMenuOption";
 import "./actividad.css";
@@ -20,11 +21,19 @@ const SYLLABLES = {
 	s: ["SA", "SE", "SI", "SO", "SU"],
 	t: ["TA", "TE", "TI", "TO", "TU"]
 };
-const FLOWER_IMAGES = [img("FLOR.svg"), img("FLOR1.svg")];
+const MUNDO2_SYLLABLES = {
+	p: ["PA", "PE", "PI", "PO", "PU"],
+	n: ["NA", "NE", "NI", "NO", "NU"],
+	d: ["DA", "DE", "DI", "DO", "DU"],
+	f: ["FA", "FE", "FI", "FO", "FU"],
+	h: ["HA", "HE", "HI", "HO", "HU"]
+};
+const FLOWER_IMAGES = [img("chupetin1.png"), img("chupetin2.png")];
 const TOTAL_ACTIVITIES = 5;
 
-function getAudioFileName(label) {
+function getAudioFileName(label, isMundo2) {
 	const upper = label.toUpperCase();
+	if (isMundo2) return `${upper.toLowerCase()}.mp3`;
 	if (["A", "E", "I", "O", "U"].includes(upper)) return `${upper.toLowerCase()}.mp3`;
 	if (["LA", "LE", "LI", "LO", "LU"].includes(upper)) return `${upper.toLowerCase()}.mp3`;
 	if (["MA", "ME", "MI", "MO", "MU"].includes(upper)) return `${upper.toLowerCase()}.mp3`;
@@ -44,12 +53,15 @@ function stopAudio(audio) {
 }
 
 export default function Flores() {
-	usePageTitle("Flores - Mundo 1");
+	const location = useLocation();
+	const isMundo2 = location.state?.world === 2;
+	usePageTitle(isMundo2 ? "Flores - Mundo 2" : "Flores - Mundo 1");
 	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
-	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime);
+	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime, isMundo2 ? MUNDO2_MOUTH_IMAGES : undefined);
 	const activityMenuOption = useActivityMenuOption();
-	const [mode] = useState(() => (["l", "m", "s", "t"].includes(activityMenuOption) ? activityMenuOption : "a"));
+	const syllables = isMundo2 ? MUNDO2_SYLLABLES : SYLLABLES;
+	const [mode] = useState(() => (Object.hasOwn(syllables, activityMenuOption) ? activityMenuOption : isMundo2 ? "p" : "a"));
 	const [round, setRound] = useState({ generation: 0, activityIndex: 0, target: "", flowers: [] });
 	const [celebrating, setCelebrating] = useState(false);
 	const [instructionAudio] = useState(() => runtime.audio(sound(mode === "a" ? "Pulsavocal.mp3" : "Pulsasilaba.mp3")));
@@ -62,11 +74,11 @@ export default function Flores() {
 	roundRef.current = round;
 
 	if (game.current.instructionOrder.length === 0) {
-		game.current.instructionOrder = shuffle(mode !== "a" ? SYLLABLES[mode] : VOWELS);
+		game.current.instructionOrder = shuffle(mode !== "a" ? syllables[mode] : VOWELS);
 	}
 
 	function audioPath(label) {
-		return sound(getAudioFileName(label));
+		return sound(getAudioFileName(label, isMundo2));
 	}
 
 	function playInstruction(targetValue) {
@@ -115,7 +127,7 @@ export default function Flores() {
 	function buildFlowers(activityIndex = game.current.activityIndex) {
 		const target = game.current.instructionOrder[activityIndex];
 		const incorrect = mode !== "a"
-			? shuffle(SYLLABLES[mode].filter((item) => item !== target)).slice(0, 3)
+			? shuffle(syllables[mode].filter((item) => item !== target)).slice(0, 3)
 			: shuffle(VOWELS.filter((item) => item !== target)).slice(0, 3);
 		const labels = shuffle([target, ...incorrect]);
 		setRound((current) => ({
@@ -124,7 +136,10 @@ export default function Flores() {
 			target,
 			flowers: labels.map((label, index) => ({
 				label,
-				image: FLOWER_IMAGES[index % FLOWER_IMAGES.length],
+				image: isMundo2
+					? img(`oruga${(index % 2) + 1}.png`)
+					: FLOWER_IMAGES[index % FLOWER_IMAGES.length],
+				caterpillar: (index % 2) + 1,
 				correct: label === target,
 				result: null
 			}))
@@ -160,7 +175,7 @@ export default function Flores() {
 		finishCelebration();
 		game.current.activityIndex = 0;
 		game.current.errors = 0;
-		game.current.instructionOrder = shuffle(mode !== "a" ? SYLLABLES[mode] : VOWELS);
+		game.current.instructionOrder = shuffle(mode !== "a" ? syllables[mode] : VOWELS);
 		game.current.transitionPending = false;
 		buildFlowers(0);
 	}
@@ -185,9 +200,19 @@ export default function Flores() {
 		});
 		setRound((current) => ({
 			...current,
-			flowers: current.flowers.map((item, itemIndex) =>
-				itemIndex === index ? { ...item, result: item.correct ? "correct" : "wrong" } : item
-			)
+			flowers: current.flowers.map((item, itemIndex) => {
+				if (itemIndex !== index) {
+					return item;
+				}
+				const result = item.correct ? "correct" : "wrong";
+				return {
+					...item,
+					image: isMundo2
+						? img(`oruga${item.caterpillar}${item.correct ? "acierto" : "error"}.png`)
+						: item.image,
+					result
+				};
+			})
 		}));
 
 		if (!flower.correct) {
@@ -216,7 +241,7 @@ export default function Flores() {
 	}, []);
 
 	return (
-		<div className="page activity-page page-flores">
+		<div className={`page activity-page page-flores${isMundo2 ? " world-mundo2" : ""}`}>
 			<BackButton />
 			<FullscreenButton toggle />
 			<div className="activity-controls" aria-label="Controles de actividad">
@@ -233,8 +258,8 @@ export default function Flores() {
 							className={flower.result ? `flower-button ${flower.result}` : "flower-button"}
 							onClick={() => handleFlowerClick(index)}
 						>
-							<img className="flower-stem" src={img("tallo.svg")} alt="" aria-hidden="true" />
-							<img className="flower-image" src={flower.image} alt={`Flor con ${flower.label}`} />
+							{!isMundo2 && <img className="flower-stem" src={img("palito.png")} alt="" aria-hidden="true" />}
+							<img className="flower-image" src={flower.image} alt={`${isMundo2 ? "Oruga" : "Flor"} con ${flower.label}`} />
 							<span className="flower-label">{flower.label}</span>
 						</button>
 					))}

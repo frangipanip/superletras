@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+import CharacterLocator from "../components/CharacterLocator";
 import UserNav from "../components/UserNav";
+import { useCharacterLocator } from "../hooks/useCharacterLocator";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
@@ -9,6 +11,13 @@ import { readStorage, STORAGE_KEYS, writeStorage } from "../lib/storage";
 import "./Mundo5.css";
 
 const LETTERS = ["G", "GE", "GU", "J", "GÜ"];
+const LETTER_BLOCKS = {
+	G: img("robotG.png"),
+	GE: img("robotGE.png"),
+	GU: img("robotGU.png"),
+	J: img("robotJ.png"),
+	"GÜ": img("robotGUdiresis.png")
+};
 const ACTIVITY_SIGN_IMAGES = [
 	"INICIALESbtn.png",
 	"MARIPOSAbtn.png",
@@ -34,6 +43,7 @@ export const MUNDO5_IMAGES = [
 	img("FONDOM5.png"),
 	img("FONDOM5bis.png"),
 	img("MENUM5.png"),
+	...Object.values(LETTER_BLOCKS),
 	...Object.values(MUNDO5_CHARACTERS).map(({ image }) => image),
 	...MUNDO5_MOUTH_IMAGES,
 	img("boton.svg"),
@@ -49,10 +59,64 @@ export default function Mundo5() {
 		const saved = readStorage(STORAGE_KEYS.mundo5MenuOption);
 		return LETTERS.includes(saved) ? saved : null;
 	});
+	const [menuPanelVisible, setMenuPanelVisible] = useState(true);
+	const [compactMenuOpen, setCompactMenuOpen] = useState(false);
 	const [introAudio] = useState(() => runtime.audio(sound("InicioMundos.mp3"), { preload: true }));
 	const pageRef = useRef(null);
+	const menuPanelRef = useRef(null);
+	const compactMenuRef = useRef(null);
+	const compactMenuToggleRef = useRef(null);
+	const characterSpotRef = useRef(null);
+	const { offscreen: characterOffscreen, direction: characterDirection, scrollToCharacter } =
+		useCharacterLocator(pageRef, characterSpotRef, character);
 	const drag = useRef({ pointerId: null, startX: 0, startScroll: 0, moved: false }).current;
 	const [dragging, setDragging] = useState(false);
+
+	useEffect(() => {
+		const page = pageRef.current;
+		const panel = menuPanelRef.current;
+		if (!page || !panel) return undefined;
+
+		function updateMenuPanelVisibility() {
+			const viewport = page.getBoundingClientRect();
+			const menu = panel.getBoundingClientRect();
+			const visibleWidth = Math.max(0, Math.min(menu.right, viewport.right) - Math.max(menu.left, viewport.left));
+			const visibleHeight = Math.max(0, Math.min(menu.bottom, viewport.bottom) - Math.max(menu.top, viewport.top));
+			const visibleRatio = menu.width && menu.height ? visibleWidth * visibleHeight / (menu.width * menu.height) : 0;
+			const visible = visibleRatio > 0.2;
+			setMenuPanelVisible(visible);
+			if (visible) setCompactMenuOpen(false);
+		}
+
+		updateMenuPanelVisibility();
+		page.addEventListener("scroll", updateMenuPanelVisibility, { passive: true });
+		window.addEventListener("resize", updateMenuPanelVisibility);
+		return () => {
+			page.removeEventListener("scroll", updateMenuPanelVisibility);
+			window.removeEventListener("resize", updateMenuPanelVisibility);
+		};
+	}, []);
+
+	useEffect(() => {
+		if (!compactMenuOpen) return undefined;
+
+		function closeCompactMenuOutside(event) {
+			if (!compactMenuRef.current?.contains(event.target)) setCompactMenuOpen(false);
+		}
+
+		function closeCompactMenuOnEscape(event) {
+			if (event.key !== "Escape") return;
+			setCompactMenuOpen(false);
+			compactMenuToggleRef.current?.focus();
+		}
+
+		document.addEventListener("pointerdown", closeCompactMenuOutside);
+		document.addEventListener("keydown", closeCompactMenuOnEscape);
+		return () => {
+			document.removeEventListener("pointerdown", closeCompactMenuOutside);
+			document.removeEventListener("keydown", closeCompactMenuOnEscape);
+		};
+	}, [compactMenuOpen]);
 
 	function playIntroAudio() {
 		introAudio.pause();
@@ -65,12 +129,13 @@ export default function Mundo5() {
 	function selectLetter(letter) {
 		setSelectedLetter(letter);
 		writeStorage(STORAGE_KEYS.mundo5MenuOption, letter);
+		setCompactMenuOpen(false);
 	}
 
 	function handlePointerDown(event) {
 		drag.moved = false;
 		if (event.pointerType !== "mouse" || event.button !== 0) return;
-		if (event.target.closest(".top-nav, .mundo5-menu-panel, .mundo5-character")) return;
+		if (event.target.closest(".top-nav, .mundo5-compact-menu, .mundo5-menu-panel, .mundo5-character, .character-locator")) return;
 		drag.pointerId = event.pointerId;
 		drag.startX = event.clientX;
 		drag.startScroll = pageRef.current.scrollLeft;
@@ -124,6 +189,40 @@ export default function Mundo5() {
 			onDragStart={(event) => event.preventDefault()}
 		>
 			<UserNav />
+			{characterOffscreen && (
+				<CharacterLocator character={character} direction={characterDirection} onClick={scrollToCharacter} />
+			)}
+			{!menuPanelVisible && (
+				<nav ref={compactMenuRef} className="mundo5-compact-menu" aria-label="Elegir letra">
+					<button
+						ref={compactMenuToggleRef}
+						className="mundo5-compact-menu__trigger"
+						type="button"
+						aria-label={`Elegir letra. Seleccionada ${selectedLetter || LETTERS[0]}`}
+						aria-expanded={compactMenuOpen}
+						aria-controls="mundo5-compact-menu-options"
+						onClick={() => setCompactMenuOpen((open) => !open)}
+					>
+						<img src={LETTER_BLOCKS[selectedLetter || LETTERS[0]]} alt="" draggable={false} />
+					</button>
+					{compactMenuOpen && (
+						<div className="mundo5-compact-menu__options" id="mundo5-compact-menu-options">
+							{LETTERS.map((letter) => (
+								<button
+									className={selectedLetter === letter ? "mundo5-compact-menu__option selected" : "mundo5-compact-menu__option"}
+									key={letter}
+									type="button"
+									aria-label={`Elegir letra ${letter}`}
+									aria-pressed={selectedLetter === letter}
+									onClick={() => selectLetter(letter)}
+								>
+									<img src={LETTER_BLOCKS[letter]} alt="" draggable={false} />
+								</button>
+							))}
+						</div>
+					)}
+				</nav>
+			)}
 			<main className="mundo5-scene" aria-label="Mundo 5">
 				<div className="mundo5-backgrounds" aria-hidden="true">
 					<img className="mundo5-background" src={img("FONDOM5.png")} alt="" draggable={false} />
@@ -147,13 +246,13 @@ export default function Mundo5() {
 				</div>
 
 				{character && (
-					<button className="mundo5-character" type="button" aria-label="Reproducir presentación" onClick={playIntroAudio}>
+					<button ref={characterSpotRef} className="mundo5-character" type="button" aria-label="Reproducir presentación" onClick={playIntroAudio}>
 						<img src={MUNDO5_CHARACTERS[character].image} alt={MUNDO5_CHARACTERS[character].alt} draggable={false} />
 						{mouth.visible && <img className="mundo5-character-mouth" src={mouth.src} alt="" />}
 					</button>
 				)}
 
-				<aside className="mundo5-menu-panel" aria-label="Letras del Mundo 5">
+				<aside ref={menuPanelRef} className="mundo5-menu-panel" aria-label="Letras del Mundo 5">
 					<img className="mundo5-menu-image" src={img("MENUM5.png")} alt="" draggable={false} />
 					{LETTERS.map((letter, index) => (
 						<button

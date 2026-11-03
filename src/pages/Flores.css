@@ -1,11 +1,15 @@
 .page-flores {
-	background: url("/assets/imagenes/FONDOejerciciosM1.jpg") center / cover no-repeat;
+	background: url("/assets/imagenes/fondochupetines.png") center / cover no-repeat;
+
+	&.world-mundo2 {
+		background-image: url("/assets/imagenes/fondoorugas.png");
+	}
 
 	.selected-character {
-		top: 25%;
+		top: 35%;
 		right: auto;
 		left: 50%;
-		width: clamp(122.1px, 33.7365vmin, 233.478px);
+		width: clamp(152.6px, 42vmin, 175.5px);
 		transform: translate(-50%, -50%);
 		animation: flores-character-float 2.8s ease-in-out infinite;
 	}
@@ -27,23 +31,24 @@
 
 	/*
 	 * Escenario de referencia: 903x408. Las flores miden 144px de ancho, con 27px de separación,
-	 * en un campo del 92% del ancho. --stage-w es el ancho del escenario que entra en la pantalla
-	 * manteniendo esa proporción, así las flores guardan la misma relación en mobile, tablet y desktop.
+	 * en un campo del 92% del ancho. El alto también limita el tamaño para que el palito quepa
+	 * bajo la flor en pantallas horizontales pequeñas.
 	 */
-	--stage-w: min(100vw, 100dvh * 903 / 408);
-	--flower-size: calc(var(--stage-w) * 144 * 0.95 / 903);
+	--flower-size: min(15.15vw, 25.5vh);
+	--flower-gap: min(3vw, 6.6vh);
+	--flower-field-width: min(92vw, 203.62vh);
 
 	.flower-field {
 		position: fixed;
-		top: 55%;
-		left: 50%;
+		top: 58%;
+		left: 52%;
 		display: grid;
 		grid-template-columns: repeat(4, var(--flower-size));
 		align-items: start;
 		justify-items: center;
 		justify-content: center;
-		gap: calc(var(--stage-w) * 0.02);
-		width: calc(var(--stage-w) * 0.92);
+		gap: var(--flower-gap);
+		width: var(--flower-field-width);
 		transform: translateX(-50%);
 	}
 
@@ -61,11 +66,11 @@
 
 	.flower-stem {
 		position: absolute;
-		top: 0;
+		top: 82%;
 		left: 50%;
-		z-index: -1;
+		z-index: 2;
 		display: block;
-		width: 100%;
+		width: min(11.36vw, 19.13vh);
 		height: auto;
 		transform: translateX(-50%);
 	}
@@ -82,20 +87,22 @@
 
 	.flower-label {
 		position: absolute;
-		bottom: 8%;
-		left: 50%;
-		z-index: 2;
+		bottom: 2%;
+		left: 30%;
+		z-index: 3;
 		display: grid;
 		place-items: center;
-		min-width: calc(var(--flower-size) * 0.222);
-		min-height: calc(var(--flower-size) * 0.222);
-		padding: calc(var(--flower-size) * 0.017) calc(var(--flower-size) * 0.05);
-		border: calc(var(--flower-size) * 0.021) solid #fff;
+		min-width: min(3.36vw, 5.66vh);
+		min-height: min(3.36vw, 5.66vh);
+		padding: min(0.26vw, 0.43vh) min(0.76vw, 1.28vh);
+		border: min(0.32vw, 0.54vh) solid #fff;
 		border-radius: 50%;
 		background: rgba(255, 242, 196, 0.96);
 		box-shadow: 0 3px 7px rgba(0, 0, 0, 0.4);
 		color: #65352a;
-		font: 800 calc(var(--flower-size) * 0.159) Arial, Helvetica, sans-serif;
+		font-family: Arial, Helvetica, sans-serif;
+		font-size: clamp(12px, min(2.41vw, 4.05vh), 23px);
+		font-weight: 800;
 		transform: translateX(-50%);
 	}
 
@@ -105,13 +112,50 @@
 		filter: brightness(1.08);
 	}
 
+	.flower-button.correct:hover,
+	.flower-button.correct:focus-visible {
+		transform: none;
+	}
+
 	.flower-button.correct .flower-image {
 		filter: drop-shadow(0 0 10px rgba(133, 237, 150, 1));
-		transform: translateY(-32%);
+		transform: translateY(-18%);
 	}
 
 	.flower-button.wrong .flower-image {
 		filter: grayscale(1) drop-shadow(0 0 10px rgba(235, 86, 86, 0.95));
+	}
+
+	&.world-mundo2 {
+		.flower-button.correct .flower-image {
+			transform: none;
+		}
+
+		.flower-button.wrong .flower-image {
+			filter: drop-shadow(0 0 10px rgba(235, 86, 86, 0.95));
+		}
+	}
+}
+
+@media (max-width: 1200px) {
+	.page-flores.world-mundo2 {
+		.flower-button .flower-image,
+		.flower-button.correct .flower-image {
+			transform: scale(1.55);
+		}
+
+		.flower-button .flower-image {
+			transition: filter 220ms ease;
+		}
+	}
+}
+
+@media (min-width: 769px) and (max-width: 1200px) {
+	.page-flores.world-mundo2 {
+		.selected-character,
+		.selected-character.celebrating {
+			width: clamp(175.5px, 20vw, 240px);
+		}
 	}
 }
 

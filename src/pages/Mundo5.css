@@ -22,6 +22,11 @@
 	pointer-events: auto;
 }
 
+.page-mundo5 .top-nav .fullscreen-button {
+	left: auto;
+	right: calc(clamp(0.75rem, 2vw, 1.5rem) + clamp(100px, 18vmin, 190px) + 0.5rem);
+}
+
 .page-mundo5::-webkit-scrollbar {
 	display: none;
 }
@@ -128,6 +133,113 @@
 .mundo5-letter-3 { top: 49.4%; }
 .mundo5-letter-4 { top: 64.4%; }
 .mundo5-letter-5 { top: 79.3%; }
+
+.mundo5-compact-menu {
+	position: fixed;
+	top: clamp(0.65rem, 1.5vw, 1rem);
+	left: calc(clamp(0.75rem, 2vw, 1.5rem) + clamp(52px, 10vmin, 90px) + 0.4rem);
+	z-index: 6;
+	display: flex;
+	align-items: flex-start;
+	gap: clamp(0.15rem, 0.6vw, 0.45rem);
+}
+
+.mundo5-compact-menu__trigger {
+	display: grid;
+	place-items: center;
+	width: clamp(59px, 11vmin, 88px);
+	flex: none;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.28));
+	cursor: pointer;
+}
+
+.mundo5-compact-menu__trigger img {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+.mundo5-compact-menu__options {
+	position: relative;
+	display: flex;
+	width: clamp(66.7px, 10.35vmin, 76.7px);
+	box-sizing: border-box;
+	flex-direction: column;
+	align-items: center;
+	gap: clamp(0.3rem, 1.2vh, 0.6rem);
+	padding: 0.25rem 0.25rem 0.9rem;
+	border: 2px solid #fffdf8;
+	border-radius: 1.25rem;
+	background: rgba(255, 250, 239, 0.96);
+	box-shadow: 0 3px 9px rgba(75, 55, 38, 0.25), inset 0 0 0 1px rgba(228, 215, 195, 0.65);
+	backdrop-filter: blur(4px);
+}
+
+.mundo5-compact-menu__option {
+	position: relative;
+	display: grid;
+	width: 100%;
+	height: clamp(46px, 7.7vmin, 59px);
+	flex: none;
+	place-items: center;
+	padding: 0;
+	border: 2px solid transparent;
+	border-radius: 10px;
+	background: transparent;
+	cursor: pointer;
+	transition: transform 150ms ease;
+}
+
+.mundo5-compact-menu__option img {
+	position: relative;
+	z-index: 1;
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+}
+
+.mundo5-compact-menu__option:hover,
+.mundo5-compact-menu__option:focus-visible {
+	z-index: 1;
+	transform: scale(1.13);
+}
+
+.mundo5-compact-menu__option.selected {
+	border-color: transparent;
+	background: transparent;
+	box-shadow: none;
+}
+
+.mundo5-compact-menu__option.selected::before {
+	position: absolute;
+	z-index: 0;
+	inset: 0 -3px;
+	transform: translateY(15%);
+	border: 2px solid #87df73;
+	border-radius: 10px;
+	background: rgba(255, 255, 255, 0.75);
+	box-shadow: 0 0 0 1px rgba(55, 180, 77, 0.24);
+	content: "";
+	pointer-events: none;
+}
+
+.mundo5-compact-menu__option.selected::after {
+	position: absolute;
+	top: 50%;
+	right: -1.05rem;
+	width: 0;
+	height: 0;
+	transform: translateY(-50%);
+	border-top: 0.65rem solid transparent;
+	border-bottom: 0.65rem solid transparent;
+	border-left: 0.8rem solid #53d74f;
+	filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.3));
+	content: "";
+}
 
 @keyframes mundo5-letter-pulse {
 	from { filter: brightness(1); }

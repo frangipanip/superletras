@@ -6,6 +6,7 @@ import Mundo2 from "./pages/Mundo2";
 import Mundo3 from "./pages/Mundo3";
 import Mundo4 from "./pages/Mundo4";
 import Mundo5 from "./pages/Mundo5";
+import Mundo6 from "./pages/Mundo6";
 import InicioActividad from "./pages/InicioActividad";
 import Silabas from "./pages/Silabas";
 import Mariposas from "./pages/Mariposas";
@@ -47,6 +48,7 @@ export default function App() {
 			<Route path="/mundo3" element={<Mundo3 />} />
 			<Route path="/mundo4" element={<Mundo4 />} />
 			<Route path="/mundo5" element={<Mundo5 />} />
+			<Route path="/mundo6" element={<Mundo6 />} />
 			<Route path="/inicio" element={<InicioActividad />} />
 			<Route path="/silabas" element={<Silabas />} />
 			<Route path="/mariposas" element={<Mariposas />} />
