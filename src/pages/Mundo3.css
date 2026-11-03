@@ -162,6 +162,17 @@
 	z-index: 2;
 	width: var(--mundo3-character-width);
 	filter: drop-shadow(0 5px 7px rgba(20, 54, 35, 0.35));
+	animation: mundo3-character-drift 2.8s ease-in-out infinite;
+}
+
+@keyframes mundo3-character-drift {
+	0%,
+	100% {
+		transform: translateX(0);
+	}
+	50% {
+		transform: translateX(-10px);
+	}
 }
 
 .mundo3-character img {
@@ -184,5 +195,9 @@
 	.mundo3-cloud {
 		animation: none;
 		opacity: 0.8;
+	}
+
+	.mundo3-character {
+		animation: none;
 	}
 }

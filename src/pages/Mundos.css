@@ -106,6 +106,51 @@
 		left: 26.4%;
 	}
 
+	.world-character-picker {
+		position: absolute;
+		inset: 0;
+		z-index: 3;
+		pointer-events: none;
+	}
+
+	.world-character {
+		position: absolute;
+		bottom: clamp(8px, 2vh, 22px);
+		display: block;
+		width: clamp(72px, 17vmin, 170px);
+		padding: 0;
+		border: 0;
+		background: transparent;
+		cursor: pointer;
+		pointer-events: auto;
+		transition: transform 180ms ease;
+	}
+
+	.world-character:first-child {
+		left: clamp(8px, 2vw, 24px);
+	}
+
+	.world-character:last-child {
+		right: clamp(8px, 2vw, 24px);
+	}
+
+	.world-character:hover,
+	.world-character:focus-visible {
+		transform: translateY(-5px) scale(1.05);
+	}
+
+	.world-character img {
+		display: block;
+		width: 100%;
+		height: auto;
+		filter: drop-shadow(0 0 12px rgba(0, 0, 0, 0.65));
+		transition: filter 180ms ease;
+	}
+
+	.world-character:not(.selected) img {
+		filter: grayscale(1) drop-shadow(0 0 12px rgba(0, 0, 0, 0.65));
+	}
+
 	@media (max-width: 600px) {
 		.top-nav .guest-button span {
 			padding: 0 2%;

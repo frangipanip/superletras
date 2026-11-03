@@ -2,7 +2,8 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router";
 import UserNav from "../components/UserNav";
 import { usePageTitle } from "../hooks/usePageTitle";
-import { img, preloadImages } from "../lib/assets";
+import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
+import { CHARACTERS, img, preloadImages } from "../lib/assets";
 import { writeStorage, STORAGE_KEYS } from "../lib/storage";
 import { MUNDO1_IMAGES } from "./Mundo1";
 import { MUNDO2_IMAGES } from "./Mundo2";
@@ -17,10 +18,12 @@ const WORLDS = [1, 2, 3, 4, 5, 6];
 export default function Mundos() {
 	usePageTitle("Superletras - Mundos");
 	const navigate = useNavigate();
+	const [character, selectCharacter] = useSelectedCharacter();
 
 	useEffect(() => {
 		preloadImages([
 			...WORLDS.map((world) => img(`mundo${world}.png`)),
+			...Object.values(CHARACTERS).map(({ image }) => image),
 			...MUNDO1_IMAGES,
 			...MUNDO2_IMAGES,
 			...MUNDO3_IMAGES,
@@ -59,6 +62,21 @@ export default function Mundos() {
 						<img src={img(`mundo${world}.png`)} alt="" />
 					</button>
 				))}
+
+				<nav className="world-character-picker" aria-label="Elegir personaje">
+					{Object.entries(CHARACTERS).map(([id, { alt, image }]) => (
+						<button
+							key={id}
+							className={`world-character${character === id ? " selected" : ""}`}
+							type="button"
+							aria-label={`Elegir ${alt}`}
+							aria-pressed={character === id}
+							onClick={() => selectCharacter(id)}
+						>
+							<img src={image} alt="" draggable={false} />
+						</button>
+					))}
+				</nav>
 			</main>
 		</div>
 	);
