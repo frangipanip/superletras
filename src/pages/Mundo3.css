@@ -13,6 +13,12 @@
 	scrollbar-width: none;
 }
 
+.page-mundo3.traveling .activity-path__button,
+.page-mundo3.traveling .mundo3-letter,
+.page-mundo3.traveling .mundo3-character {
+	pointer-events: none;
+}
+
 .page-mundo3 .top-nav {
 	position: fixed;
 	inset: 0;
@@ -271,12 +277,32 @@
 	content: "";
 }
 
-.mundo3-character {
+.mundo3-character-spot {
 	position: absolute;
 	bottom: 5%;
 	left: max(12px, calc(var(--mundo3-menu-left) - var(--mundo3-character-width) - 18px));
 	z-index: 2;
 	width: var(--mundo3-character-width);
+}
+
+.mundo3-character-spot.perched {
+	bottom: auto;
+	z-index: 4;
+	width: clamp(108px, 27vmin, 198px);
+	--mundo3-path-button-radius: clamp(54px, 9vmin, 78px);
+	transform: translate(calc(-100% - var(--mundo3-path-button-radius)), calc(-100% + var(--mundo3-path-button-radius)));
+}
+
+.mundo3-puf {
+	top: -10%;
+	right: -24%;
+	bottom: -8%;
+	left: -24%;
+}
+
+.mundo3-character {
+	position: relative;
+	width: 100%;
 	filter: drop-shadow(0 5px 7px rgba(20, 54, 35, 0.35));
 	animation: mundo3-character-drift 2.8s ease-in-out infinite;
 }
@@ -318,6 +344,12 @@
 		font-size: clamp(1.35rem, 6vmin, 2.4rem);
 	}
 
+}
+
+@media (max-width: 800px), (max-height: 600px) {
+	.mundo3-character-spot.perched {
+		--mundo3-path-button-radius: clamp(40px, 7.5vmin, 62.5px);
+	}
 }
 
 @media (prefers-reduced-motion: reduce) {

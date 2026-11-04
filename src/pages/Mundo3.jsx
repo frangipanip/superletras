@@ -2,12 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import ActivityPath, { ACTIVITY_PATH_SIGNS, WORLD_ACTIVITY_PATHS } from "../components/ActivityPath";
 import CharacterLocator from "../components/CharacterLocator";
+import PufCrema, { PUF_CHARACTER_CLASS } from "../components/PufCrema";
 import UserNav from "../components/UserNav";
 import { useCharacterLocator } from "../hooks/useCharacterLocator";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
+import { useTeleport } from "../hooks/useTeleport";
 import { img, MUNDO3_MOUTH_IMAGES, sound } from "../lib/assets";
 import { STORAGE_KEYS, readStorage, writeStorage } from "../lib/storage";
 import "./Mundo3.css";
@@ -45,6 +47,24 @@ const LETTER_SOUNDS = {
 	Y: "suenaY.mp3",
 	LL: "suenaLL.mp3"
 };
+const VISIBLE_ACTIVITY_COUNT = 1;
+
+function readSavedPerches() {
+	try {
+		const saved = JSON.parse(readStorage(STORAGE_KEYS.mundo3Perches) || "{}");
+		return Object.fromEntries(Object.entries(saved).filter(([letter, index]) =>
+			LETTERS.includes(letter) && Number.isInteger(index) &&
+			index >= 0 && index < VISIBLE_ACTIVITY_COUNT && WORLD_ACTIVITY_PATHS.mundo3[index]
+		));
+	} catch {
+		return {};
+	}
+}
+
+function getPerchStyle(index) {
+	const [left, top] = WORLD_ACTIVITY_PATHS.mundo3[index];
+	return { left: `${left}%`, top: `${top}%` };
+}
 
 export const MUNDO3_IMAGES = [
 	img("FONDOM3.jpg"),
@@ -63,10 +83,14 @@ export default function Mundo3() {
 	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
 	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime, MUNDO3_MOUTH_IMAGES);
+	const { teleport, teleportCharacter } = useTeleport(runtime);
 	const [selectedLetter, setSelectedLetter] = useState(() => {
 		const saved = readStorage(STORAGE_KEYS.mundo3MenuOption);
 		return LETTERS.includes(saved) ? saved : null;
 	});
+	const [savedPerches, setSavedPerches] = useState(readSavedPerches);
+	const perchIndex = selectedLetter ? (savedPerches[selectedLetter] ?? null) : null;
+	const characterIndex = teleport ? teleport.position : perchIndex;
 	const [menuPanelVisible, setMenuPanelVisible] = useState(true);
 	const [compactMenuOpen, setCompactMenuOpen] = useState(false);
 	const pageRef = useRef(null);
@@ -76,7 +100,7 @@ export default function Mundo3() {
 	const characterSpotRef = useRef(null);
 	const letterAudioRef = useRef(null);
 	const { offscreen: characterOffscreen, direction: characterDirection, scrollToCharacter } =
-		useCharacterLocator(pageRef, characterSpotRef, character);
+		useCharacterLocator(pageRef, characterSpotRef, character, characterIndex);
 	const drag = useRef({ pointerId: null, startX: 0, startScroll: 0, moved: false }).current;
 	const [dragging, setDragging] = useState(false);
 
@@ -188,16 +212,33 @@ export default function Mundo3() {
 		setCompactMenuOpen(false);
 	}
 
-	function openInicioActivity() {
+	function openInicioActivity(index) {
+		if (teleport || index < 0 || index >= VISIBLE_ACTIVITY_COUNT || !WORLD_ACTIVITY_PATHS.mundo3[index]) return;
 		const letter = selectedLetter || LETTERS[0];
+		setSelectedLetter(letter);
 		writeStorage(STORAGE_KEYS.mundo3MenuOption, letter);
-		navigate("/inicio", { state: { menuOption: letter, world: 3 } });
+		const nextPerches = { ...savedPerches, [letter]: index };
+		setSavedPerches(nextPerches);
+		writeStorage(STORAGE_KEYS.mundo3Perches, JSON.stringify(nextPerches));
+		const goToActivity = () => navigate("/inicio", { state: { menuOption: letter, world: 3 } });
+		if (!character || perchIndex === index) {
+			goToActivity();
+			return;
+		}
+		if (letterAudioRef.current) {
+			letterAudioRef.current.onended = null;
+			letterAudioRef.current.pause();
+			letterAudioRef.current.currentTime = 0;
+			letterAudioRef.current = null;
+		}
+		stopTalking();
+		teleportCharacter(perchIndex, index).then(goToActivity);
 	}
 
 	return (
 		<div
 			ref={pageRef}
-			className={`page page-mundo3${dragging ? " dragging" : ""}`}
+			className={`page page-mundo3${dragging ? " dragging" : ""}${teleport ? " traveling" : ""}`}
 			onPointerDown={handlePointerDown}
 			onPointerMove={handlePointerMove}
 			onPointerUp={endDrag}
@@ -265,14 +306,23 @@ export default function Mundo3() {
 
 				<ActivityPath
 					positions={WORLD_ACTIVITY_PATHS.mundo3}
-					visibleCount={1}
-					onActivityClick={openInicioActivity}
+					visibleCount={VISIBLE_ACTIVITY_COUNT}
+					onActivityClick={teleport ? undefined : openInicioActivity}
 				/>
 
 				{character && (
-					<div className="mundo3-character" ref={characterSpotRef}>
-						<img src={CHARACTER_IMAGES[character]} alt={character === "supernena" ? "Supernena" : "Supernene"} draggable={false} />
-						<img className="mundo3-character__mouth" src={mouth.src} alt="" hidden={!mouth.visible} draggable={false} />
+					<div
+						className={`mundo3-character-spot${characterIndex === null ? "" : " perched"}`}
+						ref={characterSpotRef}
+						style={characterIndex === null ? undefined : getPerchStyle(characterIndex)}
+					>
+						<div className={teleport ? PUF_CHARACTER_CLASS[teleport.stage] : undefined}>
+							<div className="mundo3-character">
+								<img src={CHARACTER_IMAGES[character]} alt={character === "supernena" ? "Supernena" : "Supernene"} draggable={false} />
+								<img className="mundo3-character__mouth" src={mouth.src} alt="" hidden={!mouth.visible} draggable={false} />
+							</div>
+						</div>
+						{teleport && <PufCrema mode={teleport.stage} className="mundo3-puf" />}
 					</div>
 				)}
 

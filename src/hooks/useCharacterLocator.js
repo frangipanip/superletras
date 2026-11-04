@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export function useCharacterLocator(pageRef, characterSpotRef, character) {
+export function useCharacterLocator(pageRef, characterSpotRef, character, position) {
 	const [offscreen, setOffscreen] = useState(false);
 	const [direction, setDirection] = useState("left");
 
@@ -32,7 +32,7 @@ export function useCharacterLocator(pageRef, characterSpotRef, character) {
 			window.removeEventListener("resize", updateVisibility);
 			resizeObserver.disconnect();
 		};
-	}, [pageRef, characterSpotRef, character]);
+	}, [pageRef, characterSpotRef, character, position]);
 
 	function scrollToCharacter() {
 		const page = pageRef.current;

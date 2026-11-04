@@ -5,6 +5,7 @@ export const STORAGE_KEYS = {
 	mundo2MenuOption: "superletras-mundo2-menu-option",
 	mundo2Perches: "superletras-mundo2-perches",
 	mundo3MenuOption: "superletras-mundo3-menu-option",
+	mundo3Perches: "superletras-mundo3-perches",
 	mundo4MenuOption: "superletras-mundo4-menu-option",
 	mundo5MenuOption: "superletras-mundo5-menu-option",
 	mundo6MenuOption: "superletras-mundo6-menu-option",
