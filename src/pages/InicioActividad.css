@@ -179,8 +179,19 @@
 	width: clamp(10rem, 27.5vw, 22.5rem);
 }
 
+.page-inicio-actividad.world-bloques .inicio-activity-character {
+	top: 30%;
+	width: clamp(10rem, 27.5vw, 22.5rem);
+}
+
 @media (max-width: 768px), (max-height: 560px) {
 	.page-inicio-actividad.world-insectos .inicio-activity-character {
+		width: clamp(6.25rem, 45vmin, 13.75rem);
+	}
+
+	.page-inicio-actividad.world-bloques .inicio-activity-character {
+		top: auto;
+		bottom: 10%;
 		width: clamp(6.25rem, 45vmin, 13.75rem);
 	}
 }
@@ -586,6 +597,7 @@
 .page-inicio-actividad.world-bloques .inicio-vowel-button > span {
 	position: relative;
 	z-index: 1;
+	left: -6%;
 	transform: translateY(15%);
 	color: #fff;
 	text-shadow: -2px -2px 2px #164c19, 2px -2px 2px #164c19, -2px 2px 2px #164c19, 2px 2px 2px #164c19;
