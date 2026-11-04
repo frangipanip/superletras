@@ -10,6 +10,7 @@ import { useTalkingMouth } from "../hooks/useTalkingMouth";
 import { CHARACTERS, img, MUNDO1_CHARACTERS, MUNDO2_CHARACTER_FRAMES, MUNDO2_CHARACTERS, MUNDO2_MOUTH_IMAGES, MUNDO3_MOUTH_IMAGES, sound } from "../lib/assets";
 import { shuffle } from "../lib/shuffle";
 import { useActivityMenuOption } from "../hooks/useActivityMenuOption";
+import { useCarPhysics } from "../hooks/useCarPhysics";
 import "./actividad.css";
 import "./InicioActividad.css";
 
@@ -121,6 +122,21 @@ const MUNDO3_LETTER_IMAGES = {
 	ll: "bloqueLL.png"
 };
 const MUNDO3_CAR_IMAGES = [1, 2, 3, 4, 5].map((car) => img(`carro${car}.png`));
+// Bloques y plantas de fondoIniciobloques.png (1672x941) que están adelante o al borde del
+// piso: los carros no pueden pasar por encima.
+const MUNDO3_BACKGROUND_OBSTACLES = {
+	width: 1672,
+	height: 941,
+	rects: [
+		[0, 260, 100, 420],
+		[1510, 330, 1672, 430],
+		[0, 690, 135, 941],
+		[0, 780, 300, 941],
+		[0, 860, 440, 941],
+		[1365, 815, 1672, 941],
+		[1490, 700, 1672, 941]
+	]
+};
 const MUNDO3_CHARACTERS = {
 	supernena: { image: img("PERSONAJES/supernenaBloque.png"), alt: "Supernena" },
 	supernene: { image: img("PERSONAJES/superneneBloque.png"), alt: "Supernene" }
@@ -191,6 +207,13 @@ export default function InicioActividad() {
 	const requestedItemIndex = useRef(0);
 	// Carteles equivocados tocados al pedirlos (fases 2 y 3): definen cuántas comidas se ganan.
 	const errorCount = useRef(0);
+	// Mundo 3: en la fase 3 los carros manejan con física (chocan y rebotan sin pisarse).
+	const carRefs = useRef(new Map());
+	const characterRef = useRef(null);
+	const leftCars = useRef(activitySelectedItems);
+	leftCars.current = activitySelectedItems;
+	const isDriving = isMundo3 && isPhaseThree && !isShuffling;
+	useCarPhysics(runtime, { active: isDriving, itemRefs: carRefs, stoppedRef: leftCars, obstacleRefs: [characterRef], background: MUNDO3_BACKGROUND_OBSTACLES });
 	const [premio, otorgarPremio] = useRecompensa("inicio", isMundo2 || isMundo3 ? null : MODES[menuOption] ? menuOption : "a");
 	const LETTER_IMAGES = {
 		a: "letraA.png",
@@ -592,7 +615,11 @@ export default function InicioActividad() {
 						return (
 							<div
 								key={item}
-								className={`inicio-vowel-button inicio-vowel-${item.toLowerCase()}${isExploded ? " selected" : ""}${activeItem === item ? " active" : ""}${incorrectItem === item ? " incorrect" : ""}${isShuffling ? " shuffling" : ""}${isHidden ? " hidden-balloon" : ""}${isRevealing ? " reveal-balloon" : ""}${isPhaseThree && !isShuffling && !activitySelectedItems.has(item) ? " flying" : ""}`}
+								className={`inicio-vowel-button inicio-vowel-${item.toLowerCase()}${isExploded ? " selected" : ""}${activeItem === item ? " active" : ""}${incorrectItem === item ? " incorrect" : ""}${isShuffling ? " shuffling" : ""}${isHidden ? " hidden-balloon" : ""}${isRevealing ? " reveal-balloon" : ""}${isPhaseThree && !isShuffling && !activitySelectedItems.has(item) ? (isMundo3 ? " driving" : " flying") : ""}`}
+								ref={(node) => {
+									if (node) carRefs.current.set(item, node);
+									else carRefs.current.delete(item);
+								}}
 								role="button"
 								tabIndex={isExploded ? -1 : 0}
 								aria-disabled={isExploded}
@@ -640,7 +667,7 @@ export default function InicioActividad() {
 				</div>
 			<PremioComida premio={premio} />
 			{character && (
-				<button className={`inicio-activity-character${isMundo1 ? " dulce-character" : ""}${isMundo2 ? " mundo2-flying-character" : ""}${isMundo3 ? " mundo3-block-character" : ""}`} type="button" aria-label="Repetir consigna" onClick={repeatInstruction}>
+				<button ref={characterRef} className={`inicio-activity-character${isMundo1 ? " dulce-character" : ""}${isMundo2 ? " mundo2-flying-character" : ""}${isMundo3 ? " mundo3-block-character" : ""}`} type="button" aria-label="Repetir consigna" onClick={repeatInstruction}>
 					{isMundo2 ? MUNDO2_CHARACTER_FRAMES[character].map((src, index) => (
 						<img
 							key={`${src}-${index}`}

@@ -133,6 +133,11 @@
 	transform: translate(-50%, 0) scale(1);
 }
 
+/* Mundo 3: el bloque de la letra queda atrás de los carros (.inicio-vowels tiene z-index 2) */
+.page-inicio-actividad.world-bloques .inicio-activity-letter-image-wrap {
+	z-index: 1;
+}
+
 .inicio-activity-letter-image {
 	display: block;
 	width: clamp(11rem, 20vw, 28rem);
@@ -644,6 +649,17 @@
 }
 
 .page-inicio-actividad.world-bloques .inicio-vowel-button.selected > span {
+	animation: none;
+}
+
+/* Los carros no se agrandan al pasar el cursor (los globos sí) */
+.page-inicio-actividad.world-bloques .inicio-vowel-button:hover:not(.hidden-balloon):not(.active),
+.page-inicio-actividad.world-bloques .inicio-vowel-button:focus-visible:not(.hidden-balloon):not(.active) {
+	transform: none;
+}
+
+/* Fase 3: los carros manejan con física (useCarPhysics escribe left/top) */
+.page-inicio-actividad.world-bloques .inicio-vowel-button.driving:not(.incorrect) {
 	animation: none;
 }
 
