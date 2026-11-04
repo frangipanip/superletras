@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import ActivityPath, { ACTIVITY_PATH_SIGNS, WORLD_ACTIVITY_PATHS } from "../components/ActivityPath";
 import CharacterLocator from "../components/CharacterLocator";
 import UserNav from "../components/UserNav";
 import { useCharacterLocator } from "../hooks/useCharacterLocator";
@@ -20,6 +21,8 @@ const CHARACTERS = {
 export const MUNDO6_IMAGES = [
 	img("FONDOM6.jpg"),
 	img("MENUM6.png"),
+	img("boton.svg"),
+	...ACTIVITY_PATH_SIGNS.map(img),
 	...Object.values(CHARACTERS).map(({ image }) => image),
 	...Object.values(MUNDO6_CHARACTER_FRAMES).flat()
 ];
@@ -135,7 +138,7 @@ export default function Mundo6() {
 	function handlePointerDown(event) {
 		drag.moved = false;
 		if (event.pointerType !== "mouse" || event.button !== 0) return;
-		if (event.target.closest(".top-nav, .mundo6-compact-menu, .mundo6-menu-panel, .mundo6-character, .character-locator")) return;
+		if (event.target.closest(".top-nav, .mundo6-compact-menu, .mundo6-menu-panel, .mundo6-character, .activity-path, .character-locator")) return;
 		drag.pointerId = event.pointerId;
 		drag.startX = event.clientX;
 		drag.startScroll = pageRef.current.scrollLeft;
@@ -217,6 +220,7 @@ export default function Mundo6() {
 			)}
 			<main className="mundo6-scene" aria-label="Mundo 6">
 				<img className="mundo6-background" src={img("FONDOM6.jpg")} alt="" draggable={false} />
+				<ActivityPath positions={WORLD_ACTIVITY_PATHS.mundo6} />
 				{character && (
 					<div ref={characterSpotRef} className="mundo6-character">
 						<img

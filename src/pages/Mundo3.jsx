@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
+import ActivityPath, { ACTIVITY_PATH_SIGNS, WORLD_ACTIVITY_PATHS } from "../components/ActivityPath";
 import CharacterLocator from "../components/CharacterLocator";
 import UserNav from "../components/UserNav";
 import { useCharacterLocator } from "../hooks/useCharacterLocator";
@@ -49,8 +50,8 @@ export const MUNDO3_IMAGES = [
 	img("FONDOM3.jpg"),
 	img("menuM3.png"),
 	img("nubeM3.png"),
-	img("INICIALESbtn.png"),
 	img("boton.svg"),
+	...ACTIVITY_PATH_SIGNS.map(img),
 	...Object.values(LETTER_BLOCKS),
 	...Object.values(CHARACTER_IMAGES),
 	...MUNDO3_MOUTH_IMAGES
@@ -128,7 +129,7 @@ export default function Mundo3() {
 	function handlePointerDown(event) {
 		drag.moved = false;
 		if (event.pointerType !== "mouse" || event.button !== 0) return;
-		if (event.target.closest(".top-nav, .mundo3-compact-menu, .mundo3-menu-panel, .mundo3-character, .character-locator")) return;
+		if (event.target.closest(".top-nav, .mundo3-compact-menu, .mundo3-menu-panel, .mundo3-character, .activity-path, .character-locator")) return;
 		drag.pointerId = event.pointerId;
 		drag.startX = event.clientX;
 		drag.startScroll = pageRef.current.scrollLeft;
@@ -262,14 +263,11 @@ export default function Mundo3() {
 					))}
 				</div>
 
-				<div className="mundo3-path" aria-label="Camino de actividades">
-					<div className="mundo3-path-activity">
-						<img className="mundo3-path-sign" src={img("INICIALESbtn.png")} alt="" draggable={false} />
-						<button className="mundo3-path-button" type="button" aria-label="Actividad Inicio" onClick={openInicioActivity}>
-							<img src={img("boton.svg")} alt="" draggable={false} />
-						</button>
-					</div>
-				</div>
+				<ActivityPath
+					positions={WORLD_ACTIVITY_PATHS.mundo3}
+					visibleCount={1}
+					onActivityClick={openInicioActivity}
+				/>
 
 				{character && (
 					<div className="mundo3-character" ref={characterSpotRef}>

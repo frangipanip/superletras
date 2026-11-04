@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import ActivityPath, { ACTIVITY_PATH_SIGNS, WORLD_ACTIVITY_PATHS } from "../components/ActivityPath";
 import CharacterLocator from "../components/CharacterLocator";
 import UserNav from "../components/UserNav";
 import { useCharacterLocator } from "../hooks/useCharacterLocator";
@@ -18,19 +19,6 @@ const LETTER_BLOCKS = {
 	J: img("robotJ.png"),
 	"GÜ": img("robotGUdiresis.png")
 };
-const ACTIVITY_SIGN_IMAGES = [
-	"INICIALESbtn.png",
-	"MARIPOSAbtn.png",
-	"FLORbtn.png",
-	"PELUCHESbtn.png",
-	"TRENbtn.png",
-	"DIBUJARbtn.png",
-	"MEMOTESTbtn.png",
-	"BARCOSbtn.png",
-	"PASTELbtn.png",
-	"GLOBOSbtn.png"
-];
-const PATH_BUTTONS = [8, 17, 26, 35, 44, 53, 62, 71, 80, 90, 12.5, 21.5, 30.5, 39.5, 48.5, 57.5, 66.5, 75.5, 85];
 const LETTER_COLORS = {
 	G: "red",
 	GE: "yellow",
@@ -47,7 +35,7 @@ export const MUNDO5_IMAGES = [
 	...Object.values(MUNDO5_CHARACTERS).map(({ image }) => image),
 	...MUNDO5_MOUTH_IMAGES,
 	img("boton.svg"),
-	...ACTIVITY_SIGN_IMAGES.map(img)
+	...ACTIVITY_PATH_SIGNS.map(img)
 ];
 
 export default function Mundo5() {
@@ -135,7 +123,7 @@ export default function Mundo5() {
 	function handlePointerDown(event) {
 		drag.moved = false;
 		if (event.pointerType !== "mouse" || event.button !== 0) return;
-		if (event.target.closest(".top-nav, .mundo5-compact-menu, .mundo5-menu-panel, .mundo5-character, .character-locator")) return;
+		if (event.target.closest(".top-nav, .mundo5-compact-menu, .mundo5-menu-panel, .mundo5-character, .activity-path, .character-locator")) return;
 		drag.pointerId = event.pointerId;
 		drag.startX = event.clientX;
 		drag.startScroll = pageRef.current.scrollLeft;
@@ -229,21 +217,7 @@ export default function Mundo5() {
 					<img className="mundo5-background" src={img("FONDOM5bis.png")} alt="" draggable={false} />
 				</div>
 
-				<div className="mundo5-path" aria-label="Camino de actividades">
-					{PATH_BUTTONS.map((left, index) => (
-						<div className="mundo5-path-activity" key={left} style={{ left: `${left}%` }}>
-							<img className="mundo5-path-sign" src={img(ACTIVITY_SIGN_IMAGES[index] || "GLOBOSbtn.png")} alt="" draggable={false} />
-							<button
-								className={`mundo5-path-button${selectedLetter ? ` path-letter-${LETTER_COLORS[selectedLetter]}` : " path-letter-default"}`}
-								type="button"
-								disabled
-								aria-label={`Actividad del camino ${index + 1}, próximamente`}
-							>
-								<img src={img("boton.svg")} alt="" draggable={false} />
-							</button>
-						</div>
-					))}
-				</div>
+				<ActivityPath positions={WORLD_ACTIVITY_PATHS.mundo5} />
 
 				{character && (
 					<button ref={characterSpotRef} className="mundo5-character" type="button" aria-label="Reproducir presentación" onClick={playIntroAudio}>
