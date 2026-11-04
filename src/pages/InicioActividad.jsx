@@ -7,7 +7,7 @@ import { usePageTitle } from "../hooks/usePageTitle";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
-import { CHARACTERS, img, MUNDO1_CHARACTERS, MUNDO2_CHARACTER_FRAMES, MUNDO2_CHARACTERS, MUNDO2_MOUTH_IMAGES, sound } from "../lib/assets";
+import { CHARACTERS, img, MUNDO1_CHARACTERS, MUNDO2_CHARACTER_FRAMES, MUNDO2_CHARACTERS, MUNDO2_MOUTH_IMAGES, MUNDO3_MOUTH_IMAGES, sound } from "../lib/assets";
 import { shuffle } from "../lib/shuffle";
 import { useActivityMenuOption } from "../hooks/useActivityMenuOption";
 import "./actividad.css";
@@ -23,6 +23,11 @@ const N_SYLLABLES = ["NA", "NE", "NI", "NO", "NU"];
 const D_SYLLABLES = ["DA", "DE", "DI", "DO", "DU"];
 const F_SYLLABLES = ["FA", "FE", "FI", "FO", "FU"];
 const H_SYLLABLES = ["HA", "HE", "HI", "HO", "HU"];
+const R_SYLLABLES = ["RA", "RE", "RI", "RO", "RU"];
+const RR_SYLLABLES = ["ARRA", "ARRE", "ARRI", "ARRO", "ARRU"];
+const AR_SYLLABLES = ["ARA", "ARE", "ARI", "ARO", "ARU"];
+const Y_SYLLABLES = ["YA", "YE", "YI", "YO", "YU"];
+const LL_SYLLABLES = ["LLA", "LLE", "LLI", "LLO", "LLU"];
 const CONFETTI_COLORS = ["#f04f78", "#f6c945", "#55b96c", "#4d9ed8", "#9b6bd6", "#f08a36"];
 
 // Cada letra del menú de Mundo 1 trae su propia presentación: los carteles que se pulsan,
@@ -75,7 +80,7 @@ const MODES = {
 	}
 };
 
-function createMundo2Mode(letter, items) {
+function createSyllableMode(letter, items) {
 	return {
 		items,
 		intro: [`Esta es la letra ${letter.toUpperCase()}.mp3`, "ConLasVocales.mp3"],
@@ -88,12 +93,19 @@ function createMundo2Mode(letter, items) {
 }
 
 const MUNDO2_MODES = {
-	p: createMundo2Mode("p", P_SYLLABLES),
-	n: createMundo2Mode("n", N_SYLLABLES),
-	d: createMundo2Mode("d", D_SYLLABLES),
-	f: createMundo2Mode("f", F_SYLLABLES),
-	h: createMundo2Mode("h", H_SYLLABLES)
+	p: createSyllableMode("p", P_SYLLABLES),
+	n: createSyllableMode("n", N_SYLLABLES),
+	d: createSyllableMode("d", D_SYLLABLES),
+	f: createSyllableMode("f", F_SYLLABLES),
+	h: createSyllableMode("h", H_SYLLABLES)
 };
+const MUNDO3_MODES = Object.fromEntries([
+	["r", R_SYLLABLES],
+	["rr", RR_SYLLABLES],
+	["ar", AR_SYLLABLES],
+	["y", Y_SYLLABLES],
+	["ll", LL_SYLLABLES]
+].map(([letter, items]) => [letter, createSyllableMode(letter, items)]));
 const MUNDO2_LETTER_IMAGES = {
 	p: "letraP.png",
 	n: "letraN.png",
@@ -101,12 +113,31 @@ const MUNDO2_LETTER_IMAGES = {
 	f: "letraF.png",
 	h: "letraH.png"
 };
+const MUNDO3_LETTER_IMAGES = {
+	r: "bloqueR.png",
+	rr: "bloqueRR.png",
+	ar: "bloqueAR.png",
+	y: "bloqueY.png",
+	ll: "bloqueLL.png"
+};
+const MUNDO3_CAR_IMAGES = [1, 2, 3, 4, 5].map((car) => img(`carro${car}.png`));
+const MUNDO3_CHARACTERS = {
+	supernena: { image: img("PERSONAJES/supernenaBloque.png"), alt: "Supernena" },
+	supernene: { image: img("PERSONAJES/superneneBloque.png"), alt: "Supernene" }
+};
 const MUNDO2_LETTER_LABELS = {
 	p: "Letra P",
 	n: "Letra N",
 	d: "Letra D",
 	f: "Letra F",
 	h: "Letra H"
+};
+const MUNDO3_LETTER_LABELS = {
+	r: "Letra R",
+	rr: "Letra RR",
+	ar: "Letra AR",
+	y: "Letra Y",
+	ll: "Letra LL"
 };
 const MUNDO2_INSECT_FRAMES = Object.fromEntries(["A", "E", "I", "O", "U"].map((vowel) => [
 	vowel,
@@ -117,14 +148,16 @@ export default function InicioActividad() {
 	const location = useLocation();
 	const isMundo1 = location.state?.world === 1;
 	const isMundo2 = location.state?.world === 2;
-	usePageTitle(isMundo2 ? "Inicio - Mundo 2" : "Inicio - Mundo 1");
+	const isMundo3 = location.state?.world === 3;
+	usePageTitle(isMundo3 ? "Inicio - Mundo 3" : isMundo2 ? "Inicio - Mundo 2" : "Inicio - Mundo 1");
 	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
-	const activityCharacters = isMundo1 ? MUNDO1_CHARACTERS : isMundo2 ? MUNDO2_CHARACTERS : CHARACTERS;
-	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime, isMundo2 ? MUNDO2_MOUTH_IMAGES : undefined);
+	const activityCharacters = isMundo1 ? MUNDO1_CHARACTERS : isMundo2 ? MUNDO2_CHARACTERS : isMundo3 ? MUNDO3_CHARACTERS : CHARACTERS;
+	const mouthImages = isMundo3 ? MUNDO3_MOUTH_IMAGES : isMundo2 ? MUNDO2_MOUTH_IMAGES : undefined;
+	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime, mouthImages);
 	const menuOption = useActivityMenuOption();
-	const modeOptions = isMundo2 ? MUNDO2_MODES : MODES;
-	const fallbackOption = isMundo2 ? "p" : "a";
+	const modeOptions = isMundo3 ? MUNDO3_MODES : isMundo2 ? MUNDO2_MODES : MODES;
+	const fallbackOption = isMundo3 ? "r" : isMundo2 ? "p" : "a";
 	const [mode] = useState(() => modeOptions[menuOption || fallbackOption] || modeOptions[fallbackOption]);
 	const [audios] = useState(() => ({
 		intro: mode.intro.map((file) => runtime.audio(sound(file), { preload: true })),
@@ -158,7 +191,7 @@ export default function InicioActividad() {
 	const requestedItemIndex = useRef(0);
 	// Carteles equivocados tocados al pedirlos (fases 2 y 3): definen cuántas comidas se ganan.
 	const errorCount = useRef(0);
-	const [premio, otorgarPremio] = useRecompensa("inicio", isMundo2 ? null : MODES[menuOption] ? menuOption : "a");
+	const [premio, otorgarPremio] = useRecompensa("inicio", isMundo2 || isMundo3 ? null : MODES[menuOption] ? menuOption : "a");
 	const LETTER_IMAGES = {
 		a: "letraA.png",
 		l: "letraL.png",
@@ -174,8 +207,9 @@ export default function InicioActividad() {
 		t: "Letra T"
 	};
 	const letterImages = isMundo2 ? MUNDO2_LETTER_IMAGES : LETTER_IMAGES;
-	const letterLabels = isMundo2 ? MUNDO2_LETTER_LABELS : LETTER_LABELS;
-	const bigLetterImage = img(letterImages[menuOption] || letterImages[fallbackOption]);
+	const activityLetterImages = isMundo3 ? MUNDO3_LETTER_IMAGES : letterImages;
+	const letterLabels = isMundo3 ? MUNDO3_LETTER_LABELS : isMundo2 ? MUNDO2_LETTER_LABELS : LETTER_LABELS;
+	const bigLetterImage = img(activityLetterImages[menuOption] || activityLetterImages[fallbackOption]);
 
 	function allItemAudios() {
 		return [...Object.values(audios.itemsLong), ...Object.values(audios.itemsShort)];
@@ -276,7 +310,7 @@ export default function InicioActividad() {
 				setActiveItem(null);
 				setShowConfetti(true);
 				// La actividad se completa al terminar la fase 3 (carteles en movimiento).
-				if (isPhaseThree && !isMundo2) {
+				if (isPhaseThree && !isMundo2 && !isMundo3) {
 					otorgarPremio(errorCount.current);
 				}
 				audios.celebration.onended = () => {
@@ -547,7 +581,7 @@ export default function InicioActividad() {
 	}, [audios, menuOption, modeOptions]);
 
 	return (
-		<div className={`page activity-page page-inicio-actividad${isMundo2 ? " world-insectos" : ""}`} onClick={skipIntroduction}>
+		<div className={`page activity-page page-inicio-actividad${isMundo2 ? " world-insectos" : ""}${isMundo3 ? " world-bloques" : ""}`} onClick={skipIntroduction}>
 			<BackButton />
 			<FullscreenButton toggle />
 			<div className="inicio-vowels inicio-syllables" aria-label={mode.listName}>
@@ -574,6 +608,9 @@ export default function InicioActividad() {
 								{isMundo2 && MUNDO2_INSECT_FRAMES[item.slice(-1)].map((src, frameIndex) => (
 									<img key={src} className={`inicio-insect-frame inicio-insect-frame-${frameIndex + 1}`} src={src} alt="" draggable={false} />
 								))}
+								{isMundo3 && (
+									<img className="inicio-car-image" src={MUNDO3_CAR_IMAGES[mode.items.indexOf(item)]} alt="" draggable={false} />
+								)}
 								<span>{item}</span>
 							</div>
 						);
@@ -603,7 +640,7 @@ export default function InicioActividad() {
 				</div>
 			<PremioComida premio={premio} />
 			{character && (
-				<button className={`inicio-activity-character${isMundo1 ? " dulce-character" : ""}${isMundo2 ? " mundo2-flying-character" : ""}`} type="button" aria-label="Repetir consigna" onClick={repeatInstruction}>
+				<button className={`inicio-activity-character${isMundo1 ? " dulce-character" : ""}${isMundo2 ? " mundo2-flying-character" : ""}${isMundo3 ? " mundo3-block-character" : ""}`} type="button" aria-label="Repetir consigna" onClick={repeatInstruction}>
 					{isMundo2 ? MUNDO2_CHARACTER_FRAMES[character].map((src, index) => (
 						<img
 							key={`${src}-${index}`}
@@ -614,7 +651,7 @@ export default function InicioActividad() {
 						/>
 					)) : <img src={activityCharacters[character].image} alt={activityCharacters[character].alt} />}
 					<img
-						className={`inicio-activity-mouth${isMundo2 ? " mundo2-mouth-frame" : !isMundo1 && mouth.shifted ? " shifted-mouth" : ""}`}
+						className={`inicio-activity-mouth${isMundo2 ? " mundo2-mouth-frame" : isMundo3 ? " mundo3-mouth-frame" : !isMundo1 && mouth.shifted ? " shifted-mouth" : ""}`}
 						src={mouth.src}
 						alt=""
 						hidden={!mouth.visible}

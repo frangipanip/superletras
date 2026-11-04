@@ -368,20 +368,15 @@ export default function Mundo2() {
 				<img className="mundo2-background" src={img("FONDOM2.jpg")} alt="" draggable={false} onLoad={() => scrollToCharacter(false)} />
 
 				<div className="mundo2-path" aria-label="Camino de actividades">
-					{PATH_BUTTONS.map(([left, top], index) => (
+					{PATH_BUTTONS.slice(0, ACTIVITY_ROUTES.length).map(([left, top], index) => (
 						<div className="mundo2-path-activity" key={`${left}-${top}`} style={{ left: `${left}%`, top: `${top}%` }}>
-							<img
-								className={`mundo2-path-sign${index < ACTIVITY_ROUTES.length ? " available" : ""}`}
-								src={img(ACTIVITY_SIGN_IMAGES[index] || "GLOBOSbtn.png")}
-								alt=""
-								draggable={false}
-							/>
+							<img className="mundo2-path-sign available" src={img(ACTIVITY_SIGN_IMAGES[index])} alt="" draggable={false} />
 							<button
 								className={`mundo2-path-button${selectedLetter ? ` path-letter-${selectedLetter.toLowerCase()}` : index === 0 ? " path-letter-p" : ""}`}
 								type="button"
-								disabled={index >= ACTIVITY_ROUTES.length || Boolean(teleport)}
-								aria-label={index < ACTIVITY_ROUTES.length ? `Actividad ${ACTIVITY_NAMES[index]}` : `Actividad ${index + 1}, no disponible`}
-								onClick={index < ACTIVITY_ROUTES.length ? () => openPathActivity(index) : undefined}
+								disabled={Boolean(teleport)}
+								aria-label={`Actividad ${ACTIVITY_NAMES[index]}`}
+								onClick={() => openPathActivity(index)}
 							>
 								<img src={img("boton.svg")} alt="" draggable={false} />
 							</button>

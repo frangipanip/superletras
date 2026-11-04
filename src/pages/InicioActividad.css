@@ -111,6 +111,10 @@
 	background: url("/assets/imagenes/fondo_inicio_l.jpeg") center / cover no-repeat;
 }
 
+.page-inicio-actividad.world-bloques {
+	background-image: url("/assets/imagenes/fondoIniciobloques.png");
+}
+
 /* Letra gigante centrada arriba */
 .inicio-activity-letter-image-wrap {
 	position: absolute;
@@ -206,6 +210,16 @@
 	top: 0;
 	left: 0;
 	width: 100%;
+	transform: none;
+}
+
+.inicio-activity-character .inicio-activity-mouth.mundo3-mouth-frame {
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	filter: none;
 	transform: none;
 }
 
@@ -518,8 +532,30 @@
 	filter: none;
 }
 
+.page-inicio-actividad.world-bloques .inicio-vowel-button {
+	width: clamp(8.125rem, 13.75vw, 13.75rem);
+	height: clamp(8.125rem, 13.75vw, 13.75rem);
+	font-size: clamp(1.25rem, 3vw, 2.5rem);
+	filter: none;
+}
+
 .page-inicio-actividad.world-insectos .inicio-vowel-button::before {
 	display: none;
+}
+
+.page-inicio-actividad.world-bloques .inicio-vowel-button::before {
+	display: none;
+}
+
+.inicio-car-image {
+	position: absolute;
+	inset: 0;
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	filter: drop-shadow(0 3px 4px rgba(30, 45, 20, 0.35));
+	pointer-events: none;
 }
 
 .inicio-insect-frame {
@@ -547,11 +583,23 @@
 	text-shadow: none;
 }
 
+.page-inicio-actividad.world-bloques .inicio-vowel-button > span {
+	position: relative;
+	z-index: 1;
+	transform: translateY(15%);
+	color: #fff;
+	text-shadow: -2px -2px 2px #164c19, 2px -2px 2px #164c19, -2px 2px 2px #164c19, 2px 2px 2px #164c19;
+}
+
 .page-inicio-actividad.world-insectos .inicio-vowel-button.selected::before {
 	display: none;
 }
 
 .page-inicio-actividad.world-insectos .inicio-vowel-button.selected {
+	animation: mariquita-seleccionada 420ms ease-in forwards;
+}
+
+.page-inicio-actividad.world-bloques .inicio-vowel-button.selected {
 	animation: mariquita-seleccionada 420ms ease-in forwards;
 }
 
@@ -598,10 +646,22 @@
 		height: clamp(5.77rem, 29.4vw, 7.87rem);
 		font-size: clamp(1rem, 4.5vw, 1.5rem);
 	}
+
+	.page-inicio-actividad.world-bloques .inicio-vowel-button {
+		width: clamp(5.77rem, 29.4vw, 7.87rem);
+		height: clamp(5.77rem, 29.4vw, 7.87rem);
+		font-size: clamp(1rem, 4.5vw, 1.5rem);
+	}
 }
 
 @media (max-height: 560px) {
 	.page-inicio-actividad.world-insectos .inicio-vowel-button {
+		width: clamp(5.75rem, 32.2vw, 8.62rem);
+		height: clamp(5.75rem, 32.2vw, 8.62rem);
+		font-size: clamp(1.15rem, 5.75vmin, 1.725rem);
+	}
+
+	.page-inicio-actividad.world-bloques .inicio-vowel-button {
 		width: clamp(5.75rem, 32.2vw, 8.62rem);
 		height: clamp(5.75rem, 32.2vw, 8.62rem);
 		font-size: clamp(1.15rem, 5.75vmin, 1.725rem);
@@ -611,5 +671,9 @@
 @media (max-width: 768px), (max-height: 560px) {
 	.page-inicio-actividad.world-insectos .inicio-vowel-button > span {
 		transform: translateY(130%);
+	}
+
+	.page-inicio-actividad.world-bloques .inicio-vowel-button > span {
+		transform: translateY(15%);
 	}
 }

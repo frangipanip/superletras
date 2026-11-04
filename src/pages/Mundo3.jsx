@@ -1,10 +1,13 @@
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router";
 import CharacterLocator from "../components/CharacterLocator";
 import UserNav from "../components/UserNav";
 import { useCharacterLocator } from "../hooks/useCharacterLocator";
+import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
-import { img } from "../lib/assets";
+import { useTalkingMouth } from "../hooks/useTalkingMouth";
+import { img, MUNDO3_MOUTH_IMAGES, sound } from "../lib/assets";
 import { STORAGE_KEYS, readStorage, writeStorage } from "../lib/storage";
 import "./Mundo3.css";
 
@@ -34,18 +37,31 @@ const CHARACTER_IMAGES = {
 	supernena: img("PERSONAJES/supernenaBloque.png"),
 	supernene: img("PERSONAJES/superneneBloque.png")
 };
+const LETTER_SOUNDS = {
+	R: "suenaR.mp3",
+	RR: "suenaRR.mp3",
+	AR: "suenaAR.mp3",
+	Y: "suenaY.mp3",
+	LL: "suenaLL.mp3"
+};
 
 export const MUNDO3_IMAGES = [
 	img("FONDOM3.jpg"),
 	img("menuM3.png"),
 	img("nubeM3.png"),
+	img("INICIALESbtn.png"),
+	img("boton.svg"),
 	...Object.values(LETTER_BLOCKS),
-	...Object.values(CHARACTER_IMAGES)
+	...Object.values(CHARACTER_IMAGES),
+	...MUNDO3_MOUTH_IMAGES
 ];
 
 export default function Mundo3() {
 	usePageTitle("Mundo 3");
+	const navigate = useNavigate();
+	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
+	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime, MUNDO3_MOUTH_IMAGES);
 	const [selectedLetter, setSelectedLetter] = useState(() => {
 		const saved = readStorage(STORAGE_KEYS.mundo3MenuOption);
 		return LETTERS.includes(saved) ? saved : null;
@@ -57,6 +73,7 @@ export default function Mundo3() {
 	const compactMenuRef = useRef(null);
 	const compactMenuToggleRef = useRef(null);
 	const characterSpotRef = useRef(null);
+	const letterAudioRef = useRef(null);
 	const { offscreen: characterOffscreen, direction: characterDirection, scrollToCharacter } =
 		useCharacterLocator(pageRef, characterSpotRef, character);
 	const drag = useRef({ pointerId: null, startX: 0, startScroll: 0, moved: false }).current;
@@ -144,9 +161,36 @@ export default function Mundo3() {
 	}
 
 	function selectLetter(letter) {
+		if (letterAudioRef.current) {
+			letterAudioRef.current.pause();
+			letterAudioRef.current.currentTime = 0;
+			letterAudioRef.current.onended = null;
+		}
+		const audio = runtime.audio(sound(LETTER_SOUNDS[letter]));
+		letterAudioRef.current = audio;
+		startTalking();
+		audio.onended = () => {
+			audio.onended = null;
+			if (letterAudioRef.current === audio) {
+				letterAudioRef.current = null;
+				stopTalking();
+			}
+		};
+		audio.play().catch(() => {
+			if (letterAudioRef.current === audio) {
+				letterAudioRef.current = null;
+				stopTalking();
+			}
+		});
 		setSelectedLetter(letter);
 		writeStorage(STORAGE_KEYS.mundo3MenuOption, letter);
 		setCompactMenuOpen(false);
+	}
+
+	function openInicioActivity() {
+		const letter = selectedLetter || LETTERS[0];
+		writeStorage(STORAGE_KEYS.mundo3MenuOption, letter);
+		navigate("/inicio", { state: { menuOption: letter, world: 3 } });
 	}
 
 	return (
@@ -218,9 +262,19 @@ export default function Mundo3() {
 					))}
 				</div>
 
+				<div className="mundo3-path" aria-label="Camino de actividades">
+					<div className="mundo3-path-activity">
+						<img className="mundo3-path-sign" src={img("INICIALESbtn.png")} alt="" draggable={false} />
+						<button className="mundo3-path-button" type="button" aria-label="Actividad Inicio" onClick={openInicioActivity}>
+							<img src={img("boton.svg")} alt="" draggable={false} />
+						</button>
+					</div>
+				</div>
+
 				{character && (
 					<div className="mundo3-character" ref={characterSpotRef}>
 						<img src={CHARACTER_IMAGES[character]} alt={character === "supernena" ? "Supernena" : "Supernene"} draggable={false} />
+						<img className="mundo3-character__mouth" src={mouth.src} alt="" hidden={!mouth.visible} draggable={false} />
 					</div>
 				)}
 
