@@ -16,7 +16,7 @@
 	/* El alto limita el tamaño en celulares: el conjunto (1.8 × ancho) entra debajo del personaje. */
 	--flower-size: min(15.15vw, 27vh);
 	--flower-gap: min(3vw, 6.6vh);
-	--flower-rise: -9%;
+	--flower-rise: -19%;
 
 	/*
 	 * El personaje se mide con el chupetín y se apoya justo encima de ellos (su borde de abajo
@@ -59,7 +59,7 @@
 
 	.flower-button .flower-image {
 		position: absolute;
-		top: 0;
+		top: 7%;
 		left: 0;
 		z-index: 1;
 		display: block;
@@ -120,7 +120,25 @@
 	}
 
 	.flower-button.wrong .flower-image {
-		filter: grayscale(1) drop-shadow(0 0 10px rgba(235, 86, 86, 0.95));
+		opacity: 0.45;
+		filter: drop-shadow(0 0 10px rgba(235, 86, 86, 0.95));
+		transform-origin: 50% 95%;
+		animation: flores-m1-candy-shake 520ms ease-in-out;
+	}
+}
+
+@keyframes flores-m1-candy-shake {
+	0%,
+	100% {
+		transform: rotate(0);
+	}
+	20%,
+	60% {
+		transform: rotate(-6deg);
+	}
+	40%,
+	80% {
+		transform: rotate(6deg);
 	}
 }
 
