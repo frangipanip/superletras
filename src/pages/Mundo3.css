@@ -4,7 +4,7 @@
 }
 
 .page-mundo3 {
-	--mundo3-menu-left: 46vw;
+	--mundo3-menu-left: 39vw;
 	--mundo3-character-width: clamp(180px, 49.5vmin, 390px);
 	position: relative;
 	background: #76d9fa;
