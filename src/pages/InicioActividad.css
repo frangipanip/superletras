@@ -612,7 +612,73 @@
 }
 
 .page-inicio-actividad.world-bloques .inicio-vowel-button.selected {
-	animation: mariquita-seleccionada 420ms ease-in forwards;
+	pointer-events: none;
+}
+
+.page-inicio-actividad.world-bloques .inicio-vowel-button.reveal-balloon:nth-child(1) {
+	animation: mundo3-carro-entra-izquierda 500ms ease-out both;
+}
+
+.page-inicio-actividad.world-bloques .inicio-vowel-button.reveal-balloon:nth-child(2),
+.page-inicio-actividad.world-bloques .inicio-vowel-button.reveal-balloon:nth-child(3) {
+	animation: mundo3-carro-entra-derecha 500ms ease-out both;
+}
+
+.page-inicio-actividad.world-bloques .inicio-vowel-button.reveal-balloon:nth-child(4),
+.page-inicio-actividad.world-bloques .inicio-vowel-button.reveal-balloon:nth-child(5) {
+	animation: mundo3-carro-entra-abajo 500ms ease-out both;
+}
+
+.page-inicio-actividad.world-bloques .inicio-vowel-button.selected:nth-child(1) {
+	animation: mundo3-carro-sale-izquierda 500ms ease-in forwards;
+}
+
+.page-inicio-actividad.world-bloques .inicio-vowel-button.selected:nth-child(2),
+.page-inicio-actividad.world-bloques .inicio-vowel-button.selected:nth-child(3) {
+	animation: mundo3-carro-sale-derecha 500ms ease-in forwards;
+}
+
+.page-inicio-actividad.world-bloques .inicio-vowel-button.selected:nth-child(4),
+.page-inicio-actividad.world-bloques .inicio-vowel-button.selected:nth-child(5) {
+	animation: mundo3-carro-sale-abajo 500ms ease-in forwards;
+}
+
+.page-inicio-actividad.world-bloques .inicio-vowel-button.selected > span {
+	animation: none;
+}
+
+.page-inicio-actividad.world-bloques .inicio-vowel-button.flying {
+	animation: none;
+}
+
+@keyframes mundo3-carro-entra-izquierda {
+	from { opacity: 0; transform: translate3d(-110vw, 0, 0); }
+	to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes mundo3-carro-entra-derecha {
+	from { opacity: 0; transform: translate3d(110vw, 0, 0); }
+	to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes mundo3-carro-entra-abajo {
+	from { opacity: 0; transform: translate3d(0, 110vh, 0); }
+	to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes mundo3-carro-sale-izquierda {
+	from { opacity: 1; transform: translate3d(0, 0, 0); }
+	to { opacity: 0; transform: translate3d(-110vw, 0, 0); }
+}
+
+@keyframes mundo3-carro-sale-derecha {
+	from { opacity: 1; transform: translate3d(0, 0, 0); }
+	to { opacity: 0; transform: translate3d(110vw, 0, 0); }
+}
+
+@keyframes mundo3-carro-sale-abajo {
+	from { opacity: 1; transform: translate3d(0, 0, 0); }
+	to { opacity: 0; transform: translate3d(0, 110vh, 0); }
 }
 
 .page-inicio-actividad.world-insectos .inicio-vowel-button.selected .inicio-insect-frame {
