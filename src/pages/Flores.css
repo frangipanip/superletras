@@ -1,4 +1,10 @@
+/*
+ * Flores: estilos comunes a todos los mundos. Acá va solo lo estructural (contenedor y reseteo
+ * del botón). Fondo, posiciones, tamaños, etiquetas y animaciones de cada mundo están en
+ * FloresMundo1.css y FloresMundo2.css, para que editar uno no cambie el otro.
+ */
 .page-flores {
+<<<<<<< HEAD
 	background: url("/assets/imagenes/fondochupetines.png") center / cover no-repeat;
 
 	&.world-mundo2 {
@@ -22,6 +28,8 @@
 		animation: none;
 	}
 
+=======
+>>>>>>> 99ae2efe0dc9453067941e5979ae4569df83edb6
 	.flower-activity {
 		width: 100vw;
 		height: 100vh;
@@ -29,6 +37,7 @@
 		overflow: hidden;
 	}
 
+<<<<<<< HEAD
 	/*
 	 * Escenario de referencia: 903x408. Las flores miden 144px de ancho, con 27px de separación,
 	 * en un campo del 92% del ancho. El alto también limita el tamaño para que el palito quepa
@@ -56,14 +65,16 @@
 		transform: translateX(-50%);
 	}
 
+=======
+>>>>>>> 99ae2efe0dc9453067941e5979ae4569df83edb6
 	.flower-button {
 		position: relative;
-		z-index: 0;
 		min-width: 0;
 		padding: 0;
 		border: 0;
 		background: transparent;
 		cursor: pointer;
+<<<<<<< HEAD
 		transition: transform 180ms ease, filter 180ms ease;
 		width: var(--flower-size);
 	}
@@ -184,5 +195,7 @@
 	}
 	50% {
 		transform: translate(-50%, calc(-50% - 10px));
+=======
+>>>>>>> 99ae2efe0dc9453067941e5979ae4569df83edb6
 	}
 }

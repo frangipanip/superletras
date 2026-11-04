@@ -13,6 +13,8 @@ import { shuffle } from "../lib/shuffle";
 import { useActivityMenuOption } from "../hooks/useActivityMenuOption";
 import "./actividad.css";
 import "./Flores.css";
+import "./FloresMundo1.css";
+import "./FloresMundo2.css";
 
 const VOWELS = ["A", "E", "I", "O", "U"];
 const SYLLABLES = {
@@ -241,7 +243,7 @@ export default function Flores() {
 	}, []);
 
 	return (
-		<div className={`page activity-page page-flores${isMundo2 ? " world-mundo2" : ""}`}>
+		<div className={`page activity-page page-flores ${isMundo2 ? "world-mundo2" : "world-mundo1"}`}>
 			<BackButton />
 			<FullscreenButton toggle />
 			<div className="activity-controls" aria-label="Controles de actividad">
