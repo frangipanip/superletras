@@ -6,7 +6,7 @@
 	}
 
 	.selected-character {
-		top: 35%;
+		top: 32%;
 		right: auto;
 		left: 50%;
 		width: clamp(152.6px, 42vmin, 175.5px);
@@ -34,14 +34,18 @@
 	 * en un campo del 92% del ancho. El alto también limita el tamaño para que el palito quepa
 	 * bajo la flor en pantallas horizontales pequeñas.
 	 */
-	--flower-size: min(15.15vw, 25.5vh);
-	--flower-gap: min(3vw, 6.6vh);
+	--flower-size: min(15.15vw, 33.53vh);
+	--flower-gap: min(2vw, 4.43vh);
 	--flower-field-width: min(92vw, 203.62vh);
+	--flower-field-top: 48%;
+	--flower-field-left: 52%;
+	--flower-label-left: 50%;
+	--flower-label-bottom: 2%;
 
 	.flower-field {
 		position: fixed;
-		top: 58%;
-		left: 52%;
+		top: var(--flower-field-top);
+		left: var(--flower-field-left);
 		display: grid;
 		grid-template-columns: repeat(4, var(--flower-size));
 		align-items: start;
@@ -62,6 +66,10 @@
 		cursor: pointer;
 		transition: transform 180ms ease, filter 180ms ease;
 		width: var(--flower-size);
+	}
+
+	&:not(.world-mundo2) .flower-button {
+		z-index: 3;
 	}
 
 	.flower-stem {
@@ -87,8 +95,8 @@
 
 	.flower-label {
 		position: absolute;
-		bottom: 2%;
-		left: 30%;
+		bottom: var(--flower-label-bottom);
+		left: var(--flower-label-left);
 		z-index: 3;
 		display: grid;
 		place-items: center;
@@ -127,6 +135,12 @@
 	}
 
 	&.world-mundo2 {
+		--flower-size: min(15.15vw, 25.5vh);
+		--flower-gap: min(3vw, 6.6vh);
+		--flower-field-top: 58%;
+		--flower-field-left: 52%;
+		--flower-label-left: 30%;
+
 		.flower-button.correct .flower-image {
 			transform: none;
 		}
@@ -151,6 +165,10 @@
 }
 
 @media (min-width: 769px) and (max-width: 1200px) {
+	.page-flores:not(.world-mundo2) .selected-character {
+		top: 25%;
+	}
+
 	.page-flores.world-mundo2 {
 		.selected-character,
 		.selected-character.celebrating {
