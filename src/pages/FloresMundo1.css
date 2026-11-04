@@ -24,7 +24,7 @@
 	 */
 	.selected-character,
 	.selected-character.celebrating {
-		top: 49%;
+		top: 42%;
 		right: auto;
 		left: 50%;
 		width: min(calc(var(--flower-size) * 1.05), 34vh);
