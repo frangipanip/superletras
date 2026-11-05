@@ -65,8 +65,15 @@
 	-webkit-user-select: none;
 }
 
+.mundo3-backgrounds {
+	display: flex;
+	width: max-content;
+	height: 100%;
+}
+
 .mundo3-background {
 	display: block;
+	flex: none;
 	width: auto;
 	max-width: none;
 	height: 100%;
@@ -396,11 +403,17 @@
 
 @media (max-width: 700px) {
 	.page-mundo3 {
-		--mundo3-menu-left: 50vw;
+		--mundo3-menu-left: 30vw;
 	}
 
 	.mundo3-letter {
 		font-size: clamp(1.35rem, 6vmin, 2.4rem);
+	}
+}
+
+@media (max-height: 600px) {
+	.page-mundo3 {
+		--mundo3-menu-left: 30vw;
 	}
 }
 

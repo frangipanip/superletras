@@ -57,10 +57,25 @@ const ACTIVITY_SIGN_IMAGES = [
 	"GLOBOSbtn.png"
 ];
 const PATH_BUTTONS = [
-	[36, 76], [30, 82], [34, 76], [38, 72], [42, 77],
-	[46, 82], [50, 75], [54, 70], [58, 75], [62, 81],
-	[66, 77], [70, 72], [74, 76], [78, 82], [82, 77],
-	[86, 72], [90, 76], [94, 82], [98, 78]
+	[36, 76],
+	[50, 63],
+	[34, 76],
+	[38, 72],
+	[42, 77],
+	[46, 82],
+	[50, 75],
+	[54, 70],
+	[58, 75],
+	[62, 81],
+	[66, 77],
+	[70, 72],
+	[74, 76],
+	[78, 82],
+	[82, 77],
+	[86, 72],
+	[90, 76],
+	[94, 82],
+	[98, 78]
 ];
 const VISIBLE_ACTIVITY_SIGNS = ["INICIALESbtn.png", "MARIPOSAbtn.png"];
 const VISIBLE_ACTIVITY_COUNT = 2;
@@ -83,7 +98,8 @@ function getPerchStyle(index) {
 }
 
 export const MUNDO3_IMAGES = [
-	img("FONDOM3.jpg"),
+	img("FONDOM3.png"),
+	img("FONDOM3bis.png"),
 	img("menuM3.png"),
 	img("nubeM3.png"),
 	img("boton.svg"),
@@ -300,7 +316,10 @@ export default function Mundo3() {
 				</nav>
 			)}
 			<main className="mundo3-scene">
-				<img className="mundo3-background" src={img("FONDOM3.jpg")} alt="" draggable={false} />
+				<div className="mundo3-backgrounds" aria-hidden="true">
+					<img className="mundo3-background" src={img("FONDOM3.png")} alt="" draggable={false} />
+					<img className="mundo3-background" src={img("FONDOM3bis.png")} alt="" draggable={false} />
+				</div>
 				<div className="mundo3-clouds" aria-hidden="true">
 					{CLOUDS.map((cloud) => (
 						<img
