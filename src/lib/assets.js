@@ -36,6 +36,10 @@ export const MUNDO2_CHARACTERS = {
 	supernena: { image: img("PERSONAJES/supernenaMariposa.png"), alt: "Supernena" },
 	supernene: { image: img("PERSONAJES/superneneMariposa.png"), alt: "Supernene" }
 };
+export const MUNDO3_CHARACTERS = {
+	supernena: { image: img("PERSONAJES/supernenaBloque.png"), alt: "Supernena" },
+	supernene: { image: img("PERSONAJES/superneneBloque.png"), alt: "Supernene" }
+};
 export const MUNDO2_CHARACTER_FRAMES = {
 	supernena: [
 		MUNDO2_CHARACTERS.supernena.image,

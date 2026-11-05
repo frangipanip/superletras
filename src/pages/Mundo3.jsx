@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
-import ActivityPath, { ACTIVITY_PATH_SIGNS, WORLD_ACTIVITY_PATHS } from "../components/ActivityPath";
 import CharacterLocator from "../components/CharacterLocator";
 import PufCrema, { PUF_CHARACTER_CLASS } from "../components/PufCrema";
 import UserNav from "../components/UserNav";
@@ -10,7 +9,7 @@ import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
 import { useTeleport } from "../hooks/useTeleport";
-import { img, MUNDO3_MOUTH_IMAGES, sound } from "../lib/assets";
+import { img, MUNDO3_CHARACTERS, MUNDO3_MOUTH_IMAGES, sound } from "../lib/assets";
 import { STORAGE_KEYS, readStorage, writeStorage } from "../lib/storage";
 import "./Mundo3.css";
 
@@ -36,10 +35,6 @@ const CLOUDS = [
 	{ id: 11, direction: "right", left: "85%", top: "33%", width: "clamp(58px, 6vw, 102px)", duration: "41s", delay: "-18s", mid: "12vw", end: "33vw" },
 	{ id: 12, direction: "left", left: "93%", top: "21%", width: "clamp(94px, 9.5vw, 160px)", duration: "53s", delay: "-33s", mid: "-10vw", end: "-30vw" }
 ];
-const CHARACTER_IMAGES = {
-	supernena: img("PERSONAJES/supernenaBloque.png"),
-	supernene: img("PERSONAJES/superneneBloque.png")
-};
 const LETTER_SOUNDS = {
 	R: "suenaR.mp3",
 	RR: "suenaRR.mp3",
@@ -47,14 +42,35 @@ const LETTER_SOUNDS = {
 	Y: "suenaY.mp3",
 	LL: "suenaLL.mp3"
 };
-const VISIBLE_ACTIVITY_COUNT = 1;
+const ACTIVITY_SIGN_IMAGES = [
+	"INICIALESbtn.png",
+	"MARIPOSAbtn.png",
+	"FLORbtn.png",
+	"PELUCHESbtn.png",
+	"TRENbtn.png",
+	"DIBUJARbtn.png",
+	"MEMOTESTbtn.png",
+	"BARCOSbtn.png",
+	"PASTELbtn.png",
+	"PUZZLEbtn.png",
+	"DECORAbtn.png",
+	"GLOBOSbtn.png"
+];
+const PATH_BUTTONS = [
+	[36, 76], [30, 82], [34, 76], [38, 72], [42, 77],
+	[46, 82], [50, 75], [54, 70], [58, 75], [62, 81],
+	[66, 77], [70, 72], [74, 76], [78, 82], [82, 77],
+	[86, 72], [90, 76], [94, 82], [98, 78]
+];
+const VISIBLE_ACTIVITY_SIGNS = ["INICIALESbtn.png", "MARIPOSAbtn.png"];
+const VISIBLE_ACTIVITY_COUNT = 2;
 
 function readSavedPerches() {
 	try {
 		const saved = JSON.parse(readStorage(STORAGE_KEYS.mundo3Perches) || "{}");
 		return Object.fromEntries(Object.entries(saved).filter(([letter, index]) =>
 			LETTERS.includes(letter) && Number.isInteger(index) &&
-			index >= 0 && index < VISIBLE_ACTIVITY_COUNT && WORLD_ACTIVITY_PATHS.mundo3[index]
+			index >= 0 && index < VISIBLE_ACTIVITY_COUNT && PATH_BUTTONS[index]
 		));
 	} catch {
 		return {};
@@ -62,7 +78,7 @@ function readSavedPerches() {
 }
 
 function getPerchStyle(index) {
-	const [left, top] = WORLD_ACTIVITY_PATHS.mundo3[index];
+	const [left, top] = PATH_BUTTONS[index];
 	return { left: `${left}%`, top: `${top}%` };
 }
 
@@ -71,9 +87,9 @@ export const MUNDO3_IMAGES = [
 	img("menuM3.png"),
 	img("nubeM3.png"),
 	img("boton.svg"),
-	...ACTIVITY_PATH_SIGNS.map(img),
+	...ACTIVITY_SIGN_IMAGES.map(img),
 	...Object.values(LETTER_BLOCKS),
-	...Object.values(CHARACTER_IMAGES),
+	...Object.values(MUNDO3_CHARACTERS).map(({ image }) => image),
 	...MUNDO3_MOUTH_IMAGES
 ];
 
@@ -153,7 +169,7 @@ export default function Mundo3() {
 	function handlePointerDown(event) {
 		drag.moved = false;
 		if (event.pointerType !== "mouse" || event.button !== 0) return;
-		if (event.target.closest(".top-nav, .mundo3-compact-menu, .mundo3-menu-panel, .mundo3-character, .activity-path, .character-locator")) return;
+		if (event.target.closest(".top-nav, .mundo3-compact-menu, .mundo3-menu-panel, .mundo3-character, .mundo3-path, .character-locator")) return;
 		drag.pointerId = event.pointerId;
 		drag.startX = event.clientX;
 		drag.startScroll = pageRef.current.scrollLeft;
@@ -213,14 +229,16 @@ export default function Mundo3() {
 	}
 
 	function openInicioActivity(index) {
-		if (teleport || index < 0 || index >= VISIBLE_ACTIVITY_COUNT || !WORLD_ACTIVITY_PATHS.mundo3[index]) return;
+		if (teleport || index < 0 || index >= VISIBLE_ACTIVITY_COUNT || !PATH_BUTTONS[index]) return;
 		const letter = selectedLetter || LETTERS[0];
 		setSelectedLetter(letter);
 		writeStorage(STORAGE_KEYS.mundo3MenuOption, letter);
 		const nextPerches = { ...savedPerches, [letter]: index };
 		setSavedPerches(nextPerches);
 		writeStorage(STORAGE_KEYS.mundo3Perches, JSON.stringify(nextPerches));
-		const goToActivity = () => navigate("/inicio", { state: { menuOption: letter, world: 3 } });
+		const goToActivity = () => navigate(index === 0 ? "/inicio" : "/mariposas", {
+			state: { menuOption: letter.toLowerCase(), world: 3 }
+		});
 		if (!character || perchIndex === index) {
 			goToActivity();
 			return;
@@ -304,11 +322,34 @@ export default function Mundo3() {
 					))}
 				</div>
 
-				<ActivityPath
-					positions={WORLD_ACTIVITY_PATHS.mundo3}
-					visibleCount={VISIBLE_ACTIVITY_COUNT}
-					onActivityClick={teleport ? undefined : openInicioActivity}
-				/>
+				<div className="mundo3-path" aria-label="Camino de actividades">
+					{PATH_BUTTONS.map(([left, top], index) => {
+						const visible = index < VISIBLE_ACTIVITY_COUNT;
+						return (
+							<div
+								className={`mundo3-path-activity${visible ? "" : " mundo3-path-activity-hidden"}`}
+								key={`${left}-${top}-${index}`}
+								style={{ left: `${left}%`, top: `${top}%` }}
+							>
+								<img
+									className="mundo3-path-sign"
+									src={img(VISIBLE_ACTIVITY_SIGNS[index] || ACTIVITY_SIGN_IMAGES[index] || "GLOBOSbtn.png")}
+									alt=""
+									draggable={false}
+								/>
+								<button
+									className="mundo3-path-button"
+									type="button"
+									disabled={!visible || Boolean(teleport)}
+									aria-label={`Actividad del camino ${index + 1}${visible ? "" : ", próximamente"}`}
+									onClick={() => openInicioActivity(index)}
+								>
+									<img src={img("boton.svg")} alt="" draggable={false} />
+								</button>
+							</div>
+						);
+					})}
+				</div>
 
 				{character && (
 					<div
@@ -318,7 +359,7 @@ export default function Mundo3() {
 					>
 						<div className={teleport ? PUF_CHARACTER_CLASS[teleport.stage] : undefined}>
 							<div className="mundo3-character">
-								<img src={CHARACTER_IMAGES[character]} alt={character === "supernena" ? "Supernena" : "Supernene"} draggable={false} />
+								<img src={MUNDO3_CHARACTERS[character].image} alt={MUNDO3_CHARACTERS[character].alt} draggable={false} />
 								<img className="mundo3-character__mouth" src={mouth.src} alt="" hidden={!mouth.visible} draggable={false} />
 							</div>
 						</div>

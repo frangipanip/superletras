@@ -7,7 +7,7 @@ import { usePageTitle } from "../hooks/usePageTitle";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
-import { CHARACTERS, img, MUNDO1_CHARACTERS, MUNDO2_CHARACTER_FRAMES, MUNDO2_CHARACTERS, MUNDO2_MOUTH_IMAGES, MUNDO3_MOUTH_IMAGES, sound } from "../lib/assets";
+import { CHARACTERS, img, MUNDO1_CHARACTERS, MUNDO2_CHARACTER_FRAMES, MUNDO2_CHARACTERS, MUNDO2_MOUTH_IMAGES, MUNDO3_CHARACTERS, MUNDO3_MOUTH_IMAGES, sound } from "../lib/assets";
 import { shuffle } from "../lib/shuffle";
 import { useActivityMenuOption } from "../hooks/useActivityMenuOption";
 import { useCarPhysics } from "../hooks/useCarPhysics";
@@ -136,10 +136,6 @@ const MUNDO3_BACKGROUND_OBSTACLES = {
 		[1365, 815, 1672, 941],
 		[1490, 700, 1672, 941]
 	]
-};
-const MUNDO3_CHARACTERS = {
-	supernena: { image: img("PERSONAJES/supernenaBloque.png"), alt: "Supernena" },
-	supernene: { image: img("PERSONAJES/superneneBloque.png"), alt: "Supernene" }
 };
 const MUNDO2_LETTER_LABELS = {
 	p: "Letra P",

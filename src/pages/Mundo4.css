@@ -68,6 +68,54 @@
 	height: 100%;
 }
 
+.mundo4-path {
+	position: absolute;
+	inset: 0;
+	z-index: 3;
+	pointer-events: none;
+}
+
+.mundo4-path-activity {
+	position: absolute;
+	width: clamp(108px, 18vmin, 156px);
+	aspect-ratio: 1;
+	transform: translate(-50%, -50%);
+}
+
+.mundo4-path-activity-hidden {
+	visibility: hidden;
+}
+
+.mundo4-path-sign {
+	position: absolute;
+	bottom: calc(70% + clamp(4px, 0.8vmin, 10px));
+	left: 50%;
+	width: 82%;
+	height: auto;
+	transform: translateX(-50%);
+	pointer-events: none;
+}
+
+.mundo4-path-button {
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	width: 100%;
+	height: 100%;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	filter: hue-rotate(245deg) saturate(1.55) brightness(1.08);
+	cursor: default;
+	pointer-events: none;
+}
+
+.mundo4-path-button img {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
 .mundo4-menu-panel {
 	position: absolute;
 	top: 63%;
@@ -76,6 +124,12 @@
 	height: clamp(320px, min(96vh, 115vw), 780px);
 	aspect-ratio: 428 / 1374;
 	transform: translateY(-50%) scale(1.045);
+}
+
+@media (max-width: 800px), (max-height: 600px) {
+	.mundo4-path-activity {
+		width: clamp(80px, 15vmin, 125px);
+	}
 }
 
 .mundo4-menu-image {

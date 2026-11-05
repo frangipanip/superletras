@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import ActivityPath, { ACTIVITY_PATH_SIGNS, WORLD_ACTIVITY_PATHS } from "../components/ActivityPath";
 import CharacterLocator from "../components/CharacterLocator";
 import UserNav from "../components/UserNav";
 import { useCharacterLocator } from "../hooks/useCharacterLocator";
@@ -21,12 +20,32 @@ const LETTER_BLOCKS = {
 	CH: img("almejaCH.png")
 };
 const CHARACTER_FRAME_DURATION = 375;
+const ACTIVITY_SIGN_IMAGES = [
+	"INICIALESbtn.png",
+	"MARIPOSAbtn.png",
+	"FLORbtn.png",
+	"PELUCHESbtn.png",
+	"TRENbtn.png",
+	"DIBUJARbtn.png",
+	"MEMOTESTbtn.png",
+	"BARCOSbtn.png",
+	"PASTELbtn.png",
+	"PUZZLEbtn.png",
+	"DECORAbtn.png",
+	"GLOBOSbtn.png"
+];
+const PATH_BUTTONS = [
+	[20, 72], [24, 76], [28, 70], [32, 67], [36, 71],
+	[40, 76], [44, 72], [48, 68], [52, 72], [56, 77],
+	[60, 73], [64, 68], [68, 72], [72, 77], [76, 73],
+	[80, 69], [84, 73], [88, 78], [92, 74]
+];
 
 export const MUNDO4_IMAGES = [
 	img("FONDOM4.jpg"),
 	img("MENUM4.png"),
 	img("boton.svg"),
-	...ACTIVITY_PATH_SIGNS.map(img),
+	...ACTIVITY_SIGN_IMAGES.map(img),
 	...Object.values(LETTER_BLOCKS),
 	...Object.values(MUNDO4_CHARACTERS).map(({ image }) => image),
 	...Object.values(MUNDO4_CHARACTER_FRAMES).flatMap((frames) => frames.slice(1, -1)),
@@ -113,7 +132,7 @@ export default function Mundo4() {
 	function handlePointerDown(event) {
 		drag.moved = false;
 		if (event.pointerType !== "mouse" || event.button !== 0) return;
-		if (event.target.closest(".top-nav, .mundo4-compact-menu, .mundo4-menu-panel, .mundo4-character, .activity-path, .character-locator")) return;
+		if (event.target.closest(".top-nav, .mundo4-compact-menu, .mundo4-menu-panel, .mundo4-character, .mundo4-path, .character-locator")) return;
 		drag.pointerId = event.pointerId;
 		drag.startX = event.clientX;
 		drag.startScroll = pageRef.current.scrollLeft;
@@ -241,7 +260,25 @@ export default function Mundo4() {
 			<main className="mundo4-scene">
 				<img className="mundo4-background" src={img("FONDOM4.jpg")} alt="" draggable={false} />
 				<SeaLifeEffects variant="mundo4" />
-				<ActivityPath positions={WORLD_ACTIVITY_PATHS.mundo4} />
+				<div className="mundo4-path" aria-label="Camino de actividades">
+					{PATH_BUTTONS.map(([left, top], index) => (
+						<div
+							className="mundo4-path-activity mundo4-path-activity-hidden"
+							key={`${left}-${top}-${index}`}
+							style={{ left: `${left}%`, top: `${top}%` }}
+						>
+							<img className="mundo4-path-sign" src={img(ACTIVITY_SIGN_IMAGES[index] || "GLOBOSbtn.png")} alt="" draggable={false} />
+							<button
+								className="mundo4-path-button"
+								type="button"
+								disabled
+								aria-label={`Actividad del camino ${index + 1}, próximamente`}
+							>
+								<img src={img("boton.svg")} alt="" draggable={false} />
+							</button>
+						</div>
+					))}
+				</div>
 
 				{character && (
 					<button ref={characterSpotRef} className="mundo4-character" type="button" aria-label="Reproducir presentación" onClick={playIntroAudio}>

@@ -148,6 +148,19 @@
 		transform: none;
 	}
 
+	.selected-character.mundo3-character .character-mouth {
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+		transform: none;
+	}
+
+	.selected-character.mundo3-character .character-mouth.mundo3-mouth {
+		filter: none;
+	}
+
 	.character-mouth[hidden] {
 		display: none;
 	}

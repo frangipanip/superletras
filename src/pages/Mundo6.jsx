@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import ActivityPath, { ACTIVITY_PATH_SIGNS, WORLD_ACTIVITY_PATHS } from "../components/ActivityPath";
 import CharacterLocator from "../components/CharacterLocator";
 import UserNav from "../components/UserNav";
 import { useCharacterLocator } from "../hooks/useCharacterLocator";
@@ -17,12 +16,32 @@ const CHARACTERS = {
 	supernena: { image: img("PERSONAJES/supernenaUnicornio.png"), alt: "Supernena unicornio" },
 	supernene: { image: img("PERSONAJES/superneneUnicornio.png"), alt: "Supernene unicornio" }
 };
+const ACTIVITY_SIGN_IMAGES = [
+	"INICIALESbtn.png",
+	"MARIPOSAbtn.png",
+	"FLORbtn.png",
+	"PELUCHESbtn.png",
+	"TRENbtn.png",
+	"DIBUJARbtn.png",
+	"MEMOTESTbtn.png",
+	"BARCOSbtn.png",
+	"PASTELbtn.png",
+	"PUZZLEbtn.png",
+	"DECORAbtn.png",
+	"GLOBOSbtn.png"
+];
+const PATH_BUTTONS = [
+	[20, 70], [25, 76], [30, 72], [35, 67], [40, 72],
+	[45, 77], [50, 73], [55, 68], [60, 72], [65, 77],
+	[70, 73], [75, 68], [80, 73], [85, 78], [90, 73],
+	[94, 68], [96, 73], [98, 78], [99, 74]
+];
 
 export const MUNDO6_IMAGES = [
 	img("FONDOM6.jpg"),
 	img("MENUM6.png"),
 	img("boton.svg"),
-	...ACTIVITY_PATH_SIGNS.map(img),
+	...ACTIVITY_SIGN_IMAGES.map(img),
 	...Object.values(CHARACTERS).map(({ image }) => image),
 	...Object.values(MUNDO6_CHARACTER_FRAMES).flat()
 ];
@@ -138,7 +157,7 @@ export default function Mundo6() {
 	function handlePointerDown(event) {
 		drag.moved = false;
 		if (event.pointerType !== "mouse" || event.button !== 0) return;
-		if (event.target.closest(".top-nav, .mundo6-compact-menu, .mundo6-menu-panel, .mundo6-character, .activity-path, .character-locator")) return;
+		if (event.target.closest(".top-nav, .mundo6-compact-menu, .mundo6-menu-panel, .mundo6-character, .mundo6-path, .character-locator")) return;
 		drag.pointerId = event.pointerId;
 		drag.startX = event.clientX;
 		drag.startScroll = pageRef.current.scrollLeft;
@@ -220,7 +239,25 @@ export default function Mundo6() {
 			)}
 			<main className="mundo6-scene" aria-label="Mundo 6">
 				<img className="mundo6-background" src={img("FONDOM6.jpg")} alt="" draggable={false} />
-				<ActivityPath positions={WORLD_ACTIVITY_PATHS.mundo6} />
+				<div className="mundo6-path" aria-label="Camino de actividades">
+					{PATH_BUTTONS.map(([left, top], index) => (
+						<div
+							className="mundo6-path-activity mundo6-path-activity-hidden"
+							key={`${left}-${top}-${index}`}
+							style={{ left: `${left}%`, top: `${top}%` }}
+						>
+							<img className="mundo6-path-sign" src={img(ACTIVITY_SIGN_IMAGES[index] || "GLOBOSbtn.png")} alt="" draggable={false} />
+							<button
+								className="mundo6-path-button"
+								type="button"
+								disabled
+								aria-label={`Actividad del camino ${index + 1}, próximamente`}
+							>
+								<img src={img("boton.svg")} alt="" draggable={false} />
+							</button>
+						</div>
+					))}
+				</div>
 				{character && (
 					<div ref={characterSpotRef} className="mundo6-character">
 						<img

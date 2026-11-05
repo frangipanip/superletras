@@ -32,6 +32,7 @@ npm run preview  # sirve dist/ localmente
 | `/decora` | Actividad de decorar el pastel |
 
 Las URLs viejas `*.html` redirigen a las nuevas.
+En Mundo 3, el camino habilita Inicio y Mariposas; Mariposas usa la letra elegida en el menú de ese mundo.
 
 ## Deploy
 
