@@ -630,7 +630,11 @@ export default function Mariposas() {
 					<div ref={blockStackRef} className="block-stack" aria-label="Bloques correctos apilados">
 						<div className="block-stack__contents">
 							{stackedBlocks.map((block, index) => (
-								<div key={`${index}-${block.value}`} className="block-stack__item">
+								<div
+									key={`${index}-${block.value}`}
+									className="block-stack__item"
+									style={{ "--stack-index": index }}
+								>
 									<img src={block.image} alt="" />
 									<span>{block.value}</span>
 								</div>
