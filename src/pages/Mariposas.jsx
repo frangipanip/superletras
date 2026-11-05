@@ -241,17 +241,21 @@ export default function Mariposas() {
 
 	function updateButterflySize() {
 		const isMobileLandscape = window.matchMedia("(max-width: 768px) and (orientation: landscape)").matches;
+		const isCompactLandscape = window.matchMedia("(orientation: landscape) and (max-height: 430px)").matches;
 		const isSmallScreen = window.matchMedia("(max-width: 768px), (max-height: 560px)").matches;
 		const bounds = fieldRef.current.getBoundingClientRect();
+		const maxMundo3Size = isCompactLandscape ? 110 : isMobileLandscape ? 100 : isSmallScreen ? 118 : 175;
 		const maxByWidth = bounds.width / (isMundo3 ? 5.6 : 4.8);
 		const maxByHeight = bounds.height / 2.27;
-		const preferred = Math.min(maxByWidth, maxByHeight, isMobileLandscape ? 108 : isMundo3 ? 175 : 225);
+		const preferred = Math.min(maxByWidth, maxByHeight, isMundo3 ? maxMundo3Size : isMobileLandscape ? 108 : 225);
 		const sizeScale = isMundo2 || isMundo3 ? 1 : isSmallScreen ? 0.70125 : 0.6375;
 		const minimumSize = isMobileLandscape ? 95 : 126;
 		const size = isMundo3
-			? Math.max(48, Math.min(preferred, isMobileLandscape ? 108 : 175))
+			? Math.max(48, Math.min(preferred, maxMundo3Size))
 			: Math.max(isMobileLandscape ? 63 : 96, Math.min(preferred, isMobileLandscape ? 108 : 225)) * sizeScale;
 		pageRef.current.style.setProperty("--butterfly-size", `${size}px`);
+		const stackSize = isCompactLandscape ? 80 : size * 0.78;
+		pageRef.current.style.setProperty("--block-stack-size", `${stackSize}px`);
 		pageRef.current.style.setProperty("--butterfly-min-size", `${minimumSize * sizeScale}px`);
 	}
 
@@ -434,12 +438,14 @@ export default function Mariposas() {
 		if (isMundo3) {
 			const fieldBounds = fieldRef.current.getBoundingClientRect();
 			const stackBounds = blockStackRef.current.getBoundingClientRect();
-			const blockSize = Number.parseFloat(getComputedStyle(pageRef.current).getPropertyValue("--butterfly-size"));
+			const butterflySize = Number.parseFloat(getComputedStyle(pageRef.current).getPropertyValue("--butterfly-size"));
+			const stackSize = Number.parseFloat(getComputedStyle(pageRef.current).getPropertyValue("--block-stack-size"));
 			const targetLeft = ((stackBounds.left + stackBounds.width / 2 - fieldBounds.left) / fieldBounds.width) * 100;
 			const stackIndex = stackedBlocksRef.current;
 			stackedBlocksRef.current += 1;
-			const stackStep = blockSize * 0.72;
-			const targetTop = ((stackBounds.bottom - blockSize / 2 - stackIndex * stackStep - fieldBounds.top) / fieldBounds.height) * 100;
+			const stackStep = stackSize * 0.72;
+			const targetTop = ((stackBounds.bottom - stackSize / 2 - stackIndex * stackStep - fieldBounds.top) / fieldBounds.height) * 100;
+			const targetScale = stackSize / butterflySize;
 			const animation = button.animate([
 				{
 					left: `${butterfly.left}%`,
@@ -450,7 +456,7 @@ export default function Mariposas() {
 				{
 					left: `${targetLeft}%`,
 					top: `${targetTop}%`,
-					transform: "translate(-50%, -50%) scale(0.78)",
+					transform: `translate(-50%, -50%) scale(${targetScale})`,
 					opacity: 1
 				}
 			], { duration: 850, iterations: 1, easing: "cubic-bezier(0.22, 0.75, 0.32, 1)", fill: "forwards" });
