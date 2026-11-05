@@ -57,8 +57,11 @@
 		.butterfly-button .badge {
 			top: 70%;
 			left: 50%;
+			position: absolute;
+			display: grid;
 			width: 72%;
 			height: 24%;
+			place-items: center;
 			border: 0;
 			border-radius: 0;
 			background: transparent;
@@ -86,6 +89,15 @@
 			pointer-events: none;
 		}
 
+		.butterfly-button.stacked-block {
+			animation: none;
+			pointer-events: none;
+		}
+
+		.butterfly-button.stacked-block img {
+			filter: drop-shadow(0 4px 7px rgba(0, 0, 0, 0.4));
+		}
+
 		.block-stack {
 			position: fixed;
 			right: 6%;
@@ -94,42 +106,6 @@
 			width: var(--block-stack-size, var(--butterfly-size));
 			height: var(--block-stack-size, var(--butterfly-size));
 			pointer-events: none;
-		}
-
-		.block-stack__contents {
-			position: relative;
-			width: 100%;
-			height: 100%;
-		}
-
-		.block-stack__item {
-			position: absolute;
-			bottom: calc(var(--stack-index) * 72%);
-			left: 0;
-			width: 100%;
-			height: var(--block-stack-size, var(--butterfly-size));
-			padding: 0;
-		}
-
-		.block-stack__item img {
-			display: block;
-			width: 100%;
-			height: 100%;
-			object-fit: contain;
-			filter: drop-shadow(0 4px 7px rgba(0, 0, 0, 0.4));
-		}
-
-		.block-stack__item span {
-			position: absolute;
-			top: 64%;
-			left: 50%;
-			display: grid;
-			width: 72%;
-			height: 24%;
-			place-items: center;
-			color: #65352a;
-			font: 800 clamp(0.65rem, 1.8vmin, 1.25rem) Arial, Helvetica, sans-serif;
-			transform: translate(-50%, -50%);
 		}
 	}
 
@@ -362,8 +338,7 @@
 				bottom: 13%;
 			}
 
-			.butterfly-button .badge,
-			.block-stack__item span {
+			.butterfly-button .badge {
 				font-size: clamp(1.35rem, 3.6vmin, 1.55rem);
 			}
 		}

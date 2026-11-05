@@ -51,6 +51,15 @@ const MUNDO3_SYLLABLES = {
 const MUNDO3_INCORRECT_SYLLABLES = [...SYLLABLES.l, ...SYLLABLES.m, ...SYLLABLES.s, ...SYLLABLES.t];
 const MUNDO3_EXTRA_INCORRECT_SYLLABLES = ["RRA", "RRE", "RRI", "RRO", "RRU"];
 const MUNDO3_SYLLABLE_AUDIO = {
+	SA: "SA.mp3",
+	SE: "SE.mp3",
+	SI: "SI.mp3",
+	SO: "SO.mp3",
+	SU: "SU.mp3",
+	TA: "TA.mp3",
+	TI: "TI.mp3",
+	TO: "TO.mp3",
+	TU: "TU.mp3",
 	RRA: "rra.mp3",
 	RRE: "rre.mp3",
 	RRI: "rri.mp3",
@@ -468,7 +477,15 @@ export default function Mariposas() {
 			], { duration: 850, iterations: 1, easing: "cubic-bezier(0.22, 0.75, 0.32, 1)", fill: "forwards" });
 			animation.onfinish = () => {
 				if (state.generation !== clickGeneration) return;
-				setStackedBlocks((current) => [...current, { image: butterfly.image, value: butterfly.value }]);
+				animation.cancel();
+				setStackedBlocks((current) => [...current, {
+					...butterfly,
+					left: targetLeft,
+					top: targetTop,
+					stacked: true,
+					stackScale: targetScale,
+					stackIndex
+				}]);
 				setButterflies((current) => current.filter((item) => item.id !== butterfly.id));
 				if (completesRound) finishRound();
 			};
@@ -618,11 +635,12 @@ export default function Mariposas() {
 			)}
 			<main className="butterfly-activity">
 				<section className="butterfly-field" ref={fieldRef} aria-label={isMundo3 ? "Bloques" : "Mariposas"}>
-					{butterflies.map((butterfly) => {
+					{[...stackedBlocks, ...butterflies].map((butterfly) => {
 						const classNames = ["butterfly-button", mode !== "a" ? "l-butterfly" : "a-butterfly"];
 						if (butterfly.flying) {
 							classNames.push(isMundo3 ? "flying-to-stack" : isMundo2 ? "flying" : "flying-to-jar", "correct");
 						}
+						if (butterfly.stacked) classNames.push("stacked-block", "correct");
 						if (butterfly.vibrating) {
 							classNames.push("vibration");
 						}
@@ -632,14 +650,16 @@ export default function Mariposas() {
 								key={butterfly.id}
 								type="button"
 								className={classNames.join(" ")}
-								disabled={butterfly.flying || butterfly.wrong}
+								disabled={butterfly.flying || butterfly.wrong || butterfly.stacked}
 								style={{
 									left: `${butterfly.left}%`,
 									top: `${butterfly.top}%`,
-									transform: `translate(-50%, -50%) rotate(${butterfly.rotation}deg)`,
+									transform: butterfly.stacked
+										? `translate(-50%, -50%) scale(${butterfly.stackScale})`
+										: `translate(-50%, -50%) rotate(${butterfly.rotation}deg)`,
 									"--block-rotation": `${butterfly.rotation}deg`,
 									...(isMundo3 && {
-										zIndex: butterfly.flying ? 5 : butterfly.top < 35 ? 1 : butterfly.top < 60 ? 2 : 3
+										zIndex: butterfly.stacked ? 5 + butterfly.stackIndex : butterfly.flying ? 5 : butterfly.top < 35 ? 1 : butterfly.top < 60 ? 2 : 3
 									})
 								}}
 								onClick={(event) => handleButterflyClick(event, butterfly)}
@@ -656,20 +676,7 @@ export default function Mariposas() {
 					})}
 				</section>
 				{isMundo3 && (
-					<div ref={blockStackRef} className="block-stack" aria-label="Bloques correctos apilados">
-						<div className="block-stack__contents">
-							{stackedBlocks.map((block, index) => (
-								<div
-									key={`${index}-${block.value}`}
-									className="block-stack__item"
-									style={{ "--stack-index": index }}
-								>
-									<img src={block.image} alt="" />
-									<span>{block.value}</span>
-								</div>
-							))}
-						</div>
-					</div>
+					<div ref={blockStackRef} className="block-stack" aria-hidden="true" />
 				)}
 			</main>
 			<Character character={character} mouth={mouth} celebrating={celebrating} onClick={repeatInstruction} />
