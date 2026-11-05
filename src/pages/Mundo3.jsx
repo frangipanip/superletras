@@ -77,8 +77,8 @@ const PATH_BUTTONS = [
 	[94, 82],
 	[98, 78]
 ];
-const VISIBLE_ACTIVITY_SIGNS = ["INICIALESbtn.png", "MARIPOSAbtn.png"];
-const VISIBLE_ACTIVITY_COUNT = 2;
+const VISIBLE_ACTIVITY_SIGNS = ["INICIALESbtn.png", "MARIPOSAbtn.png", "FLORbtn.png"];
+const VISIBLE_ACTIVITY_COUNT = 3;
 
 function readSavedPerches() {
 	try {
@@ -106,6 +106,12 @@ export const MUNDO3_IMAGES = [
 	...ACTIVITY_SIGN_IMAGES.map(img),
 	...Object.values(LETTER_BLOCKS),
 	...Object.values(MUNDO3_CHARACTERS).map(({ image }) => image),
+	img("fondoFloresBloque.png"),
+	...["conejo", "flamenco", "gato", "jirafa"].flatMap((animal) => [
+		img(`animal ${animal}.png`),
+		img(`animal ${animal} evolucionado.png`),
+		img(`animal ${animal} error.png`)
+	]),
 	...MUNDO3_MOUTH_IMAGES
 ];
 
@@ -244,7 +250,7 @@ export default function Mundo3() {
 		setCompactMenuOpen(false);
 	}
 
-	function openInicioActivity(index) {
+	function openActivity(index) {
 		if (teleport || index < 0 || index >= VISIBLE_ACTIVITY_COUNT || !PATH_BUTTONS[index]) return;
 		const letter = selectedLetter || LETTERS[0];
 		setSelectedLetter(letter);
@@ -252,7 +258,8 @@ export default function Mundo3() {
 		const nextPerches = { ...savedPerches, [letter]: index };
 		setSavedPerches(nextPerches);
 		writeStorage(STORAGE_KEYS.mundo3Perches, JSON.stringify(nextPerches));
-		const goToActivity = () => navigate(index === 0 ? "/inicio" : "/mariposas", {
+		const activityPath = ["/inicio", "/mariposas", "/flores"][index];
+		const goToActivity = () => navigate(activityPath, {
 			state: { menuOption: letter.toLowerCase(), world: 3 }
 		});
 		if (!character || perchIndex === index) {
@@ -361,7 +368,7 @@ export default function Mundo3() {
 									type="button"
 									disabled={!visible || Boolean(teleport)}
 									aria-label={`Actividad del camino ${index + 1}${visible ? "" : ", próximamente"}`}
-									onClick={() => openInicioActivity(index)}
+									onClick={() => openActivity(index)}
 								>
 									<img src={img("boton.svg")} alt="" draggable={false} />
 								</button>
