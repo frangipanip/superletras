@@ -8,7 +8,7 @@ import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
-import { img, MUNDO2_MOUTH_IMAGES, MUNDO3_MOUTH_IMAGES, sound } from "../lib/assets";
+import { img, MUNDO2_MOUTH_IMAGES, MUNDO3_MOUTH_IMAGES, preloadImages, sound } from "../lib/assets";
 import { shuffle } from "../lib/shuffle";
 import { useActivityMenuOption } from "../hooks/useActivityMenuOption";
 import "./actividad.css";
@@ -69,6 +69,13 @@ const MUNDO3_BLOCK_IMAGES = [
 	img("bloqueVioletaSonriente.png"),
 	img("bloqueRosaSonriente.png")
 ];
+const MUNDO3_BLOCK_ERROR_IMAGES = new Map([
+	[MUNDO3_BLOCK_IMAGES[0], img("bloqueRojoError.png")],
+	[MUNDO3_BLOCK_IMAGES[1], img("bloqueAmarilloError.png")],
+	[MUNDO3_BLOCK_IMAGES[2], img("bloqueAzulError.png")],
+	[MUNDO3_BLOCK_IMAGES[3], img("bloqueVioletaError.png")],
+	[MUNDO3_BLOCK_IMAGES[4], img("bloqueRosaError.png")]
+]);
 const TOTAL_BUTTERFLIES = 8;
 const TOTAL_CORRECT = 5;
 const POSITIONS = [
@@ -193,6 +200,10 @@ export default function Mariposas() {
 	const stackedBlocksRef = useRef(0);
 	const jarFlightsRef = useRef(0);
 	const jarCloseTimerRef = useRef(0);
+
+	useEffect(() => {
+		if (isMundo3) preloadImages([...MUNDO3_BLOCK_ERROR_IMAGES.values()]);
+	}, [isMundo3]);
 
 	// Estado que leen los callbacks de audio/timers (siempre el valor actual).
 	const game = useRef(null);
@@ -397,14 +408,20 @@ export default function Mariposas() {
 
 		if (!butterfly.correct) {
 			state.errors += 1;
-			updateButterfly(butterfly.id, { vibrating: true, wrong: isMundo3 });
-			button.animate([
-				{ transform: "translate(-50%, -50%) translateX(0)" },
-				{ transform: "translate(-50%, -50%) translateX(-8px)" },
-				{ transform: "translate(-50%, -50%) translateX(8px)" },
-				{ transform: "translate(-50%, -50%) translateX(0)" }
-			], { duration: 300, iterations: 1 });
-			runtime.setTimeout(() => updateButterfly(butterfly.id, { vibrating: false }), 300);
+			updateButterfly(butterfly.id, {
+				vibrating: !isMundo3,
+				wrong: isMundo3,
+				...(isMundo3 && { image: MUNDO3_BLOCK_ERROR_IMAGES.get(butterfly.image) })
+			});
+			if (!isMundo3) {
+				button.animate([
+					{ transform: "translate(-50%, -50%) translateX(0)" },
+					{ transform: "translate(-50%, -50%) translateX(-8px)" },
+					{ transform: "translate(-50%, -50%) translateX(8px)" },
+					{ transform: "translate(-50%, -50%) translateX(0)" }
+				], { duration: 300, iterations: 1 });
+				runtime.setTimeout(() => updateButterfly(butterfly.id, { vibrating: false }), 300);
+			}
 			return;
 		}
 
@@ -603,7 +620,7 @@ export default function Mariposas() {
 								key={butterfly.id}
 								type="button"
 								className={classNames.join(" ")}
-								disabled={butterfly.flying}
+								disabled={butterfly.flying || butterfly.wrong}
 								style={{
 									left: `${butterfly.left}%`,
 									top: `${butterfly.top}%`,
