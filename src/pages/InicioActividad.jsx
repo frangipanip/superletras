@@ -25,8 +25,8 @@ const D_SYLLABLES = ["DA", "DE", "DI", "DO", "DU"];
 const F_SYLLABLES = ["FA", "FE", "FI", "FO", "FU"];
 const H_SYLLABLES = ["HA", "HE", "HI", "HO", "HU"];
 const R_SYLLABLES = ["RA", "RE", "RI", "RO", "RU"];
-const RR_SYLLABLES = ["ARRA", "ARRE", "ARRI", "ARRO", "ARRU"];
-const AR_SYLLABLES = ["ARA", "ARE", "ARI", "ARO", "ARU"];
+const RR_SYLLABLES = ["RRA", "RRE", "RRI", "RRO", "RRU"];
+const AR_SYLLABLES = ["ARA", "ERE", "IRI", "ORO", "URU"];
 const Y_SYLLABLES = ["YA", "YE", "YI", "YO", "YU"];
 const LL_SYLLABLES = ["LLA", "LLE", "LLI", "LLO", "LLU"];
 const CONFETTI_COLORS = ["#f04f78", "#f6c945", "#55b96c", "#4d9ed8", "#9b6bd6", "#f08a36"];
@@ -81,13 +81,13 @@ const MODES = {
 	}
 };
 
-function createSyllableMode(letter, items) {
+function createSyllableMode(letter, items, audioFiles = {}) {
 	return {
 		items,
 		intro: [`Esta es la letra ${letter.toUpperCase()}.mp3`, "ConLasVocales.mp3"],
 		prompt: "Pulsasilaba.mp3",
-		longAudio: (item) => `${item.toLowerCase()}.mp3`,
-		shortAudio: (item) => `${item.toLowerCase()}.mp3`,
+		longAudio: (item) => audioFiles[item] || `${item.toLowerCase()}.mp3`,
+		shortAudio: (item) => audioFiles[item] || `${item.toLowerCase()}.mp3`,
 		itemName: (item) => `sílaba ${item}`,
 		listName: `Sílabas con ${letter.toUpperCase()}`
 	};
@@ -102,11 +102,11 @@ const MUNDO2_MODES = {
 };
 const MUNDO3_MODES = Object.fromEntries([
 	["r", R_SYLLABLES],
-	["rr", RR_SYLLABLES],
+	["rr", RR_SYLLABLES, { RRA: "rra.mp3", RRE: "rre.mp3", RRI: "rri.mp3", RRO: "rro.mp3", RRU: "rru.mp3" }],
 	["ar", AR_SYLLABLES],
 	["y", Y_SYLLABLES],
 	["ll", LL_SYLLABLES]
-].map(([letter, items]) => [letter, createSyllableMode(letter, items)]));
+].map(([letter, items, audioFiles]) => [letter, createSyllableMode(letter, items, audioFiles)]));
 const MUNDO2_LETTER_IMAGES = {
 	p: "letraP.png",
 	n: "letraN.png",

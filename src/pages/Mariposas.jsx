@@ -43,24 +43,26 @@ const MUNDO2_SYLLABLES = {
 };
 const MUNDO3_SYLLABLES = {
 	r: ["RA", "RE", "RI", "RO", "RU"],
-	rr: ["ARRA", "ARRE", "ARRO", "ARRI", "ARRU"],
-	ar: ["ARA", "ARE", "ARI", "ARO", "ARU"],
+	rr: ["RRA", "RRE", "RRI", "RRO", "RRU"],
+	ar: ["ARA", "ERE", "IRI", "ORO", "URU"],
 	y: ["YA", "YE", "YI", "YO", "YU"],
 	ll: ["LLA", "LLE", "LLI", "LLO", "LLU"]
 };
-const MUNDO3_INCORRECT_SYLLABLES = {
-	r: ["NA", "NE", "NI", "NO", "NU"],
-	rr: ["ALA", "ALE", "ALI", "ALO", "ALU"],
-	ar: ["ANA", "ENE", "INI", "ONO", "UNU"],
-	y: ["SA", "SE", "SI", "SO", "SU"],
-	ll: ["SA", "SE", "SI", "SO", "SU"]
+const MUNDO3_INCORRECT_SYLLABLES = [...SYLLABLES.l, ...SYLLABLES.m, ...SYLLABLES.s, ...SYLLABLES.t];
+const MUNDO3_EXTRA_INCORRECT_SYLLABLES = ["RRA", "RRE", "RRI", "RRO", "RRU"];
+const MUNDO3_SYLLABLE_AUDIO = {
+	RRA: "rra.mp3",
+	RRE: "rre.mp3",
+	RRI: "rri.mp3",
+	RRO: "rro.mp3",
+	RRU: "rru.mp3"
 };
 const MUNDO3_OPTION_SOUNDS = {
-	r: "suenaR.mp3",
-	rr: "suenaRR.mp3",
-	ar: "suenaAR.mp3",
-	y: "suenaY.mp3",
-	ll: "suenaLL.mp3"
+	r: "letraR.mp3",
+	rr: "letraRR.mp3",
+	ar: "letraAr.mp3",
+	y: "letraY.mp3",
+	ll: "letraLL.mp3"
 };
 const MUNDO3_BLOCK_IMAGES = [
 	img("bloqueRojoSonriente.png"),
@@ -101,7 +103,8 @@ function getAudioFileName(label, type = "syllable", isMundo2 = false, isMundo3 =
 		return letterMap[label.toLowerCase()] || `${label}.wav`;
 	}
 	const upper = label.toUpperCase();
-	if (isMundo2 || isMundo3) return `${upper.toLowerCase()}.mp3`;
+	if (isMundo3) return MUNDO3_SYLLABLE_AUDIO[upper] || `${upper.toLowerCase()}.mp3`;
+	if (isMundo2) return `${upper.toLowerCase()}.mp3`;
 	if (["A", "E", "I", "O", "U"].includes(upper)) return `${upper.toLowerCase()}.mp3`;
 	if (["LA", "LE", "LI", "LO", "LU"].includes(upper)) return `${upper.toLowerCase()}.mp3`;
 	if (["MA", "ME", "MI", "MO", "MU"].includes(upper)) return `${upper.toLowerCase()}.mp3`;
@@ -129,7 +132,10 @@ function createButterflies(mode, targetValue, generation, syllableModes = SYLLAB
 
 	if (isMundo3) {
 		const correctSyllables = syllableModes[mode];
-		const incorrectSyllables = shuffle(MUNDO3_INCORRECT_SYLLABLES[mode]).slice(0, TOTAL_BUTTERFLIES - TOTAL_CORRECT);
+		const incorrectPool = mode === "ar"
+			? [...MUNDO3_INCORRECT_SYLLABLES, ...MUNDO3_EXTRA_INCORRECT_SYLLABLES]
+			: MUNDO3_INCORRECT_SYLLABLES;
+		const incorrectSyllables = shuffle(incorrectPool).slice(0, TOTAL_BUTTERFLIES - TOTAL_CORRECT);
 		shuffle([...correctSyllables, ...incorrectSyllables]).forEach((label, index) =>
 			addItem(label, correctSyllables.includes(label), index)
 		);

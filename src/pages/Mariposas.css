@@ -55,7 +55,7 @@
 		}
 
 		.butterfly-button .badge {
-			top: 64%;
+			top: 70%;
 			left: 50%;
 			width: 72%;
 			height: 24%;
@@ -364,7 +364,7 @@
 
 			.butterfly-button .badge,
 			.block-stack__item span {
-				font-size: clamp(0.9rem, 2.4vmin, 1.5rem);
+				font-size: clamp(1.35rem, 3.6vmin, 1.55rem);
 			}
 		}
 	}
