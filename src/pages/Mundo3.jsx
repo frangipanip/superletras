@@ -57,8 +57,8 @@ const ACTIVITY_SIGN_IMAGES = [
 	"GLOBOSbtn.png"
 ];
 const PATH_BUTTONS = [
-	[36, 76],
-	[50, 63],
+	[20, 76],
+	[27, 63],
 	[34, 76],
 	[38, 72],
 	[42, 77],
