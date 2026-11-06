@@ -207,7 +207,7 @@
 	border: 0;
 	background: transparent;
 	font-family: "Arial Rounded MT Bold", "Arial", sans-serif;
-	font-size: clamp(1.87rem, 6vmin, 2.15rem);
+	font-size: clamp(1.5rem, 6vmin, 2.15rem);
 	font-weight: 900;
 	letter-spacing: -0.06em;
 	line-height: 1;
