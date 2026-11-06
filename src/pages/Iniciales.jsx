@@ -109,7 +109,9 @@ function optionImage(name) {
 }
 
 function wordAudioFile(name) {
-	return `${name}PELUCHE.mp3`;
+	const usaAudioPeluche = name.startsWith("a") || name.startsWith("l") ||
+		["mamadera", "mano", "mariposa", "martillo", "media", "megafono"].includes(name);
+	return `${name}${usaAudioPeluche ? "PELUCHE" : ""}.mp3`;
 }
 
 export default function Peluche() {
@@ -133,9 +135,6 @@ export default function Peluche() {
 		)
 	);
 	const [wordAudios] = useState(() => {
-		if (letra !== "a" && letra !== "l") {
-			return {};
-		}
 		const words = [...new Set(rondas.flatMap((ronda) => ronda.options.map((option) => option.name)))];
 		return Object.fromEntries(
 			words
