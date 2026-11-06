@@ -121,7 +121,7 @@ const MUNDO4_SHELLS = {
 	z: { closed: "almejacerradaZ.png", open: "almejaabiertaZ.png" },
 	ch: { closed: "almejacerradaCH.png", open: "almejaabiertaCH.png" }
 };
-const MUNDO4_SYLLABLE_COLORS = ["#ef4b67", "#f2a900", "#37a94b", "#167bc3", "#8d58c1"];
+const MUNDO4_SYLLABLE_COLORS = ["#9338e4", "#ed55c6", "#ea8686", "#3bece6", "#32d87f"];
 const MUNDO2_LETTER_IMAGES = {
 	p: "letraP.png",
 	n: "letraN.png",
@@ -457,7 +457,7 @@ export default function InicioActividad() {
 		audios.shuffle.currentTime = 0;
 		const startRequests = () => {
 			setSelectedItems(new Set());
-			setItemOrder(shuffle(mode.items));
+			setItemOrder(isMundo4 && menuOption === "q" ? ["QUI", "QUE"] : shuffle(mode.items));
 			setIsShuffling(true);
 			shuffleTimer.current = runtime.setTimeout(() => {
 				setIsShuffling(false);
@@ -725,7 +725,7 @@ export default function InicioActividad() {
 						/>
 					)) : <img src={activityCharacters[character].image} alt={activityCharacters[character].alt} />}
 					<img
-						className={`inicio-activity-mouth${isMundo2 ? " mundo2-mouth-frame" : isMundo3 ? " mundo3-mouth-frame" : !isMundo1 && mouth.shifted ? " shifted-mouth" : ""}`}
+						className={`inicio-activity-mouth${isMundo2 ? " mundo2-mouth-frame" : isMundo3 ? " mundo3-mouth-frame" : isMundo4 ? " mundo4-mouth-frame" : !isMundo1 && mouth.shifted ? " shifted-mouth" : ""}`}
 						src={mouth.src}
 						alt=""
 						hidden={!mouth.visible}
