@@ -19,6 +19,13 @@ const LETTER_BLOCKS = {
 	Z: img("almejaZ.png"),
 	CH: img("almejaCH.png")
 };
+const LETTER_SOUNDS = {
+	C: "Esta es la letra C.mp3",
+	CE: "Esta es la letra CE.mp3",
+	Q: "Esta es la letra Q.mp3",
+	Z: "Esta es la letra Z.mp3",
+	CH: "Esta es la letra CH.mp3"
+};
 const CHARACTER_FRAME_DURATION = 375;
 const ACTIVITY_SIGN_IMAGES = [
 	"INICIALESbtn.png",
@@ -70,6 +77,7 @@ export default function Mundo4() {
 	const compactMenuRef = useRef(null);
 	const compactMenuToggleRef = useRef(null);
 	const characterSpotRef = useRef(null);
+	const letterAudioRef = useRef(null);
 	const { offscreen: characterOffscreen, direction: characterDirection, scrollToCharacter } =
 		useCharacterLocator(pageRef, characterSpotRef, character);
 	const drag = useRef({ pointerId: null, startX: 0, startScroll: 0, moved: false }).current;
@@ -165,6 +173,30 @@ export default function Mundo4() {
 	}
 
 	function selectLetter(letter) {
+		introAudio.pause();
+		introAudio.currentTime = 0;
+		introAudio.onended = null;
+		if (letterAudioRef.current) {
+			letterAudioRef.current.pause();
+			letterAudioRef.current.currentTime = 0;
+			letterAudioRef.current.onended = null;
+		}
+		const audio = runtime.audio(sound(LETTER_SOUNDS[letter]));
+		letterAudioRef.current = audio;
+		startTalking();
+		audio.onended = () => {
+			audio.onended = null;
+			if (letterAudioRef.current === audio) {
+				letterAudioRef.current = null;
+				stopTalking();
+			}
+		};
+		audio.play().catch(() => {
+			if (letterAudioRef.current === audio) {
+				letterAudioRef.current = null;
+				stopTalking();
+			}
+		});
 		setSelectedLetter(letter);
 		writeStorage(STORAGE_KEYS.mundo4MenuOption, letter);
 		setCompactMenuOpen(false);
@@ -207,6 +239,12 @@ export default function Mundo4() {
 			introAudio.onended = null;
 			introAudio.pause();
 			introAudio.currentTime = 0;
+			if (letterAudioRef.current) {
+				letterAudioRef.current.onended = null;
+				letterAudioRef.current.pause();
+				letterAudioRef.current.currentTime = 0;
+				letterAudioRef.current = null;
+			}
 			stopTalking();
 		};
 	}, [character]);
@@ -303,7 +341,7 @@ export default function Mundo4() {
 							aria-pressed={selectedLetter === letter}
 							onClick={() => selectLetter(letter)}
 						>
-							<span aria-hidden="true">{letter}</span>
+							<span className="mundo4-letter__label" aria-hidden="true">{letter}</span>
 						</button>
 					))}
 				</aside>

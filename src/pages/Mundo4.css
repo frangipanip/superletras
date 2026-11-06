@@ -149,23 +149,28 @@
 	height: 10%;
 	padding: 0;
 	border: 0;
-	border-radius: 50%;
 	background: transparent;
 	font-family: "Arial Rounded MT Bold", "Arial", sans-serif;
-	font-size: clamp(1.5rem, 5vmin, 3.2rem);
+	font-size: clamp(1.5rem, 6vmin, 2.15rem);
 	font-weight: 900;
 	letter-spacing: -0.06em;
 	line-height: 1;
 	white-space: nowrap;
 	transform: translate(-50%, -50%);
 	cursor: pointer;
+	transition: transform 180ms ease;
 }
 
-.mundo4-letter-1 { left: 47%; top: 21.5%; color: #a353ec; }
-.mundo4-letter-2 { left: 49.7%; top: 38%; color: #fdab02; }
-.mundo4-letter-3 { left: 46%; top: 53.2%; color: #50cb65; }
-.mundo4-letter-4 { left: 49.5%; top: 70.5%; color: #e2344a; }
-.mundo4-letter-5 { left: 46%; top: 85.5%; color: #01a3fb; }
+.mundo4-letter__label {
+	display: inline-block;
+	transition: filter 180ms ease;
+}
+
+.mundo4-letter-1 { left: 47%; top: 21.5%; --outline-color: #63309a; color: #a353ec; }
+.mundo4-letter-2 { left: 49.7%; top: 38%; --outline-color: #925300; color: #fdab02; }
+.mundo4-letter-3 { left: 46%; top: 53.2%; --outline-color: #227738; color: #50cb65; }
+.mundo4-letter-4 { left: 49.5%; top: 70.5%; --outline-color: #921b2d; color: #e2344a; }
+.mundo4-letter-5 { left: 46%; top: 85.5%; --outline-color: #006a9f; color: #01a3fb; }
 
 .mundo4-compact-menu {
 	position: fixed;
@@ -276,11 +281,21 @@
 
 .mundo4-letter:hover,
 .mundo4-letter:focus-visible {
-	filter: brightness(1.2) drop-shadow(0 0 5px rgba(255, 255, 255, 0.95));
+	z-index: 2;
+	transform: translate(-50%, -50%) scale(1.12);
 }
 
-.mundo4-letter.selected {
-	filter: brightness(1.35) saturate(1.2) drop-shadow(0 0 8px rgba(255, 255, 255, 0.9));
+.mundo4-letter:hover .mundo4-letter__label,
+.mundo4-letter:focus-visible .mundo4-letter__label,
+.mundo4-letter.selected .mundo4-letter__label {
+	filter:
+		brightness(1.35)
+		saturate(1.2)
+		drop-shadow(1px 0 0 var(--outline-color))
+		drop-shadow(-1px 0 0 var(--outline-color))
+		drop-shadow(0 1px 0 var(--outline-color))
+		drop-shadow(0 -1px 0 var(--outline-color))
+		drop-shadow(0 0 8px rgba(255, 255, 255, 0.9));
 }
 
 .mundo4-character {

@@ -404,7 +404,7 @@ export default function Mundo3() {
 							aria-pressed={selectedLetter === letter}
 							onClick={() => selectLetter(letter)}
 						>
-							{letter}
+							<span className="mundo3-letter__label">{letter}</span>
 						</button>
 					))}
 				</aside>

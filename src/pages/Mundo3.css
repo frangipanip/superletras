@@ -207,28 +207,44 @@
 	border: 0;
 	background: transparent;
 	font-family: "Arial Rounded MT Bold", "Arial", sans-serif;
-	font-size: clamp(1.5rem, 5vmin, 3.2rem);
+	font-size: clamp(1.87rem, 6vmin, 2.15rem);
 	font-weight: 900;
 	letter-spacing: -0.06em;
 	line-height: 1;
 	white-space: nowrap;
 	transform: translate(-50%, -50%);
 	cursor: pointer;
+	transition: transform 180ms ease;
 }
 
-.mundo3-letter-1 { color: #f14c74; }
-.mundo3-letter-2 { color: #ffc400; }
-.mundo3-letter-3 { color: #10b7e5; }
-.mundo3-letter-4 { color: #80ca3e; }
-.mundo3-letter-5 { color: #b36be2; }
+.mundo3-letter__label {
+	display: inline-block;
+	transition: filter 180ms ease;
+}
+
+.mundo3-letter-1 { --outline-color: #9c2445; color: #f14c74; }
+.mundo3-letter-2 { --outline-color: #926400; color: #ffc400; }
+.mundo3-letter-3 { --outline-color: #086184; color: #10b7e5; }
+.mundo3-letter-4 { --outline-color: #426d1f; color: #80ca3e; }
+.mundo3-letter-5 { --outline-color: #65358d; color: #b36be2; }
 
 .mundo3-letter:hover,
 .mundo3-letter:focus-visible {
-	filter: brightness(1.2) drop-shadow(0 0 5px rgba(255, 255, 255, 0.95));
+	z-index: 2;
+	transform: translate(-50%, -50%) scale(1.12);
 }
 
-.mundo3-letter.selected {
-	filter: brightness(1.15) drop-shadow(0 0 6px rgba(255, 255, 255, 0.95));
+.mundo3-letter:hover .mundo3-letter__label,
+.mundo3-letter:focus-visible .mundo3-letter__label,
+.mundo3-letter.selected .mundo3-letter__label {
+	filter:
+		brightness(1.35)
+		saturate(1.2)
+		drop-shadow(1px 0 0 var(--outline-color))
+		drop-shadow(-1px 0 0 var(--outline-color))
+		drop-shadow(0 1px 0 var(--outline-color))
+		drop-shadow(0 -1px 0 var(--outline-color))
+		drop-shadow(0 0 8px rgba(255, 255, 255, 0.9));
 }
 
 .mundo3-letter-1 { top: 12.3%; }
