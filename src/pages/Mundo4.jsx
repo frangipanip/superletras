@@ -20,11 +20,11 @@ const LETTER_BLOCKS = {
 	CH: img("almejaCH.png")
 };
 const LETTER_SOUNDS = {
-	C: "Esta es la letra C.mp3",
-	CE: "Esta es la letra CE.mp3",
-	Q: "Esta es la letra Q.mp3",
-	Z: "Esta es la letra Z.mp3",
-	CH: "Esta es la letra CH.mp3"
+	C: "suenaC.mp3",
+	CE: "suenaCE.mp3",
+	Q: "suenaQ.mp3",
+	Z: "suenaZ.mp3",
+	CH: "suenaCH.mp3"
 };
 const CHARACTER_FRAME_DURATION = 375;
 const ACTIVITY_SIGN_IMAGES = [
