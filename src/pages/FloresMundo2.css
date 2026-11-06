@@ -29,7 +29,7 @@
 
 	.flower-field {
 		position: fixed;
-		top: 52%;
+		top: 58%;
 		left: 52%;
 		display: grid;
 		grid-template-columns: repeat(4, var(--flower-size));

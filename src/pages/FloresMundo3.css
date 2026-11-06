@@ -5,9 +5,10 @@
 		top: 35%;
 		right: auto;
 		left: 50%;
+		z-index: 0;
 		width: clamp(152.6px, 42vmin, 175.5px);
 		transform: translate(-50%, -50%);
-		animation: flores-m3-character-float 2.8s ease-in-out infinite;
+		animation: flores-m3-character-drift 2.8s ease-in-out infinite;
 	}
 
 	.selected-character.celebrating {
@@ -24,8 +25,9 @@
 
 	.flower-field {
 		position: fixed;
-		top: 58%;
+		top: 50%;
 		left: 52%;
+		z-index: 1;
 		display: grid;
 		grid-template-columns: repeat(4, var(--flower-size));
 		align-items: start;
@@ -54,8 +56,7 @@
 
 	.flower-label {
 		position: absolute;
-		bottom: 2%;
-		left: 30%;
+		left: 50%;
 		z-index: 3;
 		display: grid;
 		place-items: center;
@@ -111,12 +112,12 @@
 	}
 }
 
-@keyframes flores-m3-character-float {
+@keyframes flores-m3-character-drift {
 	0%,
 	100% {
 		transform: translate(-50%, -50%);
 	}
 	50% {
-		transform: translate(-50%, calc(-50% - 10px));
+		transform: translate(calc(-50% - 10px), -50%);
 	}
 }

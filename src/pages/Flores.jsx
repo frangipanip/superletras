@@ -126,15 +126,14 @@ export default function Flores() {
 		});
 	}
 
-	function playLabelAudio(label, onEnded) {
+	function playLabelAudio(label) {
 		const audios = audioRef.current;
 		stopAudio(instructionAudio);
 		stopAudio(audios.option);
 		stopTalking();
 		stopAudio(audios.feedback);
 		const audio = runtime.audio(audioPath(label));
-		audio.onended = onEnded;
-		audio.play().catch(() => onEnded?.());
+		audio.play().catch(() => {});
 	}
 
 	function buildFlowers(activityIndex = game.current.activityIndex) {
@@ -208,15 +207,21 @@ export default function Flores() {
 		if (!flower || flower.result || game.current.transitionPending || game.current.celebrationActive) {
 			return;
 		}
-		playLabelAudio(flower.label, () => {
-			const audios = audioRef.current;
-			stopAudio(audios.feedback);
-			audios.feedback = runtime.audio(sound(flower.correct ? "correcto.mp3" : "error.mp3"));
-			audios.feedback.play().catch(() => {});
-		});
+		playLabelAudio(flower.label);
+		const audios = audioRef.current;
+		stopAudio(audios.feedback);
+		audios.feedback = runtime.audio(sound(flower.correct ? "correcto.mp3" : "error.mp3"));
+		audios.feedback.play().catch(() => {});
 		setRound((current) => ({
 			...current,
 			flowers: current.flowers.map((item, itemIndex) => {
+				if (isMundo3 && flower.correct) {
+					return {
+						...item,
+						image: img(`animal ${item.animal}${item.correct ? " evolucionado" : " error"}.png`),
+						result: item.correct ? "correct" : "wrong"
+					};
+				}
 				if (itemIndex !== index) {
 					return item;
 				}
