@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router";
 import CharacterLocator from "../components/CharacterLocator";
 import UserNav from "../components/UserNav";
 import { useCharacterLocator } from "../hooks/useCharacterLocator";
@@ -42,7 +43,7 @@ const ACTIVITY_SIGN_IMAGES = [
 	"GLOBOSbtn.png"
 ];
 const PATH_BUTTONS = [
-	[20, 72], [24, 76], [28, 70], [32, 67], [36, 71],
+	[22.5, 85], [24, 76], [28, 70], [32, 67], [36, 71],
 	[40, 76], [44, 72], [48, 68], [52, 72], [56, 77],
 	[60, 73], [64, 68], [68, 72], [72, 77], [76, 73],
 	[80, 69], [84, 73], [88, 78], [92, 74]
@@ -50,6 +51,10 @@ const PATH_BUTTONS = [
 
 export const MUNDO4_IMAGES = [
 	img("FONDOM4.jpg"),
+	img("fondoinicioM3.png"),
+	img("burbuja.png"),
+	...["almejacerradaC.png", "almejacerradaCE.png", "almejacerradaQ .png", "almejacerradaZ.png", "almejacerradaCH.png",
+		"almejaabiertaC.png", "almejaabiertaCE.png", "almejaabiertaQ.png", "almejaabiertaQU.png", "almejaabiertaZ.png", "almejaabiertaCH.png"].map(img),
 	img("MENUM4.png"),
 	img("boton.svg"),
 	...ACTIVITY_SIGN_IMAGES.map(img),
@@ -61,6 +66,7 @@ export const MUNDO4_IMAGES = [
 
 export default function Mundo4() {
 	usePageTitle("Mundo 4");
+	const navigate = useNavigate();
 	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
 	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime, MUNDO4_MOUTH_IMAGES);
@@ -202,6 +208,13 @@ export default function Mundo4() {
 		setCompactMenuOpen(false);
 	}
 
+	function startActivity(index) {
+		if (index !== 0) return;
+		navigate("/inicio", {
+			state: { world: 4, menuOption: selectedLetter || LETTERS[0] }
+		});
+	}
+
 	useEffect(() => {
 		if (!character) return undefined;
 		let timer = 0;
@@ -301,16 +314,17 @@ export default function Mundo4() {
 				<div className="mundo4-path" aria-label="Camino de actividades">
 					{PATH_BUTTONS.map(([left, top], index) => (
 						<div
-							className="mundo4-path-activity mundo4-path-activity-hidden"
+							className={`mundo4-path-activity${index === 0 ? "" : " mundo4-path-activity-hidden"}`}
 							key={`${left}-${top}-${index}`}
 							style={{ left: `${left}%`, top: `${top}%` }}
 						>
 							<img className="mundo4-path-sign" src={img(ACTIVITY_SIGN_IMAGES[index] || "GLOBOSbtn.png")} alt="" draggable={false} />
 							<button
-								className="mundo4-path-button"
+								className={`mundo4-path-button${index === 0 ? " is-available" : ""}`}
 								type="button"
-								disabled
-								aria-label={`Actividad del camino ${index + 1}, próximamente`}
+								disabled={index !== 0}
+								aria-label={index === 0 ? "Iniciar actividad de sílabas" : `Actividad del camino ${index + 1}, próximamente`}
+								onClick={() => startActivity(index)}
 							>
 								<img src={img("boton.svg")} alt="" draggable={false} />
 							</button>

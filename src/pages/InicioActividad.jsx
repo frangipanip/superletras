@@ -7,7 +7,7 @@ import { usePageTitle } from "../hooks/usePageTitle";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
-import { CHARACTERS, img, MUNDO1_CHARACTERS, MUNDO2_CHARACTER_FRAMES, MUNDO2_CHARACTERS, MUNDO2_MOUTH_IMAGES, MUNDO3_CHARACTERS, MUNDO3_MOUTH_IMAGES, sound } from "../lib/assets";
+import { CHARACTERS, img, MUNDO1_CHARACTERS, MUNDO2_CHARACTER_FRAMES, MUNDO2_CHARACTERS, MUNDO2_MOUTH_IMAGES, MUNDO3_CHARACTERS, MUNDO3_MOUTH_IMAGES, MUNDO4_CHARACTERS, MUNDO4_MOUTH_IMAGES, sound } from "../lib/assets";
 import { shuffle } from "../lib/shuffle";
 import { useActivityMenuOption } from "../hooks/useActivityMenuOption";
 import { useCarPhysics } from "../hooks/useCarPhysics";
@@ -107,6 +107,21 @@ const MUNDO3_MODES = Object.fromEntries([
 	["y", Y_SYLLABLES],
 	["ll", LL_SYLLABLES]
 ].map(([letter, items, audioFiles]) => [letter, createSyllableMode(letter, items, audioFiles)]));
+const MUNDO4_MODES = {
+	c: { ...createSyllableMode("c", ["CA", "CO", "CU"]), intro: ["Esta es la letra C.mp3"] },
+	ce: { ...createSyllableMode("ce", ["CE", "CI"]), intro: ["Esta es la letra CE.mp3"] },
+	q: { ...createSyllableMode("q", ["QUE", "QUI"]), intro: ["Esta es la letra Q.mp3", "ConLasVocalesQ.mp3"] },
+	z: createSyllableMode("z", ["ZA", "ZE", "ZI", "ZO", "ZU"]),
+	ch: createSyllableMode("ch", ["CHA", "CHE", "CHI", "CHO", "CHU"])
+};
+const MUNDO4_SHELLS = {
+	c: { closed: "almejacerradaC.png", open: "almejaabiertaC.png" },
+	ce: { closed: "almejacerradaCE.png", open: "almejaabiertaCE.png" },
+	q: { closed: "almejacerradaQ .png", open: "almejaabiertaQ.png" },
+	z: { closed: "almejacerradaZ.png", open: "almejaabiertaZ.png" },
+	ch: { closed: "almejacerradaCH.png", open: "almejaabiertaCH.png" }
+};
+const MUNDO4_SYLLABLE_COLORS = ["#ef4b67", "#f2a900", "#37a94b", "#167bc3", "#8d58c1"];
 const MUNDO2_LETTER_IMAGES = {
 	p: "letraP.png",
 	n: "letraN.png",
@@ -161,16 +176,21 @@ export default function InicioActividad() {
 	const isMundo1 = location.state?.world === 1;
 	const isMundo2 = location.state?.world === 2;
 	const isMundo3 = location.state?.world === 3;
-	usePageTitle(isMundo3 ? "Inicio - Mundo 3" : isMundo2 ? "Inicio - Mundo 2" : "Inicio - Mundo 1");
+	const isMundo4 = location.state?.world === 4;
+	usePageTitle(isMundo4 ? "Inicio - Mundo 4" : isMundo3 ? "Inicio - Mundo 3" : isMundo2 ? "Inicio - Mundo 2" : "Inicio - Mundo 1");
 	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
-	const activityCharacters = isMundo1 ? MUNDO1_CHARACTERS : isMundo2 ? MUNDO2_CHARACTERS : isMundo3 ? MUNDO3_CHARACTERS : CHARACTERS;
-	const mouthImages = isMundo3 ? MUNDO3_MOUTH_IMAGES : isMundo2 ? MUNDO2_MOUTH_IMAGES : undefined;
+	const activityCharacters = isMundo1 ? MUNDO1_CHARACTERS : isMundo2 ? MUNDO2_CHARACTERS : isMundo3 ? MUNDO3_CHARACTERS : isMundo4 ? MUNDO4_CHARACTERS : CHARACTERS;
+	const mouthImages = isMundo3 ? MUNDO3_MOUTH_IMAGES : isMundo2 ? MUNDO2_MOUTH_IMAGES : isMundo4 ? MUNDO4_MOUTH_IMAGES : undefined;
 	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime, mouthImages);
 	const menuOption = useActivityMenuOption();
-	const modeOptions = isMundo3 ? MUNDO3_MODES : isMundo2 ? MUNDO2_MODES : MODES;
-	const fallbackOption = isMundo3 ? "r" : isMundo2 ? "p" : "a";
+	const modeOptions = isMundo4 ? MUNDO4_MODES : isMundo3 ? MUNDO3_MODES : isMundo2 ? MUNDO2_MODES : MODES;
+	const fallbackOption = isMundo4 ? "c" : isMundo3 ? "r" : isMundo2 ? "p" : "a";
 	const [mode] = useState(() => modeOptions[menuOption || fallbackOption] || modeOptions[fallbackOption]);
+	const [clamState, setClamState] = useState(() => ({
+		src: isMundo4 ? img(MUNDO4_SHELLS[menuOption || fallbackOption].closed) : "",
+		moved: false
+	}));
 	const [audios] = useState(() => ({
 		intro: mode.intro.map((file) => runtime.audio(sound(file), { preload: true })),
 		pressure: runtime.audio(sound("Presion.mp3"), { preload: true }),
@@ -210,7 +230,7 @@ export default function InicioActividad() {
 	leftCars.current = activitySelectedItems;
 	const isDriving = isMundo3 && isPhaseThree && !isShuffling;
 	useCarPhysics(runtime, { active: isDriving, itemRefs: carRefs, stoppedRef: leftCars, obstacleRefs: [characterRef], background: MUNDO3_BACKGROUND_OBSTACLES });
-	const [premio, otorgarPremio] = useRecompensa("inicio", isMundo2 || isMundo3 ? null : MODES[menuOption] ? menuOption : "a");
+	const [premio, otorgarPremio] = useRecompensa("inicio", isMundo2 || isMundo3 || isMundo4 ? null : MODES[menuOption] ? menuOption : "a");
 	const LETTER_IMAGES = {
 		a: "letraA.png",
 		l: "letraL.png",
@@ -329,7 +349,7 @@ export default function InicioActividad() {
 				setActiveItem(null);
 				setShowConfetti(true);
 				// La actividad se completa al terminar la fase 3 (carteles en movimiento).
-				if (isPhaseThree && !isMundo2 && !isMundo3) {
+				if (isPhaseThree && !isMundo2 && !isMundo3 && !isMundo4) {
 					otorgarPremio(errorCount.current);
 				}
 				audios.celebration.onended = () => {
@@ -392,6 +412,12 @@ export default function InicioActividad() {
 		setVisibleItems(new Set(mode.items));
 		setRevealingItem(null);
 		setActiveItem(null);
+		if (isMundo4) {
+			setClamState({
+				src: img(menuOption === "q" ? "almejaabiertaQU.png" : MUNDO4_SHELLS[menuOption].open),
+				moved: true
+			});
+		}
 		stopTalking();
 	}
 
@@ -528,6 +554,13 @@ export default function InicioActividad() {
 			const step = steps[stepIndex];
 			stepIndex += 1;
 			const isLetterIntroStep = step.audio === audios.intro[0];
+			const isLastIntroStep = audios.intro.includes(step.audio) && step.audio === audios.intro[audios.intro.length - 1];
+			if (isMundo4 && isLetterIntroStep) {
+				setClamState({ src: img(MUNDO4_SHELLS[menuOption].open), moved: false });
+			}
+			if (isMundo4 && menuOption === "q" && step.audio === audios.intro[1]) {
+				setClamState({ src: img("almejaabiertaQU.png"), moved: false });
+			}
 			if (isLetterIntroStep) {
 				const introAudio = step.audio;
 				introAudio.ontimeupdate = () => {
@@ -544,23 +577,29 @@ export default function InicioActividad() {
 			setActiveItem(step.item);
 			startTalking();
 			step.audio.currentTime = 0;
-			step.audio.onended = () => {
+			function finishStep() {
 				step.audio.onended = null;
 				stopTalking();
 				setActiveItem(null);
-				sequenceTimer.current = runtime.setTimeout(playNextStep, 180);
+				if (isMundo4 && isLastIntroStep) {
+					setClamState((current) => ({ ...current, moved: true }));
+				}
+				sequenceTimer.current = runtime.setTimeout(playNextStep, isMundo4 && isLastIntroStep ? 850 : 180);
+			}
+			step.audio.onended = () => {
+				finishStep();
 			};
 			step.audio.play().catch(() => {
-				step.audio.onended = null;
-				stopTalking();
-				setActiveItem(null);
-				sequenceTimer.current = runtime.setTimeout(playNextStep, 180);
+				finishStep();
 			});
 		}
 
 		setShowBigLetter(false);
 		setVisibleItems(new Set());
 		setRevealingItem(null);
+		if (isMundo4) {
+			setClamState({ src: img(MUNDO4_SHELLS[menuOption].closed), moved: false });
+		}
 		playNextStep();
 		return () => {
 			introductionActive.current = false;
@@ -597,10 +636,10 @@ export default function InicioActividad() {
 			setActiveItem(null);
 			stopTalking();
 		};
-	}, [audios, menuOption, modeOptions]);
+	}, [audios, isMundo4, menuOption, modeOptions]);
 
 	return (
-		<div className={`page activity-page page-inicio-actividad${isMundo2 ? " world-insectos" : ""}${isMundo3 ? " world-bloques" : ""}`} onClick={skipIntroduction}>
+		<div className={`page activity-page page-inicio-actividad${isMundo2 ? " world-insectos" : ""}${isMundo3 ? " world-bloques" : ""}${isMundo4 ? " world-almejas" : ""}`} onClick={skipIntroduction}>
 			<BackButton />
 			<FullscreenButton toggle />
 			<div className="inicio-vowels inicio-syllables" aria-label={mode.listName}>
@@ -612,6 +651,13 @@ export default function InicioActividad() {
 							<div
 								key={item}
 								className={`inicio-vowel-button inicio-vowel-${item.toLowerCase()}${isExploded ? " selected" : ""}${activeItem === item ? " active" : ""}${incorrectItem === item ? " incorrect" : ""}${isShuffling ? " shuffling" : ""}${isHidden ? " hidden-balloon" : ""}${isRevealing ? " reveal-balloon" : ""}${isPhaseThree && !isShuffling && !activitySelectedItems.has(item) ? (isMundo3 ? " driving" : " flying") : ""}`}
+								style={isMundo4 ? {
+									"--mundo4-syllable-color": MUNDO4_SYLLABLE_COLORS[mode.items.indexOf(item)],
+									...(mode.items.length < 5 ? {
+										left: `${mode.items.length === 2 ? 38 + itemOrder.indexOf(item) * 24 : 25 + itemOrder.indexOf(item) * 20}%`,
+										top: mode.items.length === 2 ? "42%" : "36%"
+									} : {})
+								} : undefined}
 								ref={(node) => {
 									if (node) carRefs.current.set(item, node);
 									else carRefs.current.delete(item);
@@ -655,12 +701,17 @@ export default function InicioActividad() {
 						))}
 					</div>
 				)}
-				<div
+				{isMundo4 && (
+					<div className={`inicio-mundo4-clam${clamState.moved ? " is-small" : ""}`} aria-hidden="true">
+						<img src={clamState.src} alt="" draggable={false} />
+					</div>
+				)}
+				{!isMundo4 && <div
 					className={`inicio-activity-letter-image-wrap${showBigLetter ? " is-visible" : ""}`}
 					aria-hidden="true"
 				>
 					<img className="inicio-activity-letter-image" src={bigLetterImage} alt={letterLabels[menuOption] || letterLabels[fallbackOption]} />
-				</div>
+				</div>}
 			<PremioComida premio={premio} />
 			{character && (
 				<button ref={characterRef} className={`inicio-activity-character${isMundo1 ? " dulce-character" : ""}${isMundo2 ? " mundo2-flying-character" : ""}${isMundo3 ? " mundo3-block-character" : ""}`} type="button" aria-label="Repetir consigna" onClick={repeatInstruction}>

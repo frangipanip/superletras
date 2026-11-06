@@ -115,6 +115,33 @@
 	background-image: url("/assets/imagenes/fondoIniciobloques.png");
 }
 
+.page-inicio-actividad.world-almejas {
+	background-image: url("/assets/imagenes/fondoinicioM3.png");
+}
+
+.inicio-mundo4-clam {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	z-index: 1;
+	width: clamp(12rem, 30vw, 27rem);
+	transform: translate(-50%, -50%);
+	transition: top 800ms ease, transform 800ms ease;
+	pointer-events: none;
+}
+
+.inicio-mundo4-clam img {
+	display: block;
+	width: 100%;
+	height: auto;
+	filter: drop-shadow(0 8px 12px rgba(13, 61, 93, 0.3));
+}
+
+.inicio-mundo4-clam.is-small {
+	top: 2%;
+	transform: translate(-50%, 0) scale(0.38);
+}
+
 /* Letra gigante centrada arriba */
 .inicio-activity-letter-image-wrap {
 	position: absolute;
@@ -555,6 +582,30 @@
 	filter: none;
 }
 
+.page-inicio-actividad.world-almejas .inicio-vowel-button {
+	width: clamp(8.125rem, 13.75vw, 13.75rem);
+	height: clamp(8.125rem, 13.75vw, 13.75rem);
+	font-size: clamp(1.25rem, 3vw, 2.5rem);
+	filter: none;
+}
+
+.page-inicio-actividad.world-almejas .inicio-vowel-button::before {
+	z-index: 0;
+	background-image: url("/assets/imagenes/burbuja.png");
+}
+
+.page-inicio-actividad.world-almejas .inicio-vowel-button > span {
+	position: relative;
+	z-index: 1;
+	transform: none;
+	color: var(--mundo4-syllable-color);
+	text-shadow: 0 2px 3px rgba(33, 54, 72, 0.7), 0 0 8px rgba(255, 255, 255, 0.9);
+}
+
+.page-inicio-actividad.world-almejas .inicio-vowel-button.selected > span {
+	color: #fff6a4;
+}
+
 .page-inicio-actividad.world-insectos .inicio-vowel-button::before {
 	display: none;
 }
@@ -737,7 +788,8 @@
 		font-size: clamp(1rem, 4.5vw, 1.5rem);
 	}
 
-	.page-inicio-actividad.world-bloques .inicio-vowel-button {
+	.page-inicio-actividad.world-bloques .inicio-vowel-button,
+	.page-inicio-actividad.world-almejas .inicio-vowel-button {
 		width: clamp(5.77rem, 29.4vw, 7.87rem);
 		height: clamp(5.77rem, 29.4vw, 7.87rem);
 		font-size: clamp(1rem, 4.5vw, 1.5rem);
@@ -751,7 +803,8 @@
 		font-size: clamp(1.15rem, 5.75vmin, 1.725rem);
 	}
 
-	.page-inicio-actividad.world-bloques .inicio-vowel-button {
+	.page-inicio-actividad.world-bloques .inicio-vowel-button,
+	.page-inicio-actividad.world-almejas .inicio-vowel-button {
 		width: clamp(5.75rem, 32.2vw, 8.62rem);
 		height: clamp(5.75rem, 32.2vw, 8.62rem);
 		font-size: clamp(1.15rem, 5.75vmin, 1.725rem);
