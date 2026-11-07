@@ -7,10 +7,12 @@ import PageLoader from "./components/PageLoader";
 import RotateDevice from "./components/RotateDevice";
 import { startPwa } from "./lib/pwa";
 import { startRecompensas } from "./lib/recompensas";
+import { startSinZoom } from "./lib/sinZoom";
 import "./styles/global.css";
 
 startPwa();
 startRecompensas();
+startSinZoom();
 
 createRoot(document.getElementById("root")).render(
 	<BrowserRouter>

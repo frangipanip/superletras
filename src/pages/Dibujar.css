@@ -22,9 +22,12 @@
 		position: relative;
 		touch-action: none;
 		box-sizing: border-box;
-		height: min(calc(100vh - 7rem), 620px);
-		width: min(58vw, calc((100vh - 7rem) * 322 / 317), 620px);
-		aspect-ratio: 322 / 317;
+		/* El alto sale del ancho para mantener siempre la proporción de la guía (322x317): si no, los
+		   puntos y el trazo (en % del tablero) no coinciden con la letra. */
+		--dibujar-board-width: min(58vw, calc((100vh - 7rem) * 322 / 317), 620px);
+		width: var(--dibujar-board-width);
+		height: calc(var(--dibujar-board-width) * 317 / 322);
+		flex: 0 0 auto;
 		border: clamp(8px, 1.2vmin, 14px) solid #8c4b97;
 		border-radius: clamp(1rem, 3vmin, 2.2rem);
 		background: rgba(255, 248, 229, 0.88);
@@ -127,8 +130,22 @@
 		}
 
 		.dibujar-board {
-			height: min(calc(100vh - 7rem), 520px);
-			width: min(82vw, calc((100vh - 7rem) * 322 / 317), 520px);
+			--dibujar-board-width: min(82vw, calc((100vh - 7rem) * 322 / 317), 520px);
+		}
+	}
+
+	/* En celulares 100vh es el alto sin la barra del navegador: el tablero quedaba más alto que la
+	   pantalla visible y se corría hacia abajo. dvh es el alto visible (los navegadores viejos se
+	   quedan con vh). */
+	@supports (height: 100dvh) {
+		.dibujar-board {
+			--dibujar-board-width: min(58vw, calc((100dvh - 7rem) * 322 / 317), 620px);
+		}
+
+		@media (max-width: 700px) {
+			.dibujar-board {
+				--dibujar-board-width: min(82vw, calc((100dvh - 7rem) * 322 / 317), 520px);
+			}
 		}
 	}
 }
