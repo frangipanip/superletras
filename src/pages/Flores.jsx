@@ -38,7 +38,8 @@ const MUNDO3_SYLLABLES = {
 	y: ["YA", "YE", "YI", "YO", "YU"],
 	ll: ["LLA", "LLE", "LLI", "LLO", "LLU"]
 };
-const FLOWER_IMAGES = [img("chupetin1.png"), img("chupetin2.png")];
+// Mundo 1: un chupetín de cada color por ronda (los 4 tienen el mismo lienzo y las mismas medidas).
+const CANDY_IMAGES = ["violeta", "rosa", "amarillo", "celeste"].map((color) => img(`chupetin-${color}.png`));
 const MUNDO3_ANIMALS = ["conejo", "flamenco", "gato", "jirafa"];
 const TOTAL_ACTIVITIES = 5;
 
@@ -142,6 +143,7 @@ export default function Flores() {
 			? shuffle(syllables[mode].filter((item) => item !== target)).slice(0, 3)
 			: shuffle(VOWELS.filter((item) => item !== target)).slice(0, 3);
 		const labels = shuffle([target, ...incorrect]);
+		const candyImages = shuffle(CANDY_IMAGES);
 		setRound((current) => ({
 			generation: current.generation + 1,
 			activityIndex,
@@ -152,7 +154,7 @@ export default function Flores() {
 					? img(`animal ${MUNDO3_ANIMALS[index]}.png`)
 					: isMundo2
 						? img(`oruga${(index % 2) + 1}.png`)
-						: FLOWER_IMAGES[index % FLOWER_IMAGES.length],
+						: candyImages[index],
 				animal: MUNDO3_ANIMALS[index],
 				caterpillar: (index % 2) + 1,
 				correct: label === target,
@@ -281,9 +283,25 @@ export default function Flores() {
 							className={flower.result ? `flower-button ${flower.result}` : "flower-button"}
 							onClick={() => handleFlowerClick(index)}
 						>
-							{!isMundo2 && !isMundo3 && <img className="flower-stem" src={img("palito.png")} alt="" aria-hidden="true" />}
-							<img className="flower-image" src={flower.image} alt={`${isMundo3 ? `Animal ${flower.animal}` : isMundo2 ? "Oruga" : "Flor"} con ${flower.label}`} />
-							<span className="flower-label">{flower.label}</span>
+							{isMundo2 || isMundo3 ? (
+								<>
+									<img className="flower-image" src={flower.image} alt={`${isMundo3 ? `Animal ${flower.animal}` : "Oruga"} con ${flower.label}`} />
+									<span className="flower-label">{flower.label}</span>
+								</>
+							) : (
+								/*
+								 * El chupetín se dibuja en tres partes recortadas de la misma imagen (ver
+								 * FloresMundo1.css): al acertar la cabeza sube y el tramo de palito se estira.
+								 */
+								<span className="candy" role="img" aria-label={`Chupetín con ${flower.label}`}>
+									<img className="candy-part candy-base" src={flower.image} alt="" />
+									<img className="candy-part candy-stick" src={flower.image} alt="" />
+									<span className="candy-head">
+										<img className="candy-part candy-top" src={flower.image} alt="" />
+										<span className="flower-label">{flower.label}</span>
+									</span>
+								</span>
+							)}
 						</button>
 					))}
 				</section>
