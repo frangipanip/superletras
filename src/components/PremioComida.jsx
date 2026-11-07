@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
+import { useReiniciarPagina } from "../hooks/useReiniciarPagina";
 import { otorgarPremio } from "../lib/recompensas";
 import "./PremioComida.css";
 
@@ -21,6 +22,7 @@ export function useRecompensa(actividad, letra) {
 // Modal de fin de actividad que muestra las recompensas obtenidas y botones
 export default function PremioComida({ premio }) {
 	const navigate = useNavigate();
+	const reiniciarPagina = useReiniciarPagina();
 
 	if (!premio) {
 		return null;
@@ -39,8 +41,9 @@ export default function PremioComida({ premio }) {
 		titulo = "¡¡¡Exito total!!!";
 	}
 
+	// Sin recargar: recargar saca de pantalla completa y la actividad queda cortada abajo.
 	const handleVolver = () => {
-		window.location.reload();
+		reiniciarPagina();
 	};
 
 	const handleSalir = () => {
