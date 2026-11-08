@@ -140,7 +140,7 @@
 		top: 50%;
 		right: clamp(-48px, -4vw, -20px);
 		z-index: 2;
-		width: clamp(220px, 60vmin, 500px);
+		width: clamp(200px, 54vmin, 450px);
 		max-height: 90vh;
 		object-fit: contain;
 		transform: translateY(-50%);
@@ -250,6 +250,22 @@
 
 	.butterfly-button:nth-child(4n) {
 		animation-duration: 1600ms;
+	}
+
+	&:not(.world-mundo2):not(.world-mundo3) .butterfly-button {
+		animation: bloque-saltarin 2.2s ease-in-out infinite;
+	}
+
+	&:not(.world-mundo2):not(.world-mundo3) .butterfly-button:nth-child(2n) {
+		animation-delay: -0.75s;
+	}
+
+	&:not(.world-mundo2):not(.world-mundo3) .butterfly-button:nth-child(3n) {
+		animation-delay: -1s;
+	}
+
+	&:not(.world-mundo2):not(.world-mundo3) .butterfly-button:nth-child(4n) {
+		animation-delay: -0.4s;
 	}
 
 	.butterfly-button.correct:not(.flying):hover,

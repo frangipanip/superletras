@@ -17,13 +17,13 @@ import "./Mariposas.css";
 const BUTTERFLY_IMAGES = [img("MARIPOSA.svg"), img("MARIPOSA1.svg"), img("MARIPOSA2.svg")];
 const OSITO_LAYOUT = [
 	{ image: img("osito1.png"), position: [35, 29] },
-	{ image: img("osito2.png"), position: [50, 29] },
+	{ image: img("osito2.png"), position: [52, 29] },
 	{ image: img("osito3.png"), position: [70, 29] },
-	{ image: img("osito4.png"), position: [40, 57] },
-	{ image: img("osito5.png"), position: [57, 57] },
-	{ image: img("osito6.png"), position: [73, 57] },
-	{ image: img("osito7.png"), position: [45, 84] },
-	{ image: img("osito8.png"), position: [65, 84] }
+	{ image: img("osito4.png"), position: [32, 57] },
+	{ image: img("osito5.png"), position: [49, 57] },
+	{ image: img("osito6.png"), position: [66, 57] },
+	{ image: img("osito7.png"), position: [40, 84] },
+	{ image: img("osito8.png"), position: [57, 84] }
 ];
 const OSITO_IMAGES = OSITO_LAYOUT.map(({ image }) => image);
 const OSITO_POSITIONS = OSITO_LAYOUT.map(({ position }) => position);
@@ -423,7 +423,10 @@ export default function Mariposas() {
 
 	function handleButterflyClick(event, butterfly) {
 		const button = event.currentTarget;
-		playButterflyLabelAudio(butterfly.value, () => playFeedbackSound(butterfly.correct));
+		playButterflyLabelAudio(butterfly.value, () => {
+			if (!butterfly.correct) playFeedbackSound(false);
+		});
+		if (butterfly.correct) playFeedbackSound(true);
 
 		if (!butterfly.correct) {
 			state.errors += 1;
