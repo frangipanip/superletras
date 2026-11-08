@@ -315,7 +315,12 @@ export default function Peluche() {
 						return (
 							<div className="initials-item" key={`${activityIndex}-${option.name}`}>
 								<div className="initials-display">
-									<img className="initials-pedestal" src={img("peluches/basetorta.png")} alt="" aria-hidden="true" />
+									<img
+										className="initials-pedestal"
+										src={img(`peluches/${option.name.length > 7 ? "basetortaLarga" : "basetorta"}.png`)}
+										alt=""
+										aria-hidden="true"
+									/>
 									<button
 										type="button"
 										className={classNames.join(" ")}

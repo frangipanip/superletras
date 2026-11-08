@@ -61,8 +61,8 @@
 
 	.initials-name {
 		position: absolute;
-		top: 63%;
-		left: 15%;
+		top: 60%;
+		left: 13.5%;
 		z-index: 2;
 		display: block;
 		width: 70%;
@@ -72,8 +72,10 @@
 		border-radius: 0;
 		background: transparent;
 		box-shadow: none;
+		--name-text: #79502f;
+		--name-highlight: #e85d9e;
 		color: var(--name-text);
-		font: 700 clamp(0.65rem, 1.4vw, 1.2rem) / 1 Arial, Helvetica, sans-serif;
+		font: 900 clamp(1.125rem, 2.4vw, 1.95rem) / 1 "Arial Rounded MT Bold", "Trebuchet MS", Arial, Helvetica, sans-serif;
 		text-align: center;
 		text-transform: uppercase;
 		white-space: nowrap;
@@ -85,29 +87,21 @@
 
 	.initials-name.color-0 {
 		--name-shadow: #c9a8de;
-		--name-text: #9270a8;
-		--name-highlight: #5a28d3;
 		background: transparent;
 	}
 
 	.initials-name.color-1 {
 		--name-shadow: #e3aebc;
-		--name-text: #ad6f80;
-		--name-highlight: #5a28d3;
 		background: transparent;
 	}
 
 	.initials-name.color-2 {
 		--name-shadow: #9ccbd8;
-		--name-text: #56899a;
-		--name-highlight: #5a28d3;
 		background: transparent;
 	}
 
 	.initials-name.color-3 {
 		--name-shadow: #a8d1ad;
-		--name-text: #648c68;
-		--name-highlight: #5a28d3;
 		background: transparent;
 	}
 
@@ -193,7 +187,7 @@
 
 @media (max-width: 380px) {
 	.page-peluche .initials-name {
-		font-size: 0.75rem;
+		font-size: 1.275rem;
 	}
 }
 
@@ -203,7 +197,7 @@
 	}
 
 	.page-peluche .initials-name {
-		font-size: 0.8rem;
+		font-size: 1.35rem;
 	}
 }
 
