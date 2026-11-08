@@ -12,7 +12,7 @@
 	   algo más de la mitad del alto, para que entren las dos sin tapar al personaje. */
 	.initials-grid {
 		position: fixed;
-		top: 30%;
+		top: 44%;
 		left: 45%;
 		display: grid;
 		grid-template-columns: repeat(2, min(27vw, 48vh));
@@ -28,9 +28,29 @@
 		gap: 0.4rem;
 	}
 
-	.initials-option {
-		min-width: 0;
+	.initials-display {
+		position: relative;
 		width: 100%;
+		aspect-ratio: 0.8125;
+	}
+
+	.initials-pedestal {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+		pointer-events: none;
+	}
+
+	.initials-option {
+		position: absolute;
+		top: -30%;
+		left: 50%;
+		z-index: 1;
+		min-width: 0;
+		width: 68%;
+		margin-left: -34%;
 		padding: 0;
 		border: 0;
 		background: none;
@@ -40,21 +60,26 @@
 	}
 
 	.initials-name {
-		width: min(12.7rem, 100%);
-		max-width: 100%;
-		min-height: 4.725rem;
-		padding: 0.3rem 0.6rem;
-		border: 3px solid;
-		border-radius: 12px;
-		box-shadow: 0 3px 0 var(--name-shadow);
+		position: absolute;
+		top: 63%;
+		left: 15%;
+		z-index: 2;
+		display: block;
+		width: 70%;
+		height: 13%;
+		padding: 0.1rem 0.25rem;
+		border: 0;
+		border-radius: 0;
+		background: transparent;
+		box-shadow: none;
 		color: var(--name-text);
-		font: 700 1.58rem Arial, Helvetica, sans-serif;
-		line-height: 1.1;
+		font: 700 clamp(0.65rem, 1.4vw, 1.2rem) / 1 Arial, Helvetica, sans-serif;
+		text-align: center;
 		text-transform: uppercase;
-		overflow-wrap: anywhere;
+		white-space: nowrap;
 		opacity: 1;
 		cursor: pointer;
-		transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+		transition: transform 160ms ease, filter 160ms ease;
 		-webkit-text-fill-color: var(--name-text);
 	}
 
@@ -62,32 +87,28 @@
 		--name-shadow: #c9a8de;
 		--name-text: #9270a8;
 		--name-highlight: #5a28d3;
-		border-color: #d9c0e8;
-		background: #fbf5ff;
+		background: transparent;
 	}
 
 	.initials-name.color-1 {
 		--name-shadow: #e3aebc;
 		--name-text: #ad6f80;
 		--name-highlight: #5a28d3;
-		border-color: #efc1ce;
-		background: #fff5f7;
+		background: transparent;
 	}
 
 	.initials-name.color-2 {
 		--name-shadow: #9ccbd8;
 		--name-text: #56899a;
 		--name-highlight: #5a28d3;
-		border-color: #b5dce6;
-		background: #f2fbfd;
+		background: transparent;
 	}
 
 	.initials-name.color-3 {
 		--name-shadow: #a8d1ad;
 		--name-text: #648c68;
 		--name-highlight: #5a28d3;
-		border-color: #c0e0c4;
-		background: #f4fbf4;
+		background: transparent;
 	}
 
 	.initials-name .requested-sound {
@@ -116,8 +137,7 @@
 
 .page-peluche .initials-name:hover,
 .page-peluche .initials-name:focus-visible {
-	transform: translateY(-3px) scale(1.04);
-	box-shadow: 0 6px 0 var(--name-shadow), 0 8px 12px rgba(0, 0, 0, 0.18);
+	transform: scale(1.04);
 	filter: brightness(1.04);
 }
 
@@ -151,7 +171,7 @@
 
 @media (max-width: 700px) {
 	.page-peluche .initials-grid {
-		top: 27%;
+		top: 51%;
 		grid-template-columns: repeat(2, 35vw);
 		gap: 2vw;
 	}
@@ -159,26 +179,28 @@
 
 @media (max-width: 380px) {
 	.page-peluche .initials-name {
-		min-height: 3.5rem;
-		padding: 0.2rem 0.35rem;
-		border-width: 2px;
-		border-radius: 9px;
-		font-size: 1rem;
+		font-size: 0.75rem;
 	}
 }
 
 @media (max-height: 450px) {
 	.page-peluche .initials-grid {
-		top: 18%;
 		gap: 2vw;
 	}
 
 	.page-peluche .initials-name {
-		width: min(10.5rem, 100%);
-		min-height: 3.7rem;
-		padding: 0.2rem 0.35rem;
-		border-width: 2px;
-		border-radius: 9px;
-		font-size: 1.1rem;
+		font-size: 0.8rem;
+	}
+}
+
+@media (min-width: 701px) and (max-height: 450px) {
+	.page-peluche .initials-grid {
+		top: 32%;
+	}
+}
+
+@media (min-width: 701px) and (max-height: 450px) and (min-aspect-ratio: 1.8 / 1) {
+	.page-peluche .initials-grid {
+		top: 51%;
 	}
 }

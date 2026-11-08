@@ -12,8 +12,7 @@ import { shuffle } from "../lib/shuffle";
 import { readMenuOption } from "../lib/storage";
 import "./Iniciales.css";
 
-// Banco de imágenes (public/assets/imagenes/peluches/<palabra>.webp). El nombre del archivo es la
-// palabra: de ahí sale con qué vocal o sílaba empieza, así que no hay que renombrarlos.
+// El nombre del archivo coincide con la palabra, que se usa para formar la consigna.
 const BANCO = [
 	"anillo", "arbol", "auto", "avion", "bebe", "cartuchera", "colectivo",
 	"elefante", "escalera", "escoba", "espejo", "estrella", "frutilla",
@@ -105,11 +104,11 @@ function crearRondas(letra) {
 }
 
 function optionImage(name) {
-	return img(`peluches/${name}.webp`);
+	return img(`peluches/${name}.png`);
 }
 
 function wordAudioFile(name) {
-	const usaAudioPeluche = name.startsWith("a") || name.startsWith("l") ||
+	const usaAudioPeluche = /^[aeioul]/.test(name) ||
 		["mamadera", "mano", "mariposa", "martillo", "media", "megafono"].includes(name);
 	return `${name}${usaAudioPeluche ? "PELUCHE" : ""}.mp3`;
 }
@@ -152,7 +151,10 @@ export default function Peluche() {
 	const game = useRef({ errors: 0, rewarded: false, locked: false }).current;
 
 	useEffect(() => {
-		preloadImages(rondas.flatMap((ronda) => ronda.options.map((option) => optionImage(option.name))));
+		preloadImages(rondas.flatMap((ronda) => ronda.options.flatMap((option) => [
+			optionImage(option.name),
+			img(`peluches/${option.name}.webp`)
+		])));
 	}, [rondas]);
 
 	function playInstruction() {
@@ -312,24 +314,34 @@ export default function Peluche() {
 						}
 						return (
 							<div className="initials-item" key={`${activityIndex}-${option.name}`}>
-								<button
-									type="button"
-									className={classNames.join(" ")}
-									onClick={() => handleImageClick(option)}
-									aria-label={option.name}
-								>
-									<img src={optionImage(option.name)} alt={option.name} />
-								</button>
-								<button
-									type="button"
-									className={`initials-name color-${(activityIndex * 2 + optionIndex) % 4}`}
-									onClick={() => playWordName(option.name)}
-								>
-									<>
-										<span className="requested-sound">{option.name.slice(0, largoResaltado)}</span>
-										{option.name.slice(largoResaltado)}
-									</>
-								</button>
+								<div className="initials-display">
+									<img className="initials-pedestal" src={img("peluches/basetorta.png")} alt="" aria-hidden="true" />
+									<button
+										type="button"
+										className={classNames.join(" ")}
+										onClick={() => handleImageClick(option)}
+										aria-label={option.name}
+									>
+										<img
+											src={optionImage(option.name)}
+											alt={option.name}
+											onError={(event) => {
+												event.currentTarget.onerror = null;
+												event.currentTarget.src = img(`peluches/${option.name}.webp`);
+											}}
+										/>
+									</button>
+									<button
+										type="button"
+										className={`initials-name color-${(activityIndex * 2 + optionIndex) % 4}`}
+										onClick={() => playWordName(option.name)}
+									>
+										<>
+											<span className="requested-sound">{option.name.slice(0, largoResaltado)}</span>
+											{option.name.slice(largoResaltado)}
+										</>
+									</button>
+								</div>
 							</div>
 						);
 					})}
