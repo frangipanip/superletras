@@ -11,6 +11,17 @@ import { readStorage, STORAGE_KEYS, writeStorage } from "../lib/storage";
 import "./Mundo5.css";
 
 const LETTERS = ["G", "GE", "GU", "J", "GÜ"];
+const LETTER_LABELS = {
+	GU: "GUE",
+	"GÜ": "GÜE"
+};
+const LETTER_SOUNDS = {
+	G: "suenaG.mp3",
+	GE: "suenaGE.mp3",
+	GU: "suenaGU.mp3",
+	J: "suenaJ.mp3",
+	"GÜ": "suenaGÜE.mp3"
+};
 const LETTER_BLOCKS = {
 	G: img("robotG.png"),
 	GE: img("robotGE.png"),
@@ -74,6 +85,7 @@ export default function Mundo5() {
 	const compactMenuRef = useRef(null);
 	const compactMenuToggleRef = useRef(null);
 	const characterSpotRef = useRef(null);
+	const letterAudioRef = useRef(null);
 	const { offscreen: characterOffscreen, direction: characterDirection, scrollToCharacter } =
 		useCharacterLocator(pageRef, characterSpotRef, character);
 	const drag = useRef({ pointerId: null, startX: 0, startScroll: 0, moved: false }).current;
@@ -137,6 +149,34 @@ export default function Mundo5() {
 		setSelectedLetter(letter);
 		writeStorage(STORAGE_KEYS.mundo5MenuOption, letter);
 		setCompactMenuOpen(false);
+
+		introAudio.pause();
+		introAudio.currentTime = 0;
+		introAudio.onended = null;
+		if (letterAudioRef.current) {
+			letterAudioRef.current.pause();
+			letterAudioRef.current.currentTime = 0;
+			letterAudioRef.current.onended = null;
+		}
+		const soundName = letter === "GÜ" && character !== "supernene"
+			? "suengaGÜE.mp3"
+			: LETTER_SOUNDS[letter];
+		const audio = runtime.audio(sound(soundName));
+		letterAudioRef.current = audio;
+		startTalking();
+		audio.onended = () => {
+			audio.onended = null;
+			if (letterAudioRef.current === audio) {
+				letterAudioRef.current = null;
+				stopTalking();
+			}
+		};
+		audio.play().catch(() => {
+			if (letterAudioRef.current === audio) {
+				letterAudioRef.current = null;
+				stopTalking();
+			}
+		});
 	}
 
 	function handlePointerDown(event) {
@@ -205,7 +245,7 @@ export default function Mundo5() {
 						ref={compactMenuToggleRef}
 						className="mundo5-compact-menu__trigger"
 						type="button"
-						aria-label={`Elegir letra. Seleccionada ${selectedLetter || LETTERS[0]}`}
+						aria-label={`Elegir letra. Seleccionada ${LETTER_LABELS[selectedLetter] || selectedLetter || LETTERS[0]}`}
 						aria-expanded={compactMenuOpen}
 						aria-controls="mundo5-compact-menu-options"
 						onClick={() => setCompactMenuOpen((open) => !open)}
@@ -219,7 +259,7 @@ export default function Mundo5() {
 									className={selectedLetter === letter ? "mundo5-compact-menu__option selected" : "mundo5-compact-menu__option"}
 									key={letter}
 									type="button"
-									aria-label={`Elegir letra ${letter}`}
+									aria-label={`Elegir letra ${LETTER_LABELS[letter] || letter}`}
 									aria-pressed={selectedLetter === letter}
 									onClick={() => selectLetter(letter)}
 								>
@@ -270,11 +310,11 @@ export default function Mundo5() {
 							className={`mundo5-letter mundo5-letter-${index + 1} letter-color-${LETTER_COLORS[letter]}${selectedLetter === letter ? " selected" : ""}`}
 							key={letter}
 							type="button"
-							aria-label={`Seleccionar letra ${letter}`}
+							aria-label={`Seleccionar letra ${LETTER_LABELS[letter] || letter}`}
 							aria-pressed={selectedLetter === letter}
 							onClick={() => selectLetter(letter)}
 						>
-							{letter}
+							{LETTER_LABELS[letter] || letter}
 						</button>
 					))}
 				</aside>

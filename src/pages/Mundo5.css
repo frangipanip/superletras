@@ -182,11 +182,11 @@
 .letter-color-green { color: #27833a; }
 .letter-color-purple { color: #7937a4; }
 
-.mundo5-letter-1 { top: 19.8%; }
+.mundo5-letter-1 { top: 18.5%; }
 .mundo5-letter-2 { top: 34.3%; }
 .mundo5-letter-3 { top: 49.4%; }
-.mundo5-letter-4 { top: 64.4%; }
-.mundo5-letter-5 { top: 79.3%; }
+.mundo5-letter-4 { top: 65.5% }
+.mundo5-letter-5 { top: 81%; }
 
 .mundo5-compact-menu {
 	position: fixed;
@@ -254,6 +254,7 @@
 	width: 100%;
 	height: 100%;
 	object-fit: contain;
+	transform: scale(1.2);
 }
 
 .mundo5-compact-menu__option:hover,
