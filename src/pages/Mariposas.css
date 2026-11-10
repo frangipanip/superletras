@@ -38,17 +38,7 @@
 			animation: bloque-saltarin 2.2s ease-in-out infinite;
 		}
 
-		.butterfly-button:nth-child(2n) {
-			animation-delay: -0.75s;
-		}
-
-		.butterfly-button:nth-child(3n) {
-			animation-delay: -1s;
-		}
-
-		.butterfly-button:nth-child(4n) {
-			animation-delay: -0.4s;
-		}
+		/* El desfase del salto va inline (bounceDelay en Mariposas.jsx). */
 
 		.butterfly-button img {
 			filter: drop-shadow(0 4px 7px rgba(0, 0, 0, 0.4));
@@ -67,7 +57,9 @@
 			background: transparent;
 			box-shadow: none;
 			color: #65352a;
-			font: 800 clamp(0.65rem, 1.8vmin, 1.25rem) Arial, Helvetica, sans-serif;
+			/* Proporcional al bloque (--butterfly-size lo calcula Mariposas.jsx): con vmin
+			   quedaba muy chica en tablets. */
+			font: 800 calc(var(--butterfly-size) * 0.2) Arial, Helvetica, sans-serif;
 			transform: translate(-50%, -50%);
 		}
 
@@ -91,6 +83,7 @@
 
 		.butterfly-button.stacked-block {
 			animation: none;
+			transition: none;
 			pointer-events: none;
 		}
 
@@ -523,7 +516,7 @@
 			}
 
 			.butterfly-button .badge {
-				font-size: clamp(1.35rem, 3.6vmin, 1.55rem);
+				font-size: calc(var(--butterfly-size) * 0.2);
 			}
 		}
 	}

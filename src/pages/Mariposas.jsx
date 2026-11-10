@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import { useLocation } from "react-router";
 import BackButton from "../components/BackButton";
 import Character from "../components/Character";
@@ -213,6 +214,8 @@ function createButterflies(mode, targetValue, generation, syllableModes = SYLLAB
 			left,
 			top,
 			rotation: Math.random() * 18 - 9,
+			// Desfase propio del salto (Mundo 3): con :nth-child cambiaba al apilar otro bloque y saltaban.
+			bounceDelay: -(index % 4) * 0.35,
 			flying: false,
 			vibrating: false
 		};
@@ -557,16 +560,20 @@ export default function Mariposas() {
 			], { duration: 850, iterations: 1, easing: "cubic-bezier(0.22, 0.75, 0.32, 1)", fill: "forwards" });
 			animation.onfinish = () => {
 				if (state.generation !== clickGeneration) return;
+				// Primero se pinta el bloque ya apilado y recién después se suelta la animación:
+				// al revés, el bloque volvía un cuadro a su lugar de origen.
+				flushSync(() => {
+					setStackedBlocks((current) => [...current, {
+						...butterfly,
+						left: targetLeft,
+						top: targetTop,
+						stacked: true,
+						stackScale: targetScale,
+						stackIndex
+					}]);
+					setButterflies((current) => current.filter((item) => item.id !== butterfly.id));
+				});
 				animation.cancel();
-				setStackedBlocks((current) => [...current, {
-					...butterfly,
-					left: targetLeft,
-					top: targetTop,
-					stacked: true,
-					stackScale: targetScale,
-					stackIndex
-				}]);
-				setButterflies((current) => current.filter((item) => item.id !== butterfly.id));
 				if (completesRound) finishRound();
 			};
 			return;
@@ -740,6 +747,7 @@ export default function Mariposas() {
 										: `translate(-50%, -50%) rotate(${butterfly.rotation}deg)`,
 									"--block-rotation": `${butterfly.rotation}deg`,
 									...(isMundo3 && {
+										animationDelay: `${butterfly.bounceDelay}s`,
 										zIndex: butterfly.stacked ? 5 + butterfly.stackIndex : butterfly.flying ? 5 : butterfly.top < 35 ? 1 : butterfly.top < 60 ? 2 : 3
 									})
 								}}

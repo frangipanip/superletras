@@ -8,6 +8,7 @@ import { usePageRuntime } from "../hooks/usePageRuntime";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
 import { CHARACTERS, img, MUNDO1_CHARACTERS, MUNDO2_CHARACTER_FRAMES, MUNDO2_CHARACTERS, MUNDO2_MOUTH_IMAGES, MUNDO3_CHARACTERS, MUNDO3_MOUTH_IMAGES, MUNDO4_CHARACTERS, MUNDO4_MOUTH_IMAGES, sound } from "../lib/assets";
+import { whenPageReady } from "../lib/pageGate";
 import { shuffle } from "../lib/shuffle";
 import { useActivityMenuOption } from "../hooks/useActivityMenuOption";
 import { useCarPhysics } from "../hooks/useCarPhysics";
@@ -121,6 +122,8 @@ const MUNDO4_SHELLS = {
 	z: { closed: "almejacerradaZ.png", open: "almejaabiertaZ.png" },
 	ch: { closed: "almejacerradaCH.png", open: "almejaabiertaCH.png" }
 };
+// Mundo 4: la almeja cae cerrada desde arriba y se abre al llegar (dura lo mismo que mundo4-almeja-cae).
+const MUNDO4_CLAM_FALL_MS = 1100;
 const MUNDO4_SYLLABLE_COLORS = ["#9338e4", "#ed55c6", "#ea8686", "#3bece6", "#32d87f"];
 const MUNDO2_LETTER_IMAGES = {
 	p: "letraP.png",
@@ -191,6 +194,8 @@ export default function InicioActividad() {
 		src: isMundo4 ? img(MUNDO4_SHELLS[menuOption || fallbackOption].closed) : "",
 		moved: false
 	}));
+	// "waiting" (escondida arriba hasta que la pantalla termina de cargar), "falling" o "landed".
+	const [clamDrop, setClamDrop] = useState(isMundo4 ? "waiting" : "landed");
 	const [audios] = useState(() => ({
 		intro: mode.intro.map((file) => runtime.audio(sound(file), { preload: true })),
 		pressure: runtime.audio(sound("Presion.mp3"), { preload: true }),
@@ -249,6 +254,8 @@ export default function InicioActividad() {
 	const activityLetterImages = isMundo3 ? MUNDO3_LETTER_IMAGES : letterImages;
 	const letterLabels = isMundo3 ? MUNDO3_LETTER_LABELS : isMundo2 ? MUNDO2_LETTER_LABELS : LETTER_LABELS;
 	const bigLetterImage = img(activityLetterImages[menuOption] || activityLetterImages[fallbackOption]);
+	// Mundo 3: el bloque cae del cielo al centro y se va a su lugar (atrás) cuando empiezan los carros.
+	const bigLetterCentered = isMundo3 && showBigLetter && visibleItems.size === 0;
 
 	function allItemAudios() {
 		return [...Object.values(audios.itemsLong), ...Object.values(audios.itemsShort)];
@@ -413,6 +420,7 @@ export default function InicioActividad() {
 		setRevealingItem(null);
 		setActiveItem(null);
 		if (isMundo4) {
+			setClamDrop("landed");
 			setClamState({
 				src: img(menuOption === "q" ? "almejaabiertaQU.png" : MUNDO4_SHELLS[menuOption].open),
 				moved: true
@@ -597,11 +605,26 @@ export default function InicioActividad() {
 		setShowBigLetter(false);
 		setVisibleItems(new Set());
 		setRevealingItem(null);
+		let cancelClamDrop = () => {};
 		if (isMundo4) {
 			setClamState({ src: img(MUNDO4_SHELLS[menuOption].closed), moved: false });
+			setClamDrop("waiting");
+			// La almeja cae recién cuando se ve la pantalla; al llegar abajo se abre (primer paso).
+			cancelClamDrop = whenPageReady(() => {
+				if (!introductionActive.current) {
+					return;
+				}
+				setClamDrop("falling");
+				sequenceTimer.current = runtime.setTimeout(() => {
+					setClamDrop("landed");
+					playNextStep();
+				}, MUNDO4_CLAM_FALL_MS);
+			});
+		} else {
+			playNextStep();
 		}
-		playNextStep();
 		return () => {
+			cancelClamDrop();
 			introductionActive.current = false;
 			runtime.clearTimeout(sequenceTimer.current);
 			runtime.clearTimeout(shuffleTimer.current);
@@ -702,12 +725,12 @@ export default function InicioActividad() {
 					</div>
 				)}
 				{isMundo4 && (
-					<div className={`inicio-mundo4-clam${clamState.moved ? " is-small" : ""}`} aria-hidden="true">
+					<div className={`inicio-mundo4-clam${clamState.moved ? " is-small" : ""}${clamDrop !== "landed" ? ` is-${clamDrop}` : ""}`} aria-hidden="true">
 						<img src={clamState.src} alt="" draggable={false} />
 					</div>
 				)}
 				{!isMundo4 && <div
-					className={`inicio-activity-letter-image-wrap${showBigLetter ? " is-visible" : ""}`}
+					className={`inicio-activity-letter-image-wrap${showBigLetter ? " is-visible" : ""}${bigLetterCentered ? " is-centered" : ""}`}
 					aria-hidden="true"
 				>
 					<img className="inicio-activity-letter-image" src={bigLetterImage} alt={letterLabels[menuOption] || letterLabels[fallbackOption]} />

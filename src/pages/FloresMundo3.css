@@ -6,7 +6,8 @@
 		right: auto;
 		left: 50%;
 		z-index: 0;
-		width: clamp(152.6px, 42vmin, 175.5px);
+		/* Mismo tamaño relativo que en celular (42vmin), sin tope: antes en tablet quedaba chico. */
+		width: max(152.6px, 42vmin);
 		transform: translate(-50%, -50%);
 		animation: flores-m3-character-drift 2.8s ease-in-out infinite;
 	}
@@ -14,7 +15,7 @@
 	.selected-character.celebrating {
 		top: 35%;
 		left: 50%;
-		width: clamp(122.1px, 33.7365vmin, 233.478px);
+		width: max(122.1px, 33.7365vmin);
 		transform: translate(-50%, -50%) scale(1.35);
 		animation: none;
 	}
@@ -99,15 +100,6 @@
 		.flower-button .flower-image {
 			transform: scale(1.55);
 			transition: filter 220ms ease;
-		}
-	}
-}
-
-@media (min-width: 769px) and (max-width: 1200px) {
-	.page-flores.world-mundo3 {
-		.selected-character,
-		.selected-character.celebrating {
-			width: clamp(175.5px, 20vw, 240px);
 		}
 	}
 }
