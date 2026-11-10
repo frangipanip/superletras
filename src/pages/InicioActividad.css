@@ -117,6 +117,8 @@
 
 .page-inicio-actividad.world-almejas {
 	--mundo4-clam-small-top: 7%;
+	/* Ancho de la almeja; el polvo y la burbuja se miden con él. */
+	--mundo4-clam-width: clamp(12rem, 30vw, 27rem);
 	background-image: url("/assets/imagenes/fondoinicioM3.png");
 }
 
@@ -125,10 +127,118 @@
 	top: 65%;
 	left: 50%;
 	z-index: 1;
-	width: clamp(12rem, 30vw, 27rem);
+	width: var(--mundo4-clam-width, clamp(12rem, 30vw, 27rem));
 	transform: translate(-50%, -50%);
 	transition: top 800ms ease, transform 800ms ease;
 	pointer-events: none;
+}
+
+/* Burbuja que envuelve a la almeja al subir. El centro de burbuja.png es transparente,
+   así que va adelante y la almeja se ve adentro. padding-top da el alto igual al ancho
+   (aspect-ratio no anda en las tablets viejas). */
+.inicio-mundo4-clam-bubble {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 125%;
+	padding-top: 125%;
+	background: url("/assets/imagenes/burbuja.png") center / contain no-repeat;
+	opacity: 0;
+	transform: translate(-50%, -50%) scale(0.6);
+	pointer-events: none;
+}
+
+.inicio-mundo4-clam.is-small .inicio-mundo4-clam-bubble {
+	animation:
+		mundo4-burbuja-envuelve 500ms cubic-bezier(0.34, 1.56, 0.64, 1) both,
+		mundo4-burbuja-ondula 2.6s ease-in-out 500ms infinite;
+}
+
+@keyframes mundo4-burbuja-envuelve {
+	0% {
+		opacity: 0;
+		transform: translate(-50%, -50%) scale(0.6);
+	}
+
+	100% {
+		opacity: 1;
+		transform: translate(-50%, -50%) scale(1);
+	}
+}
+
+@keyframes mundo4-burbuja-ondula {
+	0%,
+	100% {
+		opacity: 1;
+		transform: translate(-50%, -50%) scale(1, 1);
+	}
+
+	50% {
+		opacity: 1;
+		transform: translate(-50%, -50%) scale(1.03, 0.97);
+	}
+}
+
+/* Polvo del golpe: un punto en la base de la almeja (centro a 65%, la imagen mide 0.852 anchos
+   de alto). Va aparte de la almeja para no rebotar con ella. Cada pedazo arranca escondido y
+   espera al golpe: 770 ms = 70% de mundo4-almeja-cae. */
+.inicio-mundo4-dust {
+	position: absolute;
+	top: calc(65% + var(--mundo4-clam-width) * 0.4);
+	left: 50%;
+	z-index: 2;
+	width: 0;
+	height: 0;
+	pointer-events: none;
+}
+
+.inicio-mundo4-dust-puff,
+.inicio-mundo4-dust-grain {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: calc(var(--mundo4-clam-width) * var(--size));
+	height: calc(var(--mundo4-clam-width) * var(--size));
+	border-radius: 50%;
+	opacity: 0;
+	animation: mundo4-polvo 1000ms cubic-bezier(0.2, 0.7, 0.3, 1) calc(770ms + var(--delay)) both;
+}
+
+.inicio-mundo4-dust-puff {
+	background: radial-gradient(circle, rgba(250, 236, 200, 0.95) 0%, rgba(238, 214, 164, 0.75) 40%, rgba(238, 214, 164, 0) 70%);
+}
+
+.inicio-mundo4-dust-grain {
+	background: #e9c98a;
+	animation-duration: 700ms;
+}
+
+@keyframes mundo4-polvo {
+	0% {
+		opacity: 0;
+		transform: translate(calc(-50% + var(--mundo4-clam-width) * var(--x0)), -50%) scale(0.3);
+	}
+
+	12% {
+		opacity: 1;
+	}
+
+	100% {
+		opacity: 0;
+		transform: translate(calc(-50% + var(--mundo4-clam-width) * var(--x1)), calc(-50% + var(--mundo4-clam-width) * var(--y1))) scale(1);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.inicio-mundo4-dust {
+		display: none;
+	}
+
+	.inicio-mundo4-clam.is-small .inicio-mundo4-clam-bubble {
+		animation: none;
+		opacity: 1;
+		transform: translate(-50%, -50%) scale(1);
+	}
 }
 
 .inicio-mundo4-clam img {

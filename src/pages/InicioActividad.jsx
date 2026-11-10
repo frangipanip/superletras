@@ -124,6 +124,23 @@ const MUNDO4_SHELLS = {
 };
 // Mundo 4: la almeja cae cerrada desde arriba y se abre al llegar (dura lo mismo que mundo4-almeja-cae).
 const MUNDO4_CLAM_FALL_MS = 1100;
+// Nubes de arena que levanta la almeja al golpear el piso. Medidas en anchos de almeja:
+// x0 = desde dónde sale (respecto del centro de la base), x1/y1 = adónde llega, size = diámetro.
+const MUNDO4_DUST_PUFFS = [
+	{ x0: -0.3, x1: -0.85, y1: -0.12, size: 0.5, delay: 0 },
+	{ x0: -0.25, x1: -0.6, y1: -0.3, size: 0.38, delay: 50 },
+	{ x0: -0.15, x1: -0.35, y1: -0.42, size: 0.28, delay: 100 },
+	{ x0: 0.3, x1: 0.85, y1: -0.12, size: 0.5, delay: 20 },
+	{ x0: 0.25, x1: 0.6, y1: -0.3, size: 0.38, delay: 70 },
+	{ x0: 0.15, x1: 0.35, y1: -0.42, size: 0.28, delay: 120 }
+];
+// Granitos de arena que saltan un poco más lejos que las nubes.
+const MUNDO4_DUST_GRAINS = [
+	{ x0: -0.3, x1: -0.75, y1: -0.5, size: 0.035, delay: 0 },
+	{ x0: -0.2, x1: -1, y1: -0.25, size: 0.025, delay: 30 },
+	{ x0: 0.3, x1: 0.8, y1: -0.45, size: 0.035, delay: 10 },
+	{ x0: 0.2, x1: 1.05, y1: -0.22, size: 0.025, delay: 40 }
+];
 const MUNDO4_SYLLABLE_COLORS = ["#9338e4", "#ed55c6", "#ea8686", "#3bece6", "#32d87f"];
 const MUNDO2_LETTER_IMAGES = {
 	p: "letraP.png",
@@ -727,6 +744,30 @@ export default function InicioActividad() {
 				{isMundo4 && (
 					<div className={`inicio-mundo4-clam${clamState.moved ? " is-small" : ""}${clamDrop !== "landed" ? ` is-${clamDrop}` : ""}`} aria-hidden="true">
 						<img src={clamState.src} alt="" draggable={false} />
+						{/* Envuelve a la almeja cuando sube (.is-small). */}
+						<span className="inicio-mundo4-clam-bubble" />
+					</div>
+				)}
+				{/* Polvo del golpe: se monta al empezar la caída y la animación espera al momento del golpe
+				    (ver .inicio-mundo4-dust); queda montado e invisible hasta que la almeja sube. */}
+				{isMundo4 && (clamDrop === "falling" || (clamDrop === "landed" && !clamState.moved)) && (
+					<div className="inicio-mundo4-dust" aria-hidden="true">
+						{[
+							...MUNDO4_DUST_PUFFS.map((piece) => ({ ...piece, kind: "puff" })),
+							...MUNDO4_DUST_GRAINS.map((piece) => ({ ...piece, kind: "grain" }))
+						].map((piece, index) => (
+							<span
+								key={index}
+								className={`inicio-mundo4-dust-${piece.kind}`}
+								style={{
+									"--x0": piece.x0,
+									"--x1": piece.x1,
+									"--y1": piece.y1,
+									"--size": piece.size,
+									"--delay": `${piece.delay}ms`
+								}}
+							/>
+						))}
 					</div>
 				)}
 				{!isMundo4 && <div
