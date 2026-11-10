@@ -76,12 +76,6 @@
 		width: 100%;
 		aspect-ratio: 358 / 511;
 		transform: translateX(-50%);
-		animation: m4-horse-bob 2.4s ease-in-out infinite;
-	}
-
-	.m4-flower-pair.correct .m4-horse,
-	.m4-flower-pair.wrong .m4-horse {
-		animation: none;
 	}
 
 	.m4-horse-frame,
@@ -191,16 +185,6 @@
 	75%, 100% { opacity: 0; }
 }
 
-@keyframes m4-horse-bob {
-	0%,
-	100% {
-		transform: translateX(-50%) translateY(0);
-	}
-	50% {
-		transform: translateX(-50%) translateY(-3%);
-	}
-}
-
 @keyframes flores-m4-character-swim {
 	0%,
 	100% {
@@ -243,10 +227,6 @@
 		.m4-horse-frame-1 {
 			animation: none;
 			opacity: 1;
-		}
-
-		.m4-horse {
-			animation: none;
 		}
 	}
 }
