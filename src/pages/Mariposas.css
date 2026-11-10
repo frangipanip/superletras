@@ -115,7 +115,7 @@
 
 		.selected-character,
 		.selected-character.celebrating {
-			top: 30%;
+			top: 50%;
 			right: auto;
 			left: 4%;
 			width: clamp(180px, 37vmin, 360px);
@@ -149,17 +149,49 @@
 			animation: none;
 		}
 
-		.butterfly-button img {
-			aspect-ratio: auto;
-			filter: drop-shadow(0 4px 7px rgba(0, 0, 0, 0.4));
+		.butterfly-button .fish-body {
+			position: relative;
+			display: block;
+			width: 100%;
 			animation: pez-flotar 2.8s ease-in-out infinite;
 		}
 
-		.butterfly-button:nth-child(2n) img {
+		.butterfly-button img {
+			aspect-ratio: auto;
+			filter: drop-shadow(0 4px 7px rgba(0, 0, 0, 0.4));
+		}
+
+		.fish-frames {
+			position: relative;
+			display: block;
+			width: 100%;
+		}
+
+		.fish-frames .fish-frame {
+			position: absolute;
+			inset: 0;
+			width: 100%;
+			animation: pez1-frame 1.6s steps(1, end) infinite;
+		}
+
+		.fish-frames .fish-frame-1 {
+			position: relative;
+			animation-name: pez1-frame;
+		}
+
+		.fish-frames .fish-frame-2 {
+			animation-name: pez11-frame;
+		}
+
+		.fish-frames .fish-frame-3 {
+			animation-name: pez12-frame;
+		}
+
+		.butterfly-button:nth-child(2n) .fish-body {
 			animation-delay: -0.9s;
 		}
 
-		.butterfly-button:nth-child(3n) img {
+		.butterfly-button:nth-child(3n) .fish-body {
 			animation-delay: -1.8s;
 		}
 
@@ -172,6 +204,54 @@
 			background: transparent;
 			box-shadow: none;
 			font-size: clamp(0.7rem, 1.8vmin, 1.2rem);
+		}
+
+		.butterfly-button .badge.fish-label {
+			top: 58%;
+			left: 52%;
+			width: 48%;
+			height: 25%;
+			font-size: clamp(1.067rem, 2.97vmin, 1.232rem);
+			text-shadow: 0 1px 2px rgba(104, 73, 33, 0.2);
+		}
+
+		.fish-body::before,
+		.fish-body::after {
+			position: absolute;
+			z-index: 1;
+			display: block;
+			border: 1px solid rgba(255, 255, 255, 0.9);
+			border-radius: 50%;
+			background: radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.95), rgba(114, 222, 244, 0.45) 70%);
+			box-shadow: 0 0 5px rgba(125, 225, 245, 0.6);
+			content: "";
+			pointer-events: none;
+			animation: pez-burbujear 1.8s ease-out infinite;
+		}
+
+		.fish-body::before {
+			top: 45%;
+			left: 3%;
+			width: 9px;
+			height: 9px;
+		}
+
+		.fish-body::after {
+			top: 39%;
+			left: 0;
+			width: 6px;
+			height: 6px;
+			animation-delay: -0.9s;
+		}
+
+		.butterfly-button.swimming-away {
+			z-index: 6;
+			pointer-events: none;
+			animation: pez-nadar 1.15s ease-in forwards;
+		}
+
+		.butterfly-button.swimming-away .fish-body {
+			animation: none;
 		}
 
 	}
@@ -335,6 +415,14 @@
 		animation-delay: -0.4s;
 	}
 
+	&.world-mundo4 .butterfly-field .butterfly-button {
+		animation: none;
+	}
+
+	&.world-mundo4 .butterfly-field .butterfly-button.swimming-away {
+		animation: pez-nadar 1.15s ease-in forwards;
+	}
+
 	.butterfly-button.correct:not(.flying):hover,
 	.butterfly-button.correct:not(.flying):focus-visible {
 		transform: translate(-50%, -50%) scale(1.06);
@@ -451,6 +539,14 @@
 				height: 86dvh;
 			}
 		}
+
+	}
+}
+
+@media (orientation: landscape) and (max-width: 1000px) and (max-height: 600px) {
+	.page-mariposas.world-mundo4 button.selected-character.mundo4-character {
+		left: 2vw !important;
+		width: clamp(240px, 68vmin, 310px) !important;
 	}
 }
 
@@ -490,6 +586,55 @@
 	}
 	50% {
 		transform: translateY(-16px);
+	}
+}
+
+@keyframes pez1-frame {
+	0%, 12.49%, 25%, 37.49%, 50%, 62.49%, 75%, 87.49% { opacity: 1; }
+	12.5%, 24.99%, 37.5%, 49.99%, 62.5%, 74.99%, 87.5%, 100% { opacity: 0; }
+}
+
+@keyframes pez11-frame {
+	0%, 12.49%, 25%, 37.49%, 50%, 62.49%, 75%, 87.49% { opacity: 0; }
+	12.5%, 24.99%, 37.5%, 49.99%, 62.5%, 74.99% { opacity: 1; }
+	87.5%, 100% { opacity: 0; }
+}
+
+@keyframes pez12-frame {
+	0%, 87.49% { opacity: 0; }
+	87.5%, 100% { opacity: 1; }
+}
+
+@keyframes pez-nadar {
+	0% {
+		transform: translate(-50%, -50%) translateX(0) rotate(0);
+		opacity: 1;
+	}
+	35% {
+		transform: translate(-50%, -50%) translateX(-35vw) translateY(-8px) rotate(-2deg);
+		opacity: 1;
+	}
+	70% {
+		transform: translate(-50%, -50%) translateX(-75vw) translateY(6px) rotate(2deg);
+		opacity: 0.9;
+	}
+	100% {
+		transform: translate(-50%, -50%) translateX(-125vw) translateY(-4px);
+		opacity: 0;
+	}
+}
+
+@keyframes pez-burbujear {
+	0% {
+		opacity: 0;
+		transform: translate(0, 0) scale(0.55);
+	}
+	20% {
+		opacity: 0.9;
+	}
+	100% {
+		opacity: 0;
+		transform: translate(-12px, -34px) scale(1.15);
 	}
 }
 

@@ -82,6 +82,11 @@ const MUNDO4_SYLLABLE_AUDIO = {
 	CH: "letraCH.mp3"
 };
 const MUNDO4_FISH_IMAGES = [1, 2, 3].map((index) => img(`pez${index}.png`));
+const MUNDO4_FISH_FRAMES = [
+	[img("pez1.png"), img("pez11.png"), img("pez12.png")],
+	[img("pez2.png"), img("pez21.png"), img("pez22.png")],
+	[img("pez3.png"), img("pez31.png"), img("pez32.png")]
+];
 const MUNDO3_OPTION_SOUNDS = {
 	r: "letraR.mp3",
 	rr: "letraRR.mp3",
@@ -115,6 +120,16 @@ const POSITIONS = [
 	[78, 47],
 	[27, 76],
 	[52, 75]
+];
+const MUNDO4_POSITIONS = [
+	[40, 18],
+	[60, 20],
+	[80, 13],
+	[48, 50],
+	[77, 48],
+	[38, 80],
+	[62, 86],
+	[88, 85]
 ];
 const MUNDO3_POSITIONS = POSITIONS.map(([left, top]) => [22 + left * 0.75, top]);
 
@@ -345,7 +360,7 @@ export default function Mariposas() {
 		const maxByWidth = bounds.width / (isMundo3 ? 5.6 : 4.8);
 		const maxByHeight = bounds.height / 2.27;
 		const preferred = Math.min(maxByWidth, maxByHeight, isMundo3 ? maxMundo3Size : isMobileLandscape ? 108 : 225);
-		const sizeScale = isMundo2 || isMundo3 ? 1 : isSmallScreen ? 0.70125 : 0.6375;
+		const sizeScale = isMundo4 ? (isSmallScreen ? 1.089 : 0.968) : isMundo2 || isMundo3 ? 1 : isSmallScreen ? 0.70125 : 0.6375;
 		const minimumSize = isMobileLandscape ? 95 : 126;
 		const size = isMundo3
 			? Math.max(48, Math.min(preferred, maxMundo3Size))
@@ -499,7 +514,7 @@ export default function Mariposas() {
 			state.generation,
 			syllableModes,
 			creatureImages,
-			isMundo3 ? MUNDO3_POSITIONS : isMundo2 || isMundo4 ? undefined : OSITO_POSITIONS,
+			isMundo3 ? MUNDO3_POSITIONS : isMundo4 ? MUNDO4_POSITIONS : isMundo2 ? undefined : OSITO_POSITIONS,
 			isMundo3,
 			isMundo4
 		));
@@ -537,6 +552,14 @@ export default function Mariposas() {
 		const clickGeneration = state.generation;
 		button.disabled = true;
 		updateButterfly(butterfly.id, { flying: true });
+
+		if (isMundo4) {
+			runtime.setTimeout(() => {
+				setButterflies((current) => current.filter((item) => item.id !== butterfly.id));
+				if (completesRound && state.generation === clickGeneration) finishRound();
+			}, 1150);
+			return;
+		}
 
 		if (isMundo3) {
 			const fieldBounds = fieldRef.current.getBoundingClientRect();
@@ -725,8 +748,9 @@ export default function Mariposas() {
 				<section className="butterfly-field" ref={fieldRef} aria-label={isMundo4 ? "Peces" : isMundo3 ? "Bloques" : "Mariposas"}>
 					{[...stackedBlocks, ...butterflies].map((butterfly) => {
 						const classNames = ["butterfly-button", mode !== "a" ? "l-butterfly" : "a-butterfly"];
+						const fishIndex = isMundo4 ? MUNDO4_FISH_IMAGES.indexOf(butterfly.image) : -1;
 						if (butterfly.flying) {
-							classNames.push(isMundo3 ? "flying-to-stack" : isMundo2 ? "flying" : "flying-to-jar", "correct");
+							classNames.push(isMundo4 ? "swimming-away" : isMundo3 ? "flying-to-stack" : isMundo2 ? "flying" : "flying-to-jar", "correct");
 						}
 						if (butterfly.stacked) classNames.push("stacked-block", "correct");
 						if (butterfly.vibrating) {
@@ -752,15 +776,31 @@ export default function Mariposas() {
 								}}
 								onClick={(event) => handleButterflyClick(event, butterfly)}
 							>
-								<img
-									src={butterfly.image}
-									alt={isMundo4
-										? `Pez con sílaba ${butterfly.value}`
-										: isMundo3
-										? `Bloque con sílaba ${butterfly.value}`
-										: mode !== "a" ? `Mariposa con sílaba ${butterfly.value}` : `Mariposa con vocal ${butterfly.value}`}
-								/>
-								<span className="badge">{butterfly.value}</span>
+								<span className={isMundo4 ? "fish-body" : undefined}>
+									{fishIndex >= 0 ? (
+										<span className="fish-frames">
+											{MUNDO4_FISH_FRAMES[fishIndex].map((image, index) => (
+												<img
+													className={`fish-frame fish-frame-${index + 1}`}
+													src={image}
+													alt={index === 0 ? `Pez con sílaba ${butterfly.value}` : ""}
+													aria-hidden={index !== 0}
+													key={image}
+												/>
+											))}
+										</span>
+									) : (
+										<img
+											src={butterfly.image}
+											alt={isMundo4
+												? `Pez con sílaba ${butterfly.value}`
+												: isMundo3
+												? `Bloque con sílaba ${butterfly.value}`
+												: mode !== "a" ? `Mariposa con sílaba ${butterfly.value}` : `Mariposa con vocal ${butterfly.value}`}
+										/>
+									)}
+									<span className={`badge${isMundo4 ? " fish-label" : ""}`}>{butterfly.value}</span>
+								</span>
 							</button>
 						);
 					})}
