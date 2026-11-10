@@ -15,6 +15,12 @@
 	scrollbar-width: none;
 }
 
+.page-mundo4.traveling .mundo4-path-button,
+.page-mundo4.traveling .mundo4-letter,
+.page-mundo4.traveling .mundo4-character {
+	pointer-events: none;
+}
+
 .page-mundo4 .top-nav {
 	position: fixed;
 	inset: 0;
@@ -308,7 +314,7 @@
 		drop-shadow(0 0 8px rgba(255, 255, 255, 0.9));
 }
 
-.mundo4-character {
+.mundo4-character-spot {
 	position: absolute;
 	bottom: 5%;
 	left: 2%;
@@ -316,6 +322,22 @@
 	display: flex;
 	justify-content: center;
 	width: var(--mundo4-character-area-width);
+}
+
+.mundo4-character-spot.perched {
+	top: auto;
+	bottom: auto;
+	z-index: 4;
+	width: clamp(108px, 27vmin, 198px);
+	--mundo4-path-button-radius: clamp(54px, 9vmin, 78px);
+	transform: translate(calc(-100% - var(--mundo4-path-button-radius)), calc(-100% + var(--mundo4-path-button-radius)));
+}
+
+.mundo4-character {
+	position: relative;
+	display: flex;
+	justify-content: center;
+	width: 100%;
 	padding: 0;
 	border: 0;
 	background: transparent;
@@ -343,6 +365,19 @@
 	filter: none;
 	pointer-events: none;
 	transform: translateX(-50%);
+}
+
+.mundo4-puf {
+	top: -10%;
+	right: -24%;
+	bottom: -8%;
+	left: -24%;
+}
+
+@media (max-width: 800px), (max-height: 600px) {
+	.mundo4-character-spot.perched {
+		--mundo4-path-button-radius: clamp(40px, 7.5vmin, 62.5px);
+	}
 }
 
 @media (max-width: 700px) {

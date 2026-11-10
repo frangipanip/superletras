@@ -120,6 +120,7 @@
 			left: 4%;
 			width: clamp(180px, 37vmin, 360px);
 			transform: translateY(-50%);
+			transform-origin: left center;
 		}
 
 		.selected-character > img:first-child {
@@ -311,6 +312,10 @@
 	&:not(.world-mundo2) .selected-character.celebrating {
 		right: auto;
 		left: clamp(0.75rem, 2vw, 1.5rem);
+	}
+
+	&.world-mundo4 .selected-character.celebrating {
+		left: 4%;
 	}
 
 	.butterfly-field {
@@ -546,7 +551,7 @@
 @media (orientation: landscape) and (max-width: 1000px) and (max-height: 600px) {
 	.page-mariposas.world-mundo4 button.selected-character.mundo4-character {
 		left: 2vw !important;
-		width: clamp(240px, 68vmin, 310px) !important;
+		width: clamp(140px, 56vmin, 252px) !important;
 	}
 }
 

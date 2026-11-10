@@ -10,6 +10,7 @@ import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
 import { img, MUNDO2_MOUTH_IMAGES, MUNDO3_MOUTH_IMAGES, MUNDO4_CHARACTER_FRAMES, MUNDO4_MOUTH_IMAGES, preloadImages, sound } from "../lib/assets";
 import { shuffle } from "../lib/shuffle";
+import { createMundo4IncorrectSyllables, MUNDO4_SYLLABLES } from "../lib/mundo4";
 import { useActivityMenuOption } from "../hooks/useActivityMenuOption";
 import "./actividad.css";
 import "./Mariposas.css";
@@ -66,14 +67,6 @@ const MUNDO3_SYLLABLE_AUDIO = {
 	RRO: "rro.mp3",
 	RRU: "rru.mp3"
 };
-const MUNDO4_SYLLABLES = {
-	c: ["CA", "CO", "CU"],
-	ce: ["CE", "CI"],
-	q: ["QUE", "QUI"],
-	z: ["ZA", "ZE", "ZI", "ZO", "ZU"],
-	ch: ["CHA", "CHE", "CHI", "CHO", "CHU"]
-};
-const MUNDO4_C_SYLLABLES = ["CA", "CE", "CI", "CO", "CU"];
 const MUNDO4_SYLLABLE_AUDIO = {
 	C: "letraC.mp3",
 	CE: "letraCE.mp3",
@@ -158,30 +151,6 @@ function getAudioFileName(label, type = "syllable", isMundo2 = false, isMundo3 =
 function createInstructionOrder(mode, syllableModes, isMundo3) {
 	if (isMundo3) return [mode.toUpperCase()];
 	return mode !== "a" ? [mode.toUpperCase()] : shuffle(VOWELS);
-}
-
-function createMundo4IncorrectSyllables(mode) {
-	const consonantSyllables = {
-		c: [...SYLLABLES.s, ...SYLLABLES.t],
-		ce: [...SYLLABLES.s, ...SYLLABLES.t],
-		q: [...SYLLABLES.s, ...SYLLABLES.t],
-		z: [...SYLLABLES.s, ...MUNDO4_C_SYLLABLES],
-		ch: [...SYLLABLES.s, ...MUNDO4_C_SYLLABLES]
-	};
-	if (mode === "ce") {
-		return [
-			shuffle(MUNDO4_SYLLABLES.c)[0],
-			...shuffle(consonantSyllables.ce).slice(0, 2)
-		];
-	}
-	if (mode === "q") {
-		return [
-			shuffle(MUNDO4_SYLLABLES.c)[0],
-			shuffle(MUNDO4_SYLLABLES.ce)[0],
-			shuffle(SYLLABLES.t)[0]
-		];
-	}
-	return shuffle(consonantSyllables[mode]).slice(0, TOTAL_BUTTERFLIES - TOTAL_CORRECT);
 }
 
 function createButterflies(mode, targetValue, generation, syllableModes = SYLLABLES, creatureImages = BUTTERFLY_IMAGES, creaturePositions, isMundo3 = false, isMundo4 = false) {
