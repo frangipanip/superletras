@@ -209,10 +209,15 @@ export default function Mundo4() {
 	}
 
 	function startActivity(index) {
-		if (index !== 0) return;
-		navigate("/inicio", {
-			state: { world: 4, menuOption: selectedLetter || LETTERS[0] }
-		});
+		if (index === 0) {
+			navigate("/inicio", {
+				state: { world: 4, menuOption: selectedLetter || LETTERS[0] }
+			});
+		} else if (index === 1) {
+			navigate("/mariposas", {
+				state: { world: 4, menuOption: selectedLetter || LETTERS[0] }
+			});
+		}
 	}
 
 	useEffect(() => {
@@ -314,16 +319,20 @@ export default function Mundo4() {
 				<div className="mundo4-path" aria-label="Camino de actividades">
 					{PATH_BUTTONS.map(([left, top], index) => (
 						<div
-							className={`mundo4-path-activity${index === 0 ? "" : " mundo4-path-activity-hidden"}`}
+							className={`mundo4-path-activity${index > 1 ? " mundo4-path-activity-hidden" : ""}`}
 							key={`${left}-${top}-${index}`}
 							style={{ left: `${left}%`, top: `${top}%` }}
 						>
 							<img className="mundo4-path-sign" src={img(ACTIVITY_SIGN_IMAGES[index] || "GLOBOSbtn.png")} alt="" draggable={false} />
 							<button
-								className={`mundo4-path-button${index === 0 ? " is-available" : ""}`}
+								className={`mundo4-path-button${index < 2 ? " is-available" : ""}`}
 								type="button"
-								disabled={index !== 0}
-								aria-label={index === 0 ? "Iniciar actividad de sílabas" : `Actividad del camino ${index + 1}, próximamente`}
+								disabled={index > 1}
+								aria-label={index === 0
+									? "Iniciar actividad de sílabas"
+									: index === 1
+										? "Iniciar actividad de sílabas con peces"
+										: `Actividad del camino ${index + 1}, próximamente`}
 								onClick={() => startActivity(index)}
 							>
 								<img src={img("boton.svg")} alt="" draggable={false} />

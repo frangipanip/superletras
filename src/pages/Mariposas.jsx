@@ -8,7 +8,7 @@ import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
-import { img, MUNDO2_MOUTH_IMAGES, MUNDO3_MOUTH_IMAGES, preloadImages, sound } from "../lib/assets";
+import { img, MUNDO2_MOUTH_IMAGES, MUNDO3_MOUTH_IMAGES, MUNDO4_CHARACTER_FRAMES, MUNDO4_MOUTH_IMAGES, preloadImages, sound } from "../lib/assets";
 import { shuffle } from "../lib/shuffle";
 import { useActivityMenuOption } from "../hooks/useActivityMenuOption";
 import "./actividad.css";
@@ -66,6 +66,22 @@ const MUNDO3_SYLLABLE_AUDIO = {
 	RRO: "rro.mp3",
 	RRU: "rru.mp3"
 };
+const MUNDO4_SYLLABLES = {
+	c: ["CA", "CO", "CU"],
+	ce: ["CE", "CI"],
+	q: ["QUE", "QUI"],
+	z: ["ZA", "ZE", "ZI", "ZO", "ZU"],
+	ch: ["CHA", "CHE", "CHI", "CHO", "CHU"]
+};
+const MUNDO4_C_SYLLABLES = ["CA", "CE", "CI", "CO", "CU"];
+const MUNDO4_SYLLABLE_AUDIO = {
+	C: "letraC.mp3",
+	CE: "letraCE.mp3",
+	Q: "letraQ.mp3",
+	Z: "letraZ.mp3",
+	CH: "letraCH.mp3"
+};
+const MUNDO4_FISH_IMAGES = [1, 2, 3].map((index) => img(`pez${index}.png`));
 const MUNDO3_OPTION_SOUNDS = {
 	r: "letraR.mp3",
 	rr: "letraRR.mp3",
@@ -89,6 +105,7 @@ const MUNDO3_BLOCK_ERROR_IMAGES = new Map([
 ]);
 const TOTAL_BUTTERFLIES = 8;
 const TOTAL_CORRECT = 5;
+const MUNDO4_CHARACTER_FRAME_DURATION = 375;
 const POSITIONS = [
 	[24, 18],
 	[47, 20],
@@ -101,7 +118,7 @@ const POSITIONS = [
 ];
 const MUNDO3_POSITIONS = POSITIONS.map(([left, top]) => [22 + left * 0.75, top]);
 
-function getAudioFileName(label, type = "syllable", isMundo2 = false, isMundo3 = false) {
+function getAudioFileName(label, type = "syllable", isMundo2 = false, isMundo3 = false, isMundo4 = false) {
 	if (type === "letter") {
 		const letterMap = {
 			a: "a.mp3", e: "e.mp3", i: "i.mp3", o: "o.mp3", u: "u.mp3",
@@ -120,7 +137,7 @@ function getAudioFileName(label, type = "syllable", isMundo2 = false, isMundo3 =
 	if (upper.startsWith("S")) return `${upper}.mp3`;
 	if (upper === "TE") return "te.mp3";
 	if (upper.startsWith("T")) return `${upper}.mp3`;
-	return `${label.toLowerCase()}.wav`;
+	return `${label.toLowerCase()}.${isMundo4 ? "mp3" : "wav"}`;
 }
 
 function createInstructionOrder(mode, syllableModes, isMundo3) {
@@ -128,7 +145,31 @@ function createInstructionOrder(mode, syllableModes, isMundo3) {
 	return mode !== "a" ? [mode.toUpperCase()] : shuffle(VOWELS);
 }
 
-function createButterflies(mode, targetValue, generation, syllableModes = SYLLABLES, creatureImages = BUTTERFLY_IMAGES, creaturePositions, isMundo3 = false) {
+function createMundo4IncorrectSyllables(mode) {
+	const consonantSyllables = {
+		c: [...SYLLABLES.s, ...SYLLABLES.t],
+		ce: [...SYLLABLES.s, ...SYLLABLES.t],
+		q: [...SYLLABLES.s, ...SYLLABLES.t],
+		z: [...SYLLABLES.s, ...MUNDO4_C_SYLLABLES],
+		ch: [...SYLLABLES.s, ...MUNDO4_C_SYLLABLES]
+	};
+	if (mode === "ce") {
+		return [
+			shuffle(MUNDO4_SYLLABLES.c)[0],
+			...shuffle(consonantSyllables.ce).slice(0, 2)
+		];
+	}
+	if (mode === "q") {
+		return [
+			shuffle(MUNDO4_SYLLABLES.c)[0],
+			shuffle(MUNDO4_SYLLABLES.ce)[0],
+			shuffle(SYLLABLES.t)[0]
+		];
+	}
+	return shuffle(consonantSyllables[mode]).slice(0, TOTAL_BUTTERFLIES - TOTAL_CORRECT);
+}
+
+function createButterflies(mode, targetValue, generation, syllableModes = SYLLABLES, creatureImages = BUTTERFLY_IMAGES, creaturePositions, isMundo3 = false, isMundo4 = false) {
 	const items = [];
 	function addItem(value, correct, index) {
 		items.push({
@@ -147,6 +188,15 @@ function createButterflies(mode, targetValue, generation, syllableModes = SYLLAB
 		const incorrectSyllables = shuffle(incorrectPool).slice(0, TOTAL_BUTTERFLIES - TOTAL_CORRECT);
 		shuffle([...correctSyllables, ...incorrectSyllables]).forEach((label, index) =>
 			addItem(label, correctSyllables.includes(label), index)
+		);
+	} else if (isMundo4) {
+		const correctSyllables = syllableModes[mode];
+		const incorrectSyllables = createMundo4IncorrectSyllables(mode);
+		const correct = Array.from({ length: TOTAL_CORRECT }, (_, index) =>
+			correctSyllables[index % correctSyllables.length]
+		);
+		shuffle([...correct, ...incorrectSyllables]).forEach((label, index) =>
+			addItem(label, correctSyllables.includes(label) && correct.includes(label), index)
 		);
 	} else if (mode !== "a") {
 		const targetSyllables = syllableModes[mode];
@@ -189,15 +239,17 @@ export default function Mariposas() {
 	const location = useLocation();
 	const isMundo2 = location.state?.world === 2;
 	const isMundo3 = location.state?.world === 3;
-	usePageTitle(isMundo3 ? "Mariposas - Mundo 3" : isMundo2 ? "Mariposas - Mundo 2" : "Mariposas - Mundo 1");
+	const isMundo4 = location.state?.world === 4;
+	usePageTitle(isMundo4 ? "Peces - Mundo 4" : isMundo3 ? "Mariposas - Mundo 3" : isMundo2 ? "Mariposas - Mundo 2" : "Mariposas - Mundo 1");
 	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
-	const mouthImages = isMundo3 ? MUNDO3_MOUTH_IMAGES : isMundo2 ? MUNDO2_MOUTH_IMAGES : undefined;
+	const mouthImages = isMundo4 ? MUNDO4_MOUTH_IMAGES : isMundo3 ? MUNDO3_MOUTH_IMAGES : isMundo2 ? MUNDO2_MOUTH_IMAGES : undefined;
 	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime, mouthImages);
+	const [characterFrame, setCharacterFrame] = useState(0);
 	const activityMenuOption = useActivityMenuOption();
-	const syllableModes = isMundo3 ? MUNDO3_SYLLABLES : isMundo2 ? MUNDO2_SYLLABLES : SYLLABLES;
-	const creatureImages = isMundo3 ? MUNDO3_BLOCK_IMAGES : isMundo2 ? BUTTERFLY_IMAGES : OSITO_IMAGES;
-	const [mode] = useState(() => (Object.hasOwn(syllableModes, activityMenuOption) ? activityMenuOption : isMundo3 ? "r" : isMundo2 ? "p" : "a"));
+	const syllableModes = isMundo4 ? MUNDO4_SYLLABLES : isMundo3 ? MUNDO3_SYLLABLES : isMundo2 ? MUNDO2_SYLLABLES : SYLLABLES;
+	const creatureImages = isMundo4 ? MUNDO4_FISH_IMAGES : isMundo3 ? MUNDO3_BLOCK_IMAGES : isMundo2 ? BUTTERFLY_IMAGES : OSITO_IMAGES;
+	const [mode] = useState(() => (Object.hasOwn(syllableModes, activityMenuOption) ? activityMenuOption : isMundo4 ? "c" : isMundo3 ? "r" : isMundo2 ? "p" : "a"));
 	const totalInstructions = mode === "a" ? VOWELS.length : 1;
 	const [targetValue, setTargetValue] = useState("");
 	const [butterflies, setButterflies] = useState([]);
@@ -219,6 +271,36 @@ export default function Mariposas() {
 	useEffect(() => {
 		if (isMundo3) preloadImages([...MUNDO3_BLOCK_ERROR_IMAGES.values()]);
 	}, [isMundo3]);
+
+	useEffect(() => {
+		if (!isMundo4 || !character) return undefined;
+		let timer = 0;
+		const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+		function updateAnimation() {
+			runtime.clearInterval(timer);
+			timer = 0;
+			setCharacterFrame(0);
+			if (document.visibilityState === "visible" && document.hasFocus() && !reducedMotion.matches) {
+				timer = runtime.setInterval(() => {
+					setCharacterFrame((current) => (current + 1) % MUNDO4_CHARACTER_FRAMES[character].length);
+				}, MUNDO4_CHARACTER_FRAME_DURATION);
+			}
+		}
+
+		updateAnimation();
+		document.addEventListener("visibilitychange", updateAnimation);
+		window.addEventListener("blur", updateAnimation);
+		window.addEventListener("focus", updateAnimation);
+		reducedMotion.addListener(updateAnimation);
+		return () => {
+			document.removeEventListener("visibilitychange", updateAnimation);
+			window.removeEventListener("blur", updateAnimation);
+			window.removeEventListener("focus", updateAnimation);
+			reducedMotion.removeListener(updateAnimation);
+			runtime.clearInterval(timer);
+		};
+	}, [character, isMundo4, runtime]);
 
 	// Estado que leen los callbacks de audio/timers (siempre el valor actual).
 	const game = useRef(null);
@@ -324,7 +406,7 @@ export default function Mariposas() {
 			state.activeButterflyAudio.pause();
 			state.activeButterflyAudio.currentTime = 0;
 		}
-		const audioFile = getAudioFileName(label, "syllable", isMundo2, isMundo3);
+		const audioFile = getAudioFileName(label, "syllable", isMundo2, isMundo3, isMundo4);
 		state.activeButterflyAudio = runtime.audio(sound(audioFile));
 		state.activeButterflyAudio.onended = onEnded;
 		state.activeButterflyAudio.play().catch(() => onEnded?.());
@@ -334,10 +416,12 @@ export default function Mariposas() {
 		stopInstructionAudio();
 		startTalking();
 		const sequenceId = ++state.instructionSequenceId;
-		const optionFile = sound(isMundo3
-			? MUNDO3_OPTION_SOUNDS[mode]
-			: getAudioFileName(state.targetValue, mode === "a" ? "vowel" : "letter", isMundo2));
-		const promptFile = isMundo3 ? "Pulsabloque.mp3" : isMundo2 ? "Pulsa.mp3" : "Pulsaosito.mp3";
+		const optionFile = sound(isMundo4
+			? MUNDO4_SYLLABLE_AUDIO[mode.toUpperCase()]
+			: isMundo3
+				? MUNDO3_OPTION_SOUNDS[mode]
+				: getAudioFileName(state.targetValue, mode === "a" ? "vowel" : "letter", isMundo2));
+		const promptFile = isMundo4 ? "pulsapeces.mp3" : isMundo3 ? "Pulsabloque.mp3" : isMundo2 ? "Pulsa.mp3" : "Pulsaosito.mp3";
 		const sequence = [runtime.audio(optionFile), runtime.audio(sound(promptFile)), runtime.audio(optionFile)];
 		state.instructionAudios = sequence;
 		let audioIndex = 0;
@@ -415,8 +499,9 @@ export default function Mariposas() {
 			state.generation,
 			syllableModes,
 			creatureImages,
-			isMundo3 ? MUNDO3_POSITIONS : isMundo2 ? undefined : OSITO_POSITIONS,
-			isMundo3
+			isMundo3 ? MUNDO3_POSITIONS : isMundo2 || isMundo4 ? undefined : OSITO_POSITIONS,
+			isMundo3,
+			isMundo4
 		));
 		playInstructionAudio();
 	}
@@ -431,11 +516,11 @@ export default function Mariposas() {
 		if (!butterfly.correct) {
 			state.errors += 1;
 			updateButterfly(butterfly.id, {
-				vibrating: !isMundo3,
+				vibrating: !isMundo3 && !isMundo4,
 				wrong: isMundo3,
 				...(isMundo3 && { image: MUNDO3_BLOCK_ERROR_IMAGES.get(butterfly.image) })
 			});
-			if (!isMundo3) {
+			if (!isMundo3 && !isMundo4) {
 				button.animate([
 					{ transform: "translate(-50%, -50%) translateX(0)" },
 					{ transform: "translate(-50%, -50%) translateX(-8px)" },
@@ -616,7 +701,7 @@ export default function Mariposas() {
 	}, []);
 
 	return (
-	<div className={`page activity-page page-mariposas${isMundo2 ? " world-mundo2 world-insectos" : ""}${isMundo3 ? " world-mundo3" : ""}`} ref={pageRef}>
+	<div className={`page activity-page page-mariposas${isMundo2 ? " world-mundo2 world-insectos" : ""}${isMundo3 ? " world-mundo3" : ""}${isMundo4 ? " world-mundo4" : ""}`} ref={pageRef}>
 			<div className="butterfly-top-controls" aria-label="Navegación">
 				<BackButton />
 				<FullscreenButton toggle />
@@ -626,7 +711,7 @@ export default function Mariposas() {
 					&#x21bb; Reiniciar
 				</button>
 			</div>
-			{!isMundo2 && !isMundo3 && (
+			{!isMundo2 && !isMundo3 && !isMundo4 && (
 				<img
 					ref={jarRef}
 					className="osito-jar"
@@ -637,7 +722,7 @@ export default function Mariposas() {
 				/>
 			)}
 			<main className="butterfly-activity">
-				<section className="butterfly-field" ref={fieldRef} aria-label={isMundo3 ? "Bloques" : "Mariposas"}>
+				<section className="butterfly-field" ref={fieldRef} aria-label={isMundo4 ? "Peces" : isMundo3 ? "Bloques" : "Mariposas"}>
 					{[...stackedBlocks, ...butterflies].map((butterfly) => {
 						const classNames = ["butterfly-button", mode !== "a" ? "l-butterfly" : "a-butterfly"];
 						if (butterfly.flying) {
@@ -669,7 +754,9 @@ export default function Mariposas() {
 							>
 								<img
 									src={butterfly.image}
-									alt={isMundo3
+									alt={isMundo4
+										? `Pez con sílaba ${butterfly.value}`
+										: isMundo3
 										? `Bloque con sílaba ${butterfly.value}`
 										: mode !== "a" ? `Mariposa con sílaba ${butterfly.value}` : `Mariposa con vocal ${butterfly.value}`}
 								/>
@@ -682,7 +769,13 @@ export default function Mariposas() {
 					<div ref={blockStackRef} className="block-stack" aria-hidden="true" />
 				)}
 			</main>
-			<Character character={character} mouth={mouth} celebrating={celebrating} onClick={repeatInstruction} />
+			<Character
+				character={character}
+				mouth={mouth}
+				image={isMundo4 && character ? MUNDO4_CHARACTER_FRAMES[character][characterFrame] : undefined}
+				celebrating={celebrating}
+				onClick={repeatInstruction}
+			/>
 			<PremioComida premio={premio} />
 		</div>
 	);
