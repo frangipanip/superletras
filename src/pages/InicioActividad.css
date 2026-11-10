@@ -204,12 +204,114 @@
 	transition: top 700ms ease-in-out, transform 700ms ease-in-out;
 }
 
-/* Cae del cielo al centro de la pantalla (con un pequeño rebote al llegar)... */
+/* Cae del cielo al centro de la pantalla, acelerando como con gravedad, y rebota dos veces... */
 .page-inicio-actividad.world-bloques .inicio-activity-letter-image-wrap.is-visible.is-centered {
 	z-index: 3;
 	top: 50%;
 	transform: translate(-50%, -50%);
-	transition: top 900ms cubic-bezier(0.34, 1.4, 0.55, 1), transform 900ms cubic-bezier(0.34, 1.4, 0.55, 1);
+	/* Sin transición mientras cae: la mueve solo la animación. */
+	transition: none;
+	animation: bloque-grande-cae 1300ms both;
+}
+
+/* ...deformándose: se estira con la velocidad y se aplasta contra el piso en cada golpe.
+   Los tiempos van a la par de bloque-grande-cae; el origen abajo hace que se aplaste "sobre" el piso. */
+.page-inicio-actividad.world-bloques .inicio-activity-letter-image-wrap.is-visible.is-centered .inicio-activity-letter-image {
+	transform-origin: 50% 100%;
+	animation: bloque-grande-deforma 1300ms both;
+}
+
+@keyframes bloque-grande-cae {
+	0% {
+		top: 0;
+		transform: translate(-50%, -105%);
+		animation-timing-function: cubic-bezier(0.55, 0.085, 0.68, 0.53);
+	}
+
+	/* Golpe: queda apoyado mientras se aplasta. */
+	50%,
+	58% {
+		top: 50%;
+		transform: translate(-50%, -50%);
+		animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+	}
+
+	72% {
+		top: 50%;
+		transform: translate(-50%, calc(-50% - 6vh));
+		animation-timing-function: cubic-bezier(0.55, 0.085, 0.68, 0.53);
+	}
+
+	84%,
+	87% {
+		top: 50%;
+		transform: translate(-50%, -50%);
+		animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+	}
+
+	93% {
+		top: 50%;
+		transform: translate(-50%, calc(-50% - 1.2vh));
+		animation-timing-function: cubic-bezier(0.55, 0.085, 0.68, 0.53);
+	}
+
+	100% {
+		top: 50%;
+		transform: translate(-50%, -50%);
+	}
+}
+
+@keyframes bloque-grande-deforma {
+	0% {
+		transform: scale(1, 1);
+		animation-timing-function: ease-in;
+	}
+
+	/* Cayendo rápido: un poco más alto y angosto. */
+	49% {
+		transform: scale(0.93, 1.09);
+		animation-timing-function: ease-out;
+	}
+
+	/* Contra el piso: ancho y bajo. */
+	53% {
+		transform: scale(1.14, 0.86);
+		animation-timing-function: ease-in-out;
+	}
+
+	/* Despega estirado y se recupera en el aire. */
+	59% {
+		transform: scale(0.96, 1.05);
+		animation-timing-function: ease-out;
+	}
+
+	66%,
+	82% {
+		transform: scale(1, 1);
+		animation-timing-function: ease-in;
+	}
+
+	84% {
+		transform: scale(0.98, 1.02);
+		animation-timing-function: ease-out;
+	}
+
+	86% {
+		transform: scale(1.05, 0.95);
+		animation-timing-function: ease-in-out;
+	}
+
+	90%,
+	100% {
+		transform: scale(1, 1);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.page-inicio-actividad.world-bloques .inicio-activity-letter-image-wrap.is-visible.is-centered,
+	.page-inicio-actividad.world-bloques .inicio-activity-letter-image-wrap.is-visible.is-centered .inicio-activity-letter-image {
+		animation: none;
+	}
 }
 
 /* ...y cuando empiezan a aparecer los carros se va a su lugar, atrás de ellos. */
