@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { Navigate, Route, Routes } from "react-router";
+import { Navigate, Route, Routes, useLocation } from "react-router";
 import { ReiniciarPaginaContext } from "./hooks/useReiniciarPagina";
 import Inicio from "./pages/Inicio";
 import Mundos from "./pages/Mundos";
@@ -15,6 +15,7 @@ import Mariposas from "./pages/Mariposas";
 import Tren from "./pages/Tren";
 import Flores from "./pages/Flores";
 import Peluche from "./pages/Iniciales";
+import PeluchesMundo2 from "./pages/PeluchesMundo2";
 import Dibujar from "./pages/Dibujar";
 import Memotest from "./pages/Memotest";
 import Monstruo from "./pages/Monstruo";
@@ -39,6 +40,12 @@ const LEGACY_REDIRECTS = {
 	"/iniciales.html": "/peluches",
 	"/peluches.html": "/peluches"
 };
+
+// /peluches es una sola ruta: Mundo 2 (state.world === 2) tiene su propia actividad.
+function PeluchesRuta() {
+	const location = useLocation();
+	return location.state?.world === 2 ? <PeluchesMundo2 /> : <Peluche />;
+}
 
 export default function App() {
 	// Cambiar la key vuelve a montar la pantalla actual (ver useReiniciarPagina).
@@ -72,7 +79,7 @@ export default function App() {
 				<Route path="/prueba" element={<Prueba />} />
 				<Route path="/globos" element={<PlaceholderActivity key="globos" title="Globos" />} />
 				<Route path="/iniciales" element={<Navigate to="/peluches" replace />} />
-				<Route path="/peluches" element={<Peluche />} />
+				<Route path="/peluches" element={<PeluchesRuta />} />
 				{Object.entries(LEGACY_REDIRECTS).map(([from, to]) => (
 					<Route key={from} path={from} element={<Navigate to={to} replace />} />
 				))}
