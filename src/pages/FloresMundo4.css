@@ -90,15 +90,23 @@
 	}
 
 	.m4-horse-frame-1 {
-		animation: m4-horse-frame-1 1.2s steps(1, end) infinite;
+		animation: m4-horse-frame-1 2.4s steps(1, end) infinite;
 	}
 
 	.m4-horse-frame-2 {
-		animation: m4-horse-frame-2 1.2s steps(1, end) infinite;
+		animation: m4-horse-frame-2 2.4s steps(1, end) infinite;
 	}
 
 	.m4-horse-frame-3 {
-		animation: m4-horse-frame-3 1.2s steps(1, end) infinite;
+		animation: m4-horse-frame-3 2.4s steps(1, end) infinite;
+	}
+
+	.m4-horse-frame-4 {
+		animation: m4-horse-frame-4 2.4s steps(1, end) infinite;
+	}
+
+	.m4-horse-frame-5 {
+		animation: m4-horse-frame-5 2.4s steps(1, end) infinite;
 	}
 
 	.m4-horse-result {
@@ -152,6 +160,16 @@
 		animation: none;
 	}
 
+	.m4-flower-pair.wrong-pending .m4-horse-frame {
+		display: none;
+		animation: none;
+	}
+
+	.m4-flower-pair.wrong-pending .m4-horse-frame-active {
+		display: block;
+		opacity: 1;
+	}
+
 	.m4-flower-pair.correct .m4-horse-result,
 	.m4-flower-pair.wrong .m4-horse-result {
 		opacity: 1;
@@ -159,18 +177,28 @@
 }
 
 @keyframes m4-horse-frame-1 {
-	0%, 24.99% { opacity: 1; }
-	25%, 100% { opacity: 0; }
+	0%, 12.49% { opacity: 1; }
+	12.5%, 100% { opacity: 0; }
 }
 
 @keyframes m4-horse-frame-2 {
-	0%, 24.99%, 50%, 74.99% { opacity: 0; }
-	25%, 49.99%, 75%, 100% { opacity: 1; }
+	0%, 12.49%, 25%, 87.49% { opacity: 0; }
+	12.5%, 24.99%, 87.5%, 100% { opacity: 1; }
 }
 
 @keyframes m4-horse-frame-3 {
-	0%, 49.99%, 75%, 100% { opacity: 0; }
-	50%, 74.99% { opacity: 1; }
+	0%, 24.99%, 37.5%, 74.99%, 87.5%, 100% { opacity: 0; }
+	25%, 37.49%, 75%, 87.49% { opacity: 1; }
+}
+
+@keyframes m4-horse-frame-4 {
+	0%, 37.49%, 50%, 62.49%, 75%, 100% { opacity: 0; }
+	37.5%, 49.99%, 62.5%, 74.99% { opacity: 1; }
+}
+
+@keyframes m4-horse-frame-5 {
+	0%, 49.99%, 62.5%, 100% { opacity: 0; }
+	50%, 62.49% { opacity: 1; }
 }
 
 @keyframes flores-m4-character-swim {
@@ -208,7 +236,9 @@
 		}
 
 		.m4-horse-frame-2,
-		.m4-horse-frame-3 {
+		.m4-horse-frame-3,
+		.m4-horse-frame-4,
+		.m4-horse-frame-5 {
 			display: none;
 		}
 

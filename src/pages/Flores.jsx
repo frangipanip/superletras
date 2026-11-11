@@ -41,8 +41,8 @@ const MUNDO3_SYLLABLES = {
 	ll: ["LLA", "LLE", "LLI", "LLO", "LLU"]
 };
 const MUNDO4_SEAHORSES = {
-	amarillo: ["caballitoAmarillo1.png", "caballitoAmarillo2.png", "caballitoAmarillo3.png"].map(img),
-	celeste: ["caballitoCeleste1.png", "caballitoCeleste2.png", "caballitoCeleste3.png"].map(img)
+	amarillo: ["caballitoAmarillo1.png", "caballitoAmarillo2.png", "caballitoAmarillo3.png", "caballitoAmarillo4.png", "caballitoAmarillo5.png"].map(img),
+	celeste: ["caballitoCeleste1.png", "caballitoCeleste2.png", "caballitoCeleste3.png", "caballitoCeleste4.png", "caballitoCeleste5.png"].map(img)
 };
 const MUNDO4_SEAHORSE_RESULTS = {
 	amarillo: { correct: img("caballitoAmarilloacierto.png"), wrong: img("caballitoAmarilloerror.png") },
@@ -243,18 +243,50 @@ export default function Flores() {
 		buildFlowers(0);
 	}
 
+	function getVisibleSeahorseFrame(button) {
+		const frames = button.querySelectorAll(".m4-horse-frame");
+		for (let index = 0; index < frames.length; index += 1) {
+			if (Number.parseFloat(window.getComputedStyle(frames[index]).opacity) >= 0.5) {
+				return index + 1;
+			}
+		}
+		return 1;
+	}
+
+	function advanceWrongSeahorse(index, frame, generation) {
+		runtime.setTimeout(() => {
+			const currentRound = roundRef.current;
+			const currentFlower = currentRound.flowers[index];
+			if (currentRound.generation !== generation || currentFlower?.result !== "wrong-pending") {
+				return;
+			}
+			setRound((current) => ({
+				...current,
+				flowers: current.flowers.map((item, itemIndex) => {
+					if (itemIndex !== index) return item;
+					if (frame <= 1) return { ...item, result: "wrong", wrongFrame: null };
+					return { ...item, wrongFrame: frame - 1 };
+				})
+			}));
+			if (frame > 1) {
+				advanceWrongSeahorse(index, frame - 1, generation);
+			}
+		}, 150);
+	}
+
 	function repeatInstruction() {
 		if (!game.current.celebrationActive && !game.current.transitionPending && round.target) {
 			playInstruction(round.target);
 		}
 	}
 
-	function handleFlowerClick(index) {
+	function handleFlowerClick(index, event) {
 		const currentRound = roundRef.current;
 		const flower = currentRound.flowers[index];
 		if (!flower || flower.result || game.current.transitionPending || game.current.celebrationActive) {
 			return;
 		}
+		const wrongSeahorseFrame = isMundo4 && !flower.correct ? getVisibleSeahorseFrame(event.currentTarget) : null;
 		playLabelAudio(flower.label);
 		const audios = audioRef.current;
 		stopAudio(audios.feedback);
@@ -276,18 +308,22 @@ export default function Flores() {
 				const result = item.correct ? "correct" : "wrong";
 				return {
 					...item,
+					result: isMundo4 && !item.correct ? "wrong-pending" : result,
+					wrongFrame: isMundo4 && !item.correct ? wrongSeahorseFrame : null,
 					image: isMundo3
 						? img(`animal ${item.animal}${item.correct ? " evolucionado" : " error"}.png`)
 						: isMundo2
 							? img(`oruga${item.caterpillar}${item.correct ? "acierto" : "error"}.png`)
-							: item.image,
-					result
+							: item.image
 				};
 			})
 		}));
 
 		if (!flower.correct) {
 			game.current.errors += 1;
+			if (isMundo4) {
+				advanceWrongSeahorse(index, wrongSeahorseFrame, currentRound.generation);
+			}
 		}
 		if (flower.correct) {
 			game.current.transitionPending = true;
@@ -333,12 +369,12 @@ export default function Flores() {
 									type="button"
 									disabled={Boolean(flower.result) || game.current.transitionPending || game.current.celebrationActive}
 									aria-label={`Caballito ${flower.horseColor} y almeja con la sílaba ${flower.label}`}
-									onClick={() => handleFlowerClick(index)}
+									onClick={(event) => handleFlowerClick(index, event)}
 								>
 									<span className="m4-horse" aria-hidden="true">
 										{MUNDO4_SEAHORSES[flower.horseColor].map((frame, frameIndex) => (
 											<img
-												className={`m4-horse-frame m4-horse-frame-${frameIndex + 1}`}
+												className={`m4-horse-frame m4-horse-frame-${frameIndex + 1}${flower.wrongFrame === frameIndex + 1 ? " m4-horse-frame-active" : ""}`}
 												key={`${frame}-${frameIndex}`}
 												src={frame}
 												alt=""
@@ -363,7 +399,7 @@ export default function Flores() {
 								key={`${round.generation}-${index}`}
 								type="button"
 								className={flower.result ? `flower-button ${flower.result}` : "flower-button"}
-								onClick={() => handleFlowerClick(index)}
+								onClick={(event) => handleFlowerClick(index, event)}
 							>
 								{isMundo2 || isMundo3 ? (
 									<>

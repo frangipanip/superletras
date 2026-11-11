@@ -755,17 +755,16 @@ export default function Mariposas() {
 							>
 								<span className={isMundo4 ? "fish-body" : undefined}>
 									{fishIndex >= 0 ? (
-										<span className="fish-frames">
-											{MUNDO4_FISH_FRAMES[fishIndex].map((image, index) => (
-												<img
-													className={`fish-frame fish-frame-${index + 1}`}
-													src={image}
-													alt={index === 0 ? `Pez con sílaba ${butterfly.value}` : ""}
-													aria-hidden={index !== 0}
-													key={image}
-												/>
-											))}
-										</span>
+										<span
+											className="fish-frames"
+											role="img"
+											aria-label={`Pez con sílaba ${butterfly.value}`}
+											style={{
+												"--fish-frame-1": `url("${MUNDO4_FISH_FRAMES[fishIndex][0]}")`,
+												"--fish-frame-2": `url("${MUNDO4_FISH_FRAMES[fishIndex][1]}")`,
+												"--fish-frame-3": `url("${MUNDO4_FISH_FRAMES[fishIndex][2]}")`
+											}}
+										/>
 									) : (
 										<img
 											src={butterfly.image}
