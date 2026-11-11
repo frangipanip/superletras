@@ -16,6 +16,7 @@ import Tren from "./pages/Tren";
 import Flores from "./pages/Flores";
 import Peluche from "./pages/Iniciales";
 import PeluchesMundo2 from "./pages/PeluchesMundo2";
+import PeluchesMundo3 from "./pages/PeluchesMundo3";
 import Dibujar from "./pages/Dibujar";
 import Memotest from "./pages/Memotest";
 import Monstruo from "./pages/Monstruo";
@@ -41,10 +42,13 @@ const LEGACY_REDIRECTS = {
 	"/peluches.html": "/peluches"
 };
 
-// /peluches es una sola ruta: Mundo 2 (state.world === 2) tiene su propia actividad.
+// /peluches es una sola ruta: Mundo 2 y Mundo 3 (state.world) tienen su propia actividad.
 function PeluchesRuta() {
 	const location = useLocation();
-	return location.state?.world === 2 ? <PeluchesMundo2 /> : <Peluche />;
+	const world = location.state?.world;
+	if (world === 2) return <PeluchesMundo2 />;
+	if (world === 3) return <PeluchesMundo3 />;
+	return <Peluche />;
 }
 
 export default function App() {

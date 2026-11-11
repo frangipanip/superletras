@@ -1,0 +1,241 @@
+/* Peluches de Mundo 3 (bloques): dos plataformas colgantes con un dibujo encima, la palabra en el
+   frente de cada plataforma y el sonido pedido en el cartel de arriba. */
+.page-peluches-m3 {
+	/* El escenario conserva las proporciones del fondo (1600x883) y lo cubre. Se limita en pantallas
+	   más cuadradas (118vw: no cortar las plataformas a los costados) y en las muy anchas (205vh: que
+	   se vea el frente de las plataformas); las franjas que sobran toman el degradé. */
+	--pm3-stage-w: min(max(100vw, 181.2vh), 118vw, 205vh);
+	--pm3-stage-h: calc(var(--pm3-stage-w) * 0.551875);
+	/* Centro de cada plataforma y medidas, en % del escenario. */
+	--pm3-left-x: 40%;
+	--pm3-right-x: 76.9%;
+	--pm3-object-w: 15.5%;
+	--pm3-object-h: 33%;
+	--pm3-object-bottom: 30.5%;
+	--pm3-plate-y: 76.2%;
+	--pm3-plate-w: 18.1%;
+	--pm3-plate-h: 9.1%;
+	/* Lugar libre a la izquierda de las plataformas (hasta el 26.5% del escenario) para el personaje. */
+	--pm3-free-left: calc((100vw - var(--pm3-stage-w)) / 2 + var(--pm3-stage-w) * 0.265);
+
+	background: linear-gradient(#7fd3f7 0%, #9fdcf6 45%, #b9a8ee 55%, #a995e6 100%);
+
+	/* Pegado arriba si sobra alto (así el cartel nunca se corta; lo que se pierde es el piso). */
+	.pm3-stage {
+		position: fixed;
+		top: max(0px, calc((100vh - var(--pm3-stage-h)) / 2));
+		left: 50%;
+		width: var(--pm3-stage-w);
+		height: var(--pm3-stage-h);
+		background-position: center;
+		background-size: 100% 100%;
+		background-repeat: no-repeat;
+		transform: translateX(-50%);
+	}
+
+	/* Cartel de arriba: el sonido que se pide. */
+	.pm3-sign {
+		position: absolute;
+		top: 8%;
+		left: 55.1%;
+		display: grid;
+		place-items: center;
+		width: 14.25%;
+		height: 11.7%;
+		/* Centrado en (55.1%, 8%): los márgenes en % se miden sobre el ancho, por eso el de arriba usa el alto. */
+		margin-top: calc(var(--pm3-stage-h) * -0.0585);
+		margin-left: -7.125%;
+		color: #7a2fc0;
+		font: 900 calc(var(--pm3-stage-h) * 0.08) / 1 "Arial Rounded MT Bold", "Trebuchet MS", Arial, Helvetica, sans-serif;
+		letter-spacing: 0.04em;
+		text-shadow: 0 2px 0 #fff, 0 3px 6px rgba(122, 47, 192, 0.25);
+		pointer-events: none;
+		animation: pm3-sign-pop 520ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+	}
+
+	/* Dibujo apoyado sobre la plataforma: la caja termina en la superficie y la imagen va abajo. */
+	.pm3-option {
+		position: absolute;
+		bottom: var(--pm3-object-bottom);
+		z-index: 1;
+		width: var(--pm3-object-w);
+		height: var(--pm3-object-h);
+		padding: 0;
+		border: 0;
+		background: none;
+		cursor: pointer;
+		filter: drop-shadow(0 6px 6px rgba(60, 20, 110, 0.3));
+		transform-origin: 50% 100%;
+		transition: opacity 250ms ease, filter 250ms ease;
+		animation: pm3-drop 560ms cubic-bezier(0.34, 1.4, 0.64, 1) both;
+	}
+
+	.pm3-option.pm3-side-1 {
+		left: calc(var(--pm3-left-x) - var(--pm3-object-w) / 2);
+	}
+
+	.pm3-option.pm3-side-2 {
+		left: calc(var(--pm3-right-x) - var(--pm3-object-w) / 2);
+		animation-delay: 120ms;
+	}
+
+	.pm3-option img {
+		display: block;
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+		object-position: 50% 100%;
+		user-select: none;
+	}
+
+	.pm3-option.correct {
+		z-index: 2;
+		filter: drop-shadow(0 0 12px #fff6a4) drop-shadow(0 0 8px rgba(133, 237, 150, 0.95));
+		animation: pm3-correct 900ms ease-in-out both;
+	}
+
+	.pm3-option.dimmed {
+		opacity: 0.45;
+		filter: grayscale(0.6);
+	}
+
+	.pm3-option.vibrating {
+		animation: pm3-vibrate 350ms ease-in-out;
+	}
+
+	/* Palabra en el frente de la plataforma: el tamaño se ajusta al largo (--letras) y al cartelito. */
+	.pm3-name {
+		position: absolute;
+		top: calc(var(--pm3-plate-y) - var(--pm3-plate-h) / 2);
+		z-index: 1;
+		/* flex y no grid: con grid cada parte de la palabra (resaltada o no) iría en otro renglón. */
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: var(--pm3-plate-w);
+		height: var(--pm3-plate-h);
+		padding: 0;
+		border: 0;
+		border-radius: 999px;
+		background: transparent;
+		color: #5a2a8a;
+		font: 900 min(calc(var(--pm3-stage-h) * 0.068), calc(var(--pm3-stage-w) * 0.235 / var(--letras))) / 1 "Arial Rounded MT Bold", "Trebuchet MS", Arial, Helvetica, sans-serif;
+		letter-spacing: 0.02em;
+		text-transform: uppercase;
+		white-space: nowrap;
+		cursor: pointer;
+		transition: transform 160ms ease, filter 160ms ease;
+		-webkit-text-fill-color: currentColor;
+		animation: pm3-name-in 400ms ease-out 200ms both;
+	}
+
+	.pm3-name.pm3-side-1 {
+		left: calc(var(--pm3-left-x) - var(--pm3-plate-w) / 2);
+	}
+
+	.pm3-name.pm3-side-2 {
+		left: calc(var(--pm3-right-x) - var(--pm3-plate-w) / 2);
+	}
+
+	.pm3-name .requested-sound {
+		color: #e8418f;
+		-webkit-text-fill-color: #e8418f;
+	}
+
+	.pm3-name:hover,
+	.pm3-name:focus-visible {
+		transform: scale(1.06);
+		filter: brightness(1.05);
+	}
+
+	.pm3-name:active {
+		transform: scale(0.97);
+	}
+
+	/* Personaje a la izquierda, en el lugar libre, con el vaivén de la pantalla de Mundo 3. */
+	.selected-character {
+		top: 60%;
+		left: max(0.5rem, calc((100vw - var(--pm3-stage-w)) / 2 + var(--pm3-stage-w) * 0.015));
+		--selected-character-width: max(110px, min(calc(var(--pm3-free-left) * 0.8), 44vh));
+		animation: pm3-character-drift 2.8s ease-in-out infinite;
+	}
+}
+
+@keyframes pm3-character-drift {
+	0%,
+	100% {
+		transform: translateY(-50%) translateX(0);
+	}
+
+	50% {
+		transform: translateY(-50%) translateX(-10px);
+	}
+}
+
+@keyframes pm3-drop {
+	0% {
+		opacity: 0;
+		transform: translateY(-35%) scale(0.85);
+	}
+
+	55% {
+		opacity: 1;
+	}
+
+	100% {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+}
+
+@keyframes pm3-sign-pop {
+	0% {
+		opacity: 0;
+		transform: scale(0.3);
+	}
+
+	100% {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+@keyframes pm3-name-in {
+	0% {
+		opacity: 0;
+	}
+
+	100% {
+		opacity: 1;
+	}
+}
+
+@keyframes pm3-correct {
+	0%,
+	100% {
+		transform: scale(1);
+	}
+
+	40% {
+		transform: scale(1.18) translateY(-5%);
+	}
+
+	70% {
+		transform: scale(1.1) translateY(-2%);
+	}
+}
+
+@keyframes pm3-vibrate {
+	0%,
+	100% {
+		transform: translateX(0);
+	}
+
+	25% {
+		transform: translateX(-8%) rotate(-4deg);
+	}
+
+	75% {
+		transform: translateX(8%) rotate(4deg);
+	}
+}
