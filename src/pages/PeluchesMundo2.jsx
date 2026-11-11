@@ -8,7 +8,7 @@ import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
-import { img, MUNDO2_MOUTH_IMAGES, preloadImages, sound } from "../lib/assets";
+import { img, MUNDO2_CHARACTER_FRAMES, MUNDO2_MOUTH_IMAGES, preloadImages, sound } from "../lib/assets";
 import { shuffle } from "../lib/shuffle";
 import "./actividad.css";
 import "./PeluchesMundo2.css";
@@ -44,6 +44,8 @@ const FLORES = ["florVioleta", "florCoral"];
 const VUELTAS = 2;
 const CORRECT_ANIMATION_MS = 900;
 const VIBRATE_MS = 350;
+// Aleteo del personaje: los 4 cuadros en 1 s, igual que en Inicio de Mundo 2.
+const WING_FRAME_MS = 250;
 
 const textoDe = (id) => ACENTOS[id] || id;
 const imagenDe = (id) => img(`peluchesM2/${id}.png`);
@@ -116,6 +118,31 @@ export default function PeluchesMundo2() {
 	// locked: ya se acertó la ronda y se está animando antes de pasar a la siguiente.
 	const game = useRef({ errors: 0, rewarded: false, locked: false }).current;
 	const activity = rondas[activityIndex];
+	const [wingFrame, setWingFrame] = useState(0);
+
+	useEffect(() => {
+		if (!character) return undefined;
+		preloadImages(MUNDO2_CHARACTER_FRAMES[character]);
+		let timer = 0;
+
+		// Se frena con la pestaña oculta para no gastar batería.
+		function updateAnimation() {
+			runtime.clearInterval(timer);
+			timer = 0;
+			if (document.visibilityState === "visible") {
+				timer = runtime.setInterval(() => {
+					setWingFrame((current) => (current + 1) % MUNDO2_CHARACTER_FRAMES[character].length);
+				}, WING_FRAME_MS);
+			}
+		}
+
+		updateAnimation();
+		document.addEventListener("visibilitychange", updateAnimation);
+		return () => {
+			document.removeEventListener("visibilitychange", updateAnimation);
+			runtime.clearInterval(timer);
+		};
+	}, [character, runtime]);
 
 	useEffect(() => {
 		preloadImages([...FLORES.map((flor) => img(`peluchesM2/${flor}.png`)), ...rondas.flatMap((ronda) => ronda.options.map((option) => imagenDe(option.id)))]);
@@ -280,6 +307,7 @@ export default function PeluchesMundo2() {
 			<Character
 				character={character}
 				mouth={mouth}
+				image={character ? MUNDO2_CHARACTER_FRAMES[character][wingFrame] : undefined}
 				onClick={() => {
 					// Durante el acierto no se corta la palabra: su final es el que pasa a la siguiente ronda.
 					if (!game.locked) playInstruction();
