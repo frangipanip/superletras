@@ -117,6 +117,8 @@
 
 .page-inicio-actividad.world-almejas {
 	--mundo4-clam-small-top: 7%;
+	/* Ancho de la almeja; el polvo y la burbuja se miden con él. */
+	--mundo4-clam-width: clamp(12rem, 30vw, 27rem);
 	background-image: url("/assets/imagenes/fondoinicioM3.png");
 }
 
@@ -125,10 +127,118 @@
 	top: 65%;
 	left: 50%;
 	z-index: 1;
-	width: clamp(12rem, 30vw, 27rem);
+	width: var(--mundo4-clam-width, clamp(12rem, 30vw, 27rem));
 	transform: translate(-50%, -50%);
 	transition: top 800ms ease, transform 800ms ease;
 	pointer-events: none;
+}
+
+/* Burbuja que envuelve a la almeja al subir. El centro de burbuja.png es transparente,
+   así que va adelante y la almeja se ve adentro. padding-top da el alto igual al ancho
+   (aspect-ratio no anda en las tablets viejas). */
+.inicio-mundo4-clam-bubble {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 125%;
+	padding-top: 125%;
+	background: url("/assets/imagenes/burbuja.png") center / contain no-repeat;
+	opacity: 0;
+	transform: translate(-50%, -50%) scale(0.6);
+	pointer-events: none;
+}
+
+.inicio-mundo4-clam.is-small .inicio-mundo4-clam-bubble {
+	animation:
+		mundo4-burbuja-envuelve 500ms cubic-bezier(0.34, 1.56, 0.64, 1) both,
+		mundo4-burbuja-ondula 2.6s ease-in-out 500ms infinite;
+}
+
+@keyframes mundo4-burbuja-envuelve {
+	0% {
+		opacity: 0;
+		transform: translate(-50%, -50%) scale(0.6);
+	}
+
+	100% {
+		opacity: 1;
+		transform: translate(-50%, -50%) scale(1);
+	}
+}
+
+@keyframes mundo4-burbuja-ondula {
+	0%,
+	100% {
+		opacity: 1;
+		transform: translate(-50%, -50%) scale(1, 1);
+	}
+
+	50% {
+		opacity: 1;
+		transform: translate(-50%, -50%) scale(1.03, 0.97);
+	}
+}
+
+/* Polvo del golpe: un punto en la base de la almeja (centro a 65%, la imagen mide 0.852 anchos
+   de alto). Va aparte de la almeja para no rebotar con ella. Cada pedazo arranca escondido y
+   espera al golpe: 770 ms = 70% de mundo4-almeja-cae. */
+.inicio-mundo4-dust {
+	position: absolute;
+	top: calc(65% + var(--mundo4-clam-width) * 0.4);
+	left: 50%;
+	z-index: 2;
+	width: 0;
+	height: 0;
+	pointer-events: none;
+}
+
+.inicio-mundo4-dust-puff,
+.inicio-mundo4-dust-grain {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: calc(var(--mundo4-clam-width) * var(--size));
+	height: calc(var(--mundo4-clam-width) * var(--size));
+	border-radius: 50%;
+	opacity: 0;
+	animation: mundo4-polvo 1000ms cubic-bezier(0.2, 0.7, 0.3, 1) calc(770ms + var(--delay)) both;
+}
+
+.inicio-mundo4-dust-puff {
+	background: radial-gradient(circle, rgba(250, 236, 200, 0.95) 0%, rgba(238, 214, 164, 0.75) 40%, rgba(238, 214, 164, 0) 70%);
+}
+
+.inicio-mundo4-dust-grain {
+	background: #e9c98a;
+	animation-duration: 700ms;
+}
+
+@keyframes mundo4-polvo {
+	0% {
+		opacity: 0;
+		transform: translate(calc(-50% + var(--mundo4-clam-width) * var(--x0)), -50%) scale(0.3);
+	}
+
+	12% {
+		opacity: 1;
+	}
+
+	100% {
+		opacity: 0;
+		transform: translate(calc(-50% + var(--mundo4-clam-width) * var(--x1)), calc(-50% + var(--mundo4-clam-width) * var(--y1))) scale(1);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.inicio-mundo4-dust {
+		display: none;
+	}
+
+	.inicio-mundo4-clam.is-small .inicio-mundo4-clam-bubble {
+		animation: none;
+		opacity: 1;
+		transform: translate(-50%, -50%) scale(1);
+	}
 }
 
 .inicio-mundo4-clam img {
@@ -136,6 +246,37 @@
 	width: 100%;
 	height: auto;
 	filter: drop-shadow(0 8px 12px rgba(13, 61, 93, 0.3));
+}
+
+/* Antes de caer (mientras carga la pantalla) no se ve. */
+.inicio-mundo4-clam.is-waiting {
+	visibility: hidden;
+}
+
+/* Cae cerrada desde arriba y rebota un poco al llegar; después se abre (ver MUNDO4_CLAM_FALL_MS). */
+.inicio-mundo4-clam.is-falling {
+	animation: mundo4-almeja-cae 1100ms both;
+}
+
+@keyframes mundo4-almeja-cae {
+	0% {
+		transform: translate(-50%, calc(-50% - 110vh));
+		animation-timing-function: ease-in;
+	}
+
+	70% {
+		transform: translate(-50%, -50%);
+		animation-timing-function: ease-out;
+	}
+
+	85% {
+		transform: translate(-50%, calc(-50% - 4vh));
+		animation-timing-function: ease-in;
+	}
+
+	100% {
+		transform: translate(-50%, -50%);
+	}
 }
 
 .inicio-mundo4-clam.is-small {
@@ -166,6 +307,127 @@
 /* Mundo 3: el bloque de la letra queda atrás de los carros (.inicio-vowels tiene z-index 2) */
 .page-inicio-actividad.world-bloques .inicio-activity-letter-image-wrap {
 	z-index: 1;
+	/* Escondido arriba, fuera de la pantalla: de ahí cae. */
+	top: 0;
+	opacity: 1;
+	transform: translate(-50%, -105%);
+	transition: top 700ms ease-in-out, transform 700ms ease-in-out;
+}
+
+/* Cae del cielo al centro de la pantalla, acelerando como con gravedad, y rebota dos veces... */
+.page-inicio-actividad.world-bloques .inicio-activity-letter-image-wrap.is-visible.is-centered {
+	z-index: 3;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	/* Sin transición mientras cae: la mueve solo la animación. */
+	transition: none;
+	animation: bloque-grande-cae 1300ms both;
+}
+
+/* ...deformándose: se estira con la velocidad y se aplasta contra el piso en cada golpe.
+   Los tiempos van a la par de bloque-grande-cae; el origen abajo hace que se aplaste "sobre" el piso. */
+.page-inicio-actividad.world-bloques .inicio-activity-letter-image-wrap.is-visible.is-centered .inicio-activity-letter-image {
+	transform-origin: 50% 100%;
+	animation: bloque-grande-deforma 1300ms both;
+}
+
+@keyframes bloque-grande-cae {
+	0% {
+		top: 0;
+		transform: translate(-50%, -105%);
+		animation-timing-function: cubic-bezier(0.55, 0.085, 0.68, 0.53);
+	}
+
+	/* Golpe: queda apoyado mientras se aplasta. */
+	50%,
+	58% {
+		top: 50%;
+		transform: translate(-50%, -50%);
+		animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+	}
+
+	72% {
+		top: 50%;
+		transform: translate(-50%, calc(-50% - 6vh));
+		animation-timing-function: cubic-bezier(0.55, 0.085, 0.68, 0.53);
+	}
+
+	84%,
+	87% {
+		top: 50%;
+		transform: translate(-50%, -50%);
+		animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+	}
+
+	93% {
+		top: 50%;
+		transform: translate(-50%, calc(-50% - 1.2vh));
+		animation-timing-function: cubic-bezier(0.55, 0.085, 0.68, 0.53);
+	}
+
+	100% {
+		top: 50%;
+		transform: translate(-50%, -50%);
+	}
+}
+
+@keyframes bloque-grande-deforma {
+	0% {
+		transform: scale(1, 1);
+		animation-timing-function: ease-in;
+	}
+
+	/* Cayendo rápido: un poco más alto y angosto. */
+	49% {
+		transform: scale(0.93, 1.09);
+		animation-timing-function: ease-out;
+	}
+
+	/* Contra el piso: ancho y bajo. */
+	53% {
+		transform: scale(1.14, 0.86);
+		animation-timing-function: ease-in-out;
+	}
+
+	/* Despega estirado y se recupera en el aire. */
+	59% {
+		transform: scale(0.96, 1.05);
+		animation-timing-function: ease-out;
+	}
+
+	66%,
+	82% {
+		transform: scale(1, 1);
+		animation-timing-function: ease-in;
+	}
+
+	84% {
+		transform: scale(0.98, 1.02);
+		animation-timing-function: ease-out;
+	}
+
+	86% {
+		transform: scale(1.05, 0.95);
+		animation-timing-function: ease-in-out;
+	}
+
+	90%,
+	100% {
+		transform: scale(1, 1);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.page-inicio-actividad.world-bloques .inicio-activity-letter-image-wrap.is-visible.is-centered,
+	.page-inicio-actividad.world-bloques .inicio-activity-letter-image-wrap.is-visible.is-centered .inicio-activity-letter-image {
+		animation: none;
+	}
+}
+
+/* ...y cuando empiezan a aparecer los carros se va a su lugar, atrás de ellos. */
+.page-inicio-actividad.world-bloques .inicio-activity-letter-image-wrap.is-visible:not(.is-centered) {
+	top: 2%;
+	transform: translate(-50%, 0);
 }
 
 .inicio-activity-letter-image {
@@ -439,6 +701,12 @@
 	left: 56%;
 	animation-delay: 0.9s;
 	filter: hue-rotate(225deg) saturate(1.2);
+}
+
+/* El animation-delay de cada posición es para el flotar; si se aplicara a la aparición,
+   el globo se ve primero por la transición y después la animación lo vuelve a hacer aparecer. */
+.inicio-vowel-button.reveal-balloon:nth-child(n) {
+	animation-delay: 0s;
 }
 
 /* Hover para globos: escalar sin pisar el filtro de color */

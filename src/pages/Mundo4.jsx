@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import CharacterLocator from "../components/CharacterLocator";
+import PufCrema, { PUF_CHARACTER_CLASS } from "../components/PufCrema";
 import UserNav from "../components/UserNav";
 import { useCharacterLocator } from "../hooks/useCharacterLocator";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
+import { useTeleport } from "../hooks/useTeleport";
 import { img, MUNDO4_CHARACTER_FRAMES, MUNDO4_CHARACTERS, MUNDO4_MOUTH_IMAGES, sound } from "../lib/assets";
 import { STORAGE_KEYS, readStorage, writeStorage } from "../lib/storage";
 import SeaLifeEffects from "../components/SeaLifeEffects";
@@ -43,14 +45,52 @@ const ACTIVITY_SIGN_IMAGES = [
 	"GLOBOSbtn.png"
 ];
 const PATH_BUTTONS = [
-	[22.5, 85], [24, 76], [28, 70], [32, 67], [36, 71],
-	[40, 76], [44, 72], [48, 68], [52, 72], [56, 77],
-	[60, 73], [64, 68], [68, 72], [72, 77], [76, 73],
-	[80, 69], [84, 73], [88, 78], [92, 74]
+	[22.5, 85], //1
+	[32, 75], //2
+	[40, 80], //3
+	[50, 67], //4
+	[60, 71], //5
+	[70, 76], //6
+	[80, 72], //7
+	[90, 68], //8
+	[102, 72], //9
+	[116, 77], //10
+	[120, 73], //11
+	[134, 68], //12
+	[138, 72], //13
+	[142, 77], //14
+	[156, 73], //15
+	[164, 73], //16
+	[168, 78], //17
+	[172, 74] //18
 ];
+
+function readSavedPerches() {
+	try {
+		const saved = JSON.parse(readStorage(STORAGE_KEYS.mundo4Perches) || "{}");
+		return Object.fromEntries(Object.entries(saved).filter(([letter, index]) =>
+			LETTERS.includes(letter) && Number.isInteger(index) && index >= 0 && index < 3 && PATH_BUTTONS[index]
+		));
+	} catch {
+		return {};
+	}
+}
+
+function getPerchStyle(index) {
+	const [left, top] = PATH_BUTTONS[index];
+	return { left: `${left}%`, top: `${top}%` };
+}
 
 export const MUNDO4_IMAGES = [
 	img("FONDOM4.jpg"),
+	img("fondofloresM4.png"),
+	...[
+		"almejasilabas.png",
+		"caballitoAmarillo1.png", "caballitoAmarillo2.png", "caballitoAmarillo3.png",
+		"caballitoAmarilloacierto.png", "caballitoAmarilloerror.png",
+		"caballitoCeleste1.png", "caballitoCeleste2.png", "caballitoCeleste3.png",
+		"caballitoCelesteacierto.png", "caballitoCelesteerror.png"
+	].map(img),
 	img("fondoinicioM3.png"),
 	img("burbuja.png"),
 	...["almejacerradaC.png", "almejacerradaCE.png", "almejacerradaQ .png", "almejacerradaZ.png", "almejacerradaCH.png",
@@ -71,11 +111,15 @@ export default function Mundo4() {
 	const [character] = useSelectedCharacter();
 	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime, MUNDO4_MOUTH_IMAGES);
 	const [introAudio] = useState(() => runtime.audio(sound("InicioMundos.mp3"), { preload: true }));
+	const { teleport, teleportCharacter } = useTeleport(runtime);
 	const [characterFrame, setCharacterFrame] = useState(0);
 	const [selectedLetter, setSelectedLetter] = useState(() => {
 		const saved = readStorage(STORAGE_KEYS.mundo4MenuOption);
 		return LETTERS.includes(saved) ? saved : null;
 	});
+	const [savedPerches, setSavedPerches] = useState(readSavedPerches);
+	const perchIndex = selectedLetter ? (savedPerches[selectedLetter] ?? null) : null;
+	const characterIndex = teleport ? teleport.position : perchIndex;
 	const [menuPanelVisible, setMenuPanelVisible] = useState(true);
 	const [compactMenuOpen, setCompactMenuOpen] = useState(false);
 	const pageRef = useRef(null);
@@ -85,7 +129,7 @@ export default function Mundo4() {
 	const characterSpotRef = useRef(null);
 	const letterAudioRef = useRef(null);
 	const { offscreen: characterOffscreen, direction: characterDirection, scrollToCharacter } =
-		useCharacterLocator(pageRef, characterSpotRef, character);
+		useCharacterLocator(pageRef, characterSpotRef, character, characterIndex);
 	const drag = useRef({ pointerId: null, startX: 0, startScroll: 0, moved: false }).current;
 	const [dragging, setDragging] = useState(false);
 
@@ -146,7 +190,7 @@ export default function Mundo4() {
 	function handlePointerDown(event) {
 		drag.moved = false;
 		if (event.pointerType !== "mouse" || event.button !== 0) return;
-		if (event.target.closest(".top-nav, .mundo4-compact-menu, .mundo4-menu-panel, .mundo4-character, .mundo4-path, .character-locator")) return;
+		if (event.target.closest(".top-nav, .mundo4-compact-menu, .mundo4-menu-panel, .mundo4-character-spot, .mundo4-character, .mundo4-path, .character-locator")) return;
 		drag.pointerId = event.pointerId;
 		drag.startX = event.clientX;
 		drag.startScroll = pageRef.current.scrollLeft;
@@ -208,11 +252,33 @@ export default function Mundo4() {
 		setCompactMenuOpen(false);
 	}
 
-	function startActivity(index) {
-		if (index !== 0) return;
-		navigate("/inicio", {
-			state: { world: 4, menuOption: selectedLetter || LETTERS[0] }
+	function openActivity(index) {
+		if (teleport || index < 0 || index > 2 || !PATH_BUTTONS[index]) return;
+		const letter = selectedLetter || LETTERS[0];
+		setSelectedLetter(letter);
+		writeStorage(STORAGE_KEYS.mundo4MenuOption, letter);
+		const nextPerches = { ...savedPerches, [letter]: index };
+		setSavedPerches(nextPerches);
+		writeStorage(STORAGE_KEYS.mundo4Perches, JSON.stringify(nextPerches));
+		const activityPath = ["/inicio", "/mariposas", "/flores"][index];
+		const goToActivity = () => navigate(activityPath, {
+			state: { world: 4, menuOption: letter }
 		});
+		if (!character || perchIndex === index) {
+			goToActivity();
+			return;
+		}
+		introAudio.pause();
+		introAudio.currentTime = 0;
+		introAudio.onended = null;
+		if (letterAudioRef.current) {
+			letterAudioRef.current.onended = null;
+			letterAudioRef.current.pause();
+			letterAudioRef.current.currentTime = 0;
+			letterAudioRef.current = null;
+		}
+		stopTalking();
+		teleportCharacter(perchIndex, index).then(goToActivity);
 	}
 
 	useEffect(() => {
@@ -265,7 +331,7 @@ export default function Mundo4() {
 	return (
 		<div
 			ref={pageRef}
-			className={`page page-mundo4${dragging ? " dragging" : ""}`}
+			className={`page page-mundo4${dragging ? " dragging" : ""}${teleport ? " traveling" : ""}`}
 			onPointerDown={handlePointerDown}
 			onPointerMove={handlePointerMove}
 			onPointerUp={endDrag}
@@ -297,6 +363,7 @@ export default function Mundo4() {
 									className={selectedLetter === letter ? "mundo4-compact-menu__option selected" : "mundo4-compact-menu__option"}
 									key={letter}
 									type="button"
+									disabled={Boolean(teleport)}
 									aria-label={`Elegir letra ${letter}`}
 									aria-pressed={selectedLetter === letter}
 									onClick={() => selectLetter(letter)}
@@ -314,17 +381,23 @@ export default function Mundo4() {
 				<div className="mundo4-path" aria-label="Camino de actividades">
 					{PATH_BUTTONS.map(([left, top], index) => (
 						<div
-							className={`mundo4-path-activity${index === 0 ? "" : " mundo4-path-activity-hidden"}`}
+							className={`mundo4-path-activity${index > 2 ? " mundo4-path-activity-hidden" : ""}`}
 							key={`${left}-${top}-${index}`}
 							style={{ left: `${left}%`, top: `${top}%` }}
 						>
 							<img className="mundo4-path-sign" src={img(ACTIVITY_SIGN_IMAGES[index] || "GLOBOSbtn.png")} alt="" draggable={false} />
 							<button
-								className={`mundo4-path-button${index === 0 ? " is-available" : ""}`}
+								className={`mundo4-path-button${index < 3 ? " is-available" : ""}`}
 								type="button"
-								disabled={index !== 0}
-								aria-label={index === 0 ? "Iniciar actividad de sílabas" : `Actividad del camino ${index + 1}, próximamente`}
-								onClick={() => startActivity(index)}
+								disabled={index > 2 || Boolean(teleport)}
+								aria-label={index === 0
+									? "Iniciar actividad de sílabas"
+									: index === 1
+										? "Iniciar actividad de sílabas con peces"
+										: index === 2
+											? "Iniciar actividad de sílabas con caballitos de mar"
+											: `Actividad del camino ${index + 1}, próximamente`}
+								onClick={() => openActivity(index)}
 							>
 								<img src={img("boton.svg")} alt="" draggable={false} />
 							</button>
@@ -333,15 +406,24 @@ export default function Mundo4() {
 				</div>
 
 				{character && (
-					<button ref={characterSpotRef} className="mundo4-character" type="button" aria-label="Reproducir presentación" onClick={playIntroAudio}>
-						<img
-							className="mundo4-character-image"
-							src={MUNDO4_CHARACTER_FRAMES[character][characterFrame]}
-							alt={MUNDO4_CHARACTERS[character].alt}
-							draggable={false}
-						/>
-						{mouth.visible && <img className="mundo4-character-mouth" src={mouth.src} alt="" />}
-					</button>
+					<div
+						ref={characterSpotRef}
+						className={`mundo4-character-spot${characterIndex === null ? "" : " perched"}`}
+						style={characterIndex === null ? undefined : getPerchStyle(characterIndex)}
+					>
+						<div className={teleport ? PUF_CHARACTER_CLASS[teleport.stage] : undefined}>
+							<button className="mundo4-character" type="button" aria-label="Reproducir presentación" onClick={playIntroAudio}>
+								<img
+									className="mundo4-character-image"
+									src={MUNDO4_CHARACTER_FRAMES[character][characterFrame]}
+									alt={MUNDO4_CHARACTERS[character].alt}
+									draggable={false}
+								/>
+								{mouth.visible && <img className="mundo4-character-mouth" src={mouth.src} alt="" />}
+							</button>
+						</div>
+						{teleport && <PufCrema mode={teleport.stage} className="mundo4-puf" />}
+					</div>
 				)}
 
 				<aside ref={menuPanelRef} className="mundo4-menu-panel" aria-label="Letras del Mundo 4">
@@ -351,6 +433,7 @@ export default function Mundo4() {
 							className={`mundo4-letter mundo4-letter-${index + 1}${selectedLetter === letter ? " selected" : ""}`}
 							key={letter}
 							type="button"
+							disabled={Boolean(teleport)}
 							aria-label={`Seleccionar letra ${letter}`}
 							aria-pressed={selectedLetter === letter}
 							onClick={() => selectLetter(letter)}

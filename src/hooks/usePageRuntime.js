@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { isPageReady, whenPageReady } from "../lib/pageGate";
 
 // Antes cada pantalla era un .html y al navegar el navegador cortaba audios y timers.
 // En la SPA eso hay que hacerlo a mano: todo audio/timer creado con este runtime
 // se detiene al desmontar la pantalla, y lo que llegue tarde (promesas de play,
-// timeouts) se ignora.
+// timeouts) se ignora. Mientras PageLoader tapa la pantalla, los play() esperan a que
+// termine de cargar (ver lib/pageGate.js).
 function createRuntime() {
 	let disposed = false;
 	const playing = new Set();
@@ -58,6 +60,8 @@ function createRuntime() {
 		const element = new Audio(src);
 		let playbackRequested = false;
 		let loadFailed = false;
+		// play() pedido mientras la pantalla todavía carga: suena cuando termina.
+		let deferred = null;
 		if (preload) {
 			element.preload = "auto";
 		}
@@ -75,6 +79,19 @@ function createRuntime() {
 			}
 			playbackRequested = true;
 			playing.add(element);
+			if (!isPageReady()) {
+				if (!deferred) {
+					deferred = {};
+					deferred.promise = new Promise((resolve, reject) => {
+						deferred.reject = reject;
+						deferred.cancel = whenPageReady(() => {
+							deferred = null;
+							element.play().then(resolve, reject);
+						});
+					});
+				}
+				return deferred.promise;
+			}
 			if (loadFailed || element.error) {
 				speakMissingAudio(element);
 				return Promise.resolve();
@@ -90,6 +107,15 @@ function createRuntime() {
 		};
 		element.pause = () => {
 			playbackRequested = false;
+			if (deferred) {
+				deferred.cancel();
+				// Como el pause() nativo, rechaza el play() pendiente (salvo al desmontar:
+				// ahí los callbacks tardíos se ignoran).
+				if (!disposed) {
+					deferred.reject(new DOMException("play() interrumpido por pause()", "AbortError"));
+				}
+				deferred = null;
+			}
 			stopMissingAudioSpeech(element);
 			return nativePause();
 		};

@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import { useLocation } from "react-router";
 import { img } from "../lib/assets";
+import { holdPage, releasePage } from "../lib/pageGate";
 import "./PageLoader.css";
 
 // Si una imagen no termina nunca, no se deja la pantalla tapada para siempre.
@@ -67,7 +68,8 @@ function waitFor(url, element, done) {
 
 // Tapa la pantalla mientras se descargan sus imágenes (por ejemplo, después de una versión
 // nueva con imágenes que todavía no están en la caché), mostrando cuánto falta.
-// Si todo ya está en la caché no aparece.
+// Si todo ya está en la caché no aparece. Hasta que termina, los audios de la pantalla
+// esperan (lib/pageGate.js): así no suenan debajo del cartel.
 export default function PageLoader() {
 	const { pathname } = useLocation();
 	const [progress, setProgress] = useState(null);
@@ -77,6 +79,7 @@ export default function PageLoader() {
 	useLayoutEffect(() => {
 		const root = document.getElementById("root");
 		const scan = ++scanRef.current;
+		holdPage();
 		const seen = new Set();
 		let total = 0;
 		let loaded = 0;
@@ -100,14 +103,17 @@ export default function PageLoader() {
 			finished = true;
 			if (total === 0) {
 				setProgress(null);
+				releasePage();
 				return;
 			}
 			setProgress({ loaded: total, total });
 			setHiding(true);
+			// Los audios arrancan cuando el cartel ya se fue.
 			timers.push(window.setTimeout(() => {
 				if (scan === scanRef.current) {
 					setProgress(null);
 					setHiding(false);
+					releasePage();
 				}
 			}, FADE_MS));
 		};
@@ -148,6 +154,7 @@ export default function PageLoader() {
 				} else if (total === 0) {
 					finished = true;
 					setProgress(null);
+					releasePage();
 				} else {
 					update();
 				}
