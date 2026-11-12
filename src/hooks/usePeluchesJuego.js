@@ -12,7 +12,7 @@ const VIBRATE_MS = 350;
 // si esa palabra todavía no tiene audio grabado (se lee con la voz del navegador).
 // rondaVisible (opcional): índice de la ronda cuyas opciones ya se ven en pantalla. Si se pasa, la
 // consigna espera a que coincida con la ronda actual (para escenas con animación de entrada).
-export function usePeluchesJuego({ runtime, letra, rondas, consignaAudio, palabraAudio, startTalking, stopTalking, rondaVisible }) {
+export function usePeluchesJuego({ runtime, letra, rondas, consignaAudio, palabraAudio, instructionAudioFile = "Pulsaeldibujo.mp3", startTalking, stopTalking, rondaVisible }) {
 	const [activityIndex, setActivityIndex] = useState(0);
 	const [acertada, setAcertada] = useState(null);
 	const [vibrating, setVibrating] = useState(() => new Set());
@@ -30,7 +30,7 @@ export function usePeluchesJuego({ runtime, letra, rondas, consignaAudio, palabr
 			.filter(([, archivo]) => archivo)
 			.map(([id, archivo]) => [id, runtime.audio(sound(archivo), { preload: true })])
 	));
-	const [instructionAudio] = useState(() => runtime.audio(sound("Pulsaeldibujo.mp3"), { preload: true }));
+	const [instructionAudio] = useState(() => runtime.audio(sound(instructionAudioFile), { preload: true }));
 	const [helpAudio] = useState(() => runtime.audio(sound("apetaeltexto.mp3"), { preload: true }));
 	const [premio, otorgarPremio] = useRecompensa("peluches", letra);
 	const sequenceToken = useRef(0);

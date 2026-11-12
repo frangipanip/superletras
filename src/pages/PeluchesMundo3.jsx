@@ -66,8 +66,13 @@ const ACENTOS = {
 };
 // Todavía sin audio grabado: se leen con la voz del navegador hasta que se agreguen.
 const SIN_AUDIO = new Set(["raton", "raqueta", "rayo"]);
-// La R suave usa sus propios audios ("ara", "ere"... como en el resto de Mundo 3), nunca los de R fuerte.
-const AUDIOS_R_SUAVE = { ra: "ara.mp3", re: "ere.mp3", ri: "iri.mp3", ro: "oro.mp3", ru: "uru.mp3" };
+const AUDIOS_R_SUAVE = {
+	ra: "ra suave.mp3",
+	re: "re suave.mp3",
+	ri: "ri suave.mp3",
+	ro: "ro suave.mp3",
+	ru: "ru suave.mp3"
+};
 // Cada sonido se pide dos veces (con imágenes distintas), como en los otros mundos.
 const VUELTAS = 2;
 
@@ -164,6 +169,7 @@ export default function PeluchesMundo3() {
 		rondas,
 		consignaAudio: (consigna) => (letra === "ar" ? AUDIOS_R_SUAVE[consigna] : `${consigna}.mp3`),
 		palabraAudio: (id) => (SIN_AUDIO.has(id) ? null : `peluche/MUNDO3/${id}.mp3`),
+		instructionAudioFile: letra === "rr" || letra === "ar" ? "pulsacontiene.mp3" : undefined,
 		startTalking,
 		stopTalking
 	});
