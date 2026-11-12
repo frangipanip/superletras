@@ -3,11 +3,15 @@ set -Eeuo pipefail
 
 cd -- "$(dirname -- "${BASH_SOURCE[0]}")"
 
-echo "Cambiando a la rama master..."
-git checkout master
+# Rama a desplegar: la que pasa el workflow, o la que ya tiene este clon
+# (master en produccion, develop en dev).
+BRANCH="${DEPLOY_BRANCH:-$(git rev-parse --abbrev-ref HEAD)}"
+
+echo "Cambiando a la rama $BRANCH..."
+git checkout "$BRANCH"
 
 echo "Obteniendo los ultimos cambios..."
-git pull --ff-only origin master
+git pull --ff-only origin "$BRANCH"
 
 WEB_PORT="$(python3 - <<'PY'
 import socket

@@ -1,13 +1,16 @@
 name: Deploy
 
+# master -> produccion (superletras.leviatas.com)
+# develop -> dev (dev-superletras.leviatas.com)
+# Mismo archivo en las dos ramas: el destino se elige por la rama del push.
 on:
   push:
-    branches: [develop]
+    branches: [master, develop]
   workflow_dispatch:
 
 concurrency:
-  # Dos pushes seguidos se despliegan en fila, sin builds simultaneos.
-  group: deploy-main
+  # Dos pushes seguidos a la misma rama se despliegan en fila, sin builds simultaneos.
+  group: deploy-${{ github.ref_name }}
   cancel-in-progress: false
 
 jobs:
@@ -17,13 +20,23 @@ jobs:
     steps:
       # Se trabaja sobre el clon existente, que conserva el .env con secretos.
       - name: Deploy con deploy.sh
+        env:
+          BRANCH: ${{ github.ref_name }}
+          DEPLOY_DIR_PROD: ${{ vars.DEPLOY_DIR }}
+          DEPLOY_DIR_DEV: ${{ vars.DEPLOY_DIR_DEV }}
         run: |
-          DEPLOY_DIR="${{ vars.DEPLOY_DIR }}"
-          DEPLOY_DIR="${DEPLOY_DIR:-$HOME/proyectos/paula/devsuperletras}"
+          case "$BRANCH" in
+            master)  DEPLOY_DIR="${DEPLOY_DIR_PROD:-$HOME/proyectos/paula/superletras}" ;;
+            develop) DEPLOY_DIR="${DEPLOY_DIR_DEV:-$HOME/proyectos/paula/devsuperletras}" ;;
+            *)
+              echo "::error::La rama $BRANCH no tiene entorno de deploy (solo master o develop)."
+              exit 1
+              ;;
+          esac
           if [ ! -d "$DEPLOY_DIR/.git" ]; then
-            echo "::error::No existe un repo git en $DEPLOY_DIR. Configura la variable DEPLOY_DIR en GitHub (Settings -> Secrets and variables -> Actions -> Variables)."
+            echo "::error::No existe un repo git en $DEPLOY_DIR. Configura la variable DEPLOY_DIR (master) o DEPLOY_DIR_DEV (develop) en GitHub (Settings -> Secrets and variables -> Actions -> Variables)."
             exit 1
           fi
           cd "$DEPLOY_DIR"
           chmod +x ./deploy.sh
-          ./deploy.sh
+          DEPLOY_BRANCH="$BRANCH" ./deploy.sh
