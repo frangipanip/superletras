@@ -1,99 +1,321 @@
-/* Peluches de Mundo 2: dos flores con un dibujo encima y la palabra debajo. */
-.page-peluches-m2 {
-	/* Ancho de cada flor: entran las dos a la derecha del personaje y la columna completa
-	   (dibujo + flor + palabra, ~1.25 anchos) entra en el alto. */
-	--pm2-flower: min(29vw, 62vh);
-	--pm2-name-size: clamp(1.05rem, min(2.9vw, 6vh), 2.5rem);
+/* Peluches de Mundo 2: jardín nocturno. Dos luciérnagas entran volando, se posan sobre dos briznas
+   de pasto y proyectan un haz de luz con un dibujo para elegir y su palabra debajo.
 
-	background: url("/assets/imagenes/fondopeluchesM2.jpg") center / cover no-repeat;
+   La escena (.pm2-scene) tiene siempre la misma proporción (la de la captura de referencia) y todo lo
+   de adentro va en % de la escena: así briznas, luciérnagas, haces y opciones quedan alineados en
+   cualquier pantalla. Se ubica a la derecha del personaje y lo más grande que entre. */
+.page-peluches-m2 {
+	/* Personaje: el mismo ancho y margen que usa .selected-character más abajo. */
+	--pm2-char: clamp(140px, 40vmin, 320px);
+	--pm2-char-left: clamp(0.5rem, 1.5vw, 1.5rem);
+	/* Ancho libre a la derecha del personaje. La escena puede meterse un 7,6 % por detrás del
+	   personaje (solo la base de la brizna izquierda queda ahí). */
+	--pm2-avail: calc(100vw - var(--pm2-char-left) - var(--pm2-char) - 2vw);
+	--pm2-w: min(calc(var(--pm2-avail) / 0.924), 139.6vh);
+	--pm2-h: calc(var(--pm2-w) * 0.58);
+	--pm2-name-size: max(16px, calc(var(--pm2-w) * 0.042));
+
+	background: #1b2350 url("/assets/imagenes/peluchesM2/fondoPelucheM2.jpg") center / cover no-repeat;
 
 	.pm2-activity {
+		position: relative;
 		width: 100vw;
 		height: 100vh;
 		height: 100dvh;
 		overflow: hidden;
 	}
 
-	.pm2-field {
-		position: fixed;
-		top: 54%;
-		left: 61%;
-		display: flex;
-		align-items: flex-end;
-		gap: 3vw;
-		transform: translate(-50%, -50%);
+	.pm2-scene {
+		position: absolute;
+		top: calc(48% - var(--pm2-h) / 2);
+		left: calc(var(--pm2-char-left) + var(--pm2-char) - var(--pm2-w) * 0.076 + (var(--pm2-avail) - var(--pm2-w) * 0.924) / 2);
+		width: var(--pm2-w);
+		height: var(--pm2-h);
 	}
 
-	.pm2-item {
-		display: flex;
-		width: var(--pm2-flower);
-		flex-direction: column;
-		align-items: center;
+	/* Cada lado ocupa toda la escena; sus piezas se ubican en % de la escena. */
+	.pm2-lado,
+	.pm2-percha,
+	.pm2-proyeccion {
+		position: absolute;
+		inset: 0;
+		pointer-events: none;
 	}
 
-	/* La flor (590x408) con lugar arriba para el dibujo, que se apoya en el disco amarillo. */
-	.pm2-stage {
-		position: relative;
-		width: 100%;
-		aspect-ratio: 590 / 408;
-		margin-top: calc(var(--pm2-flower) * 0.36);
+	/* ---------- Brizna + haz + luciérnaga (se flexionan juntos desde la base de la brizna) ---------- */
+
+	.pm2-lado-izquierda .pm2-percha {
+		transform-origin: 7.1% 78.7%;
 	}
 
-	.pm2-flower {
+	.pm2-lado-derecha .pm2-percha {
+		transform-origin: 92.7% 79.6%;
+	}
+
+	.pm2-brizna {
+		position: absolute;
+		z-index: 1;
+		display: block;
+		height: auto;
+		user-select: none;
+	}
+
+	.pm2-lado-izquierda .pm2-brizna {
+		top: 27.1%;
+		left: 0.15%;
+		width: 40.5%;
+	}
+
+	.pm2-lado-derecha .pm2-brizna {
+		top: 28%;
+		left: 60.6%;
+		width: 39.1%;
+	}
+
+	/* Luciérnaga: el contenedor la ubica y hace el avance horizontal del vuelo; .pm2-luciernaga-ondas
+	   hace las subidas y bajadas; la imagen aletea en el aire y respira cuando está posada. */
+	.pm2-luciernaga {
+		position: absolute;
+		z-index: 3;
+		visibility: hidden;
+	}
+
+	.pm2-lado-izquierda .pm2-luciernaga {
+		top: 0.8%;
+		left: 13.6%;
+		width: 29.6%;
+	}
+
+	.pm2-lado-derecha .pm2-luciernaga {
+		top: 2.2%;
+		left: 56.3%;
+		width: 37.8%;
+	}
+
+	.pm2-luciernaga img {
 		display: block;
 		width: 100%;
-		height: 100%;
-		object-fit: contain;
-		filter: drop-shadow(0 8px 10px rgba(32, 72, 12, 0.35));
-		pointer-events: none;
+		height: auto;
 		user-select: none;
-		transform-origin: 50% 100%;
-		animation: pm2-sway 3.4s ease-in-out infinite;
+		transform-origin: 50% 85%;
 	}
 
-	.pm2-item-2 .pm2-flower {
-		animation-delay: -1.7s;
+	&.pm2-volando .pm2-luciernaga {
+		visibility: visible;
+		animation: pm2-vuelo-izquierda 2.8s cubic-bezier(0.22, 0.55, 0.36, 1) both;
+	}
+
+	&.pm2-volando .pm2-lado-derecha .pm2-luciernaga {
+		animation-name: pm2-vuelo-derecha;
+	}
+
+	&.pm2-volando .pm2-luciernaga-ondas {
+		animation: pm2-vuelo-ondas 2.8s both;
+	}
+
+	&.pm2-volando .pm2-luciernaga img {
+		animation: pm2-aleteo 180ms ease-in-out infinite alternate;
+	}
+
+	&.pm2-posadas .pm2-luciernaga img {
+		animation: pm2-reposo 2.8s ease-in-out infinite;
+	}
+
+	&.pm2-posadas .pm2-lado-derecha .pm2-luciernaga img {
+		animation-delay: -1.3s;
+	}
+
+	/* Al recibir a la luciérnaga la brizna baja un poco por el peso y queda apenas inclinada. */
+	&.pm2-posadas .pm2-lado-izquierda .pm2-percha {
+		animation: pm2-flexion-izquierda 1.1s ease-in-out both;
+	}
+
+	&.pm2-posadas .pm2-lado-derecha .pm2-percha {
+		animation: pm2-flexion-derecha 1.1s ease-in-out both;
+	}
+
+	/* ---------- Haz de luz: nace debajo de la cabeza de la luciérnaga y se abre hasta el suelo ---------- */
+
+	.pm2-haz {
+		position: absolute;
+		z-index: 2;
+		top: 34.4%;
+		width: 38%;
+		height: 58%;
+		opacity: 0;
+		transition: opacity 300ms ease;
+	}
+
+	.pm2-lado-izquierda .pm2-haz {
+		left: calc(30.5% - 19%);
+	}
+
+	.pm2-lado-derecha .pm2-haz {
+		left: calc(71.4% - 19%);
+	}
+
+	&.pm2-proyectando .pm2-haz {
+		opacity: 1;
+	}
+
+	/* Cambio de ronda y respuesta equivocada: el haz baja un poco su intensidad. */
+	&.pm2-proyectando .pm2-opciones-saliendo .pm2-haz {
+		opacity: 0.5;
+	}
+
+	&.pm2-proyectando .pm2-haz.tenue {
+		opacity: 0.6;
+	}
+
+	&.pm2-proyectando .pm2-haz.parpadeo {
+		opacity: 0.4;
+		transition-duration: 150ms;
+	}
+
+	/* El blur va en el contenedor para que los bordes del cono queden difuminados. */
+	.pm2-haz-luz {
+		position: absolute;
+		inset: 0;
+		opacity: 0.92;
+		filter: blur(calc(var(--pm2-w) * 0.006));
+		transition: opacity 300ms ease;
+	}
+
+	.pm2-haz-cono,
+	.pm2-haz-particulas {
+		position: absolute;
+		inset: 0;
+		-webkit-clip-path: polygon(46% 0, 54% 0, 100% 100%, 0 100%);
+		clip-path: polygon(46% 0, 54% 0, 100% 100%, 0 100%);
+	}
+
+	.pm2-haz-cono {
+		background:
+			linear-gradient(90deg, rgba(255, 248, 200, 0) 10%, rgba(255, 248, 200, 0.4) 50%, rgba(255, 248, 200, 0) 90%),
+			linear-gradient(180deg, rgba(255, 245, 170, 1) 0%, rgba(255, 228, 95, 0.82) 22%, rgba(255, 218, 70, 0.66) 60%, rgba(255, 214, 70, 0.55) 100%);
+	}
+
+	&.pm2-proyectando .pm2-haz-cono,
+	&.pm2-proyectando .pm2-haz-particulas {
+		animation: pm2-haz-crecer 900ms cubic-bezier(0.3, 0.7, 0.4, 1) both;
+	}
+
+	.pm2-haz-particulas span {
+		position: absolute;
+		top: var(--y);
+		left: var(--x);
+		width: calc(var(--pm2-w) * 0.007 * var(--s));
+		height: calc(var(--pm2-w) * 0.007 * var(--s));
+		border-radius: 50%;
+		background: #fffbe0;
+		box-shadow: 0 0 calc(var(--pm2-w) * 0.006) calc(var(--pm2-w) * 0.002) rgba(255, 236, 140, 0.9);
+		opacity: 0;
+		animation: pm2-particula 2.8s ease-in-out var(--d) infinite;
+	}
+
+	/* Punto de luz donde nace el haz (debajo de la cabeza, sobre la brizna). */
+	.pm2-haz-fuente {
+		position: absolute;
+		top: -5%;
+		left: 50%;
+		width: 30%;
+		height: 12%;
+		border-radius: 50%;
+		background: radial-gradient(ellipse at center, rgba(255, 255, 235, 1) 0%, rgba(255, 240, 160, 0.75) 35%, rgba(255, 230, 120, 0) 70%);
+		transform: translateX(-50%);
+	}
+
+	&.pm2-proyectando .pm2-haz-fuente {
+		animation: pm2-fuente 500ms ease-out both;
+	}
+
+	/* Pasto iluminado donde termina el haz. */
+	.pm2-haz-suelo {
+		position: absolute;
+		bottom: -7%;
+		left: -12%;
+		width: 124%;
+		height: 20%;
+		border-radius: 50%;
+		background: radial-gradient(ellipse at center, rgba(255, 246, 170, 0.75) 0%, rgba(240, 240, 110, 0.4) 40%, rgba(220, 240, 90, 0) 70%);
+		transition: transform 300ms ease, opacity 300ms ease;
+	}
+
+	&.pm2-proyectando .pm2-haz-suelo {
+		animation: pm2-suelo 600ms ease-out 650ms both;
+	}
+
+	/* Acierto: el haz brilla más. */
+	.pm2-haz.brillando .pm2-haz-luz {
+		opacity: 1;
+		animation: pm2-haz-pulso 900ms ease-in-out both;
+	}
+
+	.pm2-haz.brillando .pm2-haz-suelo {
+		transform: scale(1.12);
+	}
+
+	/* ---------- Opciones proyectadas: dibujo (elige) y palabra (solo se escucha) ---------- */
+
+	.pm2-proyeccion {
+		z-index: 4;
+		transition: opacity 450ms ease;
+	}
+
+	.pm2-opciones-ocultas .pm2-proyeccion,
+	.pm2-opciones-saliendo .pm2-proyeccion {
+		opacity: 0;
+	}
+
+	.pm2-opciones-apareciendo .pm2-proyeccion {
+		animation: pm2-materializar 700ms ease-out both;
+	}
+
+	.pm2-opciones-visibles .pm2-option,
+	.pm2-opciones-visibles .pm2-name {
+		pointer-events: auto;
 	}
 
 	.pm2-option {
 		position: absolute;
-		bottom: 47%;
-		left: 50%;
-		z-index: 1;
-		width: 62%;
-		margin-left: -31%;
+		top: 47.5%;
+		width: 20%;
+		height: 34.5%;
 		padding: 0;
 		border: 0;
 		background: none;
 		cursor: pointer;
-		filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.3));
+		filter: drop-shadow(0 6px 8px rgba(70, 50, 0, 0.35));
 		transform-origin: 50% 100%;
 		transition: opacity 250ms ease, filter 250ms ease;
-		animation: pm2-pop 520ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
 	}
 
-	.pm2-item-2 .pm2-option {
-		animation-delay: 120ms;
+	.pm2-lado-izquierda .pm2-option {
+		left: calc(30.5% - 10%);
+	}
+
+	.pm2-lado-derecha .pm2-option {
+		left: calc(71.4% - 10%);
 	}
 
 	.pm2-option img {
 		display: block;
 		width: 100%;
-		aspect-ratio: 1;
+		height: 100%;
 		object-fit: contain;
 		object-position: 50% 100%;
 		user-select: none;
 		transform-origin: 50% 100%;
-		animation: pm2-bob 2.6s ease-in-out 600ms infinite;
+		animation: pm2-flotar 2.6s ease-in-out infinite;
 	}
 
-	.pm2-item-2 .pm2-option img {
-		animation-delay: 1.9s;
+	.pm2-lado-derecha .pm2-option img {
+		animation-delay: -1.3s;
 	}
 
 	.pm2-option.correct {
 		z-index: 2;
-		filter: drop-shadow(0 0 12px #fff6a4) drop-shadow(0 0 8px rgba(133, 237, 150, 0.95));
+		filter: drop-shadow(0 0 12px #fff6a4) drop-shadow(0 0 8px rgba(255, 236, 120, 0.95));
 		animation: pm2-correct 900ms ease-in-out both;
 	}
 
@@ -106,31 +328,96 @@
 		animation: pm2-vibrate 350ms ease-in-out;
 	}
 
+	/* Chispitas que salen del dibujo correcto. */
+	.pm2-chispas {
+		position: absolute;
+		top: 64%;
+		width: 0;
+		height: 0;
+	}
+
+	.pm2-lado-izquierda .pm2-chispas {
+		left: 30.5%;
+	}
+
+	.pm2-lado-derecha .pm2-chispas {
+		left: 71.4%;
+	}
+
+	.pm2-chispas span {
+		position: absolute;
+		top: calc(var(--pm2-w) * -0.006);
+		left: calc(var(--pm2-w) * -0.006);
+		width: calc(var(--pm2-w) * 0.012);
+		height: calc(var(--pm2-w) * 0.012);
+		border-radius: 50%;
+		background: #fffbe0;
+		box-shadow: 0 0 calc(var(--pm2-w) * 0.01) calc(var(--pm2-w) * 0.004) rgba(255, 230, 110, 0.95);
+		animation: pm2-chispa 900ms ease-out both;
+	}
+
+	/* La palabra: botón propio (solo la lee), con su cartel y hojitas a los costados. */
 	.pm2-name {
-		margin-top: calc(var(--pm2-flower) * -0.02);
-		padding: 0.3em 0.75em 0.25em;
-		border: 0.16em solid #fff;
-		border-radius: 999px;
-		background: #fffaf0;
-		box-shadow: 0 4px 0 var(--pm2-name-shadow), 0 6px 12px rgba(0, 0, 0, 0.25);
-		--pm2-name-shadow: #c9a2e6;
-		color: #5a3b7a;
+		position: absolute;
+		top: 83.2%;
+		padding: 0;
+		border: 0;
+		background: none;
 		font: 900 var(--pm2-name-size) / 1 "Arial Rounded MT Bold", "Trebuchet MS", Arial, Helvetica, sans-serif;
+		cursor: pointer;
+		transform: translateX(-50%);
+		transition: transform 160ms ease, filter 160ms ease;
+	}
+
+	.pm2-lado-izquierda .pm2-name {
+		left: 30.5%;
+	}
+
+	.pm2-lado-derecha .pm2-name {
+		left: 71.4%;
+	}
+
+	.pm2-name::before,
+	.pm2-name::after {
+		position: absolute;
+		top: 50%;
+		width: 1.55em;
+		height: 0.78em;
+		border-radius: 0 100% 0 100%;
+		background: linear-gradient(135deg, #a6e45a 0%, #4f9e2c 100%);
+		box-shadow: inset 0 -0.06em 0 rgba(30, 80, 10, 0.35);
+		content: "";
+	}
+
+	.pm2-name::before {
+		left: -1.15em;
+		transform: translateY(-60%) rotate(-14deg);
+	}
+
+	.pm2-name::after {
+		right: -1.15em;
+		transform: translateY(-60%) scaleX(-1) rotate(-14deg);
+	}
+
+	.pm2-name-texto {
+		position: relative;
+		z-index: 1;
+		display: block;
+		padding: 0.34em 1.05em 0.28em;
+		border: 0.14em solid #fff;
+		border-radius: 999px;
+		background: linear-gradient(180deg, #fffdf6 0%, #fbf1e2 100%);
+		box-shadow: 0 0.1em 0 #d9b8ef, 0 0 1em rgba(255, 238, 150, 0.55), 0 0.2em 0.5em rgba(40, 30, 0, 0.3);
+		color: #5a3b7a;
 		letter-spacing: 0.03em;
 		text-transform: uppercase;
 		white-space: nowrap;
-		cursor: pointer;
-		transition: transform 160ms ease, filter 160ms ease;
 		-webkit-text-fill-color: currentColor;
 	}
 
-	/* Palabras largas (destornillador, hamburguesa): letra más chica para no pasarse de la flor. */
+	/* Palabras largas (destornillador, hamburguesa): letra más chica para no pisar al otro cartel. */
 	.pm2-name.long {
 		font-size: calc(var(--pm2-name-size) * 0.78);
-	}
-
-	.pm2-name.florCoral {
-		--pm2-name-shadow: #f3a491;
 	}
 
 	.pm2-name .requested-sound {
@@ -140,26 +427,220 @@
 
 	.pm2-name:hover,
 	.pm2-name:focus-visible {
-		transform: scale(1.05);
 		filter: brightness(1.04);
+		transform: translateX(-50%) scale(1.05);
 	}
 
 	.pm2-name:active {
-		transform: scale(0.97);
+		transform: translateX(-50%) scale(0.97);
 	}
 
 	.selected-character {
 		top: 58%;
-		left: clamp(0.5rem, 1.5vw, 1.5rem);
-		--selected-character-width: clamp(140px, 40vmin, 320px);
+		left: var(--pm2-char-left);
+		--selected-character-width: var(--pm2-char);
 		animation: pm2-character-float 2.8s ease-in-out infinite;
 	}
 }
 
-@keyframes pm2-pop {
+/* Donde existe dvh (barras del navegador en celulares) la escena se calcula con el alto visible. */
+@supports (height: 100dvh) {
+	.page-peluches-m2 {
+		--pm2-w: min(calc(var(--pm2-avail) / 0.924), 139.6dvh);
+	}
+}
+
+/* Vuelo: entra desde afuera de la pantalla, cada una por su lado. */
+@keyframes pm2-vuelo-izquierda {
+	0% {
+		transform: translateX(-80vw);
+	}
+
+	100% {
+		transform: translateX(0);
+	}
+}
+
+@keyframes pm2-vuelo-derecha {
+	0% {
+		transform: translateX(80vw);
+	}
+
+	100% {
+		transform: translateX(0);
+	}
+}
+
+/* Subidas y bajadas suaves del vuelo; al final baja despacio hasta la brizna. */
+@keyframes pm2-vuelo-ondas {
+	0% {
+		transform: translateY(-14vh) rotate(-6deg);
+		animation-timing-function: ease-in-out;
+	}
+
+	20% {
+		transform: translateY(-4vh) rotate(4deg);
+		animation-timing-function: ease-in-out;
+	}
+
+	40% {
+		transform: translateY(-15vh) rotate(-5deg);
+		animation-timing-function: ease-in-out;
+	}
+
+	60% {
+		transform: translateY(-5vh) rotate(3deg);
+		animation-timing-function: ease-in-out;
+	}
+
+	78% {
+		transform: translateY(-11vh) rotate(-2deg);
+		animation-timing-function: cubic-bezier(0.35, 0, 0.3, 1);
+	}
+
+	100% {
+		transform: translateY(0) rotate(0deg);
+	}
+}
+
+@keyframes pm2-aleteo {
+	0% {
+		transform: translateY(0) scale(1);
+	}
+
+	100% {
+		transform: translateY(-2.5%) scale(1.01, 0.99);
+	}
+}
+
+@keyframes pm2-reposo {
+	0%,
+	100% {
+		transform: translateY(0) scale(1);
+	}
+
+	50% {
+		transform: translateY(-0.8%) scale(1.012, 0.992);
+	}
+}
+
+@keyframes pm2-flexion-izquierda {
+	0% {
+		transform: rotate(0deg);
+	}
+
+	30% {
+		transform: rotate(2.4deg);
+	}
+
+	55% {
+		transform: rotate(0.1deg);
+	}
+
+	78% {
+		transform: rotate(1.1deg);
+	}
+
+	100% {
+		transform: rotate(0.7deg);
+	}
+}
+
+@keyframes pm2-flexion-derecha {
+	0% {
+		transform: rotate(0deg);
+	}
+
+	30% {
+		transform: rotate(-2.4deg);
+	}
+
+	55% {
+		transform: rotate(-0.1deg);
+	}
+
+	78% {
+		transform: rotate(-1.1deg);
+	}
+
+	100% {
+		transform: rotate(-0.7deg);
+	}
+}
+
+/* El cono se despliega hacia abajo manteniendo su apertura. */
+@keyframes pm2-haz-crecer {
+	0% {
+		-webkit-clip-path: polygon(46% 0, 54% 0, 54% 0, 46% 0);
+		clip-path: polygon(46% 0, 54% 0, 54% 0, 46% 0);
+	}
+
+	100% {
+		-webkit-clip-path: polygon(46% 0, 54% 0, 100% 100%, 0 100%);
+		clip-path: polygon(46% 0, 54% 0, 100% 100%, 0 100%);
+	}
+}
+
+@keyframes pm2-fuente {
 	0% {
 		opacity: 0;
-		transform: translateY(18%) scale(0.2);
+		transform: translateX(-50%) scale(0.3);
+	}
+
+	100% {
+		opacity: 1;
+		transform: translateX(-50%) scale(1);
+	}
+}
+
+@keyframes pm2-suelo {
+	0% {
+		opacity: 0;
+		transform: scaleX(0.4);
+	}
+
+	100% {
+		opacity: 1;
+		transform: scaleX(1);
+	}
+}
+
+@keyframes pm2-haz-pulso {
+	0%,
+	100% {
+		filter: blur(calc(var(--pm2-w) * 0.006)) brightness(1);
+	}
+
+	45% {
+		filter: blur(calc(var(--pm2-w) * 0.006)) brightness(1.35);
+	}
+}
+
+@keyframes pm2-particula {
+	0% {
+		opacity: 0;
+		transform: translateY(0) scale(0.6);
+	}
+
+	35% {
+		opacity: 1;
+	}
+
+	70% {
+		opacity: 0.8;
+	}
+
+	100% {
+		opacity: 0;
+		transform: translateY(-140%) scale(1);
+	}
+}
+
+/* Las opciones se van formando dentro de la luz. */
+@keyframes pm2-materializar {
+	0% {
+		opacity: 0;
+		filter: blur(6px) brightness(1.6);
 	}
 
 	60% {
@@ -168,29 +649,30 @@
 
 	100% {
 		opacity: 1;
-		transform: translateY(0) scale(1);
+		filter: blur(0) brightness(1);
 	}
 }
 
-@keyframes pm2-bob {
+@keyframes pm2-flotar {
 	0%,
 	100% {
 		transform: translateY(0) rotate(0deg);
 	}
 
 	50% {
-		transform: translateY(-5%) rotate(-2deg);
+		transform: translateY(-3%) rotate(-1.5deg);
 	}
 }
 
-@keyframes pm2-sway {
-	0%,
-	100% {
-		transform: rotate(-1.2deg);
+@keyframes pm2-chispa {
+	0% {
+		opacity: 1;
+		transform: rotate(var(--a)) translateY(0) scale(0.4);
 	}
 
-	50% {
-		transform: rotate(1.2deg);
+	100% {
+		opacity: 0;
+		transform: rotate(var(--a)) translateY(calc(var(--pm2-w) * -0.13)) scale(1);
 	}
 }
 
@@ -201,11 +683,11 @@
 	}
 
 	40% {
-		transform: scale(1.22) translateY(-6%);
+		transform: scale(1.18) translateY(-5%);
 	}
 
 	70% {
-		transform: scale(1.12) translateY(-3%);
+		transform: scale(1.1) translateY(-2%);
 	}
 }
 
@@ -235,19 +717,16 @@
 	}
 }
 
-/* Pantallas angostas (celular vertical): flores más chicas y un poco más a la derecha. */
+/* Tablets (4:3, 3:2): el personaje un poco más chico para que la escena tenga más ancho. */
+@media (max-aspect-ratio: 3/2) {
+	.page-peluches-m2 {
+		--pm2-char: clamp(120px, 30vmin, 260px);
+	}
+}
+
+/* Pantallas angostas (celular vertical): personaje más chico para que la escena tenga lugar. */
 @media (max-aspect-ratio: 1/1) {
 	.page-peluches-m2 {
-		--pm2-flower: 34vw;
-		--pm2-name-size: clamp(0.9rem, 4vw, 1.6rem);
-	}
-
-	.page-peluches-m2 .pm2-field {
-		left: 64%;
-		gap: 2vw;
-	}
-
-	.page-peluches-m2 .selected-character {
-		--selected-character-width: clamp(90px, 26vw, 160px);
+		--pm2-char: clamp(90px, 26vw, 160px);
 	}
 }

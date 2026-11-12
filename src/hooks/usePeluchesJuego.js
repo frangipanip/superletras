@@ -10,7 +10,9 @@ const VIBRATE_MS = 350;
 // rondas: [{ consigna, options: [{ id, correct }] }]
 // consignaAudio(consigna) / palabraAudio(id): archivo para sound(); palabraAudio puede devolver null
 // si esa palabra todavía no tiene audio grabado (se lee con la voz del navegador).
-export function usePeluchesJuego({ runtime, letra, rondas, consignaAudio, palabraAudio, startTalking, stopTalking }) {
+// rondaVisible (opcional): índice de la ronda cuyas opciones ya se ven en pantalla. Si se pasa, la
+// consigna espera a que coincida con la ronda actual (para escenas con animación de entrada).
+export function usePeluchesJuego({ runtime, letra, rondas, consignaAudio, palabraAudio, startTalking, stopTalking, rondaVisible }) {
 	const [activityIndex, setActivityIndex] = useState(0);
 	const [acertada, setAcertada] = useState(null);
 	const [vibrating, setVibrating] = useState(() => new Set());
@@ -121,10 +123,15 @@ export function usePeluchesJuego({ runtime, letra, rondas, consignaAudio, palabr
 		audio.play().catch(() => {});
 	}
 
+	const consignaLista = rondaVisible === undefined || rondaVisible === activityIndex;
+
 	useEffect(() => {
+		if (!consignaLista) {
+			return undefined;
+		}
 		playInstruction();
 		return silenciarTodo;
-	}, [activityIndex]);
+	}, [activityIndex, consignaLista]);
 
 	function elegir(option) {
 		if (game.locked) {
