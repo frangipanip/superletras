@@ -160,13 +160,13 @@
 	left: 61%;
 	z-index: 1;
 	width: var(--mundo4-clam-width, clamp(12rem, 30vw, 27rem));
-	transform: translate(-50%, 0) scale(0.38);
+	transform: translate3d(-50%, 0, 0) scale(0.38);
 	transform-origin: top center;
 	pointer-events: none;
 }
 
 .inicio-mundo4-review-clam.is-entering {
-	animation: mundo4-almeja-c-repaso-entra 6900ms cubic-bezier(0.35, 0.1, 0.25, 1) both;
+	animation: mundo4-almeja-c-repaso-entra 6900ms linear both;
 }
 
 .inicio-mundo4-clam.is-q-review {
@@ -194,57 +194,64 @@
 
 @keyframes mundo4-almeja-c-repaso-entra {
 	0% {
-		transform: translate3d(100vw, 100vh, 0) scale(0.38);
-		animation-timing-function: cubic-bezier(0.45, 0, 0.7, 0.65);
+		transform: translate3d(calc(40vw - 50%), 88vh, 0) scale(0.38);
 	}
 
 	12% {
-		transform: translate3d(88vw, 86vh, 0) scale(0.38);
+		transform: translate3d(calc(35vw - 50%), 73vh, 0) scale(0.38);
 	}
 
 	24% {
-		transform: translate3d(66vw, 62vh, 0) scale(0.38);
+		transform: translate3d(calc(29vw - 50%), 57vh, 0) scale(0.38);
 	}
 
 	36% {
-		transform: translate3d(46vw, 42vh, 0) scale(0.38);
+		transform: translate3d(calc(23vw - 50%), 42vh, 0) scale(0.38);
 	}
 
 	48% {
-		transform: translate3d(32vw, 29vh, 0) scale(0.38);
+		transform: translate3d(calc(18vw - 50%), 30vh, 0) scale(0.38);
 	}
 
 	60% {
-		transform: translate3d(24vw, 18vh, 0) scale(0.38);
-		animation-timing-function: cubic-bezier(0.15, 0.75, 0.25, 1);
+		transform: translate3d(calc(13vw - 50%), 20vh, 0) scale(0.38);
 	}
 
 	70% {
-		transform: translate3d(18vw, 12vh, 0) scale(0.38);
+		transform: translate3d(calc(10vw - 50%), 14vh, 0) scale(0.38);
 	}
 
 	78% {
-		transform: translate3d(14vw, 7vh, 0) scale(0.38);
+		transform: translate3d(calc(8vw - 50%), 10vh, 0) scale(0.38);
 	}
 
 	84% {
-		transform: translate3d(10vw, 6vh, 0) scale(0.38);
+		transform: translate3d(calc(6vw - 50%), 7vh, 0) scale(0.38);
 	}
 
 	88% {
-		transform: translate3d(7vw, 3vh, 0) scale(0.38);
+		transform: translate3d(calc(4.5vw - 50%), 5vh, 0) scale(0.38);
+	}
+
+	90% {
+		transform: translate3d(calc(4vw - 50%), 4.5vh, 0) scale(0.38);
 	}
 
 	92% {
-		transform: translate3d(4vw, 4vh, 0) scale(0.38);
+		transform: translate3d(calc(4.2vw - 50%), 5.5vh, 0) scale(0.38);
+	}
+
+	94% {
+		transform: translate3d(calc(3vw - 50%), 4vh, 0) scale(0.38);
 	}
 
 	96% {
-		transform: translate3d(2vw, 1vh, 0) scale(0.38);
+		transform: translate3d(calc(1.5vw - 50%), 1.5vh, 0) scale(0.38);
+		animation-timing-function: cubic-bezier(0.16, 0.7, 0.3, 1);
 	}
 
 	100% {
-		transform: translate3d(0, 0, 0) scale(0.38);
+		transform: translate3d(-50%, 0, 0) scale(0.38);
 	}
 }
 
