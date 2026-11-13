@@ -226,6 +226,7 @@ export default function InicioActividad() {
 		itemPrompt: runtime.audio(sound(mode.prompt), { preload: true }),
 		celebration: runtime.audio(sound("Felicitaciones.mp3"), { preload: true }),
 		error: runtime.audio(sound("error.mp3"), { preload: true }),
+		qReviewWellDone: isMundo4Q ? runtime.audio(sound("muybien.mp3"), { preload: true }) : null,
 		qReview: isMundo4Q ? runtime.audio(sound("recordaQ.mp3"), { preload: true }) : null,
 		qReviewItems: isMundo4Q ? Object.fromEntries(MUNDO4_Q_REVIEW_ITEMS.map((item) => [
 			item,
@@ -545,7 +546,7 @@ export default function InicioActividad() {
 		audio.play().catch(finish);
 	}
 
-	function startQReview() {
+	function playQReviewNarration() {
 		setReviewClamVisible(true);
 		setReviewClamArrived(false);
 		const clamDuration = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : MUNDO4_Q_REVIEW_CLAM_MS;
@@ -577,6 +578,19 @@ export default function InicioActividad() {
 			setReviewClamArrived(true);
 			continueWhenReady();
 		}, clamDuration ? clamDuration + 100 : 0);
+	}
+
+	function startQReview() {
+		const wellDone = audios.qReviewWellDone;
+		startTalking();
+		wellDone.currentTime = 0;
+		const continueWithRecall = () => {
+			wellDone.onended = null;
+			stopTalking();
+			playQReviewNarration();
+		};
+		wellDone.onended = continueWithRecall;
+		wellDone.play().catch(continueWithRecall);
 	}
 
 	function completeItemSelection() {
@@ -749,6 +763,9 @@ export default function InicioActividad() {
 			audios.error.pause();
 			audios.error.currentTime = 0;
 			if (isMundo4Q) {
+				audios.qReviewWellDone.onended = null;
+				audios.qReviewWellDone.pause();
+				audios.qReviewWellDone.currentTime = 0;
 				audios.qReview.onended = null;
 				audios.qReview.pause();
 				audios.qReview.currentTime = 0;
