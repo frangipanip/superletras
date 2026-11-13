@@ -14,7 +14,7 @@ import { STORAGE_KEYS, readStorage, writeStorage } from "../lib/storage";
 import SeaLifeEffects from "../components/SeaLifeEffects";
 import "./Mundo4.css";
 
-const LETTERS = ["C", "CE", "Q", "Z", "CH"];
+const LETTERS = ["C", "Q", "CE", "Z", "CH"];
 const LETTER_BLOCKS = {
 	C: img("almejaC.png"),
 	CE: img("almejaCE.png"),
@@ -387,7 +387,7 @@ export default function Mundo4() {
 						>
 							<img className="mundo4-path-sign" src={img(ACTIVITY_SIGN_IMAGES[index] || "GLOBOSbtn.png")} alt="" draggable={false} />
 							<button
-								className={`mundo4-path-button${index < 3 ? " is-available" : ""}`}
+								className={`mundo4-path-button path-letter-${(selectedLetter || LETTERS[0]).toLowerCase()}${index < 3 ? " is-available" : ""}`}
 								type="button"
 								disabled={index > 2 || Boolean(teleport)}
 								aria-label={index === 0
@@ -431,6 +431,7 @@ export default function Mundo4() {
 					{LETTERS.map((letter, index) => (
 						<button
 							className={`mundo4-letter mundo4-letter-${index + 1}${selectedLetter === letter ? " selected" : ""}`}
+							data-letter={letter.toLowerCase()}
 							key={letter}
 							type="button"
 							disabled={Boolean(teleport)}

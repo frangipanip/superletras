@@ -121,6 +121,12 @@
 	pointer-events: auto;
 }
 
+.mundo4-path-button.path-letter-c { filter: hue-rotate(125deg) saturate(1); }
+.mundo4-path-button.path-letter-ce { filter: saturate(1.35) hue-rotate(-10deg); }
+.mundo4-path-button.path-letter-q { filter: hue-rotate(245deg) saturate(1.55) brightness(1.08); }
+.mundo4-path-button.path-letter-z { filter: hue-rotate(210deg) saturate(1.65); }
+.mundo4-path-button.path-letter-ch { filter: hue-rotate(42deg) saturate(1.4); }
+
 .mundo4-path-button.is-available:hover,
 .mundo4-path-button.is-available:focus-visible {
 	transform: scale(1.1);
@@ -182,11 +188,16 @@
 	transition: filter 180ms ease;
 }
 
-.mundo4-letter-1 { left: 47%; top: 21.5%; --outline-color: #63309a; color: #a353ec; }
-.mundo4-letter-2 { left: 49.7%; top: 38%; --outline-color: #925300; color: #fdab02; }
-.mundo4-letter-3 { left: 46%; top: 53.2%; --outline-color: #227738; color: #50cb65; }
-.mundo4-letter-4 { left: 49.5%; top: 70.5%; --outline-color: #921b2d; color: #e2344a; }
-.mundo4-letter-5 { left: 46%; top: 85.5%; --outline-color: #006a9f; color: #01a3fb; }
+.mundo4-letter-1 { left: 47%; top: 21.5%; }
+.mundo4-letter-2 { left: 49.7%; top: 38%; }
+.mundo4-letter-3 { left: 46%; top: 53.2%; }
+.mundo4-letter-4 { left: 49.5%; top: 70.5%; }
+.mundo4-letter-5 { left: 46%; top: 85.5%; }
+.mundo4-letter[data-letter="c"] { --outline-color: #63309a; color: #a353ec; }
+.mundo4-letter[data-letter="ce"] { --outline-color: #227738; color: #50cb65; }
+.mundo4-letter[data-letter="q"] { --outline-color: #925300; color: #fdab02; }
+.mundo4-letter[data-letter="z"] { --outline-color: #921b2d; color: #e2344a; }
+.mundo4-letter[data-letter="ch"] { --outline-color: #006a9f; color: #01a3fb; }
 
 .mundo4-compact-menu {
 	position: fixed;
