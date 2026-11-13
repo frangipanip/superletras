@@ -129,7 +129,7 @@
 	z-index: 1;
 	width: var(--mundo4-clam-width, clamp(12rem, 30vw, 27rem));
 	transform: translate(-50%, -50%);
-	transition: top 800ms ease, transform 800ms ease;
+	transition: top 800ms ease, left 800ms ease, transform 800ms ease;
 	pointer-events: none;
 }
 
@@ -152,6 +152,100 @@
 	animation:
 		mundo4-burbuja-envuelve 500ms cubic-bezier(0.34, 1.56, 0.64, 1) both,
 		mundo4-burbuja-ondula 2.6s ease-in-out 500ms infinite;
+}
+
+.inicio-mundo4-review-clam {
+	position: absolute;
+	top: 7%;
+	left: 61%;
+	z-index: 1;
+	width: var(--mundo4-clam-width, clamp(12rem, 30vw, 27rem));
+	transform: translate(-50%, 0) scale(0.38);
+	transform-origin: top center;
+	pointer-events: none;
+}
+
+.inicio-mundo4-review-clam.is-entering {
+	animation: mundo4-almeja-c-repaso-entra 6900ms cubic-bezier(0.35, 0.1, 0.25, 1) both;
+}
+
+.inicio-mundo4-clam.is-q-review {
+	left: 46%;
+}
+
+.inicio-mundo4-review-clam img {
+	display: block;
+	width: 100%;
+	height: auto;
+	filter: drop-shadow(0 8px 12px rgba(13, 61, 93, 0.3));
+}
+
+.inicio-mundo4-review-clam-bubble {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	z-index: 1;
+	width: 125%;
+	padding-top: 125%;
+	background: url("/assets/imagenes/burbuja.png") center / contain no-repeat;
+	transform: translate(-50%, -50%);
+	pointer-events: none;
+}
+
+@keyframes mundo4-almeja-c-repaso-entra {
+	0% {
+		transform: translate3d(100vw, 100vh, 0) scale(0.38);
+		animation-timing-function: cubic-bezier(0.45, 0, 0.7, 0.65);
+	}
+
+	12% {
+		transform: translate3d(88vw, 86vh, 0) scale(0.38);
+	}
+
+	24% {
+		transform: translate3d(66vw, 62vh, 0) scale(0.38);
+	}
+
+	36% {
+		transform: translate3d(46vw, 42vh, 0) scale(0.38);
+	}
+
+	48% {
+		transform: translate3d(32vw, 29vh, 0) scale(0.38);
+	}
+
+	60% {
+		transform: translate3d(24vw, 18vh, 0) scale(0.38);
+		animation-timing-function: cubic-bezier(0.15, 0.75, 0.25, 1);
+	}
+
+	70% {
+		transform: translate3d(18vw, 12vh, 0) scale(0.38);
+	}
+
+	78% {
+		transform: translate3d(14vw, 7vh, 0) scale(0.38);
+	}
+
+	84% {
+		transform: translate3d(10vw, 6vh, 0) scale(0.38);
+	}
+
+	88% {
+		transform: translate3d(7vw, 3vh, 0) scale(0.38);
+	}
+
+	92% {
+		transform: translate3d(4vw, 4vh, 0) scale(0.38);
+	}
+
+	96% {
+		transform: translate3d(2vw, 1vh, 0) scale(0.38);
+	}
+
+	100% {
+		transform: translate3d(0, 0, 0) scale(0.38);
+	}
 }
 
 @keyframes mundo4-burbuja-envuelve {
@@ -238,6 +332,10 @@
 		animation: none;
 		opacity: 1;
 		transform: translate(-50%, -50%) scale(1);
+	}
+
+	.inicio-mundo4-review-clam.is-entering {
+		animation: none;
 	}
 }
 
@@ -663,6 +761,15 @@
 /* Globo revelándose */
 .inicio-vowel-button.reveal-balloon {
 	animation: balloon-appear 500ms ease-out forwards;
+}
+
+.inicio-vowel-button.review-balloon {
+	animation: balloon-appear 500ms ease-out both;
+	pointer-events: none;
+}
+
+.inicio-vowel-button.review-balloon:nth-child(n) {
+	animation-delay: 0s;
 }
 
 /* Posiciones y colores de cada globo: arco
