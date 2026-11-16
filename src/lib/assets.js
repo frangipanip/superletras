@@ -1,6 +1,8 @@
 import { readStorage, STORAGE_KEYS } from "./storage";
 
 export const img = (name) => `/assets/imagenes/${name}`;
+// Sonidos que no dependen del personaje (efectos): están sueltos en /assets/sonido.
+export const commonSound = (name) => `/assets/sonido/${name}`;
 export const sound = (name) => {
 	const savedCharacter = readStorage(STORAGE_KEYS.character);
 	const character = savedCharacter === "supernene" ? "supernene" : "supernena";

@@ -10,6 +10,9 @@ import { useTalkingMouth } from "../hooks/useTalkingMouth";
 import { img, preloadImages, sound } from "../lib/assets";
 import { shuffle } from "../lib/shuffle";
 import { readMenuOption } from "../lib/storage";
+import { useAyudaError } from "../hooks/useAyudaError";
+import { crearSecuencia, mudo } from "../lib/secuenciaAudio";
+import "./actividad.css";
 import "./Iniciales.css";
 
 // El nombre del archivo coincide con la palabra, que se usa para formar la consigna.
@@ -78,7 +81,13 @@ function crearRondas(letra) {
 	const usadas = new Set();
 	const rondas = [];
 	for (let vuelta = 0; vuelta < VUELTAS; vuelta += 1) {
-		consignas.forEach((consigna) => {
+		// Orden mezclado en cada vuelta (si no, siempre era A, E, I, O, U y se acertaba de memoria),
+		// sin repetir el mismo sonido entre el final de una vuelta y el comienzo de la otra.
+		let orden = shuffle(consignas);
+		if (orden.length > 1 && orden[0] === rondas[rondas.length - 1]?.consigna) {
+			orden = [...orden.slice(1), orden[0]];
+		}
+		orden.forEach((consigna) => {
 			const opcionesCorrectas = correctas[consigna];
 			const correcta = opcionesCorrectas[vuelta % opcionesCorrectas.length];
 			usadas.add(correcta);
@@ -118,7 +127,8 @@ export default function Peluche() {
 	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
 	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime);
-	const [letra] = useState(() => readMenuOption() || "a");
+	// Una opción guardada que no es una letra de Mundo 1 (por ejemplo "palabras") dejaba la pantalla en blanco.
+	const [letra] = useState(() => (["a", "l", "m", "s", "t"].includes(readMenuOption()) ? readMenuOption() : "a"));
 	const [rondas] = useState(() => crearRondas(letra));
 	const [activityIndex, setActivityIndex] = useState(0);
 	const [acertada, setAcertada] = useState(null);
@@ -142,7 +152,8 @@ export default function Peluche() {
 	});
 	const [instructionAudio] = useState(() => runtime.audio(sound("Pulsaeldibujo.mp3"), { preload: true }));
 	const [helpAudio] = useState(() => runtime.audio(sound("apetaeltexto.mp3"), { preload: true }));
-	const sequenceToken = useRef(0);
+	const [secuencia] = useState(() => crearSecuencia({ startTalking, stopTalking }));
+	const ayuda = useAyudaError(runtime);
 	const activity = rondas[activityIndex];
 	const largoResaltado = letra === "a" ? 1 : 2;
 	const [premio, otorgarPremio] = useRecompensa("peluches", letra);
@@ -157,101 +168,26 @@ export default function Peluche() {
 		])));
 	}, [rondas]);
 
+	// Consigna: sonido + "pulsá el dibujo…" + sonido. "Apretá el texto…" se dice solo en la primera ronda.
 	function playInstruction() {
-		window.speechSynthesis?.cancel();
-		const token = sequenceToken.current + 1;
-		sequenceToken.current = token;
 		const targetAudio = consignaAudios[activity.consigna];
-		const sequence = [targetAudio, instructionAudio, targetAudio, helpAudio];
-		sequence.forEach((audio) => {
-			audio.pause();
-			audio.currentTime = 0;
-			audio.onended = null;
-		});
-		startTalking();
-
-		function playNext(index) {
-			if (token !== sequenceToken.current) {
-				return;
-			}
-			if (index === sequence.length) {
-				stopTalking();
-				return;
-			}
-			const audio = sequence[index];
-			let advanced = false;
-			const advance = () => {
-				if (advanced) {
-					return;
-				}
-				advanced = true;
-				audio.onended = null;
-				playNext(index + 1);
-			};
-			audio.currentTime = 0;
-			audio.onended = advance;
-			audio.play().catch(advance);
-		}
-
-		playNext(0);
+		secuencia.reproducir([targetAudio, instructionAudio, targetAudio, activityIndex === 0 ? helpAudio : null]);
 	}
 
-	function stopInstructionSequence() {
-		sequenceToken.current += 1;
-		[...Object.values(consignaAudios), ...Object.values(wordAudios), instructionAudio, helpAudio].forEach((audio) => {
-			audio.pause();
-			audio.currentTime = 0;
-			audio.onended = null;
-		});
-		window.speechSynthesis?.cancel();
-		stopTalking();
+	// Durante el acierto no se corta el audio: su final es el que pasa a la siguiente ronda.
+	function repetirConsigna() {
+		if (!game.locked) playInstruction();
 	}
 
-	function playWordName(name, onEnd) {
-		stopInstructionSequence();
-		const wordAudio = wordAudios[name];
-		if (wordAudio) {
-			let completed = false;
-			const finish = () => {
-				if (completed) {
-					return;
-				}
-				completed = true;
-				wordAudio.onended = null;
-				stopTalking();
-				onEnd?.();
-			};
-			wordAudio.currentTime = 0;
-			wordAudio.onended = finish;
-			startTalking();
-			wordAudio.play().catch(finish);
-			return;
-		}
-		if (!("speechSynthesis" in window) || typeof SpeechSynthesisUtterance === "undefined") {
-			onEnd?.();
-			return;
-		}
-		const utterance = new SpeechSynthesisUtterance(name);
-		utterance.lang = "es-AR";
-		if (onEnd) {
-			let completed = false;
-			const finish = () => {
-				if (completed) {
-					return;
-				}
-				completed = true;
-				onEnd();
-			};
-			utterance.onend = finish;
-			utterance.onerror = finish;
-		}
-		window.speechSynthesis.speak(utterance);
+	function escucharPalabra(name) {
+		if (!game.locked) secuencia.reproducir([wordAudios[name]]);
 	}
 
 	useEffect(() => {
+		ayuda.reiniciar();
 		playInstruction();
-		return stopInstructionSequence;
-	}, [activity.consigna, consignaAudios, helpAudio, instructionAudio]);
+		return secuencia.cancelar;
+	}, [activityIndex]);
 
 	function handleImageClick(option) {
 		if (game.locked) {
@@ -266,27 +202,28 @@ export default function Peluche() {
 				game.rewarded = true;
 				otorgarPremio(game.errors);
 			}
-			playWordName(option.name, () => {
-				correctAudio.pause();
-				correctAudio.currentTime = 0;
-				correctAudio.play().catch(() => {});
-				if (!esUltima) {
-					runtime.setTimeout(() => {
-						setActivityIndex((currentIndex) => currentIndex + 1);
-						setAcertada(null);
-						setVibrating(new Set());
-						game.locked = false;
-					}, CORRECT_ANIMATION_MS);
+			const startedAt = Date.now();
+			// Palabra → felicitación; la ronda siguiente espera a que termine de sonar.
+			secuencia.reproducir([wordAudios[option.name], mudo(correctAudio)], () => {
+				if (esUltima) {
+					return;
 				}
+				runtime.setTimeout(() => {
+					setActivityIndex((currentIndex) => currentIndex + 1);
+					setAcertada(null);
+					setVibrating(new Set());
+					game.locked = false;
+				}, Math.max(200, CORRECT_ANIMATION_MS - (Date.now() - startedAt)));
 			});
 			return;
 		}
 
-		playWordName(option.name, () => {
-			errorAudio.pause();
-			errorAudio.currentTime = 0;
-			errorAudio.play().catch(() => {});
-		});
+		// Palabra tocada → error → ayuda con el sonido pedido.
+		secuencia.reproducir([
+			wordAudios[option.name],
+			mudo(errorAudio),
+			...ayuda.trasError(consignaAudios[activity.consigna])
+		]);
 		game.errors += 1;
 		setVibrating((current) => new Set(current).add(option.name));
 		runtime.setTimeout(() => {
@@ -311,6 +248,9 @@ export default function Peluche() {
 						}
 						if (vibrating.has(option.name)) {
 							classNames.push("vibrating");
+						}
+						if (ayuda.pista && option.correct && !acertada) {
+							classNames.push("pista-correcta");
 						}
 						return (
 							<div className="initials-item" key={`${activityIndex}-${option.name}`}>
@@ -339,7 +279,7 @@ export default function Peluche() {
 									<button
 										type="button"
 										className={`initials-name color-${(activityIndex * 2 + optionIndex) % 4}`}
-										onClick={() => playWordName(option.name)}
+										onClick={() => escucharPalabra(option.name)}
 									>
 										<>
 											<span className="requested-sound">{option.name.slice(0, largoResaltado)}</span>
@@ -352,7 +292,7 @@ export default function Peluche() {
 					})}
 				</section>
 			</main>
-			<Character character={character} mouth={mouth} onClick={playInstruction} label="Repetir audio" />
+			<Character character={character} mouth={mouth} onClick={repetirConsigna} label="Repetir audio" />
 			<PremioComida premio={premio} />
 		</div>
 	);

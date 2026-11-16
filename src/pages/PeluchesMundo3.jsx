@@ -64,8 +64,6 @@ const ACENTOS = {
 	yacare: "yacaré",
 	yoyo: "yoyó"
 };
-// Todavía sin audio grabado: se leen con la voz del navegador hasta que se agreguen.
-const SIN_AUDIO = new Set(["raton", "raqueta", "rayo"]);
 const AUDIOS_R_SUAVE = {
 	ra: "ra suave.mp3",
 	re: "re suave.mp3",
@@ -167,12 +165,12 @@ export default function PeluchesMundo3() {
 	const menuOption = useActivityMenuOption();
 	const [letra] = useState(() => (Object.prototype.hasOwnProperty.call(GRUPOS, menuOption || "") ? menuOption : "r"));
 	const [rondas] = useState(() => crearRondas(letra));
-	const { activity, activityIndex, acertada, vibrating, premio, elegir, escucharPalabra, repetirConsigna } = usePeluchesJuego({
+	const { activity, activityIndex, acertada, vibrating, premio, pista, elegir, escucharPalabra, repetirConsigna } = usePeluchesJuego({
 		runtime,
 		letra,
 		rondas,
 		consignaAudio: (consigna) => (letra === "ar" ? AUDIOS_R_SUAVE[consigna] : `${consigna}.mp3`),
-		palabraAudio: (id) => (SIN_AUDIO.has(id) ? null : `peluche/MUNDO3/${id}.mp3`),
+		palabraAudio: (id) => `peluche/MUNDO3/${id}.mp3`,
 		instructionAudioFile: letra === "rr" || letra === "ar" ? "pulsacontiene.mp3" : undefined,
 		startTalking,
 		stopTalking
@@ -201,6 +199,9 @@ export default function PeluchesMundo3() {
 					}
 					if (vibrating.has(option.id)) {
 						classNames.push("vibrating");
+					}
+					if (pista && option.correct) {
+						classNames.push("pista-correcta");
 					}
 					return [
 						<button

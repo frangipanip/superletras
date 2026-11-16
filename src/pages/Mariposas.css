@@ -653,3 +653,8 @@
 		opacity: 0;
 	}
 }
+
+/* Mundo 1 (Ositos): la sílaba más grande (auditoría: era muy chica); más de 1,5 tapa al osito. */
+.page-mariposas:not(.world-mundo2):not(.world-mundo3):not(.world-mundo4) .butterfly-button .badge {
+	transform: translate(-50%, -50%) scale(1.5);
+}

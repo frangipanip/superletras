@@ -319,11 +319,11 @@
 
 	.vowel-token {
 		position: absolute;
-		top: -78%;
+		top: -98%;
 		left: 50%;
 		display: grid;
 		place-items: center;
-		width: 42%;
+		width: 54%;
 		aspect-ratio: 1;
 		padding: 0;
 		border: 3px solid #fff;
@@ -331,7 +331,7 @@
 		background: #fff8c7;
 		box-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
 		color: #65352a;
-		font: 700 clamp(1rem, 3.5vmin, 2rem) Arial, Helvetica, sans-serif;
+		font: 700 clamp(1.3rem, 4.6vmin, 2.6rem) Arial, Helvetica, sans-serif;
 		cursor: grab;
 		touch-action: none;
 		transform: translateX(-50%);
@@ -346,6 +346,13 @@
 
 	.vowel-token:disabled {
 		display: none;
+	}
+
+	/* Vagón elegido con un toque: después se toca el casillero donde va. */
+	.vowel-token.selected {
+		border-color: #ff8a00;
+		box-shadow: 0 0 0 4px #ff8a00, 0 6px 10px rgba(0, 0, 0, 0.35);
+		transform: translateX(-50%) scale(1.12);
 	}
 
 	.vowel-token.dragging {
@@ -422,5 +429,37 @@
 @keyframes train-departure {
 	to {
 		transform: translate(calc(50% + 100vw), -100%) scale(1.5);
+	}
+}
+
+/* Pista después del segundo error (useAyudaError): la respuesta correcta queda con un halo.
+   Es un filtro fijo y no una animación para no pisar la animación propia de cada pantalla. */
+.activity-page .pista-correcta {
+	filter: drop-shadow(0 0 0.5vw #fff) drop-shadow(0 0 1.6vw #ffd400) drop-shadow(0 0 2.6vw #ffd400) !important;
+}
+
+/* Ficha soltada en un lugar equivocado: vuelve a su sitio con un rebote. Se mueve con márgenes
+   opuestos para no tocar el transform propio de cada ficha ni correr a las vecinas. */
+.activity-page .ficha-rebote {
+	animation: ficha-rebote 0.42s ease;
+}
+
+@keyframes ficha-rebote {
+	0%,
+	100% {
+		margin-left: 0;
+		margin-right: 0;
+	}
+	25% {
+		margin-left: -16px;
+		margin-right: 16px;
+	}
+	50% {
+		margin-left: 14px;
+		margin-right: -14px;
+	}
+	75% {
+		margin-left: -8px;
+		margin-right: 8px;
 	}
 }

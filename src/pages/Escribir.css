@@ -339,6 +339,19 @@
 	animation: escribir-sacudida 420ms ease;
 }
 
+/* Al confirmar mal solo se sacuden (en rojo) las letras equivocadas; las correctas quedan. */
+.page-escribir .escribir-casilla.equivocada {
+	color: #d23b3b;
+	animation: escribir-letra-mal 420ms ease;
+}
+
+@keyframes escribir-letra-mal {
+	0%, 100% { transform: translateX(0); }
+	25% { transform: translateX(-18%); }
+	50% { transform: translateX(18%); }
+	75% { transform: translateX(-10%); }
+}
+
 @keyframes escribir-sacudida {
 	0%, 100% { transform: translateX(0); }
 	20% { transform: translateX(-1.5%) rotate(-1deg); }

@@ -127,7 +127,7 @@ export default function PeluchesMundo2() {
 	const [rondas] = useState(() => crearRondas(letra));
 	// Ronda cuyas opciones ya se ven: la consigna espera a que aparezcan (ver usePeluchesJuego).
 	const [rondaVisible, setRondaVisible] = useState(-1);
-	const { activityIndex, acertada, vibrating, premio, elegir, escucharPalabra, repetirConsigna } = usePeluchesJuego({
+	const { activityIndex, acertada, vibrating, premio, pista, elegir, escucharPalabra, repetirConsigna } = usePeluchesJuego({
 		runtime,
 		letra,
 		rondas,
@@ -232,6 +232,9 @@ export default function PeluchesMundo2() {
 						if (vibrating.has(option.id)) {
 							classNames.push("vibrating");
 							hazClassNames.push("parpadeo");
+						}
+						if (pista && option.correct) {
+							classNames.push("pista-correcta");
 						}
 						return (
 							<div className={`pm2-lado pm2-lado-${lado.id}`} key={lado.id}>

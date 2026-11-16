@@ -13,6 +13,8 @@ import { img, MUNDO2_MOUTH_IMAGES, MUNDO3_MOUTH_IMAGES, MUNDO4_CHARACTER_FRAMES,
 import { shuffle } from "../lib/shuffle";
 import { createMundo4IncorrectSyllables, MUNDO4_SYLLABLES } from "../lib/mundo4";
 import { useActivityMenuOption } from "../hooks/useActivityMenuOption";
+import { useAyudaError } from "../hooks/useAyudaError";
+import { crearSecuencia, mudo } from "../lib/secuenciaAudio";
 import "./actividad.css";
 import "./Mariposas.css";
 
@@ -250,6 +252,10 @@ export default function Mariposas() {
 	const [celebrationAudio] = useState(() => runtime.audio(sound("Fabuloso.mp3")));
 	const [correctFeedbackAudio] = useState(() => runtime.audio(sound(isMundo2 ? "aleteo.mp3" : "correcto.mp3"), { preload: true }));
 	const [errorFeedbackAudio] = useState(() => runtime.audio(sound("error.mp3"), { preload: true }));
+	// Lo que suena al tocar (sílaba → devolución → ayuda) va en una secuencia para que no se pise.
+	const [secuencia] = useState(() => crearSecuencia({ startTalking, stopTalking }));
+	const ayuda = useAyudaError(runtime);
+	const labelAudios = useRef({}).current;
 	const [premio, otorgarPremio] = useRecompensa("mariposas", mode);
 	const pageRef = useRef(null);
 	const fieldRef = useRef(null);
@@ -308,8 +314,6 @@ export default function Mariposas() {
 			instructionAudios: [],
 			roundTransitionPending: false,
 			celebrationActive: false,
-			activeButterflyAudio: null,
-			feedbackAudio: null,
 			generation: 0,
 			// Mariposas equivocadas tocadas: definen cuántas comidas se ganan.
 			errors: 0
@@ -371,48 +375,28 @@ export default function Mariposas() {
 		stopTalking();
 	}
 
-	function stopFeedbackSound() {
-		if (state.feedbackAudio) {
-			state.feedbackAudio.pause();
-			state.feedbackAudio.currentTime = 0;
-			state.feedbackAudio.onended = null;
-			state.feedbackAudio = null;
+	function labelAudio(file) {
+		if (!labelAudios[file]) {
+			labelAudios[file] = runtime.audio(sound(file));
 		}
+		return labelAudios[file];
 	}
 
-	function playFeedbackSound(isCorrect) {
-		if (state.instructionAudios.length > 0) {
-			return;
-		}
-		stopFeedbackSound();
-		state.feedbackAudio = isCorrect ? correctFeedbackAudio : errorFeedbackAudio;
-		state.feedbackAudio.currentTime = 0;
-		state.feedbackAudio.play().catch(() => {});
-	}
-
-	function playButterflyLabelAudio(label, onEnded) {
-		stopFeedbackSound();
-		stopInstructionAudio();
-		if (state.activeButterflyAudio) {
-			state.activeButterflyAudio.onended = null;
-			state.activeButterflyAudio.pause();
-			state.activeButterflyAudio.currentTime = 0;
-		}
-		const audioFile = getAudioFileName(label, "syllable", isMundo2, isMundo3, isMundo4);
-		state.activeButterflyAudio = runtime.audio(sound(audioFile));
-		state.activeButterflyAudio.onended = onEnded;
-		state.activeButterflyAudio.play().catch(() => onEnded?.());
-	}
-
-	function playInstructionAudio() {
-		stopInstructionAudio();
-		startTalking();
-		const sequenceId = ++state.instructionSequenceId;
-		const optionFile = sound(isMundo4
+	// Archivo de lo que se pide en esta ronda (la letra, la vocal o el sonido del mundo).
+	function optionAudioFile() {
+		return isMundo4
 			? MUNDO4_SYLLABLE_AUDIO[mode.toUpperCase()]
 			: isMundo3
 				? MUNDO3_OPTION_SOUNDS[mode]
-				: getAudioFileName(state.targetValue, mode === "a" ? "vowel" : "letter", isMundo2));
+				: getAudioFileName(state.targetValue, mode === "a" ? "vowel" : "letter", isMundo2);
+	}
+
+	function playInstructionAudio() {
+		secuencia.cancelar();
+		stopInstructionAudio();
+		startTalking();
+		const sequenceId = ++state.instructionSequenceId;
+		const optionFile = sound(optionAudioFile());
 		const promptFile = isMundo4 ? "pulsapeces.mp3" : isMundo3 ? "Pulsabloque.mp3" : isMundo2 ? "Pulsa.mp3" : "Pulsaosito.mp3";
 		const sequence = [runtime.audio(optionFile), runtime.audio(sound(promptFile)), runtime.audio(optionFile)];
 		state.instructionAudios = sequence;
@@ -449,12 +433,7 @@ export default function Mariposas() {
 	}
 
 	function finishCelebration() {
-		stopTalking();
-		stopFeedbackSound();
-		if (state.activeButterflyAudio) {
-			state.activeButterflyAudio.pause();
-			state.activeButterflyAudio.currentTime = 0;
-		}
+		secuencia.cancelar();
 		celebrationAudio.pause();
 		celebrationAudio.currentTime = 0;
 		celebrationAudio.onended = null;
@@ -468,6 +447,7 @@ export default function Mariposas() {
 		}
 		state.celebrationActive = true;
 		otorgarPremio(state.errors);
+		secuencia.cancelar();
 		stopInstructionAudio();
 		runtime.requestAnimationFrame(() => {
 			if (!state.celebrationActive) {
@@ -495,15 +475,20 @@ export default function Mariposas() {
 			isMundo3,
 			isMundo4
 		));
+		ayuda.reiniciar();
 		playInstructionAudio();
 	}
 
 	function handleButterflyClick(event, butterfly) {
 		const button = event.currentTarget;
-		playButterflyLabelAudio(butterfly.value, () => {
-			if (!butterfly.correct) playFeedbackSound(false);
-		});
-		if (butterfly.correct) playFeedbackSound(true);
+		stopInstructionAudio();
+		const tocado = mudo(labelAudio(getAudioFileName(butterfly.value, "syllable", isMundo2, isMundo3, isMundo4)));
+		if (butterfly.correct) {
+			// Primero la sílaba tocada y después la felicitación.
+			secuencia.reproducir([tocado, mudo(correctFeedbackAudio)]);
+		} else {
+			secuencia.reproducir([tocado, mudo(errorFeedbackAudio), ...ayuda.trasError(labelAudio(optionAudioFile()))]);
+		}
 
 		if (!butterfly.correct) {
 			state.errors += 1;
@@ -738,6 +723,7 @@ export default function Mariposas() {
 							classNames.push("vibration");
 						}
 						if (butterfly.wrong) classNames.push("wrong");
+						if (ayuda.pista && butterfly.correct && !butterfly.flying && !butterfly.stacked) classNames.push("pista-correcta");
 						return (
 							<button
 								key={butterfly.id}

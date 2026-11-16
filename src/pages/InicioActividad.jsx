@@ -7,11 +7,13 @@ import { usePageTitle } from "../hooks/usePageTitle";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
-import { CHARACTERS, img, MUNDO1_CHARACTERS, MUNDO2_CHARACTER_FRAMES, MUNDO2_CHARACTERS, MUNDO2_MOUTH_IMAGES, MUNDO3_CHARACTERS, MUNDO3_MOUTH_IMAGES, MUNDO4_CHARACTERS, MUNDO4_MOUTH_IMAGES, sound } from "../lib/assets";
+import { CHARACTERS, img, MUNDO1_CHARACTERS, MUNDO2_CHARACTER_FRAMES, MUNDO2_CHARACTERS, MUNDO2_MOUTH_IMAGES, MUNDO3_CHARACTERS, MUNDO3_MOUTH_IMAGES, MUNDO4_CHARACTERS, MUNDO4_MOUTH_IMAGES, commonSound, sound } from "../lib/assets";
 import { whenPageReady } from "../lib/pageGate";
 import { shuffle } from "../lib/shuffle";
 import { useActivityMenuOption } from "../hooks/useActivityMenuOption";
 import { useCarPhysics } from "../hooks/useCarPhysics";
+import { useAyudaError } from "../hooks/useAyudaError";
+import { crearSecuencia, mudo } from "../lib/secuenciaAudio";
 import "./actividad.css";
 import "./InicioActividad.css";
 
@@ -226,6 +228,7 @@ export default function InicioActividad() {
 		itemPrompt: runtime.audio(sound(mode.prompt), { preload: true }),
 		celebration: runtime.audio(sound("Felicitaciones.mp3"), { preload: true }),
 		error: runtime.audio(sound("error.mp3"), { preload: true }),
+		acierto: runtime.audio(commonSound("acierto.mp3"), { preload: true }),
 		qReviewWellDone: isMundo4Q ? runtime.audio(sound("muybien.mp3"), { preload: true }) : null,
 		qReview: isMundo4Q ? runtime.audio(sound("recordaQ.mp3"), { preload: true }) : null,
 		qReviewItems: isMundo4Q ? Object.fromEntries(MUNDO4_Q_REVIEW_ITEMS.map((item) => [
@@ -257,6 +260,11 @@ export default function InicioActividad() {
 	const errorTimer = useRef(0);
 	const revealTimer = useRef(0);
 	const introductionActive = useRef(false);
+	// Copia visible de introductionActive: muestra el botón para saltear la presentación.
+	const [introVisible, setIntroVisible] = useState(false);
+	// El pedido, la devolución y la ayuda tras el error van en una secuencia para que no se pisen.
+	const [secuencia] = useState(() => crearSecuencia({ startTalking, stopTalking }));
+	const ayuda = useAyudaError(runtime);
 	const requestedItemIndex = useRef(0);
 	// Carteles que se piden de a uno, en orden. En la Q se piden también CA, CO, CU (mezclados):
 	// si solo se pidieran QUE y QUI, las otras tres quedaban de relleno.
@@ -292,11 +300,17 @@ export default function InicioActividad() {
 	// Mundo 3: el bloque cae del cielo al centro y se va a su lugar (atrás) cuando empiezan los carros.
 	const bigLetterCentered = isMundo3 && showBigLetter && visibleItems.size === 0;
 
+	function setIntro(value) {
+		introductionActive.current = value;
+		setIntroVisible(value);
+	}
+
 	function allItemAudios() {
 		return [...Object.values(audios.itemsLong), ...Object.values(audios.itemsShort)];
 	}
 
 	function stopShortAudios() {
+		secuencia.cancelar();
 		audios.itemPrompt.onended = null;
 		audios.itemPrompt.pause();
 		audios.itemPrompt.currentTime = 0;
@@ -309,7 +323,8 @@ export default function InicioActividad() {
 
 	// Arranca una tanda de pedidos (fase 2 o 3) y pide el primero.
 	function startRequests() {
-		requestOrder.current = isMundo4Q ? shuffle(MUNDO4_Q_ROUND_ITEMS) : mode.items;
+		// Orden mezclado: si se pide siempre A, E, I, O, U se acierta de memoria, sin mirar el cartel.
+		requestOrder.current = shuffle(isMundo4Q ? MUNDO4_Q_ROUND_ITEMS : mode.items);
 		requestedItemIndex.current = 0;
 		setRequestedItem(requestOrder.current[0]);
 		playRequestedItem(requestOrder.current[0]);
@@ -318,6 +333,7 @@ export default function InicioActividad() {
 	function playRequestedItem(item) {
 		stopShortAudios();
 		const itemAudio = audios.itemsShort[item] || audios.qReviewItems[item];
+		ayuda.reiniciar();
 		setActiveItem(null);
 		startTalking();
 		audios.itemPrompt.onended = () => {
@@ -370,6 +386,12 @@ export default function InicioActividad() {
 		if (isShuffling) {
 			return;
 		}
+		// Un cartel ya presentado se puede tocar sin esperar al resto: corta la presentación.
+		if (introductionActive.current && visibleItems.has(item) && !requestedItem) {
+			skipIntroduction();
+			playItem(item);
+			return;
+		}
 		if (isPhaseThree && !requestedItem) {
 			return;
 		}
@@ -384,8 +406,12 @@ export default function InicioActividad() {
 				errorCount.current += 1;
 				runtime.clearTimeout(errorTimer.current);
 				setIncorrectItem(item);
-				audios.error.currentTime = 0;
-				audios.error.play().catch(() => {});
+				// Error → ayuda: se vuelve a decir el cartel pedido (y al segundo error se lo marca).
+				stopShortAudios();
+				secuencia.reproducir([
+					mudo(audios.error),
+					...ayuda.trasError(audios.itemsShort[requestedItem] || audios.qReviewItems[requestedItem])
+				]);
 				errorTimer.current = runtime.setTimeout(() => setIncorrectItem(null), 500);
 				return;
 			}
@@ -426,11 +452,12 @@ export default function InicioActividad() {
 			}
 			requestedItemIndex.current += 1;
 			setRequestedItem(null);
-			runtime.setTimeout(() => {
+			// Sonido de acierto y recién después el pedido siguiente.
+			secuencia.reproducir([mudo(audios.acierto)], () => {
 				const nextItem = requestOrder.current[requestedItemIndex.current];
 				setRequestedItem(nextItem);
 				playRequestedItem(nextItem);
-			}, 180);
+			});
 			return;
 		}
 		playItem(item);
@@ -448,11 +475,11 @@ export default function InicioActividad() {
 		revealTimer.current = runtime.setTimeout(() => setRevealingItem(null), 550);
 	}
 
-	function skipIntroduction(event) {
-		if (!introductionActive.current || event.target.closest("button, a")) {
+	function skipIntroduction() {
+		if (!introductionActive.current) {
 			return;
 		}
-		introductionActive.current = false;
+		setIntro(false);
 		runtime.clearTimeout(sequenceTimer.current);
 		runtime.clearTimeout(revealTimer.current);
 		[...audios.intro, ...Object.values(audios.itemsLong), audios.pressure].forEach((audio) => {
@@ -666,7 +693,7 @@ export default function InicioActividad() {
 		setReviewClamVisible(false);
 		setReviewClamArrived(false);
 		setReviewItems([]);
-		introductionActive.current = true;
+		setIntro(true);
 		// Presentación: primero los audios de la letra y después cada cartel con su audio largo.
 		const steps = [
 			...audios.intro.map((audio) => ({ audio, item: null })),
@@ -676,18 +703,18 @@ export default function InicioActividad() {
 
 		function playNextStep() {
 			if (stepIndex >= steps.length) {
-				introductionActive.current = false;
+				setIntro(false);
 				setShowBigLetter(true);
 				setActiveItem(null);
 				audios.pressure.currentTime = 0;
 				audios.pressure.onended = () => {
 					audios.pressure.onended = null;
-					introductionActive.current = false;
+					setIntro(false);
 					stopTalking();
 				};
 				startTalking();
 				audios.pressure.play().catch(() => {
-					introductionActive.current = false;
+					setIntro(false);
 					stopTalking();
 				});
 				return;
@@ -758,7 +785,7 @@ export default function InicioActividad() {
 		}
 		return () => {
 			cancelClamDrop();
-			introductionActive.current = false;
+			setIntro(false);
 			runtime.clearTimeout(sequenceTimer.current);
 			runtime.clearTimeout(reviewClamTimer.current);
 			runtime.clearTimeout(shuffleTimer.current);
@@ -809,9 +836,17 @@ export default function InicioActividad() {
 	}, [audios, isMundo4, menuOption, modeOptions]);
 
 	return (
-		<div className={`page activity-page page-inicio-actividad${isMundo2 ? " world-insectos" : ""}${isMundo3 ? " world-bloques" : ""}${isMundo4 ? " world-almejas" : ""}`} onClick={skipIntroduction}>
+		<div className={`page activity-page page-inicio-actividad${isMundo2 ? " world-insectos" : ""}${isMundo3 ? " world-bloques" : ""}${isMundo4 ? " world-almejas" : ""}`}>
 			<BackButton />
 			<FullscreenButton toggle />
+			{/* Saltear la presentación es un botón aparte: un toque suelto en el fondo ya no la corta. */}
+			{introVisible && (
+				<div className="activity-controls" aria-label="Controles de actividad">
+					<button className="restart-button" type="button" aria-label="Saltear la presentación" onClick={skipIntroduction}>
+						&#x23ED;
+					</button>
+				</div>
+			)}
 			<div className="inicio-vowels inicio-syllables" aria-label={mode.listName}>
 					{itemOrder.map((item) => {
 						const isHidden = !visibleItems.has(item);
@@ -820,7 +855,7 @@ export default function InicioActividad() {
 						return (
 							<div
 								key={item}
-								className={`inicio-vowel-button inicio-vowel-${item.toLowerCase()}${isExploded ? " selected" : ""}${activeItem === item ? " active" : ""}${incorrectItem === item ? " incorrect" : ""}${isShuffling ? " shuffling" : ""}${isHidden ? " hidden-balloon" : ""}${isRevealing ? " reveal-balloon" : ""}${isPhaseThree && !isShuffling && !activitySelectedItems.has(item) ? (isMundo3 ? " driving" : " flying") : ""}`}
+								className={`inicio-vowel-button inicio-vowel-${item.toLowerCase()}${isExploded ? " selected" : ""}${activeItem === item ? " active" : ""}${incorrectItem === item ? " incorrect" : ""}${ayuda.pista && requestedItem === item ? " pista-correcta" : ""}${isShuffling ? " shuffling" : ""}${isHidden ? " hidden-balloon" : ""}${isRevealing ? " reveal-balloon" : ""}${isPhaseThree && !isShuffling && !activitySelectedItems.has(item) ? (isMundo3 ? " driving" : " flying") : ""}`}
 								style={isMundo4 ? {
 									"--mundo4-syllable-color": MUNDO4_SYLLABLE_COLORS[(isMundo4Q ? MUNDO4_Q_ROUND_ITEMS : mode.items).indexOf(item)],
 									...(itemOrder.length < 5 ? {
