@@ -45,6 +45,8 @@ export default function Escribir() {
 	const [productoFrame, setProductoFrame] = useState(null);
 	const [maquinaFrame, setMaquinaFrame] = useState(0);
 	const [estado, setEstado] = useState("jugando");
+	// Casillas equivocadas al confirmar: se sacuden y después se vacían.
+	const [equivocadas, setEquivocadas] = useState(() => new Set());
 	const [bloqueado, setBloqueado] = useState(false);
 	const bloqueadoRef = useRef(false);
 	const audioRef = useRef(null);
@@ -116,6 +118,7 @@ export default function Escribir() {
 		setFase("elegir");
 		setRonda(0);
 		setEscrito([]);
+		setEquivocadas(new Set());
 		setProductoFrame(null);
 		setEstado("jugando");
 	}, [detenerAudio, fijarBloqueado, runtime]);
@@ -128,14 +131,33 @@ export default function Escribir() {
 		setFase("jugando");
 	}
 
+	const largo = RONDAS[ronda]?.palabra.length || 0;
+	const llenas = Array.from({ length: largo }, (_, indice) => escrito[indice]).filter(Boolean).length;
+
+	// La letra va a la primera casilla vacía (después de un error puede haber huecos en el medio).
 	function presionarLetra(letra) {
 		if (bloqueadoRef.current || fase !== "jugando") return;
-		setEscrito((actual) => (actual.length >= RONDAS[ronda].palabra.length ? actual : [...actual, letra]));
+		setEscrito((actual) => {
+			const siguiente = Array.from({ length: largo }, (_, indice) => actual[indice] || null);
+			const vacia = siguiente.indexOf(null);
+			if (vacia < 0) return actual;
+			siguiente[vacia] = letra;
+			return siguiente;
+		});
 	}
 
 	function borrarLetra() {
 		if (bloqueadoRef.current || fase !== "jugando") return;
-		setEscrito((actual) => actual.slice(0, -1));
+		setEscrito((actual) => {
+			const siguiente = Array.from({ length: largo }, (_, indice) => actual[indice] || null);
+			for (let indice = siguiente.length - 1; indice >= 0; indice -= 1) {
+				if (siguiente[indice]) {
+					siguiente[indice] = null;
+					break;
+				}
+			}
+			return siguiente;
+		});
 	}
 
 	function animarEntrega() {
@@ -163,7 +185,7 @@ export default function Escribir() {
 	}
 
 	function confirmar() {
-		if (bloqueadoRef.current || fase !== "jugando" || escrito.length !== RONDAS[ronda].palabra.length) return;
+		if (bloqueadoRef.current || fase !== "jugando" || llenas !== largo) return;
 		fijarBloqueado(true);
 		detenerAudio();
 		if (escrito.join("") === RONDAS[ronda].palabra) {
@@ -172,12 +194,14 @@ export default function Escribir() {
 			return;
 		}
 
+		const palabra = RONDAS[ronda].palabra;
+		const malas = new Set(escrito.map((letra, indice) => (letra === palabra[indice] ? -1 : indice)).filter((indice) => indice >= 0));
 		reproducirAudio("error.mp3");
-		setEstado("mal");
+		setEquivocadas(malas);
 		errorTimerRef.current = runtime.setTimeout(() => {
 			errorTimerRef.current = 0;
-			setEstado("jugando");
-			setEscrito([]);
+			setEquivocadas(new Set());
+			setEscrito((actual) => actual.map((letra, indice) => (malas.has(indice) ? null : letra)));
 			fijarBloqueado(false);
 		}, 650);
 	}
@@ -223,7 +247,7 @@ export default function Escribir() {
 
 							<div className="escribir-casillas" aria-label={`Escribí ${rondaActual.palabra}`}>
 								{Array.from({ length: rondaActual.palabra.length }, (_, indice) => (
-									<span key={indice} className={`escribir-casilla${escrito[indice] ? " llena" : ""}`}>
+									<span key={indice} className={`escribir-casilla${escrito[indice] ? " llena" : ""}${equivocadas.has(indice) ? " equivocada" : ""}`}>
 										{escrito[indice] || ""}
 									</span>
 								))}
@@ -240,7 +264,7 @@ export default function Escribir() {
 											key={letra}
 											className={`escribir-tecla${LETRAS_VOCAL.has(letra) ? " vocal" : " consonante"}`}
 											type="button"
-											disabled={bloqueado || escrito.length >= rondaActual.palabra.length}
+											disabled={bloqueado || llenas >= largo}
 											onClick={() => presionarLetra(letra)}
 										>
 											{letra}
@@ -253,7 +277,7 @@ export default function Escribir() {
 									className="escribir-tecla escribir-borrar"
 									type="button"
 									aria-label="Borrar última letra"
-									disabled={bloqueado || escrito.length === 0}
+									disabled={bloqueado || llenas === 0}
 									onClick={borrarLetra}
 								>
 									<svg className="escribir-icono" viewBox="0 0 48 32" aria-hidden="true">
@@ -264,7 +288,7 @@ export default function Escribir() {
 									className="escribir-tecla escribir-confirmar"
 									type="button"
 									aria-label="Confirmar palabra"
-									disabled={bloqueado || escrito.length !== rondaActual.palabra.length}
+									disabled={bloqueado || llenas !== largo}
 									onClick={confirmar}
 								>
 									<svg className="escribir-icono" viewBox="0 0 48 32" aria-hidden="true">

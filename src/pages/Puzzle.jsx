@@ -10,6 +10,7 @@ import { useActivityMenuOption } from "../hooks/useActivityMenuOption";
 import { img, sound } from "../lib/assets";
 import { GROUPS } from "../lib/palabras";
 import { shuffle } from "../lib/shuffle";
+import { crearSecuencia, mudo } from "../lib/secuenciaAudio";
 import "./actividad.css";
 import "./Puzzle.css";
 
@@ -52,6 +53,11 @@ function siguienteActividad(letra, actual) {
 	return { palabras: actual.palabras, indice, ronda: crearRonda(actual.palabras[indice]) };
 }
 
+// Nombre de la letra: las vocales ya tienen su audio; las consonantes, "ele", "eme", "ese", "te".
+function audioDeLetra(letra) {
+	return "AEIOU".includes(letra) ? `${letra.toLowerCase()}.mp3` : `nombre${letra}.mp3`;
+}
+
 function casillerosVacios(ronda) {
 	return ronda.letras.map(() => null);
 }
@@ -68,6 +74,10 @@ export default function Puzzle() {
 	const [slots, setSlots] = useState(() => casillerosVacios(round));
 	const [drag, setDrag] = useState(null);
 	const [selectedCookie, setSelectedCookie] = useState(null);
+	// Galletita soltada en el casillero equivocado: rebota y suena error + el nombre de su letra.
+	const [rebote, setRebote] = useState(null);
+	const [errorAudio] = useState(() => runtime.audio(sound("error.mp3"), { preload: true }));
+	const [secuencia] = useState(() => crearSecuencia({ startTalking, stopTalking }));
 	const sceneRef = useRef(null);
 	const dragRef = useRef(null);
 	const slotsRef = useRef(slots);
@@ -83,6 +93,7 @@ export default function Puzzle() {
 	activityRef.current = activity;
 
 	const stopWordAudio = useCallback(() => {
+		secuencia.cancelar();
 		const audio = wordAudioRef.current;
 		wordAudioRef.current = null;
 		wordAudioSequenceRef.current += 1;
@@ -197,6 +208,19 @@ export default function Puzzle() {
 	const placeCookieRef = useRef(placeCookie);
 	placeCookieRef.current = placeCookie;
 
+	function rebotar(cookieId) {
+		const cookie = roundRef.current.galletitas.find(({ id }) => id === cookieId);
+		if (!cookie || slotsRef.current.includes(cookieId)) return;
+		stopWordAudio();
+		setSelectedCookie(null);
+		setRebote(cookieId);
+		runtime.setTimeout(() => setRebote((current) => (current === cookieId ? null : current)), 450);
+		secuencia.reproducir([mudo(errorAudio), runtime.audio(sound(audioDeLetra(cookie.valor)))]);
+	}
+
+	const rebotarRef = useRef(rebotar);
+	rebotarRef.current = rebotar;
+
 	function startDragging(event, cookie) {
 		if (event.button !== 0 || slotsRef.current.includes(cookie.id)) return;
 		const rect = event.currentTarget.getBoundingClientRect();
@@ -248,7 +272,10 @@ export default function Puzzle() {
 				})
 				.filter(({ index, overlap }) => slotsRef.current[index] === null && overlap >= current.width * current.height * DROP_OVERLAP_MINIMO)
 				.sort((a, b) => b.overlap - a.overlap);
-			targets.some(({ index }) => placeCookieRef.current(current.cookieId, index));
+			const colocada = targets.some(({ index }) => placeCookieRef.current(current.cookieId, index));
+			if (!colocada && targets.length > 0) {
+				rebotarRef.current(current.cookieId);
+			}
 			suppressClickRef.current = current.moved;
 			if (current.moved) {
 				runtime.requestAnimationFrame(() => {
@@ -307,7 +334,7 @@ export default function Puzzle() {
 						const placed = slots.includes(cookie.id);
 						return (
 							<button
-								className={`puzzle-cookie${selectedCookie === cookie.id ? " selected" : ""}`}
+								className={`puzzle-cookie${selectedCookie === cookie.id ? " selected" : ""}${rebote === cookie.id ? " ficha-rebote" : ""}`}
 								key={`${round.palabra}-${cookie.id}`}
 								type="button"
 								aria-label={`Arrastrar galletita ${cookie.valor}`}
@@ -340,7 +367,11 @@ export default function Puzzle() {
 									type="button"
 									aria-label={`Casillero ${index + 1}, va la letra ${letra}`}
 									style={{ "--puzzle-indice": index }}
-									onClick={() => selectedCookie && placeCookie(selectedCookie, index)}
+									onClick={() => {
+									if (selectedCookie && !placedCookie && !placeCookie(selectedCookie, index)) {
+										rebotar(selectedCookie);
+									}
+								}}
 								>
 									<span className={`puzzle-slot-letter${placedCookie ? " placed" : ""}`} aria-hidden="true">
 										{letra}

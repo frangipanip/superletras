@@ -224,7 +224,7 @@ export default function Memotest() {
 				}));
 			}
 			setSelectedIndices([]);
-		}, 550);
+		}, firstCard.value === secondCard.value ? 550 : 1500);
 	}
 
 	return (

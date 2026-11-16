@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useLocation, useNavigate } from "react-router";
 import PufCrema, { PUF_CHARACTER_CLASS } from "../components/PufCrema";
 import UserNav from "../components/UserNav";
@@ -9,6 +9,8 @@ import { useTalkingMouth } from "../hooks/useTalkingMouth";
 import { useTeleport } from "../hooks/useTeleport";
 import { img, MUNDO2_CHARACTER_FRAMES, MUNDO2_CHARACTERS, MUNDO2_MOUTH_IMAGES, sound } from "../lib/assets";
 import { STORAGE_KEYS, readStorage, writeStorage } from "../lib/storage";
+import { CAMINOS } from "../lib/caminos";
+import { getProgreso, puntajeDe, subscribeProgreso } from "../lib/progreso";
 import "./Mundo2.css";
 
 const LETTERS = ["P", "N", "D", "F", "H"];
@@ -100,6 +102,11 @@ export default function Mundo2() {
 		return LETTERS.includes(saved) ? saved : null;
 	});
 	const [savedPerches, setSavedPerches] = useState(readSavedPerches);
+	const progreso = useSyncExternalStore(subscribeProgreso, getProgreso);
+	const isDone = (letter, index) => puntajeDe(progreso, letter.toLowerCase(), CAMINOS[2][index]) > 0;
+	const pathLetter = selectedLetter || LETTERS[0];
+	const nextActivityIndex = CAMINOS[2].findIndex((_, index) => !isDone(pathLetter, index));
+	const nextLetter = LETTERS.find((letter) => CAMINOS[2].some((_, index) => !isDone(letter, index)));
 	const { teleport, teleportCharacter } = useTeleport(runtime);
 	const routePerch = location.state?.menuOption === selectedLetter && PATH_BUTTONS[location.state?.activityIndex]
 		? location.state.activityIndex
@@ -370,6 +377,8 @@ export default function Mundo2() {
 				<div className="mundo2-path" aria-label="Camino de actividades">
 					{PATH_BUTTONS.slice(0, ACTIVITY_ROUTES.length).map(([left, top], index) => (
 						<div className="mundo2-path-activity" key={`${left}-${top}`} style={{ left: `${left}%`, top: `${top}%` }}>
+							{index === nextActivityIndex && index !== characterIndex && <span className="camino-siguiente-brillo" aria-hidden="true" />}
+							{isDone(pathLetter, index) && <span className="camino-hecho" aria-hidden="true">✓</span>}
 							<img className="mundo2-path-sign available" src={img(ACTIVITY_SIGN_IMAGES[index])} alt="" draggable={false} />
 							<button
 								className={`mundo2-path-button${selectedLetter ? ` path-letter-${selectedLetter.toLowerCase()}` : index === 0 ? " path-letter-p" : ""}`}
@@ -412,7 +421,7 @@ export default function Mundo2() {
 					<img className="mundo2-menu-image" src={img("MENUM2.png")} alt="" draggable={false} />
 					{LETTERS.map((letter, index) => (
 						<button
-							className={`mundo2-letter mundo2-letter-${index + 1}${selectedLetter === letter ? " selected" : ""}`}
+							className={`mundo2-letter mundo2-letter-${index + 1}${selectedLetter === letter ? " selected" : ""}${nextLetter === letter && selectedLetter !== letter ? " menu-letra-siguiente" : ""}`}
 							key={letter}
 							data-letter={letter.toLowerCase()}
 							type="button"

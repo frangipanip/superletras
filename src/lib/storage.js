@@ -14,6 +14,10 @@ export const STORAGE_KEYS = {
 	mundo1WordPathsUnlocked: "superletras-mundo1-word-paths-unlocked",
 	selectedWorld: "superletras-selected-world",
 	installPromptDismissedAt: "superletras-install-dismissed-at",
+	// Actividades completadas por letra (ver src/lib/progreso.js).
+	actividadesCompletadas: "superletras-actividades-completadas",
+	// Ya sonó la explicación del menú de letras (menuPrimeraVez.mp3).
+	menuExplicado: "superletras-menu-explicado",
 	// Recompensas (ver src/lib/recompensas.js).
 	codigo: "superletras-codigo",
 	dispositivo: "superletras-dispositivo",

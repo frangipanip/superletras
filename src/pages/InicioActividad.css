@@ -129,7 +129,7 @@
 	z-index: 1;
 	width: var(--mundo4-clam-width, clamp(12rem, 30vw, 27rem));
 	transform: translate(-50%, -50%);
-	transition: top 800ms ease, transform 800ms ease;
+	transition: top 800ms ease, left 800ms ease, transform 800ms ease;
 	pointer-events: none;
 }
 
@@ -152,6 +152,107 @@
 	animation:
 		mundo4-burbuja-envuelve 500ms cubic-bezier(0.34, 1.56, 0.64, 1) both,
 		mundo4-burbuja-ondula 2.6s ease-in-out 500ms infinite;
+}
+
+.inicio-mundo4-review-clam {
+	position: absolute;
+	top: 7%;
+	left: 61%;
+	z-index: 1;
+	width: var(--mundo4-clam-width, clamp(12rem, 30vw, 27rem));
+	transform: translate3d(-50%, 0, 0) scale(0.38);
+	transform-origin: top center;
+	pointer-events: none;
+}
+
+.inicio-mundo4-review-clam.is-entering {
+	animation: mundo4-almeja-c-repaso-entra 6900ms linear both;
+}
+
+.inicio-mundo4-clam.is-q-review {
+	left: 46%;
+}
+
+.inicio-mundo4-review-clam img {
+	display: block;
+	width: 100%;
+	height: auto;
+	filter: drop-shadow(0 8px 12px rgba(13, 61, 93, 0.3));
+}
+
+.inicio-mundo4-review-clam-bubble {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	z-index: 1;
+	width: 125%;
+	padding-top: 125%;
+	background: url("/assets/imagenes/burbuja.png") center / contain no-repeat;
+	transform: translate(-50%, -50%);
+	pointer-events: none;
+}
+
+@keyframes mundo4-almeja-c-repaso-entra {
+	0% {
+		transform: translate3d(calc(40vw - 50%), 88vh, 0) scale(0.38);
+	}
+
+	12% {
+		transform: translate3d(calc(35vw - 50%), 73vh, 0) scale(0.38);
+	}
+
+	24% {
+		transform: translate3d(calc(29vw - 50%), 57vh, 0) scale(0.38);
+	}
+
+	36% {
+		transform: translate3d(calc(23vw - 50%), 42vh, 0) scale(0.38);
+	}
+
+	48% {
+		transform: translate3d(calc(18vw - 50%), 30vh, 0) scale(0.38);
+	}
+
+	60% {
+		transform: translate3d(calc(13vw - 50%), 20vh, 0) scale(0.38);
+	}
+
+	70% {
+		transform: translate3d(calc(10vw - 50%), 14vh, 0) scale(0.38);
+	}
+
+	78% {
+		transform: translate3d(calc(8vw - 50%), 10vh, 0) scale(0.38);
+	}
+
+	84% {
+		transform: translate3d(calc(6vw - 50%), 7vh, 0) scale(0.38);
+	}
+
+	88% {
+		transform: translate3d(calc(4.5vw - 50%), 5vh, 0) scale(0.38);
+	}
+
+	90% {
+		transform: translate3d(calc(4vw - 50%), 4.5vh, 0) scale(0.38);
+	}
+
+	92% {
+		transform: translate3d(calc(4.2vw - 50%), 5.5vh, 0) scale(0.38);
+	}
+
+	94% {
+		transform: translate3d(calc(3vw - 50%), 4vh, 0) scale(0.38);
+	}
+
+	96% {
+		transform: translate3d(calc(1.5vw - 50%), 1.5vh, 0) scale(0.38);
+		animation-timing-function: cubic-bezier(0.16, 0.7, 0.3, 1);
+	}
+
+	100% {
+		transform: translate3d(-50%, 0, 0) scale(0.38);
+	}
 }
 
 @keyframes mundo4-burbuja-envuelve {
@@ -238,6 +339,10 @@
 		animation: none;
 		opacity: 1;
 		transform: translate(-50%, -50%) scale(1);
+	}
+
+	.inicio-mundo4-review-clam.is-entering {
+		animation: none;
 	}
 }
 
@@ -663,6 +768,15 @@
 /* Globo revelándose */
 .inicio-vowel-button.reveal-balloon {
 	animation: balloon-appear 500ms ease-out forwards;
+}
+
+.inicio-vowel-button.review-balloon {
+	animation: balloon-appear 500ms ease-out both;
+	pointer-events: none;
+}
+
+.inicio-vowel-button.review-balloon:nth-child(n) {
+	animation-delay: 0s;
 }
 
 /* Posiciones y colores de cada globo: arco

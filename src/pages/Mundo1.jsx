@@ -11,8 +11,9 @@ import { useTeleport } from "../hooks/useTeleport";
 import { img, MUNDO1_CHARACTERS, MUNDO1_MOUTH_IMAGES, sound } from "../lib/assets";
 import { STORAGE_KEYS, readStorage, writeStorage } from "../lib/storage";
 import { ACTIVIDADES, TIPOS_ACTIVIDAD } from "../../shared/actividades.js";
-import { COMIDAS } from "../../shared/comidas.js";
+import { COMIDA_POR_ACTIVIDAD, COMIDAS } from "../../shared/comidas.js";
 import { cantidadComida, getRecompensas, subscribeRecompensas } from "../lib/recompensas";
+import { getProgreso, puntajeDe, subscribeProgreso } from "../lib/progreso";
 import "./Mundo1.css";
 
 const MENU_OPTIONS = [
@@ -146,13 +147,17 @@ export default function Mundo1() {
 	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
 	const { letras: recompensasPorLetra } = useSyncExternalStore(subscribeRecompensas, getRecompensas);
+	const progreso = useSyncExternalStore(subscribeProgreso, getProgreso);
 	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime, MUNDO1_MOUTH_IMAGES);
 	const [selectedOption, setSelectedOption] = useState(() => readStorage(STORAGE_KEYS.mundo1MenuOption));
 	const [unlockedWordPaths, setUnlockedWordPaths] = useState(readUnlockedWordPaths);
 	const wordPathUnlocked = Boolean(selectedOption && unlockedWordPaths[selectedOption]);
-	const selectedMonsterEvolved = Boolean(selectedOption && COMIDAS.every(({ clave, necesarias }) =>
-		cantidadComida(recompensasPorLetra, selectedOption, clave).dadas >= necesarias
-	));
+	const monsterEvolved = (letter) => COMIDAS.every(({ clave, necesarias }) =>
+		cantidadComida(recompensasPorLetra, letter, clave).dadas >= necesarias
+	);
+	const selectedMonsterEvolved = Boolean(selectedOption && monsterEvolved(selectedOption));
+	// Letra que conviene jugar: la primera cuyo monstruo todavía no evolucionó (titila en el menú).
+	const nextLetter = MENU_OPTIONS.find(({ key }) => !monsterEvolved(key))?.key || null;
 	const [savedPerches, setSavedPerches] = useState(readSavedPerches);
 	const [menuPanelVisible, setMenuPanelVisible] = useState(true);
 	const [compactMenuOpen, setCompactMenuOpen] = useState(false);
@@ -179,6 +184,7 @@ export default function Mundo1() {
 	const characterIndex = teleport ? teleport.position : perchIndex;
 	const [introAudio] = useState(() => runtime.audio(sound("InicioMundos.mp3"), { preload: true }));
 	const [wordsAudio] = useState(() => runtime.audio("/assets/sonido/logropalabras.mp3", { preload: true }));
+	const [firstTimeAudio] = useState(() => runtime.audio(sound("menuPrimeraVez.mp3"), { preload: true }));
 	const [discoverWordsAudio] = useState(() => runtime.audio("/assets/sonido/descubrirpalabras.mp3", { preload: true }));
 	const [letUsSayWordsAudio] = useState(() => runtime.audio("/assets/sonido/vamospalabras.mp3", { preload: true }));
 	// Estado del arrastre con el mouse; lo leen los handlers de pointer sin esperar un render.
@@ -300,6 +306,8 @@ export default function Mundo1() {
 
 		introAudio.onended = null;
 		introAudio.pause();
+		firstTimeAudio.onended = null;
+		firstTimeAudio.pause();
 		stopMenuAudios();
 		stopTalking();
 		startWordAudioSequence(letter, sequenceId);
@@ -308,6 +316,24 @@ export default function Mundo1() {
 	function isActivityAvailable(index) {
 		return Boolean(availableActivities && availableActivities.indexOf(index) !== -1);
 	}
+
+	// Completada: anotada en progreso.js o, para quien jugaba antes, con comida ganada.
+	function isActivityDone(index) {
+		const clave = ACTIVIDADES[index]?.clave;
+		if (!clave || !selectedOption) return false;
+		const comida = COMIDA_POR_ACTIVIDAD[clave];
+		return puntajeDe(progreso, selectedOption, clave) > 0 ||
+			Boolean(comida && cantidadComida(recompensasPorLetra, selectedOption, comida.clave).ganadas > 0);
+	}
+
+	function isActivityVisible(index) {
+		return index < PATH_ROUTES.length && (index < FIRST_WORD_PATH_INDEX || wordPathUnlocked);
+	}
+
+	// La que sigue: la primera del camino que se ve, está habilitada y todavía no se completó.
+	const nextActivityIndex = selectedOption
+		? PATH_ROUTES.findIndex((_, index) => isActivityVisible(index) && isActivityAvailable(index) && !isActivityDone(index))
+		: -1;
 
 	function stopMenuAudios() {
 		Object.values(menuAudios).forEach((audio) => {
@@ -323,7 +349,18 @@ export default function Mundo1() {
 		introAudio.pause();
 		introAudio.currentTime = 0;
 		startTalking();
-		introAudio.onended = stopTalking;
+		// La primera vez, después de la presentación se explica qué tocar.
+		const explain = !readStorage(STORAGE_KEYS.menuExplicado);
+		introAudio.onended = () => {
+			if (!explain) {
+				stopTalking();
+				return;
+			}
+			writeStorage(STORAGE_KEYS.menuExplicado, "1");
+			firstTimeAudio.currentTime = 0;
+			firstTimeAudio.onended = stopTalking;
+			firstTimeAudio.play().catch(stopTalking);
+		};
 		introAudio.play().catch(stopTalking);
 	}
 
@@ -375,10 +412,20 @@ export default function Mundo1() {
 			introAudio.onended = null;
 			introAudio.pause();
 			introAudio.currentTime = 0;
+			firstTimeAudio.onended = null;
+			firstTimeAudio.pause();
 			stopMenuAudios();
 			stopTalking();
 		};
 	}, []);
+
+	// Monstruo recién evolucionado y palabras sin abrir: la secuencia que las abre arranca sola
+	// (antes había que adivinar que se tocaba al monstruo). Tocarlo después la repite.
+	useEffect(() => {
+		if (!selectedMonsterEvolved || wordPathUnlocked || evolvedMonsterArriving || teleport) return undefined;
+		const timer = runtime.setTimeout(handleEvolvedMonsterClick, 400);
+		return () => runtime.clearTimeout(timer);
+	}, [selectedMonsterEvolved, wordPathUnlocked, evolvedMonsterArriving, teleport, selectedOption]);
 
 	useEffect(() => {
 		const page = pageRef.current;
@@ -434,6 +481,8 @@ export default function Mundo1() {
 		introAudio.pause();
 		introAudio.currentTime = 0;
 		introAudio.onended = null;
+		firstTimeAudio.onended = null;
+		firstTimeAudio.pause();
 		stopMenuAudios();
 		startTalking();
 		menuAudios[optionKey].onended = stopTalking;
@@ -588,6 +637,8 @@ export default function Mundo1() {
 							style={{ left: `${left}%`, top: `${top}%` }}
 						>
 							{index === characterIndex && <span className="path-activity-glow" aria-hidden="true" />}
+							{index === nextActivityIndex && index !== characterIndex && <span className="camino-siguiente-brillo" aria-hidden="true" />}
+							{isActivityVisible(index) && isActivityDone(index) && <span className="camino-hecho" aria-hidden="true">✓</span>}
 							<img
 								className="path-activity-sign"
 								src={img(ACTIVITY_SIGN_IMAGES[index] || "GLOBOSbtn.png")}
@@ -598,7 +649,7 @@ export default function Mundo1() {
 								className={isActivityAvailable(index) ? `path-button path-button-${selectedOption}` : "path-button path-button-disabled"}
 								type="button"
 								disabled={!isActivityAvailable(index)}
-								aria-label={`Actividad del camino ${index + 1}`}
+								aria-label={`Actividad del camino ${index + 1}${isActivityDone(index) ? ", completada" : ""}${index === nextActivityIndex ? ", la que sigue" : ""}`}
 								onClick={() => openPathActivity(index)}
 							>
 								<img src={img("boton.svg")} alt="" draggable={false} />
@@ -653,7 +704,7 @@ export default function Mundo1() {
 						{MENU_OPTIONS.map(({ key, image }) => (
 							<button
 								key={key}
-								className={selectedOption === key ? "menu-option selected" : "menu-option"}
+								className={`menu-option${selectedOption === key ? " selected" : ""}${nextLetter === key && selectedOption !== key ? " menu-letra-siguiente" : ""}`}
 								type="button"
 								data-option={key}
 								aria-label={key.toUpperCase()}

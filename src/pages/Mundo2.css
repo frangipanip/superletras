@@ -269,6 +269,13 @@
 		transition: transform 180ms ease;
 	}
 
+	/* La letra es chica pero se toca en toda su flor (auditoría: costaba acertarle). */
+	.mundo2-letter::before {
+		content: "";
+		position: absolute;
+		inset: -55% -120%;
+	}
+
 	.mundo2-letter img {
 		display: block;
 		width: 100%;

@@ -9,6 +9,7 @@ import { useTalkingMouth } from "../hooks/useTalkingMouth";
 import { useActivityMenuOption } from "../hooks/useActivityMenuOption";
 import { img, sound } from "../lib/assets";
 import { GROUPS } from "../lib/palabras";
+import { crearSecuencia, mudo } from "../lib/secuenciaAudio";
 import "./actividad.css";
 import "./Pastel.css";
 
@@ -60,6 +61,10 @@ export default function Pastel() {
 	const [slots, setSlots] = useState([null, null]);
 	const [drag, setDrag] = useState(null);
 	const [selectedOption, setSelectedOption] = useState(null);
+	// Ficha soltada en el hueco equivocado: rebota y suena error + su sílaba.
+	const [rebote, setRebote] = useState(null);
+	const [errorAudio] = useState(() => runtime.audio(sound("error.mp3"), { preload: true }));
+	const [secuencia] = useState(() => crearSecuencia({ startTalking, stopTalking }));
 	const sceneRef = useRef(null);
 	const dragRef = useRef(null);
 	const slotsRef = useRef(slots);
@@ -75,6 +80,7 @@ export default function Pastel() {
 	roundRef.current = round;
 
 	const stopWordSpeech = useCallback(() => {
+		secuencia.cancelar();
 		const audio = wordAudioRef.current;
 		wordAudioRef.current = null;
 		wordAudioSequenceRef.current += 1;
@@ -230,7 +236,16 @@ export default function Pastel() {
 		if (slotsRef.current[slotIndex] !== null) return;
 		if (slotsRef.current.includes(optionId)) return;
 		const option = roundRef.current.opciones.find(({ id }) => id === optionId);
-		if (!option || option.valor !== roundRef.current.silabas[slotIndex]) return;
+		if (!option) return;
+		if (option.valor !== roundRef.current.silabas[slotIndex]) {
+			stopWordSpeech();
+			stopSyllableAudio();
+			setSelectedOption(null);
+			setRebote(optionId);
+			runtime.setTimeout(() => setRebote((current) => (current === optionId ? null : current)), 450);
+			secuencia.reproducir([mudo(errorAudio), runtime.audio(sound(nombreAudioSilaba(option.valor)))]);
+			return;
+		}
 
 		const nextSlots = slotsRef.current.map((current, index) => (index === slotIndex ? optionId : current));
 		slotsRef.current = nextSlots;
@@ -401,7 +416,7 @@ export default function Pastel() {
 						const placed = slots.includes(option.id);
 						return (
 							<button
-								className={`pastel-token${selectedOption === option.id ? " selected" : ""}`}
+								className={`pastel-token${selectedOption === option.id ? " selected" : ""}${rebote === option.id ? " ficha-rebote" : ""}`}
 								key={`${round.palabra}-${option.id}`}
 								type="button"
 								aria-label={`Arrastrar sílaba ${option.valor}`}

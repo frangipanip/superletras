@@ -10,11 +10,18 @@ import { useTalkingMouth } from "../hooks/useTalkingMouth";
 import { CHARACTERS, img, sound } from "../lib/assets";
 import { shuffle } from "../lib/shuffle";
 import { useActivityMenuOption } from "../hooks/useActivityMenuOption";
+import { useAyudaError } from "../hooks/useAyudaError";
+import { crearSecuencia, mudo } from "../lib/secuenciaAudio";
 import "./actividad.css";
 
 const VOWELS = ["A", "E", "I", "O", "U"];
 const WAGON_IMAGES = ["vagon1.png", "vagon2.png", "vagon3.png", "vagon4.png"];
 const MIN_DROP_OVERLAP = 0.15;
+// La primera vuelta (con las letras a la vista) es una demostración corta; la segunda, sin modelo,
+// pide todas las secuencias.
+const RONDAS_CON_MODELO = 2;
+// Un toque que casi no se mueve no es un arrastre: elige el vagón para después tocar el casillero.
+const TOQUE_MAX_PX = 12;
 
 const ACTIVITY_CONFIG = {
 	a: {
@@ -130,7 +137,9 @@ export default function Tren() {
 	const [convoy, setConvoy] = useState({ generation: 0, tokens: [] });
 	const [arriving, setArriving] = useState(false);
 	const [departing, setDeparting] = useState(false);
-	const [uppercaseLetters, setUppercaseLetters] = useState(true);
+	const [selected, setSelected] = useState(null);
+	const [secuencia] = useState(() => crearSecuencia({ startTalking, stopTalking }));
+	const ayuda = useAyudaError(runtime);
 	const [celebrating, setCelebrating] = useState(false);
 	const [drag, setDrag] = useState(null);
 	const sequenceBoardRef = useRef(null);
@@ -142,7 +151,9 @@ export default function Tren() {
 	const game = useRef({
 		sequenceOrder: shuffle([...config.sequences]),
 		roundIndex: 0,
+		totalRounds: RONDAS_CON_MODELO,
 		completedSlots: 0,
+		selected: null,
 		currentSequence: "",
 		activeSpeechAudio: null,
 		activityFinished: false,
@@ -153,11 +164,17 @@ export default function Tren() {
 		errors: 0
 	}).current;
 
-	function formatToken(token, uppercase = uppercaseLetters) {
-		return uppercase ? token.toUpperCase() : token.toLowerCase();
+	function formatToken(token) {
+		return token.toUpperCase();
+	}
+
+	function select(index) {
+		game.selected = index;
+		setSelected(index);
 	}
 
 	function stopSpeech() {
+		secuencia.cancelar();
 		if (game.activeSpeechAudio) {
 			game.activeSpeechAudio.pause();
 			game.activeSpeechAudio.currentTime = 0;
@@ -205,6 +222,8 @@ export default function Tren() {
 		game.completedSlots = 0;
 		setRoundIndex(game.roundIndex);
 		setSlots(getSequenceTokens(game.currentSequence).map((value) => ({ value, filled: false })));
+		select(null);
+		ayuda.reiniciar();
 		createConvoy();
 		if (announce) {
 			speak(speechAudios[game.currentSequence]);
@@ -219,6 +238,7 @@ export default function Tren() {
 		setCelebrating(false);
 		game.activityFinished = false;
 		game.roundIndex = 0;
+		game.totalRounds = config.sequences.length;
 		game.completedSlots = 0;
 		game.isHintHidden = true;
 		setIsHintHidden(true);
@@ -231,7 +251,7 @@ export default function Tren() {
 	function completeRound() {
 		game.roundIndex += 1;
 		updateDeparting(true);
-		if (game.roundIndex === config.sequences.length) {
+		if (game.roundIndex === game.totalRounds) {
 			game.activityFinished = true;
 			// La actividad se completa al terminar la segunda vuelta (la que no muestra las letras).
 			if (game.isHintHidden) {
@@ -258,6 +278,7 @@ export default function Tren() {
 		stopSpeech();
 		game.activityFinished = false;
 		game.roundIndex = 0;
+		game.totalRounds = RONDAS_CON_MODELO;
 		game.completedSlots = 0;
 		game.isHintHidden = false;
 		game.errors = 0;
@@ -272,13 +293,15 @@ export default function Tren() {
 	}
 
 	function startDragging(event, index, value) {
-		if (game.roundIndex >= config.sequences.length || game.departing) {
+		if (game.roundIndex >= game.totalRounds || game.departing) {
 			return;
 		}
 		const rect = event.currentTarget.getBoundingClientRect();
 		game.drag = {
 			index,
 			value,
+			startX: event.clientX,
+			startY: event.clientY,
 			offsetX: event.clientX - rect.left,
 			offsetY: event.clientY - rect.top,
 			width: rect.width,
@@ -302,11 +325,17 @@ export default function Tren() {
 		if (!game.drag) {
 			return;
 		}
-		const { index, value, offsetX, offsetY, width, height } = game.drag;
+		const { index, value, offsetX, offsetY, width, height, startX, startY } = game.drag;
 		const dragLeft = event.clientX - offsetX;
 		const dragTop = event.clientY - offsetY;
 		game.drag = null;
 		setDrag(null);
+
+		// Toque sin arrastrar: elige el vagón (o lo suelta si ya estaba elegido).
+		if (Math.hypot(event.clientX - startX, event.clientY - startY) < TOQUE_MAX_PX) {
+			select(game.selected === index ? null : index);
+			return;
+		}
 
 		const slotElements = [...sequenceBoardRef.current.querySelectorAll(".sequence-slot")];
 		const minOverlapArea = width * height * MIN_DROP_OVERLAP;
@@ -322,15 +351,21 @@ export default function Tren() {
 				targetIndex = slotIndex;
 			}
 		});
-		const target = slotElements[targetIndex];
-		if (!target || target.classList.contains("filled")) {
+		placeToken(index, value, targetIndex);
+	}
+
+	// Pone el vagón `index` en el casillero `targetIndex` (arrastrado, o elegido y después tocado).
+	function placeToken(index, value, targetIndex) {
+		const target = sequenceBoardRef.current.querySelectorAll(".sequence-slot")[targetIndex];
+		if (!target || target.classList.contains("filled") || game.departing) {
 			return;
 		}
+		select(null);
 		if (target.dataset.vowel !== value) {
 			game.errors += 1;
-			errorAudio.pause();
-			errorAudio.currentTime = 0;
-			errorAudio.play().catch(() => {});
+			// Error → ayuda: se vuelve a decir lo que hay que armar.
+			stopSpeech();
+			secuencia.reproducir([mudo(errorAudio), ...ayuda.trasError(speechAudios[game.currentSequence])]);
 			return;
 		}
 
@@ -341,13 +376,26 @@ export default function Tren() {
 		}));
 		game.completedSlots += 1;
 		if (game.completedSlots === getSequenceTokens(game.currentSequence).length) {
-			completeRound();
+			// Antes de que el tren parta se dice lo que quedó armado.
+			game.departing = true;
+			let partio = false;
+			const partir = () => {
+				if (!partio) {
+					partio = true;
+					completeRound();
+				}
+			};
+			stopSpeech();
+			secuencia.reproducir([speechAudios[game.currentSequence]], partir);
 		}
 	}
 
-	function toggleCase() {
-		setUppercaseLetters((current) => !current);
-		restartActivity();
+	function placeSelected(targetIndex) {
+		const index = game.selected;
+		const token = index === null ? null : convoy.tokens?.[index];
+		if (token && !token.disabled) {
+			placeToken(index, token.value, targetIndex);
+		}
 	}
 
 	useEffect(() => {
@@ -365,21 +413,15 @@ export default function Tren() {
 
 	const convoyClassName = ["train-convoy", arriving && "arriving", departing && "departing"].filter(Boolean).join(" ");
 	const draggedToken = drag && convoy.tokens?.[drag.index];
+	// Pista tras dos errores: el vagón que va en el primer casillero vacío.
+	const proximoValor = slots.find((slot) => !slot.filled)?.value;
+	const pistaIndex = convoy.tokens ? convoy.tokens.findIndex((token) => !token.disabled && token.value === proximoValor) : -1;
 
 	return (
 		<div className="page activity-page page-tren">
 			<BackButton />
 			<FullscreenButton toggle />
 			<div className="activity-controls" aria-label="Controles de actividad">
-				<button
-					className="case-button"
-					type="button"
-					aria-label={uppercaseLetters ? "Cambiar a minúsculas" : "Cambiar a mayúsculas"}
-					aria-pressed={!uppercaseLetters}
-					onClick={toggleCase}
-				>
-					{uppercaseLetters ? "A" : "a"}
-				</button>
 				<button className="restart-button" type="button" aria-label="Reiniciar actividad" onClick={restartActivity}>
 					&#x21bb; Reiniciar
 				</button>
@@ -391,6 +433,7 @@ export default function Tren() {
 							key={`${convoy.generation}-${index}`}
 							className={["sequence-slot", slot.value.length > 1 && "double-token", slot.filled && "filled"].filter(Boolean).join(" ")}
 							data-vowel={slot.value}
+							onClick={() => placeSelected(index)}
 						>
 							{isHintHidden && !slot.filled ? "_" : formatToken(slot.value)}
 						</div>
@@ -402,7 +445,12 @@ export default function Tren() {
 							<div className="wagon" key={index}>
 								<img src={img(WAGON_IMAGES[index % WAGON_IMAGES.length])} alt="Vagon" draggable={false} />
 								<button
-									className={token.value.length > 1 ? "vowel-token double-token" : "vowel-token"}
+									className={[
+										"vowel-token",
+										token.value.length > 1 && "double-token",
+										selected === index && "selected",
+										ayuda.pista && index === pistaIndex && "pista-correcta"
+									].filter(Boolean).join(" ")}
 									type="button"
 									aria-label={menuOption === "l" ? `Sílaba ${token.value}` : `Vocal ${token.value}`}
 									disabled={token.disabled}

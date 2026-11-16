@@ -10,8 +10,10 @@ import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
 import { img, MUNDO2_MOUTH_IMAGES, MUNDO3_MOUTH_IMAGES, MUNDO4_CHARACTER_FRAMES, MUNDO4_MOUTH_IMAGES, sound } from "../lib/assets";
 import { shuffle } from "../lib/shuffle";
-import { createMundo4IncorrectSyllables, MUNDO4_SYLLABLES } from "../lib/mundo4";
+import { createMundo4IncorrectSyllables, MUNDO4_CONTRASTE, MUNDO4_SYLLABLES } from "../lib/mundo4";
 import { useActivityMenuOption } from "../hooks/useActivityMenuOption";
+import { useAyudaError } from "../hooks/useAyudaError";
+import { crearSecuencia, mudo } from "../lib/secuenciaAudio";
 import "./actividad.css";
 import "./Flores.css";
 import "./FloresMundo1.css";
@@ -51,10 +53,14 @@ const MUNDO4_SEAHORSE_RESULTS = {
 // Mundo 1: un chupetín de cada color por ronda (los 4 tienen el mismo lienzo y las mismas medidas).
 const CANDY_IMAGES = ["violeta", "rosa", "amarillo", "celeste"].map((color) => img(`chupetin-${color}.png`));
 const MUNDO3_ANIMALS = ["conejo", "flamenco", "gato", "jirafa"];
-const TOTAL_ACTIVITIES = 5;
+// YI casi no existe en palabras: se presenta en Inicio pero no se practica.
+const SILABAS_SIN_PRACTICA = ["YI"];
 
 function getAudioFileName(label, isMundo2, isMundo3, isMundo4) {
 	const upper = label.toUpperCase();
+	// Los archivos de S y T están en mayúscula (menos te.mp3); en el servidor el nombre es exacto.
+	if (upper === "TE") return "te.mp3";
+	if (/^[ST][AEIOU]$/.test(upper)) return `${upper}.mp3`;
 	if (isMundo2 || isMundo3 || isMundo4) return `${upper.toLowerCase()}.mp3`;
 	if (["A", "E", "I", "O", "U"].includes(upper)) return `${upper.toLowerCase()}.mp3`;
 	if (["LA", "LE", "LI", "LO", "LU"].includes(upper)) return `${upper.toLowerCase()}.mp3`;
@@ -63,15 +69,6 @@ function getAudioFileName(label, isMundo2, isMundo3, isMundo4) {
 	if (upper === "TE") return "te.mp3";
 	if (upper.startsWith("T")) return `${upper}.mp3`;
 	return `${label.toLowerCase()}.wav`;
-}
-
-function stopAudio(audio) {
-	if (!audio) {
-		return;
-	}
-	audio.pause();
-	audio.currentTime = 0;
-	audio.onended = null;
 }
 
 export default function Flores() {
@@ -92,8 +89,13 @@ export default function Flores() {
 	const [celebrating, setCelebrating] = useState(false);
 	const [instructionAudio] = useState(() => runtime.audio(sound(mode === "a" ? "Pulsavocal.mp3" : "Pulsasilaba.mp3")));
 	const [celebrationAudio] = useState(() => runtime.audio(sound("Fabuloso.mp3")));
+	const [correctAudio] = useState(() => runtime.audio(sound("correcto.mp3"), { preload: true }));
+	const [errorAudio] = useState(() => runtime.audio(sound("error.mp3"), { preload: true }));
 	const [premio, otorgarPremio] = useRecompensa("flores", mode);
-	const audioRef = useRef({ option: null, feedback: null });
+	// Todo lo que suena pasa por una sola secuencia: así la sílaba, la devolución y la ayuda no se pisan.
+	const [secuencia] = useState(() => crearSecuencia({ startTalking, stopTalking }));
+	const ayuda = useAyudaError(runtime);
+	const labelAudios = useRef({}).current;
 	// errors: flores equivocadas tocadas, definen cuántas comidas se ganan.
 	const game = useRef({ activityIndex: 0, instructionOrder: [], transitionPending: false, celebrationActive: false, errors: 0 });
 	const roundRef = useRef(round);
@@ -129,63 +131,37 @@ export default function Flores() {
 		};
 	}, [character, isMundo4, runtime]);
 
+	// Sílabas que se piden (una por ronda). En CE y Q de Mundo 4 se mezclan con CA, CO, CU.
+	const practiceSyllables = mode === "a"
+		? VOWELS
+		: (isMundo4 && MUNDO4_CONTRASTE[mode]) || syllables[mode].filter((item) => !SILABAS_SIN_PRACTICA.includes(item));
+	const mixedContrast = isMundo4 && Boolean(MUNDO4_CONTRASTE[mode]);
+
 	if (game.current.instructionOrder.length === 0) {
-		game.current.instructionOrder = shuffle(mode !== "a" ? syllables[mode] : VOWELS);
+		game.current.instructionOrder = shuffle(practiceSyllables);
 	}
 
 	function audioPath(label) {
 		return sound(getAudioFileName(label, isMundo2, isMundo3, isMundo4));
 	}
 
-	function playInstruction(targetValue) {
-		const audios = audioRef.current;
-		stopAudio(instructionAudio);
-		stopAudio(audios.option);
-		startTalking();
-		const optionAudio = runtime.audio(audioPath(targetValue));
-		audios.option = optionAudio;
-		optionAudio.onended = () => {
-			optionAudio.onended = null;
-			instructionAudio.onended = () => {
-				instructionAudio.onended = null;
-				optionAudio.currentTime = 0;
-				optionAudio.onended = () => {
-					optionAudio.onended = null;
-					stopTalking();
-				};
-				optionAudio.play().catch(() => {
-					optionAudio.onended = null;
-					stopTalking();
-				});
-			};
-			instructionAudio.play().catch(() => {
-				instructionAudio.onended = null;
-				stopTalking();
-			});
-		};
-		optionAudio.play().catch(() => {
-			optionAudio.onended = null;
-			stopTalking();
-		});
+	function labelAudio(label) {
+		if (!labelAudios[label]) {
+			labelAudios[label] = runtime.audio(audioPath(label));
+		}
+		return labelAudios[label];
 	}
 
-	function playLabelAudio(label) {
-		const audios = audioRef.current;
-		stopAudio(instructionAudio);
-		stopAudio(audios.option);
-		stopTalking();
-		stopAudio(audios.feedback);
-		const audio = runtime.audio(audioPath(label));
-		audio.play().catch(() => {});
+	function playInstruction(targetValue) {
+		const optionAudio = labelAudio(targetValue);
+		secuencia.reproducir([optionAudio, instructionAudio, optionAudio]);
 	}
 
 	function buildFlowers(activityIndex = game.current.activityIndex) {
 		const target = game.current.instructionOrder[activityIndex];
-		const incorrect = isMundo4
+		const incorrect = isMundo4 && !mixedContrast
 			? createMundo4IncorrectSyllables(mode)
-			: mode !== "a"
-				? shuffle(syllables[mode].filter((item) => item !== target)).slice(0, 3)
-				: shuffle(VOWELS.filter((item) => item !== target)).slice(0, 3);
+			: shuffle(practiceSyllables.filter((item) => item !== target)).slice(0, 3);
 		const labels = shuffle([target, ...incorrect]);
 		const candyImages = shuffle(CANDY_IMAGES);
 		const horseColors = shuffle(["amarillo", "amarillo", "celeste", "celeste"]);
@@ -207,6 +183,7 @@ export default function Flores() {
 				result: null
 			}))
 		}));
+		ayuda.reiniciar();
 		playInstruction(target);
 	}
 
@@ -225,8 +202,7 @@ export default function Flores() {
 		}
 		game.current.celebrationActive = true;
 		otorgarPremio(game.current.errors);
-		stopAudio(instructionAudio);
-		stopAudio(audioRef.current.option);
+		secuencia.cancelar();
 		startTalking();
 		setCelebrating(true);
 		celebrationAudio.onended = finishCelebration;
@@ -238,7 +214,7 @@ export default function Flores() {
 		finishCelebration();
 		game.current.activityIndex = 0;
 		game.current.errors = 0;
-		game.current.instructionOrder = shuffle(mode !== "a" ? syllables[mode] : VOWELS);
+		game.current.instructionOrder = shuffle(practiceSyllables);
 		game.current.transitionPending = false;
 		buildFlowers(0);
 	}
@@ -287,11 +263,6 @@ export default function Flores() {
 			return;
 		}
 		const wrongSeahorseFrame = isMundo4 && !flower.correct ? getVisibleSeahorseFrame(event.currentTarget) : null;
-		playLabelAudio(flower.label);
-		const audios = audioRef.current;
-		stopAudio(audios.feedback);
-		audios.feedback = runtime.audio(sound(flower.correct ? "correcto.mp3" : "error.mp3"));
-		audios.feedback.play().catch(() => {});
 		setRound((current) => ({
 			...current,
 			flowers: current.flowers.map((item, itemIndex) => {
@@ -325,22 +296,33 @@ export default function Flores() {
 				advanceWrongSeahorse(index, wrongSeahorseFrame, currentRound.generation);
 			}
 		}
-		if (flower.correct) {
-			game.current.transitionPending = true;
-			const completedIndex = currentRound.activityIndex;
+		if (!flower.correct) {
+			// Sílaba tocada → error → ayuda con la sílaba pedida.
+			secuencia.reproducir([
+				mudo(labelAudio(flower.label)),
+				mudo(errorAudio),
+				...ayuda.trasError(labelAudio(currentRound.target))
+			]);
+			return;
+		}
+		game.current.transitionPending = true;
+		const completedIndex = currentRound.activityIndex;
+		const startedAt = Date.now();
+		// Sílaba → felicitación, y recién cuando termina (y la animación tuvo su tiempo) viene la siguiente.
+		secuencia.reproducir([mudo(labelAudio(flower.label)), mudo(correctAudio)], () => {
 			runtime.setTimeout(() => {
 				if (roundRef.current.activityIndex !== completedIndex) {
 					return;
 				}
-				if (completedIndex + 1 >= (isMundo4 ? syllables[mode].length : TOTAL_ACTIVITIES)) {
+				if (completedIndex + 1 >= game.current.instructionOrder.length) {
 					startCelebration();
 					return;
 				}
 				game.current.activityIndex = completedIndex + 1;
 				game.current.transitionPending = false;
 				buildFlowers();
-			}, 1400);
-		}
+			}, Math.max(300, 1400 - (Date.now() - startedAt)));
+		});
 	}
 
 	useEffect(() => {
@@ -361,7 +343,7 @@ export default function Flores() {
 					{round.flowers.map((flower, index) => (
 						isMundo4 ? (
 							<div
-								className={`m4-flower-pair m4-flower-pair-${index + 1}${flower.result ? ` ${flower.result}` : ""}`}
+								className={`m4-flower-pair m4-flower-pair-${index + 1}${flower.result ? ` ${flower.result}` : ""}${ayuda.pista && flower.correct && !flower.result ? " pista-correcta" : ""}`}
 								key={`${round.generation}-${index}`}
 							>
 								<button
@@ -398,7 +380,7 @@ export default function Flores() {
 							<button
 								key={`${round.generation}-${index}`}
 								type="button"
-								className={flower.result ? `flower-button ${flower.result}` : "flower-button"}
+								className={`flower-button${flower.result ? ` ${flower.result}` : ""}${ayuda.pista && flower.correct && !flower.result ? " pista-correcta" : ""}`}
 								onClick={(event) => handleFlowerClick(index, event)}
 							>
 								{isMundo2 || isMundo3 ? (

@@ -338,3 +338,47 @@
 	60% { transform: translateY(-15%) scale(1.15); }
 	100% { transform: translateY(0) scale(1); }
 }
+
+/* Con el botón "siguiente" entran tres: más juntos y un poco más chicos. */
+.game-buttons-area--tres {
+	gap: 0.8em;
+}
+
+.game-buttons-area--tres .game-button {
+	font-size: 1.25em;
+}
+
+.game-button--orange {
+	background: linear-gradient(to bottom, #ffc04d 0%, #ff9a1a 55%, #f07800 100%);
+	border: 0.16em solid #a14d00;
+	box-shadow:
+		0 0.25em 0 #8a4200,
+		0 12px 16px rgba(0, 0, 0, 0.3),
+		inset 0 -5px 8px rgba(140, 60, 0, 0.35);
+	--contorno: #8a4200;
+	/* Es el camino que se sugiere: late suave. */
+	animation: game-button-latido 1.4s ease-in-out infinite;
+}
+
+.game-button--orange:active {
+	box-shadow:
+		0 0 0 #8a4200,
+		0 4px 6px rgba(0, 0, 0, 0.2),
+		inset 0 -5px 8px rgba(140, 60, 0, 0.35);
+}
+
+@keyframes game-button-latido {
+	0%,
+	100% {
+		transform: scale(1);
+	}
+	50% {
+		transform: scale(1.06);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.game-button--orange {
+		animation: none;
+	}
+}

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useNavigate } from "react-router";
 import CharacterLocator from "../components/CharacterLocator";
 import PufCrema, { PUF_CHARACTER_CLASS } from "../components/PufCrema";
@@ -11,10 +11,11 @@ import { useTalkingMouth } from "../hooks/useTalkingMouth";
 import { useTeleport } from "../hooks/useTeleport";
 import { img, MUNDO4_CHARACTER_FRAMES, MUNDO4_CHARACTERS, MUNDO4_MOUTH_IMAGES, sound } from "../lib/assets";
 import { STORAGE_KEYS, readStorage, writeStorage } from "../lib/storage";
+import { getProgreso, puntajeDe, subscribeProgreso } from "../lib/progreso";
 import SeaLifeEffects from "../components/SeaLifeEffects";
 import "./Mundo4.css";
 
-const LETTERS = ["C", "CE", "Q", "Z", "CH"];
+const LETTERS = ["C", "Q", "CE", "Z", "CH"];
 const LETTER_BLOCKS = {
 	C: img("almejaC.png"),
 	CE: img("almejaCE.png"),
@@ -104,6 +105,10 @@ export const MUNDO4_IMAGES = [
 	...MUNDO4_MOUTH_IMAGES
 ];
 
+// Q y CE se aprenden contra la C: se habilitan después de completar Inicio de la C.
+const LETRAS_DESPUES_DE_C = ["Q", "CE"];
+const ACTIVIDADES_M4 = ["inicio", "mariposas", "flores"];
+
 export default function Mundo4() {
 	usePageTitle("Mundo 4");
 	const navigate = useNavigate();
@@ -118,6 +123,17 @@ export default function Mundo4() {
 		return LETTERS.includes(saved) ? saved : null;
 	});
 	const [savedPerches, setSavedPerches] = useState(readSavedPerches);
+	const progreso = useSyncExternalStore(subscribeProgreso, getProgreso);
+	const cDone = puntajeDe(progreso, "c", "inicio") > 0;
+	// Quien ya jugó una de esas letras la sigue teniendo.
+	const isLetterLocked = (letter) => LETRAS_DESPUES_DE_C.includes(letter) && !cDone &&
+		!ACTIVIDADES_M4.some((clave) => puntajeDe(progreso, letter.toLowerCase(), clave) > 0);
+	const pathLetter = (selectedLetter || LETTERS[0]).toLowerCase();
+	const isActivityDone = (index) => index < ACTIVIDADES_M4.length && puntajeDe(progreso, pathLetter, ACTIVIDADES_M4[index]) > 0;
+	const nextActivityIndex = ACTIVIDADES_M4.findIndex((_, index) => !isActivityDone(index));
+	// Letra que conviene jugar: la primera habilitada con alguna actividad sin completar.
+	const nextLetter = LETTERS.find((letter) => !isLetterLocked(letter) &&
+		ACTIVIDADES_M4.some((clave) => !puntajeDe(progreso, letter.toLowerCase(), clave)));
 	const perchIndex = selectedLetter ? (savedPerches[selectedLetter] ?? null) : null;
 	const characterIndex = teleport ? teleport.position : perchIndex;
 	const [menuPanelVisible, setMenuPanelVisible] = useState(true);
@@ -223,6 +239,7 @@ export default function Mundo4() {
 	}
 
 	function selectLetter(letter) {
+		if (isLetterLocked(letter)) return;
 		introAudio.pause();
 		introAudio.currentTime = 0;
 		introAudio.onended = null;
@@ -360,10 +377,10 @@ export default function Mundo4() {
 						<div className="mundo4-compact-menu__options" id="mundo4-compact-menu-options">
 							{LETTERS.map((letter) => (
 								<button
-									className={selectedLetter === letter ? "mundo4-compact-menu__option selected" : "mundo4-compact-menu__option"}
+									className={`mundo4-compact-menu__option${selectedLetter === letter ? " selected" : ""}${isLetterLocked(letter) ? " letra-bloqueada" : ""}`}
 									key={letter}
 									type="button"
-									disabled={Boolean(teleport)}
+									disabled={Boolean(teleport) || isLetterLocked(letter)}
 									aria-label={`Elegir letra ${letter}`}
 									aria-pressed={selectedLetter === letter}
 									onClick={() => selectLetter(letter)}
@@ -385,9 +402,11 @@ export default function Mundo4() {
 							key={`${left}-${top}-${index}`}
 							style={{ left: `${left}%`, top: `${top}%` }}
 						>
+							{index === nextActivityIndex && index !== characterIndex && <span className="camino-siguiente-brillo" aria-hidden="true" />}
+							{isActivityDone(index) && <span className="camino-hecho" aria-hidden="true">✓</span>}
 							<img className="mundo4-path-sign" src={img(ACTIVITY_SIGN_IMAGES[index] || "GLOBOSbtn.png")} alt="" draggable={false} />
 							<button
-								className={`mundo4-path-button${index < 3 ? " is-available" : ""}`}
+								className={`mundo4-path-button path-letter-${(selectedLetter || LETTERS[0]).toLowerCase()}${index < 3 ? " is-available" : ""}`}
 								type="button"
 								disabled={index > 2 || Boolean(teleport)}
 								aria-label={index === 0
@@ -430,10 +449,11 @@ export default function Mundo4() {
 					<img className="mundo4-menu-image" src={img("MENUM4.png")} alt="" draggable={false} />
 					{LETTERS.map((letter, index) => (
 						<button
-							className={`mundo4-letter mundo4-letter-${index + 1}${selectedLetter === letter ? " selected" : ""}`}
+							className={`mundo4-letter mundo4-letter-${index + 1}${selectedLetter === letter ? " selected" : ""}${isLetterLocked(letter) ? " letra-bloqueada" : ""}${nextLetter === letter && selectedLetter !== letter ? " menu-letra-siguiente" : ""}`}
+							data-letter={letter.toLowerCase()}
 							key={letter}
 							type="button"
-							disabled={Boolean(teleport)}
+							disabled={Boolean(teleport) || isLetterLocked(letter)}
 							aria-label={`Seleccionar letra ${letter}`}
 							aria-pressed={selectedLetter === letter}
 							onClick={() => selectLetter(letter)}

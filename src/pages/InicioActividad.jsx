@@ -7,11 +7,15 @@ import { usePageTitle } from "../hooks/usePageTitle";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
-import { CHARACTERS, img, MUNDO1_CHARACTERS, MUNDO2_CHARACTER_FRAMES, MUNDO2_CHARACTERS, MUNDO2_MOUTH_IMAGES, MUNDO3_CHARACTERS, MUNDO3_MOUTH_IMAGES, MUNDO4_CHARACTERS, MUNDO4_MOUTH_IMAGES, sound } from "../lib/assets";
+import { CHARACTERS, img, MUNDO1_CHARACTERS, MUNDO2_CHARACTER_FRAMES, MUNDO2_CHARACTERS, MUNDO2_MOUTH_IMAGES, MUNDO3_CHARACTERS, MUNDO3_MOUTH_IMAGES, MUNDO4_CHARACTERS, MUNDO4_MOUTH_IMAGES, commonSound, sound } from "../lib/assets";
 import { whenPageReady } from "../lib/pageGate";
 import { shuffle } from "../lib/shuffle";
 import { useActivityMenuOption } from "../hooks/useActivityMenuOption";
 import { useCarPhysics } from "../hooks/useCarPhysics";
+import { useAyudaError } from "../hooks/useAyudaError";
+import { crearSecuencia, mudo } from "../lib/secuenciaAudio";
+import { marcarCompletada } from "../lib/progreso";
+import { premioPorErrores } from "../../shared/comidas.js";
 import "./actividad.css";
 import "./InicioActividad.css";
 
@@ -115,6 +119,10 @@ const MUNDO4_MODES = {
 	z: createSyllableMode("z", ["ZA", "ZE", "ZI", "ZO", "ZU"]),
 	ch: createSyllableMode("ch", ["CHA", "CHE", "CHI", "CHO", "CHU"])
 };
+const MUNDO4_Q_REVIEW_ITEMS = ["CA", "CO", "CU"];
+const MUNDO4_Q_ROUND_ITEMS = ["QUE", "QUI", ...MUNDO4_Q_REVIEW_ITEMS];
+const MUNDO4_Q_REVIEW_CLAM_MS = 6900;
+const MUNDO4_Q_REVIEW_HOLD_MS = 900;
 const MUNDO4_SHELLS = {
 	c: { closed: "almejacerradaC.png", open: "almejaabiertaC.png" },
 	ce: { closed: "almejacerradaCE.png", open: "almejaabiertaCE.png" },
@@ -204,6 +212,7 @@ export default function InicioActividad() {
 	const mouthImages = isMundo3 ? MUNDO3_MOUTH_IMAGES : isMundo2 ? MUNDO2_MOUTH_IMAGES : isMundo4 ? MUNDO4_MOUTH_IMAGES : undefined;
 	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime, mouthImages);
 	const menuOption = useActivityMenuOption();
+	const isMundo4Q = isMundo4 && menuOption === "q";
 	const modeOptions = isMundo4 ? MUNDO4_MODES : isMundo3 ? MUNDO3_MODES : isMundo2 ? MUNDO2_MODES : MODES;
 	const fallbackOption = isMundo4 ? "c" : isMundo3 ? "r" : isMundo2 ? "p" : "a";
 	const [mode] = useState(() => modeOptions[menuOption || fallbackOption] || modeOptions[fallbackOption]);
@@ -221,6 +230,13 @@ export default function InicioActividad() {
 		itemPrompt: runtime.audio(sound(mode.prompt), { preload: true }),
 		celebration: runtime.audio(sound("Felicitaciones.mp3"), { preload: true }),
 		error: runtime.audio(sound("error.mp3"), { preload: true }),
+		acierto: runtime.audio(commonSound("acierto.mp3"), { preload: true }),
+		qReviewWellDone: isMundo4Q ? runtime.audio(sound("muybien.mp3"), { preload: true }) : null,
+		qReview: isMundo4Q ? runtime.audio(sound("recordaQ.mp3"), { preload: true }) : null,
+		qReviewItems: isMundo4Q ? Object.fromEntries(MUNDO4_Q_REVIEW_ITEMS.map((item) => [
+			item,
+			runtime.audio(sound(`${item.toLowerCase()}.mp3`), { preload: true })
+		])) : {},
 		itemsLong: Object.fromEntries(mode.items.map((item) => [item, runtime.audio(sound(mode.longAudio(item)), { preload: true })])),
 		itemsShort: Object.fromEntries(mode.items.map((item) => [item, runtime.audio(sound(mode.shortAudio(item)), { preload: true })]))
 	}));
@@ -233,16 +249,28 @@ export default function InicioActividad() {
 	const [incorrectItem, setIncorrectItem] = useState(null);
 	const [showConfetti, setShowConfetti] = useState(false);
 	const [showBigLetter, setShowBigLetter] = useState(false);
+	const [reviewClamVisible, setReviewClamVisible] = useState(false);
+	const [reviewClamArrived, setReviewClamArrived] = useState(false);
+	const [reviewItems, setReviewItems] = useState([]);
 	const [visibleItems, setVisibleItems] = useState(() => new Set());
 	const [revealingItem, setRevealingItem] = useState(null);
 	const [isPhaseTwo, setIsPhaseTwo] = useState(false);
 	const [isPhaseThree, setIsPhaseThree] = useState(false);
 	const sequenceTimer = useRef(0);
+	const reviewClamTimer = useRef(0);
 	const shuffleTimer = useRef(0);
 	const errorTimer = useRef(0);
 	const revealTimer = useRef(0);
 	const introductionActive = useRef(false);
+	// Copia visible de introductionActive: muestra el botón para saltear la presentación.
+	const [introVisible, setIntroVisible] = useState(false);
+	// El pedido, la devolución y la ayuda tras el error van en una secuencia para que no se pisen.
+	const [secuencia] = useState(() => crearSecuencia({ startTalking, stopTalking }));
+	const ayuda = useAyudaError(runtime);
 	const requestedItemIndex = useRef(0);
+	// Carteles que se piden de a uno, en orden. En la Q se piden también CA, CO, CU (mezclados):
+	// si solo se pidieran QUE y QUI, las otras tres quedaban de relleno.
+	const requestOrder = useRef(mode.items);
 	// Carteles equivocados tocados al pedirlos (fases 2 y 3): definen cuántas comidas se ganan.
 	const errorCount = useRef(0);
 	// Mundo 3: en la fase 3 los carros manejan con física (chocan y rebotan sin pisarse).
@@ -274,24 +302,40 @@ export default function InicioActividad() {
 	// Mundo 3: el bloque cae del cielo al centro y se va a su lugar (atrás) cuando empiezan los carros.
 	const bigLetterCentered = isMundo3 && showBigLetter && visibleItems.size === 0;
 
+	function setIntro(value) {
+		introductionActive.current = value;
+		setIntroVisible(value);
+	}
+
 	function allItemAudios() {
 		return [...Object.values(audios.itemsLong), ...Object.values(audios.itemsShort)];
 	}
 
 	function stopShortAudios() {
+		secuencia.cancelar();
 		audios.itemPrompt.onended = null;
 		audios.itemPrompt.pause();
 		audios.itemPrompt.currentTime = 0;
-		Object.values(audios.itemsShort).forEach((itemAudio) => {
+		[...Object.values(audios.itemsShort), ...Object.values(audios.qReviewItems)].forEach((itemAudio) => {
 			itemAudio.onended = null;
 			itemAudio.pause();
 			itemAudio.currentTime = 0;
 		});
 	}
 
+	// Arranca una tanda de pedidos (fase 2 o 3) y pide el primero.
+	function startRequests() {
+		// Orden mezclado: si se pide siempre A, E, I, O, U se acierta de memoria, sin mirar el cartel.
+		requestOrder.current = shuffle(isMundo4Q ? MUNDO4_Q_ROUND_ITEMS : mode.items);
+		requestedItemIndex.current = 0;
+		setRequestedItem(requestOrder.current[0]);
+		playRequestedItem(requestOrder.current[0]);
+	}
+
 	function playRequestedItem(item) {
 		stopShortAudios();
-		const itemAudio = audios.itemsShort[item];
+		const itemAudio = audios.itemsShort[item] || audios.qReviewItems[item];
+		ayuda.reiniciar();
 		setActiveItem(null);
 		startTalking();
 		audios.itemPrompt.onended = () => {
@@ -344,6 +388,12 @@ export default function InicioActividad() {
 		if (isShuffling) {
 			return;
 		}
+		// Un cartel ya presentado se puede tocar sin esperar al resto: corta la presentación.
+		if (introductionActive.current && visibleItems.has(item) && !requestedItem) {
+			skipIntroduction();
+			playItem(item);
+			return;
+		}
 		if (isPhaseThree && !requestedItem) {
 			return;
 		}
@@ -358,8 +408,12 @@ export default function InicioActividad() {
 				errorCount.current += 1;
 				runtime.clearTimeout(errorTimer.current);
 				setIncorrectItem(item);
-				audios.error.currentTime = 0;
-				audios.error.play().catch(() => {});
+				// Error → ayuda: se vuelve a decir el cartel pedido (y al segundo error se lo marca).
+				stopShortAudios();
+				secuencia.reproducir([
+					mudo(audios.error),
+					...ayuda.trasError(audios.itemsShort[requestedItem] || audios.qReviewItems[requestedItem])
+				]);
 				errorTimer.current = runtime.setTimeout(() => setIncorrectItem(null), 500);
 				return;
 			}
@@ -368,13 +422,19 @@ export default function InicioActividad() {
 			setActivitySelectedItems((current) => new Set(current).add(item));
 			setActiveItem(item);
 			stopTalking();
-			if (requestedItemIndex.current >= mode.items.length - 1) {
+			if (requestedItemIndex.current >= requestOrder.current.length - 1) {
 				setRequestedItem(null);
 				setActiveItem(null);
+				if (isMundo4Q) {
+					setItemOrder([]);
+				}
 				setShowConfetti(true);
 				// La actividad se completa al terminar la fase 3 (carteles en movimiento).
 				if (isPhaseThree && !isMundo2 && !isMundo3 && !isMundo4) {
 					otorgarPremio(errorCount.current);
+				} else if (isPhaseThree && menuOption) {
+					// Mundos 2 a 4: sin comida, pero queda anotada (Mundo 4 destraba Q y CE con esto).
+					marcarCompletada(menuOption, "inicio", premioPorErrores("inicio", errorCount.current));
 				}
 				audios.celebration.onended = () => {
 					audios.celebration.onended = null;
@@ -397,11 +457,12 @@ export default function InicioActividad() {
 			}
 			requestedItemIndex.current += 1;
 			setRequestedItem(null);
-			runtime.setTimeout(() => {
-				const nextItem = mode.items[requestedItemIndex.current];
+			// Sonido de acierto y recién después el pedido siguiente.
+			secuencia.reproducir([mudo(audios.acierto)], () => {
+				const nextItem = requestOrder.current[requestedItemIndex.current];
 				setRequestedItem(nextItem);
 				playRequestedItem(nextItem);
-			}, 180);
+			});
 			return;
 		}
 		playItem(item);
@@ -419,11 +480,11 @@ export default function InicioActividad() {
 		revealTimer.current = runtime.setTimeout(() => setRevealingItem(null), 550);
 	}
 
-	function skipIntroduction(event) {
-		if (!introductionActive.current || event.target.closest("button, a")) {
+	function skipIntroduction() {
+		if (!introductionActive.current) {
 			return;
 		}
-		introductionActive.current = false;
+		setIntro(false);
 		runtime.clearTimeout(sequenceTimer.current);
 		runtime.clearTimeout(revealTimer.current);
 		[...audios.intro, ...Object.values(audios.itemsLong), audios.pressure].forEach((audio) => {
@@ -450,13 +511,12 @@ export default function InicioActividad() {
 		setIsPhaseThree(true);
 		setSelectedItems(new Set());
 		setActivitySelectedItems(new Set());
+		if (isMundo4Q) {
+			setItemOrder(shuffle(MUNDO4_Q_ROUND_ITEMS));
+			setVisibleItems(new Set(MUNDO4_Q_ROUND_ITEMS));
+		}
 		startTalking();
 		audios.movement.currentTime = 0;
-		const startRequests = () => {
-			requestedItemIndex.current = 0;
-			setRequestedItem(mode.items[0]);
-			playRequestedItem(mode.items[0]);
-		};
 		audios.movement.onended = () => {
 			audios.movement.onended = null;
 			stopTalking();
@@ -469,6 +529,106 @@ export default function InicioActividad() {
 		});
 	}
 
+	function startFirstRoundShuffle() {
+		setIsPhaseTwo(true);
+		startTalking();
+		audios.shuffle.currentTime = 0;
+		const shuffleAndRequest = () => {
+			const roundItems = isMundo4Q ? MUNDO4_Q_ROUND_ITEMS : mode.items;
+			setSelectedItems(new Set());
+			setItemOrder(shuffle(roundItems));
+			if (isMundo4Q) {
+				setVisibleItems(new Set(roundItems));
+			}
+			setIsShuffling(true);
+			shuffleTimer.current = runtime.setTimeout(() => {
+				setIsShuffling(false);
+				setActivitySelectedItems(new Set());
+				startRequests();
+			}, 1200);
+		};
+		audios.shuffle.onended = () => {
+			audios.shuffle.onended = null;
+			stopTalking();
+			shuffleAndRequest();
+		};
+		audios.shuffle.play().catch(() => {
+			audios.shuffle.onended = null;
+			stopTalking();
+			shuffleAndRequest();
+		});
+	}
+
+	function playQReviewSyllable(index) {
+		if (index >= MUNDO4_Q_REVIEW_ITEMS.length) {
+			sequenceTimer.current = runtime.setTimeout(() => {
+				setReviewItems([]);
+				setItemOrder([]);
+				startFirstRoundShuffle();
+			}, MUNDO4_Q_REVIEW_HOLD_MS);
+			return;
+		}
+		const item = MUNDO4_Q_REVIEW_ITEMS[index];
+		const audio = audios.qReviewItems[item];
+		setReviewItems((current) => [...current, item]);
+		startTalking();
+		audio.currentTime = 0;
+		const finish = () => {
+			audio.onended = null;
+			stopTalking();
+			playQReviewSyllable(index + 1);
+		};
+		audio.onended = finish;
+		audio.play().catch(finish);
+	}
+
+	function playQReviewNarration() {
+		setReviewClamVisible(true);
+		setReviewClamArrived(false);
+		const clamDuration = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : MUNDO4_Q_REVIEW_CLAM_MS;
+		let narrationFinished = false;
+		let clamArrived = false;
+		const continueWhenReady = () => {
+			if (!narrationFinished || !clamArrived) {
+				return;
+			}
+			playQReviewSyllable(0);
+		};
+		const narration = audios.qReview;
+		narration.currentTime = 0;
+		startTalking();
+		narration.onended = () => {
+			narration.onended = null;
+			narrationFinished = true;
+			stopTalking();
+			continueWhenReady();
+		};
+		narration.play().catch(() => {
+			narration.onended = null;
+			narrationFinished = true;
+			stopTalking();
+			continueWhenReady();
+		});
+		reviewClamTimer.current = runtime.setTimeout(() => {
+			clamArrived = true;
+			setReviewClamArrived(true);
+			continueWhenReady();
+		}, clamDuration ? clamDuration + 100 : 0);
+	}
+
+	function startQReview() {
+		const wellDone = audios.qReviewWellDone;
+		startTalking();
+		wellDone.currentTime = 0;
+		const continueWithRecall = () => {
+			wellDone.onended = null;
+			stopTalking();
+			playQReviewNarration();
+		};
+		wellDone.onended = continueWithRecall;
+		wellDone.play().catch(continueWithRecall);
+	}
+
 	function completeItemSelection() {
 		allItemAudios().forEach((itemAudio) => {
 			itemAudio.onended = null;
@@ -477,31 +637,16 @@ export default function InicioActividad() {
 		});
 		setActiveItem(null);
 		setIsShuffling(false);
-		setIsPhaseTwo(true);
-		startTalking();
-		audios.shuffle.currentTime = 0;
-		const startRequests = () => {
-			setSelectedItems(new Set());
-			setItemOrder(isMundo4 && menuOption === "q" ? ["QUI", "QUE"] : shuffle(mode.items));
-			setIsShuffling(true);
-			shuffleTimer.current = runtime.setTimeout(() => {
-				setIsShuffling(false);
-				requestedItemIndex.current = 0;
-				setActivitySelectedItems(new Set());
-				setRequestedItem(mode.items[0]);
-				playRequestedItem(mode.items[0]);
-			}, 1200);
-		};
-		audios.shuffle.onended = () => {
-			audios.shuffle.onended = null;
-			stopTalking();
-			startRequests();
-		};
-		audios.shuffle.play().catch(() => {
-			audios.shuffle.onended = null;
-			stopTalking();
-			startRequests();
-		});
+		if (isMundo4Q) {
+			setIsPhaseTwo(true);
+			sequenceTimer.current = runtime.setTimeout(() => {
+				setItemOrder([]);
+				setSelectedItems(new Set());
+				startQReview();
+			}, 420);
+			return;
+		}
+		startFirstRoundShuffle();
 	}
 
 	function playItem(item) {
@@ -550,7 +695,10 @@ export default function InicioActividad() {
 		if (!modeOptions[menuOption]) {
 			return undefined;
 		}
-		introductionActive.current = true;
+		setReviewClamVisible(false);
+		setReviewClamArrived(false);
+		setReviewItems([]);
+		setIntro(true);
 		// Presentación: primero los audios de la letra y después cada cartel con su audio largo.
 		const steps = [
 			...audios.intro.map((audio) => ({ audio, item: null })),
@@ -560,18 +708,18 @@ export default function InicioActividad() {
 
 		function playNextStep() {
 			if (stepIndex >= steps.length) {
-				introductionActive.current = false;
+				setIntro(false);
 				setShowBigLetter(true);
 				setActiveItem(null);
 				audios.pressure.currentTime = 0;
 				audios.pressure.onended = () => {
 					audios.pressure.onended = null;
-					introductionActive.current = false;
+					setIntro(false);
 					stopTalking();
 				};
 				startTalking();
 				audios.pressure.play().catch(() => {
-					introductionActive.current = false;
+					setIntro(false);
 					stopTalking();
 				});
 				return;
@@ -642,13 +790,27 @@ export default function InicioActividad() {
 		}
 		return () => {
 			cancelClamDrop();
-			introductionActive.current = false;
+			setIntro(false);
 			runtime.clearTimeout(sequenceTimer.current);
+			runtime.clearTimeout(reviewClamTimer.current);
 			runtime.clearTimeout(shuffleTimer.current);
 			runtime.clearTimeout(revealTimer.current);
 			runtime.clearTimeout(errorTimer.current);
 			audios.error.pause();
 			audios.error.currentTime = 0;
+			if (isMundo4Q) {
+				audios.qReviewWellDone.onended = null;
+				audios.qReviewWellDone.pause();
+				audios.qReviewWellDone.currentTime = 0;
+				audios.qReview.onended = null;
+				audios.qReview.pause();
+				audios.qReview.currentTime = 0;
+				Object.values(audios.qReviewItems).forEach((audio) => {
+					audio.onended = null;
+					audio.pause();
+					audio.currentTime = 0;
+				});
+			}
 			setShowConfetti(false);
 			audios.celebration.onended = null;
 			audios.celebration.pause();
@@ -679,9 +841,17 @@ export default function InicioActividad() {
 	}, [audios, isMundo4, menuOption, modeOptions]);
 
 	return (
-		<div className={`page activity-page page-inicio-actividad${isMundo2 ? " world-insectos" : ""}${isMundo3 ? " world-bloques" : ""}${isMundo4 ? " world-almejas" : ""}`} onClick={skipIntroduction}>
+		<div className={`page activity-page page-inicio-actividad${isMundo2 ? " world-insectos" : ""}${isMundo3 ? " world-bloques" : ""}${isMundo4 ? " world-almejas" : ""}`}>
 			<BackButton />
 			<FullscreenButton toggle />
+			{/* Saltear la presentación es un botón aparte: un toque suelto en el fondo ya no la corta. */}
+			{introVisible && (
+				<div className="activity-controls" aria-label="Controles de actividad">
+					<button className="restart-button" type="button" aria-label="Saltear la presentación" onClick={skipIntroduction}>
+						&#x23ED;
+					</button>
+				</div>
+			)}
 			<div className="inicio-vowels inicio-syllables" aria-label={mode.listName}>
 					{itemOrder.map((item) => {
 						const isHidden = !visibleItems.has(item);
@@ -690,12 +860,12 @@ export default function InicioActividad() {
 						return (
 							<div
 								key={item}
-								className={`inicio-vowel-button inicio-vowel-${item.toLowerCase()}${isExploded ? " selected" : ""}${activeItem === item ? " active" : ""}${incorrectItem === item ? " incorrect" : ""}${isShuffling ? " shuffling" : ""}${isHidden ? " hidden-balloon" : ""}${isRevealing ? " reveal-balloon" : ""}${isPhaseThree && !isShuffling && !activitySelectedItems.has(item) ? (isMundo3 ? " driving" : " flying") : ""}`}
+								className={`inicio-vowel-button inicio-vowel-${item.toLowerCase()}${isExploded ? " selected" : ""}${activeItem === item ? " active" : ""}${incorrectItem === item ? " incorrect" : ""}${ayuda.pista && requestedItem === item ? " pista-correcta" : ""}${isShuffling ? " shuffling" : ""}${isHidden ? " hidden-balloon" : ""}${isRevealing ? " reveal-balloon" : ""}${isPhaseThree && !isShuffling && !activitySelectedItems.has(item) ? (isMundo3 ? " driving" : " flying") : ""}`}
 								style={isMundo4 ? {
-									"--mundo4-syllable-color": MUNDO4_SYLLABLE_COLORS[mode.items.indexOf(item)],
-									...(mode.items.length < 5 ? {
-										left: `${mode.items.length === 2 ? 38 + itemOrder.indexOf(item) * 24 : 25 + itemOrder.indexOf(item) * 20}%`,
-										top: mode.items.length === 2 ? "42%" : "36%"
+									"--mundo4-syllable-color": MUNDO4_SYLLABLE_COLORS[(isMundo4Q ? MUNDO4_Q_ROUND_ITEMS : mode.items).indexOf(item)],
+									...(itemOrder.length < 5 ? {
+										left: `${itemOrder.length === 2 ? 38 + itemOrder.indexOf(item) * 24 : 25 + itemOrder.indexOf(item) * 20}%`,
+										top: itemOrder.length === 2 ? "42%" : "36%"
 									} : {})
 								} : undefined}
 								ref={(node) => {
@@ -724,6 +894,20 @@ export default function InicioActividad() {
 							</div>
 						);
 					})}
+					{reviewItems.map((item, index) => (
+						<div
+							key={`review-${item}`}
+							className={`inicio-vowel-button inicio-vowel-${item.toLowerCase()} review-balloon`}
+							style={{
+								"--mundo4-syllable-color": MUNDO4_SYLLABLE_COLORS[MUNDO4_Q_ROUND_ITEMS.indexOf(item)],
+								left: `${25 + index * 20}%`,
+								top: "42%"
+							}}
+							aria-hidden="true"
+						>
+							<span>{item}</span>
+						</div>
+					))}
 				</div>
 				{showConfetti && (
 					<div className="inicio-confetti" aria-hidden="true">
@@ -742,10 +926,16 @@ export default function InicioActividad() {
 					</div>
 				)}
 				{isMundo4 && (
-					<div className={`inicio-mundo4-clam${clamState.moved ? " is-small" : ""}${clamDrop !== "landed" ? ` is-${clamDrop}` : ""}`} aria-hidden="true">
+					<div className={`inicio-mundo4-clam${clamState.moved ? " is-small" : ""}${clamDrop !== "landed" ? ` is-${clamDrop}` : ""}${reviewClamVisible ? " is-q-review" : ""}`} aria-hidden="true">
 						<img src={clamState.src} alt="" draggable={false} />
 						{/* Envuelve a la almeja cuando sube (.is-small). */}
 						<span className="inicio-mundo4-clam-bubble" />
+					</div>
+				)}
+				{isMundo4Q && reviewClamVisible && (
+					<div className={`inicio-mundo4-review-clam${reviewClamArrived ? "" : " is-entering"}`} aria-hidden="true">
+						<img src={img("almejaabiertaC.png")} alt="" draggable={false} />
+						<span className="inicio-mundo4-review-clam-bubble" />
 					</div>
 				)}
 				{/* Polvo del golpe: se monta al empezar la caída y la animación espera al momento del golpe
