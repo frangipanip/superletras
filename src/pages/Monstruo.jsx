@@ -28,6 +28,20 @@ const SECUENCIA_COMER = [
 const BOCA = { x: 0.5, y: 0.54 };
 // Botones de evolucionar/desevolucionar: solo se ven con estos códigos (ver server/index.js).
 const CODIGOS_DEBUG = new Set(["QDM7-9YVF", "Y86M-CQ2R", "PQ4E-EXQ4"]);
+// "Darle todo": una comida cada tanto, para que se vea volar cada una.
+const DAR_TODO_PAUSA_MS = 260;
+
+// Estado de las comidas de la letra leído en el momento (no el del último render): "darle todo"
+// da varias seguidas y cada una tiene que ver lo que dejó la anterior.
+function comidasDe(letra) {
+	const { letras } = getRecompensas();
+	return COMIDAS.map((comida) => {
+		const { ganadas, dadas } = cantidadComida(letras, letra, comida.clave);
+		return { ...comida, ganadas, dadas, guardadas: ganadas - dadas };
+	});
+}
+
+const estaLleno = (comidas) => comidas.every(({ dadas, necesarias }) => dadas >= necesarias);
 
 export default function MonstruoPage() {
 	const location = useLocation();
@@ -49,8 +63,12 @@ export default function MonstruoPage() {
 	const evolucionTimer = useRef(null);
 	const [audios] = useState(() => ({
 		comer: runtime.audio(sound("correcto.mp3"), { preload: true }),
-		lleno: runtime.audio(sound("Fabuloso.mp3"), { preload: true })
+		lleno: runtime.audio(sound("Fabuloso.mp3"), { preload: true }),
+		hambre: runtime.audio(sound("monstruoHambre.mp3"), { preload: true }),
+		quiereMas: runtime.audio(sound("monstruoQuiereMas.mp3"), { preload: true })
 	}));
+	const darTodoTimers = useRef([]);
+	const [dandoTodo, setDandoTodo] = useState(false);
 
 	const comidas = COMIDAS.map((comida) => {
 		const { ganadas, dadas } = cantidadComida(letras, letra, comida.clave);
@@ -65,6 +83,39 @@ export default function MonstruoPage() {
 	useEffect(() => {
 		sincronizar();
 	}, []);
+
+	function decir(audio) {
+		[audios.hambre, audios.quiereMas].forEach((otro) => {
+			otro.pause();
+			otro.currentTime = 0;
+		});
+		audio.currentTime = 0;
+		audio.play().catch(() => { });
+	}
+
+	// Consigna oral al entrar (y al cambiar de monstruo): hay comida para darle, o hay que jugar más.
+	useEffect(() => {
+		const actuales = comidasDe(letra);
+		if (estaLleno(actuales)) {
+			return;
+		}
+		decir(actuales.some(({ guardadas }) => guardadas > 0) ? audios.hambre : audios.quiereMas);
+	}, [letra]);
+
+	const sinComidaGuardada = comidas.every(({ guardadas }) => guardadas <= 0);
+	const primeraVez = useRef(true);
+	// Se le dio todo lo guardado y todavía no se llenó: que sepa que tiene que seguir jugando.
+	useEffect(() => {
+		if (primeraVez.current) {
+			primeraVez.current = false;
+			return undefined;
+		}
+		if (!sinComidaGuardada || lleno || vuelos.length > 0) {
+			return undefined;
+		}
+		const timer = runtime.setTimeout(() => decir(audios.quiereMas), 900);
+		return () => runtime.clearTimeout(timer);
+	}, [sinComidaGuardada, lleno, vuelos.length]);
 
 	useEffect(() => {
 		preloadImages([
@@ -87,6 +138,9 @@ export default function MonstruoPage() {
 		}
 		vueloTimers.current.forEach((id) => runtime.clearTimeout(id));
 		vueloTimers.current = [];
+		darTodoTimers.current.forEach((id) => runtime.clearTimeout(id));
+		darTodoTimers.current = [];
+		setDandoTodo(false);
 		setVuelos([]);
 		setEvolucionPendiente(false);
 		setEvolucionando(false);
@@ -122,10 +176,10 @@ export default function MonstruoPage() {
 		};
 	}
 
-	function darAlMonstruo(event, comida) {
-		const boton = event.currentTarget.getBoundingClientRect();
+	function darAlMonstruo(boton, comida) {
+		const actuales = comidasDe(letra);
 		// Si ya estaba evolucionado (comida de prueba) solo come: no vuelve a evolucionar.
-		const quedaLleno = !lleno && comidas.every(({ clave, dadas, necesarias }) => (clave === comida.clave ? dadas + 1 : dadas) >= necesarias);
+		const quedaLleno = !estaLleno(actuales) && actuales.every(({ clave, dadas, necesarias }) => (clave === comida.clave ? dadas + 1 : dadas) >= necesarias);
 		if (quedaLleno) {
 			setEvolucionPendiente(true);
 		}
@@ -169,6 +223,29 @@ export default function MonstruoPage() {
 			audio.play().catch(() => { });
 		}, VUELO_MS);
 		vueloTimers.current.push(timer);
+	}
+
+	// Da todo lo guardado que el monstruo todavía necesita, de a una comida por vez.
+	function darleTodo() {
+		const pendientes = comidasDe(letra).flatMap((comida) => {
+			const cantidad = lleno ? comida.guardadas : Math.min(comida.guardadas, comida.necesarias - comida.dadas);
+			return Array.from({ length: Math.max(0, cantidad) }, () => comida);
+		});
+		if (pendientes.length === 0) {
+			return;
+		}
+		setDandoTodo(true);
+		pendientes.forEach((comida, indice) => {
+			darTodoTimers.current.push(runtime.setTimeout(() => {
+				const boton = document.querySelector(`.monstruo-comida[data-clave="${comida.clave}"]`);
+				if (boton) {
+					darAlMonstruo(boton.getBoundingClientRect(), comida);
+				}
+				if (indice === pendientes.length - 1) {
+					setDandoTodo(false);
+				}
+			}, indice * DAR_TODO_PAUSA_MS));
+		});
 	}
 
 	// Botones de debug (CODIGO_DEBUG): saltean juntar comida y fuerzan el monstruo al tope o a cero.
@@ -235,15 +312,27 @@ export default function MonstruoPage() {
 								key={comida.clave}
 								type="button"
 								className="monstruo-comida"
-								disabled={comida.guardadas <= 0}
+								data-clave={comida.clave}
+								disabled={comida.guardadas <= 0 || dandoTodo}
 								aria-label={`Darle ${comida.nombre} al monstruo (tenés ${comida.guardadas})`}
-								onClick={(event) => darAlMonstruo(event, comida)}
+								onClick={(event) => darAlMonstruo(event.currentTarget.getBoundingClientRect(), comida)}
 							>
 								<span className="monstruo-emoji">{comida.emoji}</span>
 								<span className="monstruo-insignia">{comida.guardadas}</span>
 							</button>
 						))}
 					</div>
+					{!sinComidaGuardada && (
+						<button
+							type="button"
+							className="monstruo-dar-todo"
+							disabled={dandoTodo}
+							aria-label="Darle toda la comida al monstruo"
+							onClick={darleTodo}
+						>
+							<span aria-hidden="true">🍽️</span>
+						</button>
+					)}
 				</section>
 
 				<section className="monstruo-centro" aria-live="polite">
@@ -280,17 +369,20 @@ export default function MonstruoPage() {
 				<section className="monstruo-der" aria-label="Lo que necesita el monstruo">
 					<div className="monstruo-grilla-der">
 						{comidas.map(({ clave, emoji, nombre, dadas, necesarias }) => {
-							const porcentaje = (100 * dadas) / necesarias;
+							const porcentaje = Math.min(100, (100 * dadas) / necesarias);
 							const estaLleno = dadas >= necesarias;
 							return (
-								<div key={clave} className={`monstruo-item-necesita ${estaLleno ? "completa" : ""}`} aria-label={`${nombre}: ${dadas} de ${necesarias}`}>
+								<div key={clave} className={`monstruo-item-necesita ${estaLleno ? "completa" : ""}`} aria-label={`${nombre}: ${Math.min(dadas, necesarias)} de ${necesarias}`}>
 									<div className="monstruo-circulo-progreso" style={{ "--progreso": `${porcentaje}%` }}>
 										<div className="monstruo-circulo-interior">
 											<span className="monstruo-emoji">{emoji}</span>
 										</div>
 									</div>
-									<span className="monstruo-cuenta-pill">
-										{dadas}/{necesarias}
+									{/* Una marca por comida que necesita: sin números, se cuenta mirando. */}
+									<span className="monstruo-marcas" aria-hidden="true">
+										{Array.from({ length: necesarias }, (_, indice) => (
+											<span key={indice} className={indice < dadas ? "monstruo-marca llena" : "monstruo-marca"} />
+										))}
 									</span>
 								</div>
 							);

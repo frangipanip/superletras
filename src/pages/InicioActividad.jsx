@@ -14,6 +14,8 @@ import { useActivityMenuOption } from "../hooks/useActivityMenuOption";
 import { useCarPhysics } from "../hooks/useCarPhysics";
 import { useAyudaError } from "../hooks/useAyudaError";
 import { crearSecuencia, mudo } from "../lib/secuenciaAudio";
+import { marcarCompletada } from "../lib/progreso";
+import { premioPorErrores } from "../../shared/comidas.js";
 import "./actividad.css";
 import "./InicioActividad.css";
 
@@ -430,6 +432,9 @@ export default function InicioActividad() {
 				// La actividad se completa al terminar la fase 3 (carteles en movimiento).
 				if (isPhaseThree && !isMundo2 && !isMundo3 && !isMundo4) {
 					otorgarPremio(errorCount.current);
+				} else if (isPhaseThree && menuOption) {
+					// Mundos 2 a 4: sin comida, pero queda anotada (Mundo 4 destraba Q y CE con esto).
+					marcarCompletada(menuOption, "inicio", premioPorErrores("inicio", errorCount.current));
 				}
 				audios.celebration.onended = () => {
 					audios.celebration.onended = null;

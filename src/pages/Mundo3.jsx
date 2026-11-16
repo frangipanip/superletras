@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useNavigate } from "react-router";
 import CharacterLocator from "../components/CharacterLocator";
 import PufCrema, { PUF_CHARACTER_CLASS } from "../components/PufCrema";
@@ -11,6 +11,8 @@ import { useTalkingMouth } from "../hooks/useTalkingMouth";
 import { useTeleport } from "../hooks/useTeleport";
 import { img, MUNDO3_CHARACTERS, MUNDO3_MOUTH_IMAGES, sound } from "../lib/assets";
 import { STORAGE_KEYS, readStorage, writeStorage } from "../lib/storage";
+import { CAMINOS } from "../lib/caminos";
+import { getProgreso, puntajeDe, subscribeProgreso } from "../lib/progreso";
 import "./Mundo3.css";
 
 const LETTERS = ["R", "RR", "AR", "Y", "LL"];
@@ -127,8 +129,13 @@ export default function Mundo3() {
 		return LETTERS.includes(saved) ? saved : null;
 	});
 	const [savedPerches, setSavedPerches] = useState(readSavedPerches);
+	const progreso = useSyncExternalStore(subscribeProgreso, getProgreso);
+	const isDone = (letter, index) => index < CAMINOS[3].length && puntajeDe(progreso, letter.toLowerCase(), CAMINOS[3][index]) > 0;
+	const nextLetter = LETTERS.find((letter) => CAMINOS[3].some((_, index) => !isDone(letter, index)));
 	const perchIndex = selectedLetter ? (savedPerches[selectedLetter] ?? null) : null;
 	const characterIndex = teleport ? teleport.position : perchIndex;
+	const pathLetter = selectedLetter || LETTERS[0];
+	const nextActivityIndex = CAMINOS[3].findIndex((_, index) => !isDone(pathLetter, index));
 	const [menuPanelVisible, setMenuPanelVisible] = useState(true);
 	const [compactMenuOpen, setCompactMenuOpen] = useState(false);
 	const pageRef = useRef(null);
@@ -357,6 +364,8 @@ export default function Mundo3() {
 								key={`${left}-${top}-${index}`}
 								style={{ left: `${left}%`, top: `${top}%` }}
 							>
+								{visible && index === nextActivityIndex && index !== characterIndex && <span className="camino-siguiente-brillo" aria-hidden="true" />}
+								{visible && isDone(pathLetter, index) && <span className="camino-hecho" aria-hidden="true">✓</span>}
 								<img
 									className="mundo3-path-sign"
 									src={img(VISIBLE_ACTIVITY_SIGNS[index] || ACTIVITY_SIGN_IMAGES[index] || "GLOBOSbtn.png")}
@@ -397,7 +406,7 @@ export default function Mundo3() {
 					<img className="mundo3-menu-image" src={img("menuM3.png")} alt="" draggable={false} />
 					{LETTERS.map((letter, index) => (
 						<button
-							className={`mundo3-letter mundo3-letter-${index + 1}${selectedLetter === letter ? " selected" : ""}`}
+							className={`mundo3-letter mundo3-letter-${index + 1}${selectedLetter === letter ? " selected" : ""}${nextLetter === letter && selectedLetter !== letter ? " menu-letra-siguiente" : ""}`}
 							key={letter}
 							type="button"
 							aria-label={`Seleccionar letra ${letter}`}

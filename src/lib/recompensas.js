@@ -1,4 +1,5 @@
 import { COMIDA_POR_ACTIVIDAD, COMIDA_POR_CLAVE, premioPorErrores } from "../../shared/comidas.js";
+import { marcarCompletada } from "./progreso";
 import { STORAGE_KEYS, readStorage, writeStorage } from "./storage";
 
 // Comidas ganadas en las actividades, por letra. La fuente de verdad es la API (SQLite);
@@ -89,8 +90,13 @@ function encolar(evento) {
 
 // Al completar una actividad. Devuelve { comida, cantidad, score } (cantidad 0 si ya llegó al tope).
 export function otorgarPremio(letra, actividad, errores = 0, cantidadSolicitada) {
+	if (!letra) {
+		return null;
+	}
+	// Completar la actividad se anota aunque el monstruo ya no necesite esa comida.
+	marcarCompletada(letra, actividad, premioPorErrores(actividad, errores, cantidadSolicitada));
 	const comida = COMIDA_POR_ACTIVIDAD[actividad];
-	if (!comida || !letra) {
+	if (!comida) {
 		return null;
 	}
 	const evento = { id: nuevoId(), tipo: "premio", letra, actividad, errores, codigo: state.codigo };

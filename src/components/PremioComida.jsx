@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
+import { siguienteActividad } from "../lib/caminos";
 import { useReiniciarPagina } from "../hooks/useReiniciarPagina";
 import { otorgarPremio } from "../lib/recompensas";
 import "./PremioComida.css";
@@ -22,7 +23,12 @@ export function useRecompensa(actividad, letra) {
 // Modal de fin de actividad que muestra las recompensas obtenidas y botones
 export default function PremioComida({ premio }) {
 	const navigate = useNavigate();
+	const location = useLocation();
 	const reiniciarPagina = useReiniciarPagina();
+	// La actividad que sigue en el camino del mundo (si no está bloqueada).
+	const mundo = location.state?.world || 1;
+	const letra = location.state?.menuOption?.toLowerCase();
+	const siguiente = siguienteActividad(mundo, location.pathname.replace(/^\//, ""), letra);
 
 	if (!premio) {
 		return null;
@@ -48,6 +54,11 @@ export default function PremioComida({ premio }) {
 
 	const handleSalir = () => {
 		navigate(-1);
+	};
+
+	// Reemplaza la actividad en el historial: "volver" desde la siguiente sigue llevando al mundo.
+	const handleSiguiente = () => {
+		navigate(`/${siguiente}`, { replace: true, state: location.state });
 	};
 
 	const items = [];
@@ -81,7 +92,7 @@ export default function PremioComida({ premio }) {
 						<Rayos lado="der" />
 					</div>
 
-					<div className="game-buttons-area">
+					<div className={`game-buttons-area${siguiente ? " game-buttons-area--tres" : ""}`}>
 						<button className="game-button game-button--green" onClick={handleVolver} type="button">
 							<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.6" strokeLinecap="round" strokeLinejoin="round" className="btn-icon"><path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3"></path><path d="M19.6 3.6v4.6h-4.6"></path></svg>
 							<span className="btn-text">VOLVER<br/>A JUGAR</span>
@@ -90,6 +101,12 @@ export default function PremioComida({ premio }) {
 							<svg viewBox="0 0 24 24" fill="currentColor" stroke="none" className="btn-icon"><path d="M12 2.5 1.5 11.5h3.2V21h5.3v-6h4v6h5.3v-9.5h3.2z" /></svg>
 							<span className="btn-text">SALIR</span>
 						</button>
+						{siguiente && (
+							<button className="game-button game-button--orange" onClick={handleSiguiente} type="button" aria-label="Siguiente actividad">
+								<svg viewBox="0 0 24 24" fill="currentColor" stroke="none" className="btn-icon"><path d="M4 5.5v13l8.5-6.5zM12.5 5.5v13l8.5-6.5z" /></svg>
+								<span className="btn-text">SIGUIENTE</span>
+							</button>
+						)}
 					</div>
 				</div>
 			</div>

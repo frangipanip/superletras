@@ -3,13 +3,13 @@
 // "necesarias" es lo que come el monstruo de cada letra: también es el máximo que se
 // puede ganar de esa comida por letra.
 export const COMIDAS = [
-	{ clave: "cerezas", emoji: "🍒", nombre: "Cerezas", actividad: "inicio", necesarias: 9 },
-	{ clave: "confites", emoji: "🍬", nombre: "Confites", actividad: "mariposas", necesarias: 9 },
-	{ clave: "chocolate", emoji: "🍫", nombre: "Chocolate", actividad: "flores", necesarias: 12 },
-	{ clave: "frutillas", emoji: "🍓", nombre: "Frutillas", actividad: "peluches", necesarias: 9 },
-	{ clave: "cucuruchos", emoji: "🍦", nombre: "Cucuruchos", actividad: "tren", necesarias: 9 },
-	{ clave: "galletitas", emoji: "🍪", nombre: "Galletitas", actividad: "dibujar", necesarias: 6 },
-	{ clave: "caramelos", emoji: "🍬", nombre: "Caramelos", actividad: "memotest", necesarias: 6 }
+	{ clave: "cerezas", emoji: "🍒", nombre: "Cerezas", actividad: "inicio", necesarias: 3 },
+	{ clave: "confites", emoji: "🍬", nombre: "Confites", actividad: "mariposas", necesarias: 3 },
+	{ clave: "chocolate", emoji: "🍫", nombre: "Chocolate", actividad: "flores", necesarias: 3 },
+	{ clave: "frutillas", emoji: "🍓", nombre: "Frutillas", actividad: "peluches", necesarias: 3 },
+	{ clave: "cucuruchos", emoji: "🍦", nombre: "Cucuruchos", actividad: "tren", necesarias: 3 },
+	{ clave: "galletitas", emoji: "🍪", nombre: "Galletitas", actividad: "dibujar", necesarias: 3 },
+	{ clave: "caramelos", emoji: "🍬", nombre: "Caramelos", actividad: "memotest", necesarias: 3 }
 ];
 
 export const COMIDA_POR_CLAVE = Object.fromEntries(COMIDAS.map((comida) => [comida.clave, comida]));

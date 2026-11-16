@@ -292,3 +292,61 @@
 		animation: monstruo-vuelo 650ms ease-in forwards;
 	}
 }
+
+/* Progreso de cada comida: una marca por unidad que necesita (sin números). */
+.page-monstruo .monstruo-marcas {
+	display: flex;
+	gap: 0.25rem;
+	margin-top: -0.6rem;
+	padding: 0.2rem 0.4rem;
+	border-radius: 999px;
+	background: #fff9f0;
+	border: 1px solid #e3d7c9;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+	position: relative;
+	z-index: 2;
+}
+
+.page-monstruo .monstruo-marca {
+	width: clamp(0.55rem, 1.8vmin, 0.9rem);
+	aspect-ratio: 1;
+	border-radius: 50%;
+	border: 2px solid #c9b49c;
+	background: #fff;
+}
+
+.page-monstruo .monstruo-marca.llena {
+	border-color: #3fa34d;
+	background: #5cc96a;
+}
+
+/* "Darle todo": un plato grande debajo de las comidas guardadas. */
+.page-monstruo .monstruo-dar-todo {
+	display: grid;
+	place-items: center;
+	width: clamp(4.5rem, 13vmin, 7rem);
+	aspect-ratio: 1;
+	margin-top: clamp(0.8rem, 2.5vmin, 1.5rem);
+	border: 4px solid #fff;
+	border-radius: 50%;
+	background: #ffcf4a;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25);
+	font-size: clamp(2rem, 7vmin, 3.6rem);
+	cursor: pointer;
+	animation: monstruo-dar-todo-latido 1.4s ease-in-out infinite;
+}
+
+.page-monstruo .monstruo-dar-todo:disabled {
+	opacity: 0.5;
+	animation: none;
+}
+
+@keyframes monstruo-dar-todo-latido {
+	0%,
+	100% {
+		transform: scale(1);
+	}
+	50% {
+		transform: scale(1.08);
+	}
+}
