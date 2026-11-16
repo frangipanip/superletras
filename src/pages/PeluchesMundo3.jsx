@@ -114,6 +114,10 @@ function crearRondas(letra) {
 		orden.forEach((consigna) => {
 			// Se prefieren palabras que todavía no aparecieron (ni como acierto ni como error).
 			const opciones = grupo[consigna];
+			// Un sonido con una sola palabra (LLU: lluvia) se pide una vez: repetirlo era acertar de memoria.
+			if (vuelta >= opciones.length) {
+				return;
+			}
 			const nuevas = opciones.filter((palabra) => !usadas.has(palabra));
 			const correcta = shuffle(nuevas.length ? nuevas : opciones)[0];
 			usadas.add(correcta);

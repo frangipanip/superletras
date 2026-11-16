@@ -258,6 +258,9 @@ export default function InicioActividad() {
 	const revealTimer = useRef(0);
 	const introductionActive = useRef(false);
 	const requestedItemIndex = useRef(0);
+	// Carteles que se piden de a uno, en orden. En la Q se piden también CA, CO, CU (mezclados):
+	// si solo se pidieran QUE y QUI, las otras tres quedaban de relleno.
+	const requestOrder = useRef(mode.items);
 	// Carteles equivocados tocados al pedirlos (fases 2 y 3): definen cuántas comidas se ganan.
 	const errorCount = useRef(0);
 	// Mundo 3: en la fase 3 los carros manejan con física (chocan y rebotan sin pisarse).
@@ -297,16 +300,24 @@ export default function InicioActividad() {
 		audios.itemPrompt.onended = null;
 		audios.itemPrompt.pause();
 		audios.itemPrompt.currentTime = 0;
-		Object.values(audios.itemsShort).forEach((itemAudio) => {
+		[...Object.values(audios.itemsShort), ...Object.values(audios.qReviewItems)].forEach((itemAudio) => {
 			itemAudio.onended = null;
 			itemAudio.pause();
 			itemAudio.currentTime = 0;
 		});
 	}
 
+	// Arranca una tanda de pedidos (fase 2 o 3) y pide el primero.
+	function startRequests() {
+		requestOrder.current = isMundo4Q ? shuffle(MUNDO4_Q_ROUND_ITEMS) : mode.items;
+		requestedItemIndex.current = 0;
+		setRequestedItem(requestOrder.current[0]);
+		playRequestedItem(requestOrder.current[0]);
+	}
+
 	function playRequestedItem(item) {
 		stopShortAudios();
-		const itemAudio = audios.itemsShort[item];
+		const itemAudio = audios.itemsShort[item] || audios.qReviewItems[item];
 		setActiveItem(null);
 		startTalking();
 		audios.itemPrompt.onended = () => {
@@ -383,7 +394,7 @@ export default function InicioActividad() {
 			setActivitySelectedItems((current) => new Set(current).add(item));
 			setActiveItem(item);
 			stopTalking();
-			if (requestedItemIndex.current >= mode.items.length - 1) {
+			if (requestedItemIndex.current >= requestOrder.current.length - 1) {
 				setRequestedItem(null);
 				setActiveItem(null);
 				if (isMundo4Q) {
@@ -416,7 +427,7 @@ export default function InicioActividad() {
 			requestedItemIndex.current += 1;
 			setRequestedItem(null);
 			runtime.setTimeout(() => {
-				const nextItem = mode.items[requestedItemIndex.current];
+				const nextItem = requestOrder.current[requestedItemIndex.current];
 				setRequestedItem(nextItem);
 				playRequestedItem(nextItem);
 			}, 180);
@@ -474,11 +485,6 @@ export default function InicioActividad() {
 		}
 		startTalking();
 		audios.movement.currentTime = 0;
-		const startRequests = () => {
-			requestedItemIndex.current = 0;
-			setRequestedItem(mode.items[0]);
-			playRequestedItem(mode.items[0]);
-		};
 		audios.movement.onended = () => {
 			audios.movement.onended = null;
 			stopTalking();
@@ -495,7 +501,7 @@ export default function InicioActividad() {
 		setIsPhaseTwo(true);
 		startTalking();
 		audios.shuffle.currentTime = 0;
-		const startRequests = () => {
+		const shuffleAndRequest = () => {
 			const roundItems = isMundo4Q ? MUNDO4_Q_ROUND_ITEMS : mode.items;
 			setSelectedItems(new Set());
 			setItemOrder(shuffle(roundItems));
@@ -505,21 +511,19 @@ export default function InicioActividad() {
 			setIsShuffling(true);
 			shuffleTimer.current = runtime.setTimeout(() => {
 				setIsShuffling(false);
-				requestedItemIndex.current = 0;
 				setActivitySelectedItems(new Set());
-				setRequestedItem(mode.items[0]);
-				playRequestedItem(mode.items[0]);
+				startRequests();
 			}, 1200);
 		};
 		audios.shuffle.onended = () => {
 			audios.shuffle.onended = null;
 			stopTalking();
-			startRequests();
+			shuffleAndRequest();
 		};
 		audios.shuffle.play().catch(() => {
 			audios.shuffle.onended = null;
 			stopTalking();
-			startRequests();
+			shuffleAndRequest();
 		});
 	}
 

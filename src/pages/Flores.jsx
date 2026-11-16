@@ -10,7 +10,7 @@ import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
 import { img, MUNDO2_MOUTH_IMAGES, MUNDO3_MOUTH_IMAGES, MUNDO4_CHARACTER_FRAMES, MUNDO4_MOUTH_IMAGES, sound } from "../lib/assets";
 import { shuffle } from "../lib/shuffle";
-import { createMundo4IncorrectSyllables, MUNDO4_SYLLABLES } from "../lib/mundo4";
+import { createMundo4IncorrectSyllables, MUNDO4_CONTRASTE, MUNDO4_SYLLABLES } from "../lib/mundo4";
 import { useActivityMenuOption } from "../hooks/useActivityMenuOption";
 import "./actividad.css";
 import "./Flores.css";
@@ -51,10 +51,14 @@ const MUNDO4_SEAHORSE_RESULTS = {
 // Mundo 1: un chupetín de cada color por ronda (los 4 tienen el mismo lienzo y las mismas medidas).
 const CANDY_IMAGES = ["violeta", "rosa", "amarillo", "celeste"].map((color) => img(`chupetin-${color}.png`));
 const MUNDO3_ANIMALS = ["conejo", "flamenco", "gato", "jirafa"];
-const TOTAL_ACTIVITIES = 5;
+// YI casi no existe en palabras: se presenta en Inicio pero no se practica.
+const SILABAS_SIN_PRACTICA = ["YI"];
 
 function getAudioFileName(label, isMundo2, isMundo3, isMundo4) {
 	const upper = label.toUpperCase();
+	// Los archivos de S y T están en mayúscula (menos te.mp3); en el servidor el nombre es exacto.
+	if (upper === "TE") return "te.mp3";
+	if (/^[ST][AEIOU]$/.test(upper)) return `${upper}.mp3`;
 	if (isMundo2 || isMundo3 || isMundo4) return `${upper.toLowerCase()}.mp3`;
 	if (["A", "E", "I", "O", "U"].includes(upper)) return `${upper.toLowerCase()}.mp3`;
 	if (["LA", "LE", "LI", "LO", "LU"].includes(upper)) return `${upper.toLowerCase()}.mp3`;
@@ -129,8 +133,14 @@ export default function Flores() {
 		};
 	}, [character, isMundo4, runtime]);
 
+	// Sílabas que se piden (una por ronda). En CE y Q de Mundo 4 se mezclan con CA, CO, CU.
+	const practiceSyllables = mode === "a"
+		? VOWELS
+		: (isMundo4 && MUNDO4_CONTRASTE[mode]) || syllables[mode].filter((item) => !SILABAS_SIN_PRACTICA.includes(item));
+	const mixedContrast = isMundo4 && Boolean(MUNDO4_CONTRASTE[mode]);
+
 	if (game.current.instructionOrder.length === 0) {
-		game.current.instructionOrder = shuffle(mode !== "a" ? syllables[mode] : VOWELS);
+		game.current.instructionOrder = shuffle(practiceSyllables);
 	}
 
 	function audioPath(label) {
@@ -181,11 +191,9 @@ export default function Flores() {
 
 	function buildFlowers(activityIndex = game.current.activityIndex) {
 		const target = game.current.instructionOrder[activityIndex];
-		const incorrect = isMundo4
+		const incorrect = isMundo4 && !mixedContrast
 			? createMundo4IncorrectSyllables(mode)
-			: mode !== "a"
-				? shuffle(syllables[mode].filter((item) => item !== target)).slice(0, 3)
-				: shuffle(VOWELS.filter((item) => item !== target)).slice(0, 3);
+			: shuffle(practiceSyllables.filter((item) => item !== target)).slice(0, 3);
 		const labels = shuffle([target, ...incorrect]);
 		const candyImages = shuffle(CANDY_IMAGES);
 		const horseColors = shuffle(["amarillo", "amarillo", "celeste", "celeste"]);
@@ -238,7 +246,7 @@ export default function Flores() {
 		finishCelebration();
 		game.current.activityIndex = 0;
 		game.current.errors = 0;
-		game.current.instructionOrder = shuffle(mode !== "a" ? syllables[mode] : VOWELS);
+		game.current.instructionOrder = shuffle(practiceSyllables);
 		game.current.transitionPending = false;
 		buildFlowers(0);
 	}
@@ -332,7 +340,7 @@ export default function Flores() {
 				if (roundRef.current.activityIndex !== completedIndex) {
 					return;
 				}
-				if (completedIndex + 1 >= (isMundo4 ? syllables[mode].length : TOTAL_ACTIVITIES)) {
+				if (completedIndex + 1 >= game.current.instructionOrder.length) {
 					startCelebration();
 					return;
 				}

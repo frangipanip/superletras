@@ -51,7 +51,10 @@ const MUNDO3_SYLLABLES = {
 	ll: ["LLA", "LLE", "LLI", "LLO", "LLU"]
 };
 const MUNDO3_INCORRECT_SYLLABLES = [...SYLLABLES.l, ...SYLLABLES.m, ...SYLLABLES.s, ...SYLLABLES.t];
-const MUNDO3_EXTRA_INCORRECT_SYLLABLES = ["RRA", "RRE", "RRI", "RRO", "RRU"];
+// R fuerte y R suave se usan entre sí como equivocadas: oír esa diferencia es lo difícil.
+const MUNDO3_CONTRASTE = { rr: MUNDO3_SYLLABLES.ar, ar: MUNDO3_SYLLABLES.rr };
+// YI casi no existe en palabras: se presenta en Inicio pero no se practica.
+const SILABAS_SIN_PRACTICA = ["YI"];
 const MUNDO3_SYLLABLE_AUDIO = {
 	SA: "SA.mp3",
 	SE: "SE.mp3",
@@ -166,12 +169,14 @@ function createButterflies(mode, targetValue, generation, syllableModes = SYLLAB
 	}
 
 	if (isMundo3) {
-		const correctSyllables = syllableModes[mode];
-		const incorrectPool = mode === "ar"
-			? [...MUNDO3_INCORRECT_SYLLABLES, ...MUNDO3_EXTRA_INCORRECT_SYLLABLES]
-			: MUNDO3_INCORRECT_SYLLABLES;
+		const correctSyllables = syllableModes[mode].filter((item) => !SILABAS_SIN_PRACTICA.includes(item));
+		const incorrectPool = MUNDO3_CONTRASTE[mode] || MUNDO3_INCORRECT_SYLLABLES;
 		const incorrectSyllables = shuffle(incorrectPool).slice(0, TOTAL_BUTTERFLIES - TOTAL_CORRECT);
-		shuffle([...correctSyllables, ...incorrectSyllables]).forEach((label, index) =>
+		// Si quedan menos de cinco (la Y sin YI), se repite alguna para llegar a los cinco bloques.
+		const correct = Array.from({ length: TOTAL_CORRECT }, (_, index) =>
+			correctSyllables[index % correctSyllables.length]
+		);
+		shuffle([...correct, ...incorrectSyllables]).forEach((label, index) =>
 			addItem(label, correctSyllables.includes(label), index)
 		);
 	} else if (isMundo4) {
