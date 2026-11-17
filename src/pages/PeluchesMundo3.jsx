@@ -75,9 +75,6 @@ const AUDIOS_R_SUAVE = {
 // Cada sonido se pide dos veces (con imágenes distintas), como en los otros mundos.
 const VUELTAS = 2;
 
-const textoDe = (id) => ACENTOS[id] || id;
-const imagenDe = (id) => img(`peluches/MUNDO3/${id}.png`);
-const FONDO = img("peluches/MUNDO3/fondo.jpg");
 
 // Lado (0 izquierda, 1 derecha) del correcto en cada ronda: mitad y mitad, sin más de dos seguidos.
 function ladosAlternados(cantidad) {
@@ -99,8 +96,7 @@ function ladosAlternados(cantidad) {
 	return lados;
 }
 
-function crearRondas(letra) {
-	const grupo = GRUPOS[letra];
+function crearRondas(grupo) {
 	const consignas = Object.keys(grupo);
 	const usadas = new Set();
 	const sinOrden = [];
@@ -137,14 +133,13 @@ function crearRondas(letra) {
 }
 
 // Sonido de la palabra dentro del grupo (puede estar en el medio: "guitaRRA", "ciRUela").
-function sonidoDe(letra, id) {
-	return Object.keys(GRUPOS[letra]).find((consigna) => GRUPOS[letra][consigna].includes(id));
+function sonidoDe(grupo, id) {
+	return Object.keys(grupo).find((consigna) => grupo[consigna].includes(id));
 }
 
 // Palabra con el sonido resaltado. Las tildes no cambian el largo, así que el índice sirve en el texto.
-function PalabraResaltada({ letra, id }) {
-	const texto = textoDe(id);
-	const sonido = sonidoDe(letra, id);
+function PalabraResaltada({ grupo, id, texto }) {
+	const sonido = sonidoDe(grupo, id);
 	const inicio = sonido ? id.indexOf(sonido) : -1;
 	if (inicio < 0) {
 		return texto;
@@ -160,20 +155,42 @@ function PalabraResaltada({ letra, id }) {
 }
 
 export default function PeluchesMundo3() {
-	usePageTitle("Peluches - Mundo 3");
+	return (
+		<PeluchesPlataformas
+			titulo="Peluches - Mundo 3"
+			grupos={GRUPOS}
+			acentos={ACENTOS}
+			carpeta="MUNDO3"
+			letraPorDefecto="r"
+			mouthImages={MUNDO3_MOUTH_IMAGES}
+			consignaAudio={(letra, consigna) => (letra === "ar" ? AUDIOS_R_SUAVE[consigna] : `${consigna}.mp3`)}
+			usaContiene={(letra) => letra === "rr" || letra === "ar"}
+		/>
+	);
+}
+
+// Escenario de dos plataformas con un dibujo cada una (Mundos 3 y 4): cada mundo pone sus grupos
+// de palabras, su carpeta (imagenes/peluches/<carpeta>/ con fondo.jpg y sonido/<personaje>/peluche/<carpeta>/)
+// y si la consigna es "contiene" (el sonido puede estar en el medio de la palabra).
+export function PeluchesPlataformas({ titulo, grupos, acentos = {}, carpeta, letraPorDefecto, mouthImages, consignaAudio, usaContiene, className = "" }) {
+	usePageTitle(titulo);
 	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
-	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime, MUNDO3_MOUTH_IMAGES);
+	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime, mouthImages);
 	const menuOption = useActivityMenuOption();
-	const [letra] = useState(() => (Object.prototype.hasOwnProperty.call(GRUPOS, menuOption || "") ? menuOption : "r"));
-	const [rondas] = useState(() => crearRondas(letra));
+	const [letra] = useState(() => (Object.prototype.hasOwnProperty.call(grupos, menuOption || "") ? menuOption : letraPorDefecto));
+	const grupo = grupos[letra];
+	const [rondas] = useState(() => crearRondas(grupo));
+	const textoDe = (id) => acentos[id] || id;
+	const imagenDe = (id) => img(`peluches/${carpeta}/${id}.png`);
+	const FONDO = img(`peluches/${carpeta}/fondo.jpg`);
 	const { activity, activityIndex, acertada, vibrating, premio, pista, elegir, escucharPalabra, repetirConsigna } = usePeluchesJuego({
 		runtime,
 		letra,
 		rondas,
-		consignaAudio: (consigna) => (letra === "ar" ? AUDIOS_R_SUAVE[consigna] : `${consigna}.mp3`),
-		palabraAudio: (id) => `peluche/MUNDO3/${id}.mp3`,
-		instructionAudioFile: letra === "rr" || letra === "ar" ? "pulsacontiene.mp3" : undefined,
+		consignaAudio: (consigna) => consignaAudio(letra, consigna),
+		palabraAudio: (id) => `peluche/${carpeta}/${id}.mp3`,
+		instructionAudioFile: usaContiene(letra) ? "pulsacontiene.mp3" : undefined,
 		startTalking,
 		stopTalking
 	});
@@ -183,7 +200,7 @@ export default function PeluchesMundo3() {
 	}, [rondas]);
 
 	return (
-		<div className="page activity-page page-peluches-m3">
+		<div className={`page activity-page page-peluches-m3 ${className}`.trim()}>
 			<BackButton />
 			<FullscreenButton toggle />
 			{/* Escenario con las proporciones del fondo (1600x883): todo se ubica en % sobre él. */}
@@ -223,7 +240,7 @@ export default function PeluchesMundo3() {
 							onClick={() => escucharPalabra(option.id)}
 							aria-label={`Escuchar ${texto}`}
 						>
-							<PalabraResaltada letra={letra} id={option.id} />
+							<PalabraResaltada grupo={grupo} id={option.id} texto={texto} />
 						</button>
 					];
 				})}

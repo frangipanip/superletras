@@ -13,7 +13,7 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 | 3 | Camino a palabras visible y corto | 3.74.0 | ✅ Hecha (commit `aae8b42`), en dev; 3.74.1 saca el bloqueo de Q y CE |
 | 4 | Consigna oral en todas las pantallas e íconos | 3.75.0 | ✅ Hecha, salvo dos puntos (ver abajo) |
 | 5 | Palabras: segunda vuelta sin modelo y cierre | 3.76.0 | ✅ Hecha |
-| 6 | Peluches en Mundo 4 | 3.77.0 | ⏳ Pendiente: faltan los dibujos |
+| 6 | Peluches en Mundo 4 | 3.77.0 | ✅ Hecha |
 | 7 | Mundo 5: G, GE, GUE, J, GÜE | 3.78.0 | ⏳ Pendiente: faltan los dibujos y los fondos |
 | 8 | Mundo 6: B, V, Ñ, K, X | 3.79.0 | ⏳ Pendiente: faltan los dibujos |
 | 9 | Tramo de oraciones | 3.80.0 | ⏳ Pendiente: faltan los dibujos |
@@ -21,8 +21,7 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 ## Recursos
 
 - **Audios**: los 143 de la lista (`descargas/lista-audios.tsv`) están generados con ElevenLabs e instalados en `public/assets/sonido/supernena` (Malena) y `supernene` (Dante), incluidos los de las fases 4 a 9. `acierto.mp3` es común a las dos voces y está en `sonido/`.
-- **Dibujos y fondos**: falta generarlos (chatgpt.com). Hacen falta para las fases 6 a 9 y para el cartel "ARA" de Mundo 3 (fase 4):
-  - `imagenes/peluches/MUNDO4/`: unas 25 palabras (casa, cama, copa, conejo, cuna, cubo, queso, paquete, mosquito, máquina, cebra, cepillo, cine, cinta, zapato, taza, zorro, pozo, azul, chancho, leche, chocolate, ocho, chupete, lechuza).
+- **Dibujos y fondos**: se generan en chatgpt.com en láminas de 6 (3x2, fondo blanco), se copian con el botón "Copiar imagen" (sin descargas) y se recortan con un script (fondo transparente, 300 px). Ya están los de Mundo 4 (`imagenes/peluches/MUNDO4/`, con `fondo.jpg` submarino). Faltan para las fases 7 a 9 y el cartel "ARA" de Mundo 3 (fase 4):
   - `imagenes/peluches/MUNDO5/`: unas 20 palabras, más el fondo y las criaturas robot de cada actividad.
   - `imagenes/peluches/MUNDO6/`: unas 22 palabras.
   - `imagenes/oraciones/`: un dibujo por oración (6).
@@ -72,6 +71,13 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 - Puzzle: en la vuelta 2 los casilleros no muestran la letra.
 - Escribir: seis palabras; en la vuelta 2 la palabra se ve 3 s y después "Ahora sin mirar".
 - Probado en el navegador: Barcos completo. Pastel, Puzzle, Escribir (vuelta 2) y Decora (premio) compilan pero no los recorrí hasta el final.
+
+### Fase 6 — Peluches en Mundo 4 (3.77.0)
+- `PeluchesMundo4.jsx` usa el mismo escenario de dos plataformas que Mundo 3 (`PeluchesPlataformas`, exportado desde `PeluchesMundo3.jsx`) con fondo submarino propio.
+- Consigna "contiene" y sílaba resaltada en la palabra: C (CA, CO, CU), CE (CE, CI), Q (QUE, QUI), Z (ZA, ZO, ZU) y CH (CHA, CHE, CHO, CHU). El dibujo equivocado es de otro sonido de la misma letra, nunca uno que suene igual.
+- 25 palabras con dibujo y audio. ZU, CHA y CHE tienen una sola palabra: se piden una vez.
+- Cartel de Peluches habilitado en el camino de Mundo 4 y marcado en el progreso; "siguiente actividad" llega hasta Peluches.
+- Probado en el navegador: CH completo hasta el premio, sin audios ni dibujos faltantes; Peluches de Mundo 3 sigue igual.
 
 **Quedó pendiente de la fase 4:**
 - Explicación de la Q "partida en dos con un toque en el medio" en Inicio (animación nueva).

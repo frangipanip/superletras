@@ -31,6 +31,8 @@ const LETTER_SOUNDS = {
 	CH: "suenaCH.mp3"
 };
 const CHARACTER_FRAME_DURATION = 375;
+// Inicio, Peces, Caballitos y Peluches.
+const ACTIVIDADES_ABIERTAS = 4;
 const ACTIVITY_SIGN_IMAGES = [
 	"INICIALESbtn.png",
 	"MARIPOSAbtn.png",
@@ -70,7 +72,7 @@ function readSavedPerches() {
 	try {
 		const saved = JSON.parse(readStorage(STORAGE_KEYS.mundo4Perches) || "{}");
 		return Object.fromEntries(Object.entries(saved).filter(([letter, index]) =>
-			LETTERS.includes(letter) && Number.isInteger(index) && index >= 0 && index < 3 && PATH_BUTTONS[index]
+			LETTERS.includes(letter) && Number.isInteger(index) && index >= 0 && index < ACTIVIDADES_ABIERTAS && PATH_BUTTONS[index]
 		));
 	} catch {
 		return {};
@@ -105,7 +107,7 @@ export const MUNDO4_IMAGES = [
 	...MUNDO4_MOUTH_IMAGES
 ];
 
-const ACTIVIDADES_M4 = ["inicio", "mariposas", "flores"];
+const ACTIVIDADES_M4 = ["inicio", "mariposas", "flores", "peluches"];
 
 export default function Mundo4() {
 	usePageTitle("Mundo 4");
@@ -263,14 +265,14 @@ export default function Mundo4() {
 	}
 
 	function openActivity(index) {
-		if (teleport || index < 0 || index > 2 || !PATH_BUTTONS[index]) return;
+		if (teleport || index < 0 || index >= ACTIVIDADES_ABIERTAS || !PATH_BUTTONS[index]) return;
 		const letter = selectedLetter || LETTERS[0];
 		setSelectedLetter(letter);
 		writeStorage(STORAGE_KEYS.mundo4MenuOption, letter);
 		const nextPerches = { ...savedPerches, [letter]: index };
 		setSavedPerches(nextPerches);
 		writeStorage(STORAGE_KEYS.mundo4Perches, JSON.stringify(nextPerches));
-		const activityPath = ["/inicio", "/mariposas", "/flores"][index];
+		const activityPath = ["/inicio", "/mariposas", "/flores", "/peluches"][index];
 		const goToActivity = () => navigate(activityPath, {
 			state: { world: 4, menuOption: letter }
 		});
@@ -391,7 +393,7 @@ export default function Mundo4() {
 				<div className="mundo4-path" aria-label="Camino de actividades">
 					{PATH_BUTTONS.map(([left, top], index) => (
 						<div
-							className={`mundo4-path-activity${index > 2 ? " mundo4-path-activity-hidden" : ""}`}
+							className={`mundo4-path-activity${index >= ACTIVIDADES_ABIERTAS ? " mundo4-path-activity-hidden" : ""}`}
 							key={`${left}-${top}-${index}`}
 							style={{ left: `${left}%`, top: `${top}%` }}
 						>
@@ -399,16 +401,18 @@ export default function Mundo4() {
 							{isActivityDone(index) && <span className="camino-hecho" aria-hidden="true">✓</span>}
 							<img className="mundo4-path-sign" src={img(ACTIVITY_SIGN_IMAGES[index] || "GLOBOSbtn.png")} alt="" draggable={false} />
 							<button
-								className={`mundo4-path-button path-letter-${(selectedLetter || LETTERS[0]).toLowerCase()}${index < 3 ? " is-available" : ""}`}
+								className={`mundo4-path-button path-letter-${(selectedLetter || LETTERS[0]).toLowerCase()}${index < ACTIVIDADES_ABIERTAS ? " is-available" : ""}`}
 								type="button"
-								disabled={index > 2 || Boolean(teleport)}
+								disabled={index >= ACTIVIDADES_ABIERTAS || Boolean(teleport)}
 								aria-label={index === 0
 									? "Iniciar actividad de sílabas"
 									: index === 1
 										? "Iniciar actividad de sílabas con peces"
 										: index === 2
 											? "Iniciar actividad de sílabas con caballitos de mar"
-											: `Actividad del camino ${index + 1}, próximamente`}
+											: index === 3
+												? "Iniciar actividad de palabras con peluches"
+												: `Actividad del camino ${index + 1}, próximamente`}
 								onClick={() => openActivity(index)}
 							>
 								<img src={img("boton.svg")} alt="" draggable={false} />
