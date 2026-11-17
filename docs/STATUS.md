@@ -6,9 +6,10 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 
 ## Punto de retoma
 
-- **Pedidos nuevos (17/11/2026)**: diez mensajes del usuario después de probar 3.85.1 en dev, más tres sobre las escenas de Peluches. Están planificados como fases 10 a 15 en [PLAN.md](PLAN.md#ajustes-de-la-prueba-del-17112026-fases-10-a-15); no hay nada implementado todavía. Plan registrado en 3.85.2 (solo documentación).
-- **Avance**: cada fase cerrada se mergea a `develop` y se sube para verla en dev (pedido del 17/11/2026). Fases 10 (3.86.0), 11 (3.87.0), 12 (3.87.1), 13 (3.88.0) y 14 (3.89.0) hechas; de la 15, Mundo 2 (3.90.0). Los tres audios nuevos de las fases 10, 12 y 14 ya están en las dos voces.
-- **Próximo paso**: fase 15 en Mundos 3 a 6. Falta el arte (fondos sin hamacas, hamacas sueltas y cofres de Mundo 4) y decidir con qué herramienta generarlo; hasta entonces esos mundos siguen con 6 rondas de dos dibujos. Las decisiones pendientes siguen la propuesta mientras no se diga otra cosa; la fase 15 necesita fondos y soportes nuevos para Mundos 3 a 6.
+- **Pedidos nuevos (17/11/2026)**: diez mensajes del usuario después de probar 3.85.1 en dev, más tres sobre las escenas de Peluches. Están planificados como fases 10 a 15 en [PLAN.md](PLAN.md#ajustes-de-la-prueba-del-17112026-fases-10-a-15). Plan registrado en 3.85.2 (solo documentación); implementadas en 3.86.0 a 3.91.0.
+- **Avance**: cada fase cerrada se mergea a `develop` y se sube para verla en dev (pedido del 17/11/2026). Fases 10 (3.86.0), 11 (3.87.0), 12 (3.87.1), 13 (3.88.0), 14 (3.89.0) y 15 (Mundo 2 en 3.90.0; Mundos 3 a 6 en 3.91.0) hechas. Los tres audios nuevos de las fases 10, 12 y 14 ya están en las dos voces.
+- **Próximo paso**: las fases 10 a 15 están hechas y en dev. Falta la prueba del usuario en dispositivos reales y confirmar las decisiones 2 a 6 (siguen la propuesta mientras no se diga otra cosa).
+- **Imágenes nuevas**: desde el 17/11/2026 se hacen con ChatGPT en el Chrome del usuario y se guardan sin diálogos ni descargas (pasos en `PROCESS.md`, "Imágenes nuevas").
 - **Entrega funcional publicada en dev**: 3.85.0, commit `b4cb081`, mergeado y subido a `develop`; despliegue de GitHub Actions `44131620057` completado correctamente y `/version.json` confirmado en 3.85.0. Incluye Tren en todos los mundos, Mundo 5 completo, Q/ARA y Oraciones. Producción (`master`) no se modificó.
 - **Versión de cierre documental**: 3.85.1, actualización de este estado y de la versión visible. Los commits funcionales por fase son `a7f79eb` (Tren, 3.82.0), `ac28392` (Mundo 5, 3.83.0), `d814ec2` (Q/ARA, 3.84.0) y `b4cb081` (Oraciones, 3.85.0); la documentación previa está en `0115e10`.
 - **Pendiente de antes**: revisión con personas de pronunciación, ritmo, tacto y encuadres en dispositivos reales; recuperar el arte de trenes elegido anteriormente. Las implementaciones pendientes de fases 4, 7 y 9 y la ampliación del Tren están completas. Las pruebas humanas y los recorridos de fase 5 señalados abajo siguen pendientes.
@@ -44,7 +45,7 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 | 12 | Ositos en una ronda, Dibujar sigue a la vocal siguiente, parlante de Flores M2 | 3.87.1 | ✅ Hecha |
 | 13 | Monstruo que brilla con comida para dar | 3.88.0 | ✅ Hecha |
 | 14 | Memotest de letra y dibujo | 3.89.0 | ✅ Hecha |
-| 15 | Peluches de Mundos 2 a 6 con tres dibujos: soportes separados del fondo | 3.90.0 | 🟡 Mundo 2 hecho (3.90.0); Mundos 3 a 6 esperan el arte nuevo |
+| 15 | Peluches de Mundos 2 a 6 con tres dibujos: soportes separados del fondo | 3.90.0 y 3.91.0 | ✅ Hecha: Mundo 2 (3.90.0), hamacas de Mundos 3, 5 y 6 y cofres de Mundo 4 (3.91.0) |
 
 ## Pedidos del 17/11/2026
 
@@ -82,7 +83,7 @@ Origen: diez mensajes del usuario del 17/11/2026, después de probar 3.85.1 en d
 | `dibujarAhora.mp3` | Ahora dibujá la letra: | 12 |
 | `memotestDibujos.mp3` | Buscá la carta escrita y el dibujo que empieza igual. Tocá una y después otra. | 14 |
 
-**Dibujos nuevos** (fase 15, editando los fondos actuales para conservar el estilo; prompts en `docs/arte/peluches-soportes-prompts.json`)
+**Dibujos nuevos** (fase 15, hechos con ChatGPT editando los fondos actuales para conservar el estilo; prompts en `docs/arte/peluches-soportes-prompts.json`). Todos integrados en 3.91.0; el cartel de la consigna de Mundo 4 quedó pintado en el fondo, colgado de algas, en lugar de ser una pieza aparte.
 
 | Mundo | Fondo | Soporte suelto (PNG transparente) |
 |---|---|---|
@@ -97,9 +98,17 @@ ABEJA para Memotest solo si se elige la alternativa 5.
 ## Recursos
 
 - **Audios**: los 143 de la lista (`descargas/lista-audios.tsv`) están generados con ElevenLabs e instalados en `public/assets/sonido/supernena` (Malena) y `supernene` (Dante), incluidos los de las fases 4 a 9. `acierto.mp3` es común a las dos voces y está en `sonido/`.
-- **Dibujos y fondos**: la producción anterior usó ChatGPT y láminas de seis dibujos; la ampliación actual usa `imagegen` con referencias existentes y piezas transparentes. Ya están los recursos de Mundos 4, 5 y 6, los trenes de todos los mundos, los robots de sílabas, el cartel ARA y las seis escenas de Oraciones con su fondo. Prompts y rutas de los recursos nuevos en `docs/arte/`. Sigue pendiente recuperar el arte de trenes elegido en la conversación anterior para compararlo con el nuevo integrado.
+- **Dibujos y fondos**: la producción anterior usó ChatGPT y láminas de seis dibujos; la ampliación de los trenes, robots, ARA y Oraciones usó `imagegen` con referencias existentes y piezas transparentes. Desde la fase 15 se vuelve a ChatGPT (decisión del 17/11/2026, ver `PROCESS.md`). Ya están los recursos de Mundos 4, 5 y 6, los trenes de todos los mundos, los robots de sílabas, el cartel ARA y las seis escenas de Oraciones con su fondo. Prompts y rutas de los recursos nuevos en `docs/arte/`. Sigue pendiente recuperar el arte de trenes elegido en la conversación anterior para compararlo con el nuevo integrado.
 
 ## Hecho
+
+### Fase 15 (parte 2) — Peluches de Mundos 3 a 6 con hamacas y cofres sueltos (3.91.0)
+- Arte con ChatGPT (primera vez con el método nuevo de `PROCESS.md`, "Imágenes nuevas"): fondos de Mundos 3, 5 y 6 sin hamacas (quedan la viga y el cartel), fondo de Mundo 4 sin viga ni hamacas (el cartel de la consigna sigue en el mismo lugar, colgado de algas), hamacas sueltas en PNG transparente (sogas violetas y asiento de bloques, cadenas y asiento robot, cintas arcoíris y nube dorada) y cofre abierto de nácar para Mundo 4. Prompts en `docs/arte/peluches-soportes-prompts.json`. Los fondos conservan la composición: el cartel de la consigna no se movió.
+- `PeluchesPlataformas` recibe el `soporte` de cada mundo (imagen, proporción, caja del dibujo y del cartel) y pone uno por dibujo según la ronda: dos (41 y 71.5 % del escenario) o tres (37.5, 60 y 82.5 %). El tamaño sale del alto buscado, con un ancho máximo. `CON_TRES = true`: rondas 1 y 2 con dos dibujos y 3 a 6 con tres.
+- Hamacas: bajan al aparecer y se balancean desde el enganche con un vaivén que se frena (2.4 s); el dibujo, la palabra y el parlante van adentro de la hamaca y se pueden tocar mientras se mueve. Al pasar a tres, las dos que estaban se corren y se achican, y baja la tercera. En cada ronda vuelven a balancearse con el dibujo nuevo.
+- Cofres: aparecen con un salto y el dibujo sale de adentro (la pared de adelante del cofre se dibuja otra vez encima del dibujo). En pantallas bajas, donde el escenario es más alto que la pantalla, el cofre sube para que su cartel quede a la vista.
+- Chromium (`descargas/probar-peluches.mjs`): RR, LL e Y (Mundo 3), CH y Z (Mundo 4), GÜ y G (Mundo 5), Ñ y B (Mundo 6), con las dos voces y en 1138 × 712, 1024 × 768, 844 × 390 y 667 × 375, hasta el premio y sin recursos faltantes. Rondas 2-2-3-3-3-3 donde el grupo alcanza; Z, G, Ñ y B tienen 5 rondas y GÜ 2, como antes, por las pocas palabras.
+- Pendiente del usuario: ver el balanceo y el tacto en una tablet real.
 
 ### Fase 15 (parte 1) — Peluches de Mundo 2 con tres dibujos (3.90.0)
 - Rondas 1 y 2 con dos dibujos y 3 a 6 con tres (`CON_TRES = true` en `PeluchesMundo2.jsx`).
@@ -133,7 +142,7 @@ ABEJA para Memotest solo si se elige la alternativa 5.
 - Peluches de Mundo 1 (`Iniciales.jsx`) pasa al motor compartido `usePeluchesJuego`, como los otros mundos. Ya no nombra los dibujos al aparecer.
 - Mientras suena la consigna, los dibujos y los parlantes no responden y se ven apagados (`peluches-esperando`); se encienden al terminar. Entre rondas también quedan apagados hasta la consigna nueva (en Mundo 2, mientras aparecen).
 - Parlante junto a cada palabra (`.palabra-parlante`, `IconoParlante`) en los seis mundos; en la primera ronda la consigna agrega `tocaParlante.mp3` (nuevo, dos voces) en lugar de `apetaeltexto.mp3`.
-- Rondas (`src/lib/peluchesRondas.js`): 6 pedidos, cada sonido al menos una vez, nunca el mismo seguido, el correcto repartido entre los lugares. Mundo 1: 2 de dos dibujos + 4 de tres. Mundos 2 a 6: hasta 6 de dos dibujos (menos si el grupo tiene pocas palabras: GÜ tiene 2) hasta la fase 15. MOÑO sigue contra MONO.
+- Rondas (`src/lib/peluchesRondas.js`): 6 pedidos, cada sonido al menos una vez, nunca el mismo seguido, el correcto repartido entre los lugares. Mundo 1: 2 de dos dibujos + 4 de tres. Mundos 2 a 6: hasta 6 de dos dibujos (menos si el grupo tiene pocas palabras: GÜ tiene 2) hasta la fase 15; desde la fase 15 (3.90.0 y 3.91.0), también 2 de dos y el resto de tres. MOÑO sigue contra MONO.
 - Banco y audios de Mundo 1 en `src/lib/peluchesMundo1.js` (para Memotest en la fase 14). En celulares de 667 px los tres dibujos se corren para que el personaje no tape el tercero.
 - Chromium (`descargas/probar-peluches.mjs`): 18 recorridos hasta el premio (vocales, L, S, P, RR, LL, CH, GÜ y Ñ, con las dos voces), en 1138 × 712, 844 × 390 y 667 × 375. Toque y parlante durante la consigna sin efecto, ningún dibujo nombrado solo, `tocaParlante` solo en la primera ronda, parlante sin contar como respuesta, sin recursos faltantes ni audios superpuestos. Capturas en `descargas/pruebas-peluches/`.
 

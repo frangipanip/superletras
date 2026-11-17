@@ -36,6 +36,20 @@ const ACENTOS = {
 	maquina: "máquina"
 };
 
+// Cofres abiertos en la arena (en lugar de hamacas): el dibujo sale de adentro y la palabra va en el
+// cartel del frente. Medidas en fracciones de la imagen (ver PeluchesPlataformas); la pared de adelante
+// (desde `frente`) se dibuja otra vez por encima del dibujo.
+const COFRE = {
+	tipo: "cofre",
+	imagen: "cofre.png",
+	proporcion: 534 / 640,
+	abajo: 6,
+	altos: { 2: 0.4, 3: 0.33 },
+	objeto: { abajo: 0.38, alto: 0.95, ancho: 0.6 },
+	placa: { y: 0.75, alto: 0.17, ancho: 0.66 },
+	frente: 0.585
+};
+
 export default function PeluchesMundo4() {
 	return (
 		<PeluchesPlataformas
@@ -47,6 +61,7 @@ export default function PeluchesMundo4() {
 			mouthImages={MUNDO4_MOUTH_IMAGES}
 			consignaAudio={(letra, consigna) => `${consigna}.mp3`}
 			usaContiene={() => true}
+			soporte={COFRE}
 			className="page-peluches-m4"
 		/>
 	);

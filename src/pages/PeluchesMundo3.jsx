@@ -73,8 +73,27 @@ const AUDIOS_R_SUAVE = {
 	ro: "ro suave.mp3",
 	ru: "ru suave.mp3"
 };
-// Rondas con tres dibujos: todavía no, las dos hamacas son parte del fondo (fase 15).
-const CON_TRES = false;
+// 2 rondas de dos dibujos y el resto de tres: los soportes (hamacas o cofres) son piezas sueltas
+// sobre un fondo sin soportes, así que se ponen dos o tres según la ronda.
+const CON_TRES = true;
+
+// Centro de cada soporte (en % del ancho del escenario) según cuántos dibujos tiene la ronda, todo a
+// la derecha del lugar del personaje (hasta el 26.5%). El tamaño sale del alto buscado (fracción del
+// alto del escenario), con un ancho máximo para que no se toquen.
+const POSICIONES = { 2: [41, 71.5], 3: [37.5, 60, 82.5] };
+const ALTOS = { 2: 0.74, 3: 0.62 };
+const ANCHOS_MAXIMOS = { 2: 0.27, 3: 0.205 };
+const PROPORCION_ESCENARIO = 1600 / 883;
+
+// Hamaca de Mundo 3. Medidas en fracciones de su imagen (recortada a su contorno): proporción
+// alto / ancho, caja del dibujo apoyado en el asiento y cartel del frente donde va la palabra.
+const HAMACA_M3 = {
+	tipo: "hamaca",
+	imagen: "hamaca.png",
+	proporcion: 1181 / 600,
+	objeto: { abajo: 0.22, alto: 0.46, ancho: 0.62 },
+	placa: { y: 0.86, alto: 0.1, ancho: 0.76 }
+};
 
 // 6 rondas, cada sonido al menos una vez. Un sonido con una sola palabra (LLU: lluvia) se pide una
 // vez: repetirlo era acertar de memoria. Se prefieren palabras nuevas y de hasta 3 sílabas. El error
@@ -128,14 +147,16 @@ export default function PeluchesMundo3() {
 			mouthImages={MUNDO3_MOUTH_IMAGES}
 			consignaAudio={(letra, consigna) => (letra === "ar" ? AUDIOS_R_SUAVE[consigna] : `${consigna}.mp3`)}
 			usaContiene={(letra) => letra === "rr" || letra === "ar"}
+			soporte={HAMACA_M3}
 		/>
 	);
 }
 
-// Escenario de dos plataformas con un dibujo cada una (Mundos 3 y 4): cada mundo pone sus grupos
-// de palabras, su carpeta (imagenes/peluches/<carpeta>/ con fondo.jpg y sonido/<personaje>/peluche/<carpeta>/)
-// y si la consigna es "contiene" (el sonido puede estar en el medio de la palabra).
-export function PeluchesPlataformas({ titulo, grupos, acentos = {}, pares = {}, carpeta, letraPorDefecto, mouthImages, consignaAudio, usaContiene, className = "" }) {
+// Escenario de Peluches de Mundos 3 a 6: un soporte suelto por dibujo (hamaca colgada de la viga o
+// cofre en la arena) sobre un fondo sin soportes. Cada mundo pone sus grupos de palabras, su carpeta
+// (imagenes/peluches/<carpeta>/ con fondo.jpg y la imagen del soporte, y sonido/<personaje>/peluche/<carpeta>/),
+// el soporte con sus medidas y si la consigna es "contiene" (el sonido puede estar en el medio).
+export function PeluchesPlataformas({ titulo, grupos, acentos = {}, pares = {}, carpeta, letraPorDefecto, mouthImages, consignaAudio, usaContiene, soporte, className = "" }) {
 	usePageTitle(titulo);
 	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
@@ -147,6 +168,7 @@ export function PeluchesPlataformas({ titulo, grupos, acentos = {}, pares = {}, 
 	const textoDe = (id) => acentos[id] || id;
 	const imagenDe = (id) => img(`peluches/${carpeta}/${id}.png`);
 	const FONDO = img(`peluches/${carpeta}/fondo.jpg`);
+	const IMAGEN_SOPORTE = img(`peluches/${carpeta}/${soporte.imagen}`);
 	const { activity, activityIndex, acertada, vibrating, premio, pista, esperandoConsigna, elegir, escucharPalabra, repetirConsigna } = usePeluchesJuego({
 		runtime,
 		letra,
@@ -159,21 +181,40 @@ export function PeluchesPlataformas({ titulo, grupos, acentos = {}, pares = {}, 
 	});
 
 	useEffect(() => {
-		preloadImages([FONDO, ...rondas.flatMap((ronda) => ronda.options.map((option) => imagenDe(option.id)))]);
+		preloadImages([FONDO, IMAGEN_SOPORTE, ...rondas.flatMap((ronda) => ronda.options.map((option) => imagenDe(option.id)))]);
 	}, [rondas]);
+
+	const cantidad = activity.options.length === 3 ? 3 : 2;
+	const posiciones = soporte.posiciones?.[cantidad] || POSICIONES[cantidad];
+	const alto = soporte.altos?.[cantidad] || ALTOS[cantidad];
+	// Medidas del soporte para el CSS (fracciones de su imagen y del escenario).
+	const medidas = {
+		"--pm3-ancho": Math.min(alto / (PROPORCION_ESCENARIO * soporte.proporcion), soporte.anchosMaximos?.[cantidad] || ANCHOS_MAXIMOS[cantidad]),
+		"--pm3-prop": soporte.proporcion,
+		// Las hamacas cuelgan de la viga (borde de arriba); los cofres se apoyan en la arena (borde de abajo).
+		"--pm3-sop-arriba": `${soporte.arriba ?? 12.5}%`,
+		"--pm3-sop-abajo": `${soporte.abajo ?? 6}%`,
+		"--pm3-obj-abajo": soporte.objeto.abajo,
+		"--pm3-obj-alto": soporte.objeto.alto,
+		"--pm3-obj-ancho": soporte.objeto.ancho,
+		"--pm3-placa-y": soporte.placa.y,
+		"--pm3-placa-alto": soporte.placa.alto,
+		"--pm3-placa-ancho": soporte.placa.ancho,
+		"--pm3-frente": soporte.frente || 0
+	};
 
 	return (
 		<div className={`page activity-page page-peluches-m3 ${className}${esperandoConsigna ? " peluches-esperando" : ""}`.trim()}>
 			<BackButton />
 			<FullscreenButton toggle />
 			{/* Escenario con las proporciones del fondo (1600x883): todo se ubica en % sobre él. */}
-			<main className="pm3-stage" style={{ backgroundImage: `url("${FONDO}")` }}>
+			<main className={`pm3-stage pm3-con-${cantidad}`} style={{ backgroundImage: `url("${FONDO}")`, ...medidas }}>
 				<div className="pm3-sign" key={`cartel-${activityIndex}`} aria-live="polite">
 					<span>{activity.consigna.toUpperCase()}</span>
 				</div>
 				{activity.options.map((option, optionIndex) => {
 					const texto = textoDe(option.id);
-					const classNames = ["pm3-option", "opcion-peluche", `pm3-side-${optionIndex + 1}`];
+					const classNames = ["pm3-option", "opcion-peluche"];
 					if (acertada === option.id) {
 						classNames.push("correct");
 					} else if (acertada) {
@@ -185,28 +226,39 @@ export function PeluchesPlataformas({ titulo, grupos, acentos = {}, pares = {}, 
 					if (pista && option.correct) {
 						classNames.push("pista-correcta");
 					}
-					return [
-						<button
-							key={`${activityIndex}-${option.id}`}
-							type="button"
-							className={classNames.join(" ")}
-							onClick={() => elegir(option)}
-							aria-label={texto}
+					// El soporte queda montado entre rondas (al pasar de dos a tres se corre a su lugar nuevo);
+					// lo de adentro se vuelve a montar en cada ronda para que se balancee con el dibujo nuevo.
+					return (
+						<div
+							key={`soporte-${optionIndex}`}
+							className={`pm3-soporte pm3-soporte-${soporte.tipo}`}
+							style={{ "--pm3-x": `${posiciones[optionIndex]}%` }}
 						>
-							<img src={imagenDe(option.id)} alt={texto} draggable={false} />
-						</button>,
-						<button
-							key={`${activityIndex}-${option.id}-nombre`}
-							type="button"
-							className={`pm3-name pm3-side-${optionIndex + 1}`}
-							style={{ "--letras": Math.max(texto.length, 4) }}
-							onClick={() => escucharPalabra(option.id)}
-							aria-label={`Escuchar ${texto}`}
-						>
-							<span className="palabra-parlante"><IconoParlante /></span>
-							<PalabraResaltada grupo={grupo} id={option.id} texto={texto} />
-						</button>
-					];
+							<div key={`ronda-${activityIndex}`} className="pm3-vaiven">
+								<img className="pm3-soporte-img" src={IMAGEN_SOPORTE} alt="" draggable={false} />
+								{/* Cofre: la pared de adelante va otra vez por encima del dibujo, que así sale de adentro. */}
+								{soporte.frente ? <img className="pm3-soporte-img pm3-soporte-frente" src={IMAGEN_SOPORTE} alt="" draggable={false} /> : null}
+								<button
+									type="button"
+									className={classNames.join(" ")}
+									onClick={() => elegir(option)}
+									aria-label={texto}
+								>
+									<img src={imagenDe(option.id)} alt={texto} draggable={false} />
+								</button>
+								<button
+									type="button"
+									className="pm3-name"
+									style={{ "--letras": Math.max(texto.length, 4) }}
+									onClick={() => escucharPalabra(option.id)}
+									aria-label={`Escuchar ${texto}`}
+								>
+									<span className="palabra-parlante"><IconoParlante /></span>
+									<PalabraResaltada grupo={grupo} id={option.id} texto={texto} />
+								</button>
+							</div>
+						</div>
+					);
 				})}
 			</main>
 			<Character character={character} mouth={mouth} onClick={repetirConsigna} label="Repetir consigna" />

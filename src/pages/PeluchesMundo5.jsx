@@ -34,6 +34,15 @@ const ACENTOS = {
 	aguila: "águila"
 };
 
+// Hamaca de cadenas con asiento robot (medidas en fracciones de la imagen, ver PeluchesPlataformas).
+const HAMACA_M5 = {
+	tipo: "hamaca",
+	imagen: "hamaca.png",
+	proporcion: 1041 / 600,
+	objeto: { abajo: 0.25, alto: 0.46, ancho: 0.6 },
+	placa: { y: 0.855, alto: 0.1, ancho: 0.72 }
+};
+
 export default function PeluchesMundo5() {
 	return (
 		<PeluchesPlataformas
@@ -45,6 +54,7 @@ export default function PeluchesMundo5() {
 			mouthImages={MUNDO5_MOUTH_IMAGES}
 			consignaAudio={(letra, consigna) => `${consigna}.mp3`}
 			usaContiene={() => true}
+			soporte={HAMACA_M5}
 			className="page-peluches-m5"
 		/>
 	);

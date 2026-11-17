@@ -43,6 +43,27 @@ Implementar las fases autorizadas en orden. Para cada fase:
 
 Al entregar, indicar versión, cambios, verificaciones y pendientes. Distinguir los cambios locales, los commits y lo publicado.
 
+## Imágenes nuevas
+
+Decisión del 17/11/2026: las imágenes nuevas (fondos, piezas sueltas, dibujos) se generan con ChatGPT (https://chatgpt.com) en el Chrome del usuario, que ya tiene la sesión iniciada. Todo se hace sin que el usuario tenga que intervenir: nada de diálogos de guardado ni descargas del navegador.
+
+1. Adjuntar como referencia el arte actual que corresponda (la herramienta de subir archivos del navegador acepta rutas del proyecto) y pedir la imagen. Para editar un fondo de otra proporción (los de Peluches son de 1600 × 883), completarlo antes a 3:2 con franjas grises arriba y abajo y pedir que las complete. ChatGPT entrega 1536 × 1024 y respeta la composición, así que después se recorta la franja del medio y se escala al tamaño original. Para piezas sueltas, pedir fondo transparente (PNG con canal alfa).
+2. Guardar la imagen sin descargarla. Desde la página de ChatGPT, copiar al portapapeles el PNG original de la última imagen generada (no una captura). El script lo guarda en el proyecto con su transparencia:
+
+   ```js
+   const imgs = [...document.querySelectorAll('main img[alt^="Generated image"]')];
+   const blob = await fetch(imgs.at(-1).src).then((r) => r.blob());
+   await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+   ```
+
+   ```powershell
+   powershell -File scripts/guardar-imagen-portapapeles.ps1 -Ruta descargas/<tema>/<nombre>.png
+   ```
+
+   Si la imagen no viene en PNG, pasarla antes por un `OffscreenCanvas` y `convertToBlob({ type: "image/png" })`. No usar el token de sesión de ChatGPT ni su API para bajar archivos.
+3. Revisar cada imagen antes de integrarla: recortar o escalar con Python y Pillow, y verla en la app. Los originales quedan en `descargas/` (no se versiona); al proyecto solo entra la versión final.
+4. Registrar herramienta, referencias y prompts en `docs/arte/<tema>-prompts.json`.
+
 ## Rules
 
 - **Versionado**: MAYOR para cambios incompatibles o rediseños grandes; MINOR para funcionalidad nueva compatible; PATCH para correcciones, estilos, textos, assets y documentación. Al incrementar un número, los de su derecha vuelven a cero. `AppVersion` muestra la versión de `package.json`.

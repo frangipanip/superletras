@@ -275,7 +275,7 @@ Criterios:
 - [x] Peluches de Mundo 1 sigue igual con el banco compartido.
 - [x] Las dos voces sin recursos faltantes; encuadres en 1138 × 712, 844 × 390 y 667 × 375.
 
-### Fase 15 — Peluches de Mundos 2 a 6 con tres dibujos: soportes separados del fondo (3.90.0)
+### Fase 15 — Peluches de Mundos 2 a 6 con tres dibujos: soportes separados del fondo (3.90.0 y 3.91.0)
 
 Decisión del 17/11/2026: Mundos 2 a 6 también tienen 2 rondas de dos dibujos y 4 de tres, como Mundo 1. Hoy no se puede sumar un tercer dibujo en Mundos 3 a 6 porque las dos hamacas donde se apoyan son parte de la imagen de fondo (`imagenes/peluches/MUNDO3` a `MUNDO6/fondo.jpg`, todas con la misma composición: viga arriba con el cartel de la consigna y dos hamacas colgando). El soporte pasa a ser un elemento aparte que se repite dos o tres veces según la ronda; al no ser parte del fondo, también se puede animar. Hasta que esta fase esté, Mundos 2 a 6 quedan con 6 rondas de dos dibujos (fase 10).
 
@@ -293,11 +293,11 @@ Decisión del 17/11/2026: Mundos 2 a 6 también tienen 2 rondas de dos dibujos y
 
 Criterios:
 
-- [ ] Fondos sin soportes y soportes sueltos de Mundos 3 a 6 revisados antes de integrarlos; prompts registrados.
-- [ ] Mundos 2 a 6: rondas 1 y 2 con dos dibujos, 3 a 6 con tres; premio al final. (Mundo 2 hecho en 3.90.0.)
+- [x] Fondos sin soportes y soportes sueltos de Mundos 3 a 6 revisados antes de integrarlos; prompts registrados (ChatGPT, `docs/arte/peluches-soportes-prompts.json`).
+- [x] Mundos 2 a 6: rondas 1 y 2 con dos dibujos, 3 a 6 con tres; premio al final. (Mundo 2 en 3.90.0; Mundos 3 a 6 en 3.91.0.)
 - [x] Mundo 2: en las rondas de tres las luces se juntan en el centro y los tres dibujos se ven enteros dentro de la luz.
-- [ ] Mundos 3, 5 y 6: dos o tres hamacas según la ronda, con vaivén al aparecer; dibujo, palabra y parlante se mueven con la hamaca y se pueden tocar mientras se balancea.
-- [ ] Mundo 4: cofres en la arena (o la opción que se elija).
+- [x] Mundos 3, 5 y 6: dos o tres hamacas según la ronda, con vaivén al aparecer; dibujo, palabra y parlante se mueven con la hamaca y se pueden tocar mientras se balancea.
+- [x] Mundo 4: cofres en la arena; el dibujo sale de adentro del cofre (la pared de adelante lo tapa) y la palabra va en el cartel del cofre. El cartel de la consigna quedó pintado en el fondo, colgado de algas, en el mismo lugar que antes.
 - [ ] Ningún grupo se queda sin distractores y ninguna ronda repite un dibujo.
 - [ ] Las dos voces sin recursos faltantes; encuadres en 1138 × 712, 844 × 390 y 667 × 375 con tres soportes, sin tapar al personaje.
 

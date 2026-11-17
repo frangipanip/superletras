@@ -1,21 +1,13 @@
-/* Peluches de Mundo 3 (bloques): dos plataformas colgantes con un dibujo encima, la palabra en el
-   frente de cada plataforma y el sonido pedido en el cartel de arriba. */
+/* Peluches de Mundos 3 a 6: sobre un fondo sin soportes, un soporte suelto por dibujo (hamaca colgada
+   de la viga o cofre en la arena) con el dibujo apoyado, la palabra en su cartel y el sonido pedido en
+   el cartel de arriba. Las medidas del soporte llegan como variables desde PeluchesPlataformas. */
 .page-peluches-m3 {
 	/* El escenario conserva las proporciones del fondo (1600x883) y lo cubre. Se limita en pantallas
-	   más cuadradas (118vw: no cortar las plataformas a los costados) y en las muy anchas (205vh: que
-	   se vea el frente de las plataformas); las franjas que sobran toman el degradé. */
+	   más cuadradas (118vw: no cortar los soportes a los costados) y en las muy anchas (205vh: que
+	   se vea el frente de los soportes); las franjas que sobran toman el degradé. */
 	--pm3-stage-w: min(max(100vw, 181.2vh), 118vw, 205vh);
 	--pm3-stage-h: calc(var(--pm3-stage-w) * 0.551875);
-	/* Centro de cada plataforma y medidas, en % del escenario. */
-	--pm3-left-x: 40%;
-	--pm3-right-x: 76.9%;
-	--pm3-object-w: 15.5%;
-	--pm3-object-h: 33%;
-	--pm3-object-bottom: 30.5%;
-	--pm3-plate-y: 76.2%;
-	--pm3-plate-w: 18.1%;
-	--pm3-plate-h: 9.1%;
-	/* Lugar libre a la izquierda de las plataformas (hasta el 26.5% del escenario) para el personaje. */
+	/* Lugar libre a la izquierda de los soportes (hasta el 26.5% del escenario) para el personaje. */
 	--pm3-free-left: calc((100vw - var(--pm3-stage-w)) / 2 + var(--pm3-stage-w) * 0.265);
 
 	background: linear-gradient(#7fd3f7 0%, #9fdcf6 45%, #b9a8ee 55%, #a995e6 100%);
@@ -33,11 +25,13 @@
 		transform: translateX(-50%);
 	}
 
-	/* Cartel de arriba: el sonido que se pide. */
+	/* Cartel de arriba: el sonido que se pide. Va por encima de los soportes (la hamaca del medio
+	   cuelga debajo del cartel). */
 	.pm3-sign {
 		position: absolute;
 		top: 8%;
 		left: 55.1%;
+		z-index: 3;
 		display: grid;
 		place-items: center;
 		width: 14.25%;
@@ -53,13 +47,14 @@
 		animation: pm3-sign-pop 520ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
 	}
 
-	/* Dibujo apoyado sobre la plataforma: la caja termina en la superficie y la imagen va abajo. */
+	/* Dibujo apoyado en el soporte: la caja termina en el asiento (o en la boca del cofre) y la imagen va abajo. */
 	.pm3-option {
 		position: absolute;
-		bottom: var(--pm3-object-bottom);
+		bottom: calc(var(--pm3-obj-abajo) * 100%);
+		left: calc((1 - var(--pm3-obj-ancho)) * 50%);
 		z-index: 1;
-		width: var(--pm3-object-w);
-		height: var(--pm3-object-h);
+		width: calc(var(--pm3-obj-ancho) * 100%);
+		height: calc(var(--pm3-obj-alto) * 100%);
 		padding: 0;
 		border: 0;
 		background: none;
@@ -68,15 +63,6 @@
 		transform-origin: 50% 100%;
 		transition: opacity 250ms ease, filter 250ms ease;
 		animation: pm3-drop 560ms cubic-bezier(0.34, 1.4, 0.64, 1) both;
-	}
-
-	.pm3-option.pm3-side-1 {
-		left: calc(var(--pm3-left-x) - var(--pm3-object-w) / 2);
-	}
-
-	.pm3-option.pm3-side-2 {
-		left: calc(var(--pm3-right-x) - var(--pm3-object-w) / 2);
-		animation-delay: 120ms;
 	}
 
 	.pm3-option img {
@@ -103,23 +89,24 @@
 		animation: pm3-vibrate 350ms ease-in-out;
 	}
 
-	/* Palabra en el frente de la plataforma: el tamaño se ajusta al largo (--letras) y al cartelito. */
+	/* Palabra en el cartel del soporte: el tamaño se ajusta al largo (--letras), al ancho y al alto del cartel. */
 	.pm3-name {
 		position: absolute;
-		top: calc(var(--pm3-plate-y) - var(--pm3-plate-h) / 2);
+		top: calc((var(--pm3-placa-y) - var(--pm3-placa-alto) / 2) * 100%);
+		left: calc((1 - var(--pm3-placa-ancho)) * 50%);
 		z-index: 1;
 		/* flex y no grid: con grid cada parte de la palabra (resaltada o no) iría en otro renglón. */
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		width: var(--pm3-plate-w);
-		height: var(--pm3-plate-h);
+		width: calc(var(--pm3-placa-ancho) * 100%);
+		height: calc(var(--pm3-placa-alto) * 100%);
 		padding: 0;
 		border: 0;
 		border-radius: 999px;
 		background: transparent;
 		color: #5a2a8a;
-		font: 900 min(calc(var(--pm3-stage-h) * 0.068), calc(var(--pm3-stage-w) * 0.235 / var(--letras))) / 1 "Arial Rounded MT Bold", "Trebuchet MS", Arial, Helvetica, sans-serif;
+		font: 900 1em / 1 "Arial Rounded MT Bold", "Trebuchet MS", Arial, Helvetica, sans-serif;
 		letter-spacing: 0.02em;
 		text-transform: uppercase;
 		white-space: nowrap;
@@ -127,14 +114,6 @@
 		transition: transform 160ms ease, filter 160ms ease;
 		-webkit-text-fill-color: currentColor;
 		animation: pm3-name-in 400ms ease-out 200ms both;
-	}
-
-	.pm3-name.pm3-side-1 {
-		left: calc(var(--pm3-left-x) - var(--pm3-plate-w) / 2);
-	}
-
-	.pm3-name.pm3-side-2 {
-		left: calc(var(--pm3-right-x) - var(--pm3-plate-w) / 2);
 	}
 
 	.pm3-name .requested-sound {
@@ -161,6 +140,85 @@
 	}
 }
 
+/* Soporte: su ancho (--pm3-ancho, fracción del escenario) depende de cuántos dibujos tiene la ronda;
+   el alto lo da la imagen. Al pasar de dos a tres soportes, los que ya estaban se corren y se achican. */
+.page-peluches-m3 .pm3-soporte {
+	position: absolute;
+	left: calc(var(--pm3-x) - var(--pm3-ancho) * 50%);
+	width: calc(var(--pm3-ancho) * 100%);
+	transition: left 650ms ease-in-out, width 650ms ease-in-out;
+}
+
+.page-peluches-m3 .pm3-soporte-hamaca {
+	top: var(--pm3-sop-arriba);
+	animation: pm3-bajar 700ms cubic-bezier(0.3, 1.25, 0.6, 1) both;
+}
+
+/* En pantallas bajas el escenario es más alto que la pantalla y se corta el piso: el cofre sube para
+   que su cartel quede siempre a la vista. */
+.page-peluches-m3 .pm3-soporte-cofre {
+	bottom: max(var(--pm3-sop-abajo), calc(var(--pm3-stage-h) - 97vh));
+	animation: pm3-cofre-aparece 600ms cubic-bezier(0.34, 1.45, 0.64, 1) both;
+}
+
+.page-peluches-m3 .pm3-vaiven {
+	position: relative;
+}
+
+/* La hamaca se balancea desde el enganche con un vaivén que se va frenando; el dibujo, la palabra y el
+   parlante van adentro, así se mueven juntos y se pueden tocar mientras se mueve. */
+.page-peluches-m3 .pm3-soporte-hamaca .pm3-vaiven {
+	transform-origin: 50% 0;
+	animation: pm3-vaiven 2.4s ease-in-out both;
+}
+
+.page-peluches-m3 .pm3-soporte-cofre .pm3-vaiven {
+	transform-origin: 50% 100%;
+	animation: pm3-cofre-salto 650ms ease-out both;
+}
+
+/* Del cofre, el dibujo sale para arriba. */
+.page-peluches-m3 .pm3-soporte-cofre .pm3-option:not(.correct):not(.vibrating) {
+	animation: pm3-sale-del-cofre 650ms cubic-bezier(0.34, 1.4, 0.64, 1) 120ms both;
+}
+
+.page-peluches-m3 .pm3-soporte-img {
+	display: block;
+	width: 100%;
+	height: auto;
+	pointer-events: none;
+	user-select: none;
+}
+
+/* Pared de adelante del cofre (desde --pm3-frente hacia abajo), encima del dibujo y debajo de la palabra. */
+.page-peluches-m3 .pm3-soporte-frente {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 2;
+	clip-path: inset(calc(var(--pm3-frente) * 100%) 0 0 0);
+}
+
+.page-peluches-m3 .pm3-soporte-cofre .pm3-name {
+	z-index: 3;
+}
+
+.page-peluches-m3 .pm3-soporte .pm3-name {
+	font-size: min(
+		calc(var(--pm3-stage-w) * var(--pm3-ancho) * var(--pm3-placa-ancho) * 0.19),
+		calc(var(--pm3-stage-w) * var(--pm3-ancho) * var(--pm3-placa-ancho) * 1.2 / var(--letras)),
+		calc(var(--pm3-stage-w) * var(--pm3-ancho) * var(--pm3-prop) * var(--pm3-placa-alto) * 0.62)
+	);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.page-peluches-m3 .pm3-soporte,
+	.page-peluches-m3 .pm3-vaiven {
+		transition: none;
+		animation: none;
+	}
+}
+
 @keyframes pm3-character-drift {
 	0%,
 	100% {
@@ -179,6 +237,94 @@
 	}
 
 	55% {
+		opacity: 1;
+	}
+
+	100% {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+}
+
+@keyframes pm3-bajar {
+	0% {
+		opacity: 0;
+		transform: translateY(-60%);
+	}
+
+	40% {
+		opacity: 1;
+	}
+
+	100% {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes pm3-vaiven {
+	0% {
+		transform: rotate(7deg);
+	}
+
+	18% {
+		transform: rotate(-5.5deg);
+	}
+
+	36% {
+		transform: rotate(4deg);
+	}
+
+	54% {
+		transform: rotate(-2.6deg);
+	}
+
+	72% {
+		transform: rotate(1.4deg);
+	}
+
+	88% {
+		transform: rotate(-0.6deg);
+	}
+
+	100% {
+		transform: rotate(0);
+	}
+}
+
+@keyframes pm3-cofre-aparece {
+	0% {
+		opacity: 0;
+		transform: translateY(18%) scale(0.7);
+	}
+
+	100% {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+}
+
+@keyframes pm3-cofre-salto {
+	0% {
+		transform: scale(1.06, 0.9);
+	}
+
+	45% {
+		transform: scale(0.97, 1.05);
+	}
+
+	100% {
+		transform: scale(1);
+	}
+}
+
+@keyframes pm3-sale-del-cofre {
+	0% {
+		opacity: 0;
+		transform: translateY(35%) scale(0.5);
+	}
+
+	60% {
 		opacity: 1;
 	}
 

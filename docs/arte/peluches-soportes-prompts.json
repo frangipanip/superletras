@@ -1,0 +1,55 @@
+{
+  "fecha": "2026-11-17",
+  "herramienta": "ChatGPT (chatgpt.com, en el Chrome del usuario)",
+  "nota": "Fase 15: soportes de Peluches separados del fondo. Los fondos se pidieron sobre el fondo anterior completado a 3:2 con franjas grises (1600 x 1067); la salida de 1536 x 1024 se recortó a la franja del medio y se escaló a 1600 x 883. Las piezas sueltas se recortaron a su contorno (alfa > 12) y se escalaron a 600 px (hamacas) o 640 px (cofre) de ancho. Guardado sin descargas: ver 'Imágenes nuevas' en docs/PROCESS.md.",
+  "imagenes": [
+    {
+      "mundo": 3,
+      "archivo": "public/assets/imagenes/peluches/MUNDO3/fondo.jpg",
+      "referencia": "fondo anterior de MUNDO3 completado a 3:2",
+      "prompt": "Generá una imagen editando esta ilustración (fondo de un juego infantil). Las franjas grises de arriba y de abajo son solo relleno: completalas continuando la escena (arriba la viga, los arcos y el cielo; abajo el piso de baldosas violetas). Quitá por completo las dos hamacas: las dos poleas amarillas con sus soportes celestes que cuelgan de la viga, las cuatro sogas violetas y los dos asientos de bloques con sus carteles. Donde estaban, completá el fondo de manera natural (cielo, nubes, castillos y muros de bloques, piso violeta). Conservá todo lo demás igual y en el mismo lugar: la viga violeta con los engranajes, el cartel crema vacío en el centro de la viga, los bloques de los costados, el estilo, los colores y la luz. Formato horizontal 3:2, sin texto ni letras."
+    },
+    {
+      "mundo": 3,
+      "archivo": "public/assets/imagenes/peluches/MUNDO3/hamaca.png",
+      "referencia": "fondo anterior de MUNDO3",
+      "prompt": "Tomando como referencia esta imagen original, generá UNA sola hamaca aislada, como pieza suelta para un juego: arriba el soporte celeste con la polea amarilla y sus tornillos, las dos sogas violetas trenzadas y abajo el asiento de bloques de colores con el cartel crema vacío al frente, igual de estilo, colores y proporciones que las hamacas de la imagen. Vista de frente, centrada, entera y con un poco de margen alrededor. Sin viga, sin piso, sin sombra en el piso, sin texto. Fondo transparente (PNG con canal alfa). Formato vertical 2:3."
+    },
+    {
+      "mundo": 5,
+      "archivo": "public/assets/imagenes/peluches/MUNDO5/fondo.jpg",
+      "referencia": "fondo anterior de MUNDO5 completado a 3:2",
+      "prompt": "Lo mismo con este otro fondo (fábrica de robots): generá una imagen editando esta ilustración. Las franjas grises de arriba y de abajo son solo relleno: completalas continuando la escena (arriba la viga, los arcos y la pared; abajo el piso de baldosas metálicas). Quitá por completo las dos hamacas: las dos poleas amarillas con sus soportes celestes que cuelgan de la viga, las cuatro cadenas y los dos asientos robot con sus carteles. Donde estaban, completá el fondo de manera natural (pared de la fábrica, engranajes, cintas transportadoras, pantallas, piso metálico). Conservá todo lo demás igual y en el mismo lugar: la viga violeta con los engranajes, el cartel crema vacío en el centro de la viga, las lámparas, las máquinas de los costados, el estilo, los colores y la luz. Formato horizontal 3:2, sin texto ni letras."
+    },
+    {
+      "mundo": 5,
+      "archivo": "public/assets/imagenes/peluches/MUNDO5/hamaca.png",
+      "referencia": "fondo anterior de MUNDO5",
+      "prompt": "Tomando como referencia esta imagen original de la fábrica, generá UNA sola hamaca aislada, como pieza suelta para el juego, igual que hiciste con la de bloques: arriba el soporte celeste con la polea amarilla y sus tornillos, las dos cadenas plateadas y abajo el asiento robot (violeta, rosa, amarillo y celeste con luces celestes) con el cartel crema vacío al frente, igual de estilo y colores que las hamacas de la imagen. Que las dos cadenas queden bien separadas, a los costados del asiento, para que entre ellas quepa un dibujo apoyado en el asiento. Vista de frente, centrada, entera y con un poco de margen alrededor. Sin viga, sin piso, sin sombra, sin texto. Fondo transparente (PNG con canal alfa). Formato vertical 2:3."
+    },
+    {
+      "mundo": 6,
+      "archivo": "public/assets/imagenes/peluches/MUNDO6/fondo.jpg",
+      "referencia": "fondo anterior de MUNDO6 completado a 3:2",
+      "prompt": "Lo mismo con este otro fondo (mundo de unicornios y arcoíris): generá una imagen editando esta ilustración. Las franjas grises de arriba y de abajo son solo relleno: completalas continuando la escena (arriba la viga, los arcos y el cielo; abajo el pasto). Quitá por completo las dos hamacas: las dos poleas doradas con sus soportes celestes y estrellas que cuelgan de la viga, las cuatro cintas arcoíris y los dos asientos de nube dorada con sus carteles. Donde estaban, completá el fondo de manera natural (cielo, nubes, arcoíris, castillo, colinas y pasto). Conservá todo lo demás igual y en el mismo lugar: la viga rosa con las estrellas y nubes, el cartel crema vacío en el centro de la viga, el arcoíris de la izquierda, el estilo, los colores y la luz. Formato horizontal 3:2, sin texto ni letras."
+    },
+    {
+      "mundo": 6,
+      "archivo": "public/assets/imagenes/peluches/MUNDO6/hamaca.png",
+      "referencia": "fondo anterior de MUNDO6",
+      "prompt": "Tomando como referencia esta imagen original del mundo arcoíris, generá UNA sola hamaca aislada, como pieza suelta para el juego, igual que las anteriores: arriba el soporte celeste con la estrella y la polea dorada, las dos cintas arcoíris y abajo el asiento de nube dorada con el cartel crema vacío al frente, igual de estilo y colores que las hamacas de la imagen. Que las dos cintas queden bien separadas, a los costados del asiento, para que entre ellas quepa un dibujo apoyado en el asiento. Vista de frente, centrada, entera y con un poco de margen alrededor. Sin viga, sin pasto, sin sombra, sin destellos sueltos alrededor, sin texto. Fondo transparente (PNG con canal alfa). Formato vertical 2:3."
+    },
+    {
+      "mundo": 4,
+      "archivo": "public/assets/imagenes/peluches/MUNDO4/fondo.jpg",
+      "referencia": "fondo anterior de MUNDO4 completado a 3:2",
+      "prompt": "Este fondo del fondo del mar, que cambia más: generá una imagen editando esta ilustración. Las franjas grises de arriba y de abajo son solo relleno: completalas continuando la escena (arriba agua y rayos de luz; abajo la arena). Quitá por completo la viga de nácar con sus caracolas y perlas, los arcos de nácar de los costados que la sostienen, las dos poleas con sus soportes celestes, las cuatro sogas de algas y los dos asientos con sus carteles. Lo único que queda arriba es el cartel crema vacío del centro, con su marco de nácar y sus perlas, exactamente en el mismo lugar y del mismo tamaño, ahora colgado de dos algas finas que bajan desde el borde de arriba. Donde estaban las otras cosas, completá el fondo de manera natural (agua, rayos de luz, burbujas, rocas, corales, algas y arena despejada). Conservá todo lo demás igual y en el mismo lugar: las rocas, los corales, las algas y las caracolas y estrellas de mar de los costados, el estilo, los colores y la luz. La arena del centro y de la derecha tiene que quedar despejada. Formato horizontal 3:2, sin texto ni letras."
+    },
+    {
+      "mundo": 4,
+      "archivo": "public/assets/imagenes/peluches/MUNDO4/cofre.png",
+      "referencia": "fondo anterior de MUNDO4",
+      "prompt": "Con el estilo de esta imagen original del fondo del mar (nácar iridiscente lila y celeste, perlas, colores suaves y brillantes), generá UN cofre del tesoro aislado, como pieza suelta para el juego. Cofre abierto, de frente y visto apenas desde arriba, con la tapa abierta hacia atrás (tapa de nácar con perlas en el borde), el interior vacío y oscuro con un brillo suave dorado saliendo de adentro, y al frente del cofre un cartel crema vacío, ancho y horizontal, con marco de nácar y perlas, igual a los carteles de las hamacas de la imagen. El cofre es ancho y bajo (más ancho que alto) y está apoyado sobre un poquito de arena con dos o tres conchitas. Entero, centrado y con un poco de margen alrededor. Sin monedas ni joyas, sin agua alrededor, sin texto. Fondo transparente (PNG con canal alfa). Formato cuadrado."
+    }
+  ]
+}

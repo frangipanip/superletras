@@ -39,6 +39,15 @@ const PARES = {
 	"moño": "mono"
 };
 
+// Hamaca de cintas arcoíris con asiento de nube dorada (medidas en fracciones de la imagen, ver PeluchesPlataformas).
+const HAMACA_M6 = {
+	tipo: "hamaca",
+	imagen: "hamaca.png",
+	proporcion: 935 / 600,
+	objeto: { abajo: 0.26, alto: 0.45, ancho: 0.6 },
+	placa: { y: 0.85, alto: 0.11, ancho: 0.64 }
+};
+
 export default function PeluchesMundo6() {
 	return (
 		<PeluchesPlataformas
@@ -50,6 +59,7 @@ export default function PeluchesMundo6() {
 			letraPorDefecto="b"
 			consignaAudio={(letra, consigna) => `${consigna}.mp3`}
 			usaContiene={() => true}
+			soporte={HAMACA_M6}
 			className="page-peluches-m6"
 		/>
 	);
