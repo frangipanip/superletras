@@ -7,8 +7,8 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 ## Punto de retoma
 
 - **Pedidos nuevos (17/11/2026)**: diez mensajes del usuario después de probar 3.85.1 en dev, más tres sobre las escenas de Peluches. Están planificados como fases 10 a 15 en [PLAN.md](PLAN.md#ajustes-de-la-prueba-del-17112026-fases-10-a-15); no hay nada implementado todavía. Plan registrado en 3.85.2 (solo documentación).
-- **Avance**: cada fase cerrada se mergea a `develop` y se sube para verla en dev (pedido del 17/11/2026). Fases 10 (3.86.0), 11 (3.87.0), 12 (3.87.1) y 13 (3.88.0) hechas. Los tres audios nuevos de las fases 10, 12 y 14 ya están en las dos voces.
-- **Próximo paso**: fase 14 (Memotest de letra y dibujo). Las decisiones pendientes siguen la propuesta mientras no se diga otra cosa; la fase 15 necesita fondos y soportes nuevos para Mundos 3 a 6.
+- **Avance**: cada fase cerrada se mergea a `develop` y se sube para verla en dev (pedido del 17/11/2026). Fases 10 (3.86.0), 11 (3.87.0), 12 (3.87.1), 13 (3.88.0) y 14 (3.89.0) hechas. Los tres audios nuevos de las fases 10, 12 y 14 ya están en las dos voces.
+- **Próximo paso**: fase 15 (Peluches de Mundos 2 a 6 con tres dibujos: arte nuevo). Las decisiones pendientes siguen la propuesta mientras no se diga otra cosa; la fase 15 necesita fondos y soportes nuevos para Mundos 3 a 6.
 - **Entrega funcional publicada en dev**: 3.85.0, commit `b4cb081`, mergeado y subido a `develop`; despliegue de GitHub Actions `44131620057` completado correctamente y `/version.json` confirmado en 3.85.0. Incluye Tren en todos los mundos, Mundo 5 completo, Q/ARA y Oraciones. Producción (`master`) no se modificó.
 - **Versión de cierre documental**: 3.85.1, actualización de este estado y de la versión visible. Los commits funcionales por fase son `a7f79eb` (Tren, 3.82.0), `ac28392` (Mundo 5, 3.83.0), `d814ec2` (Q/ARA, 3.84.0) y `b4cb081` (Oraciones, 3.85.0); la documentación previa está en `0115e10`.
 - **Pendiente de antes**: revisión con personas de pronunciación, ritmo, tacto y encuadres en dispositivos reales; recuperar el arte de trenes elegido anteriormente. Las implementaciones pendientes de fases 4, 7 y 9 y la ampliación del Tren están completas. Las pruebas humanas y los recorridos de fase 5 señalados abajo siguen pendientes.
@@ -43,7 +43,7 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 | 11 | Tilde solo con las 3 comidas o estrellas sumadas | 3.87.0 | ✅ Hecha |
 | 12 | Ositos en una ronda, Dibujar sigue a la vocal siguiente, parlante de Flores M2 | 3.87.1 | ✅ Hecha |
 | 13 | Monstruo que brilla con comida para dar | 3.88.0 | ✅ Hecha |
-| 14 | Memotest de letra y dibujo | 3.89.0 | ⬜ Pendiente (necesita `memotestDibujos.mp3`) |
+| 14 | Memotest de letra y dibujo | 3.89.0 | ✅ Hecha |
 | 15 | Peluches de Mundos 2 a 6 con tres dibujos: soportes separados del fondo | 3.90.0 | ⬜ Pendiente (necesita fondos y soportes de Mundos 3 a 6) |
 
 ## Pedidos del 17/11/2026
@@ -100,6 +100,12 @@ ABEJA para Memotest solo si se elige la alternativa 5.
 - **Dibujos y fondos**: la producción anterior usó ChatGPT y láminas de seis dibujos; la ampliación actual usa `imagegen` con referencias existentes y piezas transparentes. Ya están los recursos de Mundos 4, 5 y 6, los trenes de todos los mundos, los robots de sílabas, el cartel ARA y las seis escenas de Oraciones con su fondo. Prompts y rutas de los recursos nuevos en `docs/arte/`. Sigue pendiente recuperar el arte de trenes elegido en la conversación anterior para compararlo con el nuevo integrado.
 
 ## Hecho
+
+### Fase 14 — Memotest de letra y dibujo (3.89.0)
+- Cada pareja es una carta con la vocal o sílaba escrita y otra con un dibujo del banco de Peluches de Mundo 1 que empieza con ese sonido, sorteado en cada partida (A: anillo, árbol, auto o avión; LA: lago, lana, lápiz o lata…). La pareja se reconoce por el sonido.
+- Al dar vuelta, la carta escrita dice su sonido y la del dibujo dice la palabra (audios de `peluche/`). El dibujo va sin texto, con respaldo `.webp`. Consigna nueva `memotestDibujos.mp3` (dos voces) en lugar de `memotest.mp3`. Premio y tiempos sin cambios.
+- `descargas/revisar-banco.mjs`: los 25 sonidos tienen al menos dos dibujos (LO: lobo y loro), todos con imagen y audio en las dos voces.
+- Chromium (`descargas/probar-memotest.mjs`): A, L, M, S y T con las dos voces en 1138 × 712, 844 × 390 y 667 × 375: diez cartas (cinco escritas y cinco dibujos cargados, uno por sonido), el audio de cada carta, las que no son pareja se dan vuelta y las parejas quedan, premio al final, sin recursos faltantes. En juego el personaje no tapa cartas.
 
 ### Fase 13 — El monstruo brilla cuando tiene comida para dar (3.88.0)
 - `tieneComidaParaDar(letras, letra)` en `recompensas.js`: alguna comida con `ganadas > dadas`.

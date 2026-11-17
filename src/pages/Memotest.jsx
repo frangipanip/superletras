@@ -10,16 +10,19 @@ import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
 import { sound } from "../lib/assets";
 import { useActivityMenuOption } from "../hooks/useActivityMenuOption";
+import {
+	audioPalabraPeluche,
+	audioSonidoMundo1,
+	imagenPeluche,
+	imagenPelucheRespaldo,
+	palabrasQueEmpiezanCon,
+	sonidosDeLetra
+} from "../lib/peluchesMundo1";
 import "./actividad.css";
 import "./Memotest.css";
 
-const CARD_SETS = {
-	a: ["A", "E", "I", "O", "U"],
-	l: ["LA", "LE", "LI", "LO", "LU"],
-	m: ["MA", "ME", "MI", "MO", "MU"],
-	s: ["SA", "SE", "SI", "SO", "SU"],
-	t: ["TA", "TE", "TI", "TO", "TU"],
-};
+// Letras del menú de Mundo 1 con memotest: la A juega con las vocales y el resto con sus sílabas.
+const LETRAS_MEMOTEST = ["a", "l", "m", "s", "t"];
 
 const CONFETTI_COLORS = ["#f04f78", "#f6c945", "#55b96c", "#4d9ed8", "#9b6bd6", "#f08a36"];
 
@@ -27,12 +30,21 @@ function shuffleCards(values) {
 	return [...values].sort(() => Math.random() - 0.5);
 }
 
+function elegirAlAzar(lista) {
+	return lista[Math.floor(Math.random() * lista.length)];
+}
+
+// Cada pareja: una carta con la vocal o sílaba escrita y otra con un dibujo de Peluches que empieza
+// con ese sonido (A con ÁRBOL, LA con LANA...), elegido al azar en cada partida. La pareja se
+// reconoce por el sonido (`value`), no por lo que muestra la carta.
 function buildDeck(mode) {
-	const pool = CARD_SETS[mode] ?? CARD_SETS.a;
-	const deck = pool.flatMap((value) => [
-		{ id: `${value}-1`, value, matched: false, flipped: false },
-		{ id: `${value}-2`, value, matched: false, flipped: false }
-	]);
+	const deck = sonidosDeLetra(mode).flatMap((sonido) => {
+		const value = sonido.toUpperCase();
+		return [
+			{ id: `${value}-texto`, value, palabra: null },
+			{ id: `${value}-dibujo`, value, palabra: elegirAlAzar(palabrasQueEmpiezanCon(sonido)) }
+		];
+	});
 
 	return shuffleCards(deck).map((card, index) => ({
 		...card,
@@ -42,16 +54,6 @@ function buildDeck(mode) {
 	}));
 }
 
-function getAudioFileName(label) {
-	if (label.length === 1) return `${label.toLowerCase()}.mp3`;
-	if (["LA", "LE", "LI", "LO", "LU"].includes(label)) return `${label.toLowerCase()}.mp3`;
-	if (["MA", "ME", "MI", "MO", "MU"].includes(label)) return `${label.toLowerCase()}.mp3`;
-	if (label.startsWith("S")) return `${label}.mp3`;
-	if (label === "TE") return "te.mp3";
-	if (label.startsWith("T")) return `${label}.mp3`;
-	return `${label.toLowerCase()}.wav`;
-}
-
 export default function Memotest() {
 	usePageTitle("Memotest - Mundo 1");
 	const location = useLocation();
@@ -59,11 +61,10 @@ export default function Memotest() {
 	const [character] = useSelectedCharacter();
 	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime);
 	const selectedOption = useActivityMenuOption();
-	const mode = CARD_SETS[selectedOption] ? selectedOption : "a";
+	const mode = LETRAS_MEMOTEST.includes(selectedOption) ? selectedOption : "a";
 	const [cards, setCards] = useState(() => buildDeck(mode));
-	const [cardAudios] = useState(() =>
-		Object.fromEntries(CARD_SETS[mode].map((label) => [label, runtime.audio(sound(getAudioFileName(label)), { preload: true })]))
-	);
+	// Audios de las cartas por archivo: la escrita dice su sonido y la del dibujo, la palabra.
+	const cardAudios = useRef({});
 	const [selectedIndices, setSelectedIndices] = useState([]);
 	const [moves, setMoves] = useState(0);
 	const [matchedPairs, setMatchedPairs] = useState(0);
@@ -74,7 +75,7 @@ export default function Memotest() {
 	const activeCardAudio = useRef(null);
 	const [celebrationAudio] = useState(() => runtime.audio(sound("Felicitaciones.mp3"), { preload: true }));
 	const [successAudio] = useState(() => runtime.audio(sound("correcto.mp3"), { preload: true }));
-	const [instructionAudio] = useState(() => runtime.audio(sound("memotest.mp3"), { preload: true }));
+	const [instructionAudio] = useState(() => runtime.audio(sound("memotestDibujos.mp3"), { preload: true }));
 
 	function stopCardAudio() {
 		const audio = activeCardAudio.current;
@@ -87,9 +88,22 @@ export default function Memotest() {
 		stopTalking();
 	}
 
-	function playCardAudio(label) {
-		playVoice(cardAudios[label]);
+	function audioDeCarta(card) {
+		const archivo = card.palabra ? audioPalabraPeluche(card.palabra) : audioSonidoMundo1(card.value);
+		if (!cardAudios.current[archivo]) {
+			cardAudios.current[archivo] = runtime.audio(sound(archivo), { preload: true });
+		}
+		return cardAudios.current[archivo];
 	}
+
+	function playCardAudio(card) {
+		playVoice(audioDeCarta(card));
+	}
+
+	// Cada mazo nuevo trae otros dibujos: sus audios se piden antes de dar vuelta las cartas.
+	useEffect(() => {
+		cards.forEach(audioDeCarta);
+	}, [cards]);
 
 	// Consigna: al entrar y al tocar al personaje.
 	function playInstruction() {
@@ -187,7 +201,7 @@ export default function Memotest() {
 		if (!card || card.flipped || card.matched) {
 			return;
 		}
-		playCardAudio(card.value);
+		playCardAudio(card);
 
 		const nextSelection = [...selectedIndices, index];
 		setCards((current) => current.map((item, itemIndex) => (itemIndex === index ? { ...item, flipped: true } : item)));
@@ -257,11 +271,23 @@ export default function Memotest() {
 							type="button"
 							className={`memory-card${card.flipped || card.matched ? " flipped" : ""}${card.matched ? " matched" : ""}`}
 							onClick={() => handleCardClick(index)}
-							aria-label={card.flipped || card.matched ? `Carta ${card.value}` : "Carta oculta"}
+							aria-label={card.flipped || card.matched ? `Carta ${card.palabra ? `con el dibujo de ${card.palabra}` : card.value}` : "Carta oculta"}
 						>
 							<span className="memory-card-inner">
 								<span className="memory-card-front">?</span>
-								<span className="memory-card-back">{card.value}</span>
+								<span className={`memory-card-back${card.palabra ? " memory-card-dibujo" : ""}`}>
+									{card.palabra ? (
+										<img
+											src={imagenPeluche(card.palabra)}
+											alt=""
+											draggable={false}
+											onError={(event) => {
+												const respaldo = imagenPelucheRespaldo(card.palabra);
+												if (!event.currentTarget.src.endsWith(respaldo)) event.currentTarget.src = respaldo;
+											}}
+										/>
+									) : card.value}
+								</span>
 							</span>
 						</button>
 					))}

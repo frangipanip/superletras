@@ -269,11 +269,11 @@ Memotest solo existe en Mundo 1. Hoy cada pareja son dos cartas iguales (A con A
 
 Criterios:
 
-- [ ] Vocales y las cuatro consonantes: 5 parejas de carta escrita + dibujo; cada dibujo empieza con el sonido de su pareja.
-- [ ] Dos cartas escritas o dos dibujos nunca forman pareja.
-- [ ] Cada carta suena al darla vuelta; la consigna nueva suena al entrar y al tocar al personaje.
-- [ ] Peluches de Mundo 1 sigue igual con el banco compartido.
-- [ ] Las dos voces sin recursos faltantes; encuadres en 1138 × 712, 844 × 390 y 667 × 375.
+- [x] Vocales y las cuatro consonantes: 5 parejas de carta escrita + dibujo; cada dibujo empieza con el sonido de su pareja.
+- [x] Dos cartas escritas o dos dibujos nunca forman pareja.
+- [x] Cada carta suena al darla vuelta; la consigna nueva suena al entrar y al tocar al personaje.
+- [x] Peluches de Mundo 1 sigue igual con el banco compartido.
+- [x] Las dos voces sin recursos faltantes; encuadres en 1138 × 712, 844 × 390 y 667 × 375.
 
 ### Fase 15 — Peluches de Mundos 2 a 6 con tres dibujos: soportes separados del fondo (3.90.0)
 
