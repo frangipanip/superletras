@@ -6,10 +6,10 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 
 ## Punto de retoma
 
-- **Publicado en dev**: 3.81.0, commit `5fb710c`, mergeado y subido a `develop`; despliegue de GitHub Actions completado correctamente. Incluye el Tren de Mundo 5.
-- **Trabajo posterior en la rama de auditoría**: documentación en `0115e10` (3.81.4); Tren en `a7f79eb` (3.82.0); Mundo 5 en `ac28392` (3.83.0); cierre de fase 4 en `d814ec2` (3.84.0); Oraciones implementada en 3.85.0. Todavía no está publicado.
-- **Próximo paso**: publicar la entrega en dev y hacer la revisión con personas: pronunciación y ritmo de las dos voces, tacto y encuadres en dispositivos reales. Las implementaciones pendientes de fases 4, 7 y 9 y la ampliación del Tren están completas.
-- **Arte de trenes elegido**: está en la conversación de ChatGPT indicada por el usuario. No se pudo acceder desde esta sesión; el fondo y la locomotora de Mundo 5 publicados son imágenes nuevas generadas aquí. Queda recuperar e integrar los recursos elegidos.
+- **Entrega funcional publicada en dev**: 3.85.0, commit `b4cb081`, mergeado y subido a `develop`; despliegue de GitHub Actions `44131620057` completado correctamente y `/version.json` confirmado en 3.85.0. Incluye Tren en todos los mundos, Mundo 5 completo, Q/ARA y Oraciones. Producción (`master`) no se modificó.
+- **Versión de cierre documental**: 3.85.1, actualización de este estado y de la versión visible. Los commits funcionales por fase son `a7f79eb` (Tren, 3.82.0), `ac28392` (Mundo 5, 3.83.0), `d814ec2` (Q/ARA, 3.84.0) y `b4cb081` (Oraciones, 3.85.0); la documentación previa está en `0115e10`.
+- **Próximo paso**: revisión con personas de pronunciación, ritmo, tacto y encuadres en dispositivos reales; recuperar el arte de trenes elegido anteriormente. Las implementaciones pendientes de fases 4, 7 y 9 y la ampliación del Tren están completas. Las pruebas humanas y los recorridos de fase 5 señalados abajo siguen pendientes.
+- **Arte de trenes elegido**: está en la conversación de ChatGPT indicada por el usuario. No se pudo acceder desde esta sesión; se integró arte nuevo identificado en `docs/arte/trenes-prompts.json`. Queda recuperar los recursos elegidos para compararlos y acordar si reemplazan los actuales.
 
 ## Verificación del Tren (3.82.0)
 
