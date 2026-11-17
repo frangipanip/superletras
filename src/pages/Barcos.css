@@ -140,7 +140,7 @@
 	visibility: hidden;
 	opacity: 0;
 	color: #6b3f24;
-	font: 900 clamp(1.35rem, 4.2vmin, 1.55rem) Arial, Helvetica, sans-serif;
+	font: 900 clamp(2rem, 7vmin, 3.1rem) Arial, Helvetica, sans-serif;
 	transform: translate(-50%, -50%);
 	white-space: nowrap;
 }
@@ -190,4 +190,9 @@
 	.boat-button {
 		transition: none;
 	}
+}
+
+/* Vuelta 2: la bandeja muestra "?" (la sílaba se escucha, no se ve). */
+.barcos-tray-label.sin-modelo {
+	opacity: 0.6;
 }

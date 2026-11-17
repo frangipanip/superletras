@@ -12,7 +12,7 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 | 2 | Devolución que ayuda y audios que no se pisan | 3.73.0 | ✅ Hecha (commit `d15342b`) |
 | 3 | Camino a palabras visible y corto | 3.74.0 | ✅ Hecha (commit `aae8b42`), en dev; 3.74.1 saca el bloqueo de Q y CE |
 | 4 | Consigna oral en todas las pantallas e íconos | 3.75.0 | ✅ Hecha, salvo dos puntos (ver abajo) |
-| 5 | Palabras: segunda vuelta sin modelo y cierre | 3.76.0 | ⏳ Pendiente |
+| 5 | Palabras: segunda vuelta sin modelo y cierre | 3.76.0 | ✅ Hecha |
 | 6 | Peluches en Mundo 4 | 3.77.0 | ⏳ Pendiente: faltan los dibujos |
 | 7 | Mundo 5: G, GE, GUE, J, GÜE | 3.78.0 | ⏳ Pendiente: faltan los dibujos y los fondos |
 | 8 | Mundo 6: B, V, Ñ, K, X | 3.79.0 | ⏳ Pendiente: faltan los dibujos |
@@ -64,6 +64,14 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 - Peluches de Mundos 2 y 3: entrada de ~5 s a ~2 s y se prefieren palabras de hasta 3 sílabas (`src/lib/palabrasCortas.js`).
 - "↻ Reiniciar" y "Repetir consigna" pasan a botones con ícono.
 - Arreglo en `secuenciaAudio.js`: una secuencia cancelada ya no corta la nueva cuando comparten audio (en Dibujar quedaba muda después del acierto).
+
+### Fase 5 — Palabras sin modelo (3.76.0)
+- Barcos, Pastel, Puzzle y Escribir: 3 rondas con modelo + 3 sin modelo y cartel de premio con estrellas (las actividades de palabras no dan comida; `otorgarPremio` devuelve estrellas y anota el progreso). Decora suma el premio al terminar el pastel.
+- Barcos: en la vuelta 2 la bandeja muestra "?"; palabras más grandes; al acertar dice la palabra y "Empieza con:" + la sílaba.
+- Pastel: en la vuelta 2 los huecos quedan vacíos, hay una ficha de más y pregunta "¿Qué parte va primero?". Se saltean MIEL, LEE, LIO, ISLA, UAU, OIA y AIA (no se cortan bien en dos).
+- Puzzle: en la vuelta 2 los casilleros no muestran la letra.
+- Escribir: seis palabras; en la vuelta 2 la palabra se ve 3 s y después "Ahora sin mirar".
+- Probado en el navegador: Barcos completo. Pastel, Puzzle, Escribir (vuelta 2) y Decora (premio) compilan pero no los recorrí hasta el final.
 
 **Quedó pendiente de la fase 4:**
 - Explicación de la Q "partida en dos con un toque en el medio" en Inicio (animación nueva).

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import BackButton from "../components/BackButton";
 import Character from "../components/Character";
 import FullscreenButton from "../components/FullscreenButton";
+import PremioComida, { useRecompensa } from "../components/PremioComida";
 import RioChocolate from "../components/RioChocolate";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
@@ -11,6 +12,7 @@ import { img, sound } from "../lib/assets";
 import { GROUPS } from "../lib/palabras";
 import { useActivityMenuOption } from "../hooks/useActivityMenuOption";
 import { shuffle } from "../lib/shuffle";
+import { crearSecuencia, mudo } from "../lib/secuenciaAudio";
 import "./actividad.css";
 import "./Barcos.css";
 
@@ -47,11 +49,16 @@ function pickWordGroup(letter, prompt) {
 	return { target, boats, prompt, letter: safeLetter };
 }
 
+// 3 rondas con la sílaba escrita en la bandeja y 3 solo de oído; al final, el premio.
+const RONDAS_CON_MODELO = 3;
+const TOTAL_RONDAS = 6;
+
 function createActivity(letter) {
 	const prompts = shuffle(getAvailableSyllables(letter));
 	return {
 		prompts,
 		index: 0,
+		numero: 0,
 		round: pickWordGroup(letter, prompts[0])
 	};
 }
@@ -82,6 +89,11 @@ export default function Barcos() {
 	const game = useRef({ promptSequence: 0, feedbackSequence: 0 });
 	const promptAudioRef = useRef(null);
 	const feedbackTimerRef = useRef(null);
+	const [premio, otorgarPremio] = useRecompensa("barcos", letter);
+	const [secuencia] = useState(() => crearSecuencia({ startTalking, stopTalking }));
+	const [empiezaConAudio] = useState(() => runtime.audio(sound("empiezaCon.mp3"), { preload: true }));
+	const erroresRef = useRef(0);
+	const sinModelo = activity.numero >= RONDAS_CON_MODELO;
 
 	useEffect(() => {
 		setActivity(createActivity(letter));
@@ -189,10 +201,12 @@ export default function Barcos() {
 				setIncorrectBoats(boatsToSink);
 				setSinkingBoats([]);
 			}, 520);
-			const successAudio = runtime.audio(sound("correcto.mp3"), { preload: true });
+			const esUltima = activity.numero + 1 >= TOTAL_RONDAS;
+			if (esUltima) {
+				otorgarPremio(erroresRef.current);
+			}
 			const advanceToNextPrompt = () => {
-				if (!feedbackVigente()) return;
-				successAudio.onended = null;
+				if (!feedbackVigente() || esUltima) return;
 				setSelectedBoat(null);
 				setCelebrating(false);
 				setIncorrectBoats([]);
@@ -206,25 +220,20 @@ export default function Barcos() {
 					return {
 						prompts,
 						index,
+						numero: current.numero + 1,
 						round: pickWordGroup(letter, prompts[index])
 					};
 				});
 			};
-			successAudio.onended = advanceToNextPrompt;
-			successAudio.play().catch((error) => {
-				if (!feedbackVigente()) return;
-				setSelectedBoat(null);
-				setCelebrating(false);
-				setSuccessReady(false);
-				setSinkingBoats([]);
-				if (feedbackTimerRef.current !== null) {
-					runtime.clearTimeout(feedbackTimerRef.current);
-					feedbackTimerRef.current = null;
-				}
-				console.error("No se pudo reproducir el audio de respuesta correcta.", error);
-			});
+			secuencia.reproducir([
+				mudo(runtime.audio(sound("correcto.mp3"))),
+				runtime.audio(sound(`PL${boat.word.toLowerCase()}.mp3`)),
+				empiezaConAudio,
+				runtime.audio(sound(getPromptAudioName(round.prompt, round.letter)))
+			], advanceToNextPrompt);
 			return;
 		}
+		erroresRef.current += 1;
 		const splashAudio = runtime.audio("/assets/sonido/splash.mp3", { preload: true });
 		splashAudio.play().catch((error) => {
 			if (feedbackVigente()) {
@@ -252,6 +261,8 @@ export default function Barcos() {
 		setSinkingBoats([]);
 		setCelebrating(false);
 		setSuccessReady(false);
+		secuencia.cancelar();
+		erroresRef.current = 0;
 		setActivity(createActivity(letter));
 	}
 
@@ -278,8 +289,8 @@ export default function Barcos() {
 			<main className="barcos-scene" aria-label="Actividad de barcos">
 				<div className="barcos-tray">
 					<img className="barcos-tray-image" src={TRAY_IMAGE} alt="" draggable={false} />
-					<span className="barcos-tray-label" aria-live="polite">
-						{round.prompt}
+					<span className={`barcos-tray-label${sinModelo ? " sin-modelo" : ""}`} aria-live="polite">
+						{sinModelo ? "?" : round.prompt}
 					</span>
 				</div>
 				{boats.map((boat) => {
@@ -309,6 +320,7 @@ export default function Barcos() {
 					);
 				})}
 			</main>
+			<PremioComida premio={premio} />
 		</div>
 	);
 }

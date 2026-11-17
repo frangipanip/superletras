@@ -208,3 +208,8 @@
 		animation: none;
 	}
 }
+
+/* Vuelta 2: los casilleros no muestran la letra que va (se arma de oído y leyendo). */
+.page-puzzle .puzzle-slot-letter.sin-modelo:not(.placed) {
+	color: transparent;
+}

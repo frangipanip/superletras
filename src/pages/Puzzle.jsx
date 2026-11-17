@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import BackButton from "../components/BackButton";
 import Character from "../components/Character";
 import FullscreenButton from "../components/FullscreenButton";
+import PremioComida, { useRecompensa } from "../components/PremioComida";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
@@ -37,20 +38,24 @@ function crearRonda(palabra) {
 	return { palabra, letras: [...palabra], galletitas: mezclarLetras(palabra) };
 }
 
+// 3 rondas con las letras tenues en los casilleros y 3 con los casilleros vacíos; después, el premio.
+const RONDAS_CON_MODELO = 3;
+const TOTAL_RONDAS = 6;
+
 function crearActividad(letra, palabraAnterior) {
 	let palabras = shuffle(palabrasDeLetra(letra));
 	if (palabras.length > 1 && palabras[0] === palabraAnterior) {
 		palabras = [...palabras.slice(1), palabras[0]];
 	}
-	return { palabras, indice: 0, ronda: crearRonda(palabras[0]) };
+	return { palabras, indice: 0, numero: 0, ronda: crearRonda(palabras[0]) };
 }
 
 function siguienteActividad(letra, actual) {
 	const indice = actual.indice + 1;
 	if (indice >= actual.palabras.length) {
-		return crearActividad(letra, actual.ronda.palabra);
+		return { ...crearActividad(letra, actual.ronda.palabra), numero: actual.numero + 1 };
 	}
-	return { palabras: actual.palabras, indice, ronda: crearRonda(actual.palabras[indice]) };
+	return { palabras: actual.palabras, indice, numero: actual.numero + 1, ronda: crearRonda(actual.palabras[indice]) };
 }
 
 // Nombre de la letra: las vocales ya tienen su audio; las consonantes, "ele", "eme", "ese", "te".
@@ -78,6 +83,8 @@ export default function Puzzle() {
 	const [rebote, setRebote] = useState(null);
 	const [errorAudio] = useState(() => runtime.audio(sound("error.mp3"), { preload: true }));
 	const [secuencia] = useState(() => crearSecuencia({ startTalking, stopTalking }));
+	const [premio, otorgarPremio] = useRecompensa("puzzle", letter);
+	const erroresRef = useRef(0);
 	const [ponerAudio] = useState(() => runtime.audio(sound("puzzlePone.mp3"), { preload: true }));
 	const [escuchaAudio] = useState(() => runtime.audio(sound("escucha.mp3"), { preload: true }));
 	// La primera ronda explica qué hacer; las siguientes solo dicen "Escuchá:" y la palabra.
@@ -185,6 +192,10 @@ export default function Puzzle() {
 			completionWatchdogRef.current = null;
 		}
 		if (advanceTimerRef.current !== null) return;
+		if (activityRef.current.numero + 1 >= TOTAL_RONDAS) {
+			otorgarPremio(erroresRef.current);
+			return;
+		}
 		advanceTimerRef.current = runtime.setTimeout(() => {
 			advanceTimerRef.current = null;
 			showActivity(siguienteActividad(letter, activityRef.current));
@@ -222,6 +233,7 @@ export default function Puzzle() {
 		setSelectedCookie(null);
 		setRebote(cookieId);
 		runtime.setTimeout(() => setRebote((current) => (current === cookieId ? null : current)), 450);
+		erroresRef.current += 1;
 		secuencia.reproducir([mudo(errorAudio), runtime.audio(sound(audioDeLetra(cookie.valor)))]);
 	}
 
@@ -317,6 +329,7 @@ export default function Puzzle() {
 
 	function restartActivity() {
 		clearTimers();
+		erroresRef.current = 0;
 		showActivity(crearActividad(letter, roundRef.current.palabra));
 	}
 
@@ -386,7 +399,7 @@ export default function Puzzle() {
 									}
 								}}
 								>
-									<span className={`puzzle-slot-letter${placedCookie ? " placed" : ""}`} aria-hidden="true">
+									<span className={`puzzle-slot-letter${placedCookie ? " placed" : ""}${activity.numero >= RONDAS_CON_MODELO ? " sin-modelo" : ""}`} aria-hidden="true">
 										{letra}
 									</span>
 								</button>
@@ -412,6 +425,7 @@ export default function Puzzle() {
 					</div>
 				)}
 			</main>
+			<PremioComida premio={premio} />
 		</div>
 	);
 }

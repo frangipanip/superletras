@@ -89,6 +89,8 @@ function encolar(evento) {
 }
 
 // Al completar una actividad. Devuelve { comida, cantidad, score } (cantidad 0 si ya llegó al tope).
+const PREMIO_ESTRELLAS = { clave: "estrellas", nombre: "Estrellas", emoji: "⭐" };
+
 export function otorgarPremio(letra, actividad, errores = 0, cantidadSolicitada) {
 	if (!letra) {
 		return null;
@@ -97,7 +99,8 @@ export function otorgarPremio(letra, actividad, errores = 0, cantidadSolicitada)
 	marcarCompletada(letra, actividad, premioPorErrores(actividad, errores, cantidadSolicitada));
 	const comida = COMIDA_POR_ACTIVIDAD[actividad];
 	if (!comida) {
-		return null;
+		// Las actividades de palabras no alimentan al monstruo: su premio son estrellas.
+		return { id: nuevoId(), comida: PREMIO_ESTRELLAS, cantidad: 0, score: premioPorErrores(actividad, errores, cantidadSolicitada) };
 	}
 	const evento = { id: nuevoId(), tipo: "premio", letra, actividad, errores, codigo: state.codigo };
 	if (cantidadSolicitada !== undefined) {

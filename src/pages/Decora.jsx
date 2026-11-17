@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import BackButton from "../components/BackButton";
 import Character from "../components/Character";
 import FullscreenButton from "../components/FullscreenButton";
+import PremioComida, { useRecompensa } from "../components/PremioComida";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
@@ -94,6 +95,8 @@ export default function Decora() {
 	const menuOption = useActivityMenuOption();
 	const letra = Object.hasOwn(GROUPS, menuOption) ? menuOption : "l";
 	const [etapa, setEtapa] = useState(0);
+	const [premio, otorgarPremio] = useRecompensa("decora", letra);
+	const erroresRef = useRef(0);
 	const [ronda, setRonda] = useState(() => crearRonda(letra));
 	const [fase, setFase] = useState("playing");
 	const [seleccionada, setSeleccionada] = useState(null);
@@ -248,6 +251,7 @@ export default function Decora() {
 	}
 
 	function finalizarConError(opcion) {
+		erroresRef.current += 1;
 		interactionRef.current = true;
 		detenerAudio();
 		setSeleccionada(opcion.id);
@@ -365,6 +369,7 @@ export default function Decora() {
 		programar(() => {
 			setDecoracionPastel("velas");
 			setFase("complete");
+			otorgarPremio(erroresRef.current);
 			setConfetiVisible(true);
 		}, 1450);
 	}
@@ -379,6 +384,7 @@ export default function Decora() {
 	}
 
 	function reiniciar() {
+		erroresRef.current = 0;
 		limpiarTemporizadores();
 		detenerAudio();
 		interactionRef.current = false;
@@ -668,6 +674,7 @@ export default function Decora() {
 					</div>
 				)}
 			</main>
+			<PremioComida premio={premio} />
 		</div>
 	);
 }

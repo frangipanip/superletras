@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import BackButton from "../components/BackButton";
 import Character from "../components/Character";
 import FullscreenButton from "../components/FullscreenButton";
+import PremioComida, { useRecompensa } from "../components/PremioComida";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
@@ -31,20 +32,36 @@ function dividirPalabra(palabra) {
 	return [palabra.slice(0, corte), palabra.slice(corte)];
 }
 
-function crearRonda(letra, palabraAnterior) {
+// Palabras que no se cortan bien en dos sílabas (MI-EL, LE-E, IS-LA…): enseñaban un corte
+// incorrecto y sus fichas quedaban mudas. Siguen en palabras.js para las otras actividades.
+const NO_SE_CORTAN = ["MIEL", "LEE", "LIO", "ISLA", "UAU", "OIA", "AIA"];
+// 3 rondas con la sílaba tenue en cada hueco; 3 con los huecos vacíos y una ficha de más.
+const RONDAS_CON_MODELO = 3;
+const TOTAL_RONDAS = 6;
+
+function crearRonda(letra, palabraAnterior, numero = 0) {
 	const grupo = GROUPS[Object.prototype.hasOwnProperty.call(GROUPS, letra) ? letra : "l"];
-	const candidatas = grupo.items.filter((palabra) => palabra !== palabraAnterior);
+	const candidatas = grupo.items.filter((palabra) => palabra !== palabraAnterior && !NO_SE_CORTAN.includes(palabra));
 	const palabra = candidatas[Math.floor(Math.random() * candidatas.length)];
 	const silabas = dividirPalabra(palabra);
-	const ordenadas = Math.random() >= 0.7 ? silabas : [...silabas].reverse();
+	const sinModelo = numero >= RONDAS_CON_MODELO;
+	const sobrantes = grupo.syllables.filter((silaba) => !silabas.includes(silaba));
+	const extra = sinModelo && sobrantes.length ? [sobrantes[Math.floor(Math.random() * sobrantes.length)]] : [];
+	const fichas = [...silabas, ...extra];
+	const ordenadas = !sinModelo && Math.random() >= 0.7 ? fichas : [...fichas].sort(() => Math.random() - 0.5);
+	if (ordenadas.slice(0, silabas.length).join("") === silabas.join("") && !extra.length) {
+		ordenadas.reverse();
+	}
 
 	return {
 		palabra,
 		silabas,
+		numero,
+		sinModelo,
 		opciones: ordenadas.map((valor, indice) => ({
 			id: `silaba-${indice}`,
 			valor,
-			imagen: TOKEN_IMAGES[indice]
+			imagen: TOKEN_IMAGES[indice % TOKEN_IMAGES.length]
 		}))
 	};
 }
@@ -65,6 +82,8 @@ export default function Pastel() {
 	const [rebote, setRebote] = useState(null);
 	const [errorAudio] = useState(() => runtime.audio(sound("error.mp3"), { preload: true }));
 	const [secuencia] = useState(() => crearSecuencia({ startTalking, stopTalking }));
+	const [premio, otorgarPremio] = useRecompensa("pastel", letter);
+	const erroresRef = useRef(0);
 	const sceneRef = useRef(null);
 	const dragRef = useRef(null);
 	const slotsRef = useRef(slots);
@@ -129,7 +148,9 @@ export default function Pastel() {
 		const sequenceId = wordAudioSequenceRef.current;
 		const wordAudioName = `PL${word.toLowerCase()}.mp3`;
 		const audioNames = includeInstruction
-			? [wordAudioName, "formaPalabra.mp3", wordAudioName]
+			? roundRef.current.sinModelo
+				? [wordAudioName, "pastelQueParte.mp3"]
+				: [wordAudioName, "formaPalabra.mp3", wordAudioName]
 			: [wordAudioName];
 
 		function playStep(index) {
@@ -221,9 +242,13 @@ export default function Pastel() {
 
 	function advanceRound() {
 		if (advanceTimerRef.current !== null) return;
+		if (roundRef.current.numero + 1 >= TOTAL_RONDAS) {
+			otorgarPremio(erroresRef.current);
+			return;
+		}
 		advanceTimerRef.current = runtime.setTimeout(() => {
 			advanceTimerRef.current = null;
-			const nextRound = crearRonda(letter, roundRef.current.palabra);
+			const nextRound = crearRonda(letter, roundRef.current.palabra, roundRef.current.numero + 1);
 			roundRef.current = nextRound;
 			slotsRef.current = [null, null];
 			setRound(nextRound);
@@ -238,6 +263,7 @@ export default function Pastel() {
 		const option = roundRef.current.opciones.find(({ id }) => id === optionId);
 		if (!option) return;
 		if (option.valor !== roundRef.current.silabas[slotIndex]) {
+			erroresRef.current += 1;
 			stopWordSpeech();
 			stopSyllableAudio();
 			setSelectedOption(null);
@@ -402,7 +428,7 @@ export default function Pastel() {
 										<img src={placedOption.imagen} alt="" draggable={false} />
 										<span>{placedOption.valor}</span>
 									</span>
-								) : (
+								) : round.sinModelo ? null : (
 									<span className="pastel-slot-hint" aria-hidden="true">
 										{round.silabas[index]}
 									</span>
@@ -411,7 +437,7 @@ export default function Pastel() {
 						);
 					})}
 				</div>
-				<div className="pastel-options" aria-label="Sílabas disponibles">
+				<div className={`pastel-options${round.opciones.length > 2 ? " pastel-options--tres" : ""}`} aria-label="Sílabas disponibles">
 					{round.opciones.map((option, index) => {
 						const placed = slots.includes(option.id);
 						return (
@@ -450,6 +476,7 @@ export default function Pastel() {
 					</div>
 				)}
 			</main>
+			<PremioComida premio={premio} />
 		</div>
 	);
 }

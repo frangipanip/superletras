@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import BackButton from "../components/BackButton";
 import Character from "../components/Character";
 import FullscreenButton from "../components/FullscreenButton";
+import PremioComida, { useRecompensa } from "../components/PremioComida";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
@@ -26,10 +27,15 @@ const RONDAS = [
 	{ imagen: img("vasocrema.png"), entrega: [12, 13, 14, 15] }
 ];
 
-// Tres palabras de la letra elegida (antes eran siempre LULA, OLA y LALI).
+// Seis palabras de la letra elegida (antes eran siempre LULA, OLA y LALI). Las tres bebidas se
+// repiten: en la segunda vuelta la palabra se ve 3 s y después se escribe sin mirar.
+const TOTAL_RONDAS = 6;
+const RONDAS_CON_MODELO = 3;
+const MODELO_VISIBLE_MS = 3000;
+
 function elegirPalabras(letra) {
 	const grupo = GROUPS[Object.hasOwn(GROUPS, letra) ? letra : "l"];
-	return shuffle(grupo.items).slice(0, RONDAS.length);
+	return shuffle(grupo.items).slice(0, TOTAL_RONDAS);
 }
 
 function audioDePalabra(palabra) {
@@ -59,6 +65,10 @@ export default function Escribir() {
 	const [secuencia] = useState(() => crearSecuencia({ startTalking, stopTalking }));
 	const [escribiAudio] = useState(() => runtime.audio(sound("escribi.mp3"), { preload: true }));
 	const [tecladoAudio] = useState(() => runtime.audio(sound("escribiTeclas.mp3"), { preload: true }));
+	const [sinMirarAudio] = useState(() => runtime.audio(sound("escribirSinMirar.mp3"), { preload: true }));
+	const [premio, otorgarPremio] = useRecompensa("escribir", menuOption);
+	const erroresRef = useRef(0);
+	const [palabraOculta, setPalabraOculta] = useState(false);
 
 	// Se entra directo a preparar la bebida: el helado y el cupcake todavía no existen.
 	const [fase, setFase] = useState("jugando");
@@ -122,7 +132,13 @@ export default function Escribir() {
 	useEffect(() => {
 		if (fase === "jugando") {
 			consigna();
-			return detenerAudio;
+			setPalabraOculta(false);
+			if (ronda < RONDAS_CON_MODELO) return detenerAudio;
+			const timer = runtime.setTimeout(() => setPalabraOculta(true), MODELO_VISIBLE_MS);
+			return () => {
+				runtime.clearTimeout(timer);
+				detenerAudio();
+			};
 		}
 		if (fase === "final") {
 			reproducirAudio("Fabuloso.mp3", true);
@@ -135,7 +151,9 @@ export default function Escribir() {
 	function consigna() {
 		detenerAudio();
 		const palabra = runtime.audio(sound(audioDePalabra(palabras[ronda])));
-		secuencia.reproducir(ronda === 0 ? [escribiAudio, palabra, tecladoAudio] : [escribiAudio, palabra]);
+		secuencia.reproducir(ronda === 0
+			? [escribiAudio, palabra, tecladoAudio]
+			: [ronda >= RONDAS_CON_MODELO ? sinMirarAudio : escribiAudio, palabra]);
 	}
 
 	const reiniciar = useCallback(() => {
@@ -146,6 +164,7 @@ export default function Escribir() {
 		fijarBloqueado(false);
 		detenerAudio();
 		setPalabras(elegirPalabras(menuOption));
+		erroresRef.current = 0;
 		setFase("jugando");
 		setRonda(0);
 		setEscrito([]);
@@ -195,7 +214,7 @@ export default function Escribir() {
 	}
 
 	function animarEntrega() {
-		const frames = RONDAS[ronda].entrega;
+		const frames = RONDAS[ronda % RONDAS.length].entrega;
 		let indice = 0;
 		setProductoFrame(img(`vaso${frames[indice]}.png`));
 		entregaTimerRef.current = runtime.setInterval(() => {
@@ -205,8 +224,9 @@ export default function Escribir() {
 				runtime.clearInterval(entregaTimerRef.current);
 				entregaTimerRef.current = runtime.setTimeout(() => {
 					entregaTimerRef.current = 0;
-					if (ronda === RONDAS.length - 1) {
+					if (ronda === TOTAL_RONDAS - 1) {
 						setFase("final");
+						otorgarPremio(erroresRef.current);
 					} else {
 						setRonda((actual) => actual + 1);
 						setEscrito([]);
@@ -228,6 +248,7 @@ export default function Escribir() {
 			return;
 		}
 
+		erroresRef.current += 1;
 		const palabra = palabraActual;
 		const malas = new Set(escrito.map((letra, indice) => (letra === palabra[indice] ? -1 : indice)).filter((indice) => indice >= 0));
 		reproducirAudio("error.mp3");
@@ -240,7 +261,7 @@ export default function Escribir() {
 		}, 650);
 	}
 
-	const rondaActual = RONDAS[ronda] && { ...RONDAS[ronda], palabra: palabraActual };
+	const rondaActual = palabraActual && { ...RONDAS[ronda % RONDAS.length], palabra: palabraActual };
 
 	return (
 		<div className="page activity-page page-escribir">
@@ -276,7 +297,7 @@ export default function Escribir() {
 									<img src={rondaActual.imagen} alt="" />
 								</span>
 								<span className="escribir-igual">=</span>
-								<span className="escribir-palabra">{rondaActual.palabra}</span>
+								<span className={`escribir-palabra${palabraOculta ? " oculta" : ""}`}>{palabraOculta ? "?" : rondaActual.palabra}</span>
 							</div>
 
 							<div className="escribir-casillas" aria-label={`Escribí ${rondaActual.palabra}`}>
@@ -351,6 +372,7 @@ export default function Escribir() {
 					/>
 				)}
 			</main>
+			<PremioComida premio={premio} />
 		</div>
 	);
 }

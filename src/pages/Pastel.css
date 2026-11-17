@@ -220,3 +220,32 @@
 		animation: none;
 	}
 }
+
+/* Vuelta 2: tres fichas (una de más) en fila. */
+.pastel-options--tres .pastel-token,
+.pastel-options--tres .pastel-token:first-child,
+.pastel-options--tres .pastel-token:last-child {
+	transform: translate(var(--pastel-token-x), -50%);
+}
+
+.pastel-options--tres .pastel-token:hover,
+.pastel-options--tres .pastel-token:focus-visible,
+.pastel-options--tres .pastel-token.selected,
+.pastel-options--tres .pastel-token:first-child:hover,
+.pastel-options--tres .pastel-token:first-child.selected,
+.pastel-options--tres .pastel-token:last-child:hover,
+.pastel-options--tres .pastel-token:last-child.selected {
+	transform: translate(var(--pastel-token-x), -50%) scale(1.08);
+}
+
+.pastel-options--tres .pastel-token:nth-child(1) {
+	--pastel-token-x: calc(-150% - var(--pastel-token-gap));
+}
+
+.pastel-options--tres .pastel-token:nth-child(2) {
+	--pastel-token-x: -50%;
+}
+
+.pastel-options--tres .pastel-token:nth-child(3) {
+	--pastel-token-x: calc(50% + var(--pastel-token-gap));
+}
