@@ -127,10 +127,10 @@ const MUNDO4_MODES = {
 // GUE; la diéresis de GÜE). Las claves son las del menú en minúscula.
 const MUNDO5_MODES = {
 	g: { ...createSyllableMode("g", ["GA", "GO", "GU"]), intro: ["Esta es la letra G.mp3"] },
-	ge: { ...createSyllableMode("ge", ["GE", "GI"]), intro: ["Esta es la letra GE.mp3"] },
-	gu: { ...createSyllableMode("gu", ["GUE", "GUI"]), intro: ["Esta es la letra GUE.mp3"] },
+	ge: { ...createSyllableMode("ge", ["GE", "GI"]), intro: ["Esta es la letra GE.mp3"], repaso: { items: ["GA", "GO", "GU"], audio: "recordaG.mp3" } },
+	gu: { ...createSyllableMode("gu", ["GUE", "GUI"]), intro: ["Esta es la letra GUE.mp3"], repaso: { items: ["GA", "GO", "GU"], audio: "recordaG.mp3" } },
 	j: { ...createSyllableMode("j", ["JA", "JE", "JI", "JO", "JU"]), intro: ["Esta es la letra J.mp3"] },
-	"gü": { ...createSyllableMode("gü", ["GÜE", "GÜI"]), intro: ["Esta es la letra GÜE.mp3"] }
+	"gü": { ...createSyllableMode("gü", ["GÜE", "GÜI"]), intro: ["Esta es la letra GÜE.mp3"], repaso: { items: ["GUE", "GUI"], audio: "Esta es la letra GUE.mp3" } }
 };
 // Mundo 6: B y V dicen que suenan igual; la K, que suena como CA y QUE.
 const MUNDO6_MODES = {
@@ -253,6 +253,8 @@ export default function InicioActividad() {
 	const modeOptions = isMundo6 ? MUNDO6_MODES : isMundo5 ? MUNDO5_MODES : isMundo4 ? MUNDO4_MODES : isMundo3 ? MUNDO3_MODES : isMundo2 ? MUNDO2_MODES : MODES;
 	const fallbackOption = isMundo6 ? "b" : isMundo5 ? "g" : isMundo4 ? "c" : isMundo3 ? "r" : isMundo2 ? "p" : "a";
 	const [mode] = useState(() => modeOptions[menuOption || fallbackOption] || modeOptions[fallbackOption]);
+	const repaso = isMundo4Q ? { items: MUNDO4_Q_REVIEW_ITEMS, audio: "recordaQ.mp3" } : mode.repaso;
+	const roundItems = repaso ? [...mode.items, ...repaso.items] : mode.items;
 	const [clamState, setClamState] = useState(() => ({
 		src: isMundo4 ? img(MUNDO4_SHELLS[menuOption || fallbackOption].closed) : "",
 		moved: false
@@ -268,9 +270,9 @@ export default function InicioActividad() {
 		celebration: runtime.audio(sound("Felicitaciones.mp3"), { preload: true }),
 		error: runtime.audio(sound("error.mp3"), { preload: true }),
 		acierto: runtime.audio(commonSound("acierto.mp3"), { preload: true }),
-		qReviewWellDone: isMundo4Q ? runtime.audio(sound("muybien.mp3"), { preload: true }) : null,
-		qReview: isMundo4Q ? runtime.audio(sound("recordaQ.mp3"), { preload: true }) : null,
-		qReviewItems: isMundo4Q ? Object.fromEntries(MUNDO4_Q_REVIEW_ITEMS.map((item) => [
+		qReviewWellDone: repaso ? runtime.audio(sound("muybien.mp3"), { preload: true }) : null,
+		qReview: repaso ? runtime.audio(sound(repaso.audio), { preload: true }) : null,
+		qReviewItems: repaso ? Object.fromEntries(repaso.items.map((item) => [
 			item,
 			runtime.audio(sound(`${item.toLowerCase()}.mp3`), { preload: true })
 		])) : {},
@@ -363,7 +365,7 @@ export default function InicioActividad() {
 	// Arranca una tanda de pedidos (fase 2 o 3) y pide el primero.
 	function startRequests() {
 		// Orden mezclado: si se pide siempre A, E, I, O, U se acierta de memoria, sin mirar el cartel.
-		requestOrder.current = shuffle(isMundo4Q ? MUNDO4_Q_ROUND_ITEMS : mode.items);
+		requestOrder.current = shuffle(roundItems);
 		requestedItemIndex.current = 0;
 		setRequestedItem(requestOrder.current[0]);
 		playRequestedItem(requestOrder.current[0]);
@@ -548,9 +550,9 @@ export default function InicioActividad() {
 		setIsPhaseThree(true);
 		setSelectedItems(new Set());
 		setActivitySelectedItems(new Set());
-		if (isMundo4Q) {
-			setItemOrder(shuffle(MUNDO4_Q_ROUND_ITEMS));
-			setVisibleItems(new Set(MUNDO4_Q_ROUND_ITEMS));
+		if (repaso) {
+			setItemOrder(shuffle(roundItems));
+			setVisibleItems(new Set(roundItems));
 		}
 		startTalking();
 		audios.movement.currentTime = 0;
@@ -571,10 +573,9 @@ export default function InicioActividad() {
 		startTalking();
 		audios.shuffle.currentTime = 0;
 		const shuffleAndRequest = () => {
-			const roundItems = isMundo4Q ? MUNDO4_Q_ROUND_ITEMS : mode.items;
 			setSelectedItems(new Set());
 			setItemOrder(shuffle(roundItems));
-			if (isMundo4Q) {
+			if (repaso) {
 				setVisibleItems(new Set(roundItems));
 			}
 			setIsShuffling(true);
@@ -597,7 +598,7 @@ export default function InicioActividad() {
 	}
 
 	function playQReviewSyllable(index) {
-		if (index >= MUNDO4_Q_REVIEW_ITEMS.length) {
+		if (index >= repaso.items.length) {
 			sequenceTimer.current = runtime.setTimeout(() => {
 				setReviewItems([]);
 				setItemOrder([]);
@@ -605,7 +606,7 @@ export default function InicioActividad() {
 			}, MUNDO4_Q_REVIEW_HOLD_MS);
 			return;
 		}
-		const item = MUNDO4_Q_REVIEW_ITEMS[index];
+		const item = repaso.items[index];
 		const audio = audios.qReviewItems[item];
 		setReviewItems((current) => [...current, item]);
 		startTalking();
@@ -622,7 +623,7 @@ export default function InicioActividad() {
 	function playQReviewNarration() {
 		setReviewClamVisible(true);
 		setReviewClamArrived(false);
-		const clamDuration = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : MUNDO4_Q_REVIEW_CLAM_MS;
+		const clamDuration = !isMundo4Q || window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : MUNDO4_Q_REVIEW_CLAM_MS;
 		let narrationFinished = false;
 		let clamArrived = false;
 		const continueWhenReady = () => {
@@ -674,7 +675,7 @@ export default function InicioActividad() {
 		});
 		setActiveItem(null);
 		setIsShuffling(false);
-		if (isMundo4Q) {
+		if (repaso) {
 			setIsPhaseTwo(true);
 			sequenceTimer.current = runtime.setTimeout(() => {
 				setItemOrder([]);

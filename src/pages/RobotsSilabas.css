@@ -1,0 +1,102 @@
+.page-robots-silabas.robots-voladores {
+	background: url("/assets/imagenes/fondoRobotsVoladores.png") center / cover no-repeat;
+}
+
+.page-robots-silabas.robots-jardin {
+	background: url("/assets/imagenes/fondoRobotsJardin.png") center / cover no-repeat;
+}
+
+.page-robots-silabas .robots-avance {
+	position: absolute;
+	top: 4%;
+	left: 50%;
+	transform: translateX(-50%);
+	display: flex;
+	gap: 0.4em;
+	color: #a2c8da;
+	font-size: clamp(22px, 5vmin, 38px);
+	text-shadow: 0 2px 2px #fff;
+}
+
+.page-robots-silabas .robots-avance .hecho { color: #ffca1a; }
+
+.page-robots-silabas .robots-opciones {
+	position: absolute;
+	inset: 21% 20% 13% 7%;
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	grid-template-rows: repeat(2, minmax(0, 1fr));
+	gap: 5vh 3vw;
+}
+
+.page-robots-silabas.robots-jardin .robots-opciones {
+	inset: 27% 16% 23% 5%;
+	grid-template-rows: minmax(0, 1fr);
+	gap: 3vw;
+}
+
+.page-robots-silabas .robot-opcion { position: relative; min-height: 0; min-width: 0; }
+
+.page-robots-silabas .robot-elegir {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-end;
+	width: 100%;
+	height: 100%;
+	padding: 0;
+	border: 0;
+	background: none;
+	cursor: pointer;
+	touch-action: manipulation;
+	transition: transform 220ms ease, opacity 220ms ease;
+}
+
+.page-robots-silabas .robot-elegir img { min-height: 0; width: 100%; height: calc(100% - 7vmin); object-fit: contain; }
+
+.page-robots-silabas .robot-silaba {
+	display: block;
+	padding: 0.08em 0.32em;
+	border: 3px solid #69cee5;
+	border-radius: 0.3em;
+	background: #fff8db;
+	box-shadow: 0 3px 0 #437eac;
+	color: #5b288b;
+	font: 900 clamp(25px, 6vmin, 48px) / 1.05 "Arial Rounded MT Bold", Arial, sans-serif;
+}
+
+.page-robots-silabas .robot-escuchar {
+	position: absolute;
+	bottom: -3.5rem;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 44px;
+	height: 44px;
+	border: 2px solid #4884ac;
+	border-radius: 50%;
+	background: #ecfbff;
+	color: #49327a;
+	font-size: 26px;
+	cursor: pointer;
+}
+
+.page-robots-silabas .robot-opcion.error { animation: robot-error 350ms ease; opacity: 0.45; }
+.page-robots-silabas .robot-escuchar svg { width: 75%; height: 75%; vertical-align: middle; }
+.page-robots-silabas .robot-opcion.acierto { transform: scale(0.8); opacity: 0.35; }
+.page-robots-silabas .robot-opcion.acierto .robot-silaba { background: #beffbd; }
+.page-robots-silabas .robot-elegir:focus-visible { outline: 3px solid #ffae00; border-radius: 16px; }
+.page-robots-silabas .selected-character:not(.celebrating) { top: auto; bottom: 3%; transform: none; width: clamp(90px, 21vmin, 160px); }
+.page-robots-silabas .selected-character:not(.celebrating) > img:first-child { max-height: 33vh; object-fit: contain; }
+
+@keyframes robot-error { 25%, 75% { transform: translateX(-8px); } 50% { transform: translateX(8px); } }
+
+@media (max-height: 420px) {
+	.page-robots-silabas .robots-opciones { inset: 25% 17% 8% 5%; gap: 3vh 3vw; }
+	.page-robots-silabas.robots-jardin .robots-opciones { inset: 25% 17% 25% 4%; }
+	.page-robots-silabas .robot-escuchar { bottom: -44px; width: 38px; height: 38px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.page-robots-silabas .robot-opcion.error { animation: none; }
+	.page-robots-silabas .robot-elegir { transition: none; }
+}

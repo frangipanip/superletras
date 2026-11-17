@@ -108,6 +108,13 @@ Molde de la Q: presentar, contrastar, mezclar. Los audios de sílabas ya existen
 - `Mundo5.jsx`: navegación, personaje y posiciones guardadas como en `Mundo4.jsx` (hoy todo apagado). Clave nueva `mundo5Perches`.
 - Arte nuevo: fondo y criaturas de cada actividad con tema robots (el menú ya usa `robotG.png`), fondo de Peluches.
 
+Cierre de la fase (3.83.0):
+
+- [x] Mariposas y Flores con fondos propios, robots, ayuda y premio; distractores sin equivalencias de sonido incorrectas.
+- [x] Repaso configurable en Inicio para Q, GE, GUE y GÜE, con pedidos mezclados después de contrastar.
+- [x] Posición del personaje por letra guardada en `mundo5Perches`.
+- [x] Recorridos completos con ambas voces y encuadres de celular horizontal y tablet.
+
 ## Fase 8 — Mundo 6: B, V, Ñ, K, X (3.79.0)
 
 - **B y V**: "dos letras, un sonido"; Chupetines de B solo con otras vocales de B; `ElegirLetra` para "¿Vaca va con B o con V?".

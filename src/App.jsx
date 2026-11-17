@@ -14,6 +14,7 @@ import Silabas from "./pages/Silabas";
 import Mariposas from "./pages/Mariposas";
 import Tren from "./pages/Tren";
 import Flores from "./pages/Flores";
+import RobotsSilabas from "./pages/RobotsSilabas";
 import Peluche from "./pages/Iniciales";
 import PeluchesMundo2 from "./pages/PeluchesMundo2";
 import PeluchesMundo3 from "./pages/PeluchesMundo3";
@@ -58,6 +59,12 @@ function PeluchesRuta() {
 	return <Peluche />;
 }
 
+function ActividadSilabasRuta({ actividad }) {
+	const location = useLocation();
+	if (location.state?.world === 5) return <RobotsSilabas key={actividad} actividad={actividad} />;
+	return actividad === "mariposas" ? <Mariposas /> : <Flores />;
+}
+
 export default function App() {
 	// Cambiar la key vuelve a montar la pantalla actual (ver useReiniciarPagina).
 	const [vuelta, setVuelta] = useState(0);
@@ -76,9 +83,9 @@ export default function App() {
 				<Route path="/mundo6" element={<Mundo6 />} />
 				<Route path="/inicio" element={<InicioActividad />} />
 				<Route path="/silabas" element={<Silabas />} />
-				<Route path="/mariposas" element={<Mariposas />} />
+				<Route path="/mariposas" element={<ActividadSilabasRuta actividad="mariposas" />} />
 				<Route path="/tren" element={<Tren />} />
-				<Route path="/flores" element={<Flores />} />
+				<Route path="/flores" element={<ActividadSilabasRuta actividad="flores" />} />
 				<Route path="/dibujar" element={<Dibujar />} />
 				<Route path="/memotest" element={<Memotest />} />
 				<Route path="/monstruo" element={<Monstruo />} />

@@ -1,0 +1,30 @@
+{
+  "fecha": "2026-11-17",
+  "herramienta": "imagegen (herramienta integrada)",
+  "imagenes": [
+    {
+      "archivo": "public/assets/imagenes/fondoRobotsVoladores.png",
+      "prompt": "Use case: illustration-story. Asset for Superletras children's Spanish reading game world 5. Landscape 16:9 background inside an airy friendly robot factory hangar, colorful rounded machinery and gears at edges, pale cyan spacious empty center for eight flying robot sprites in two rows. Clear floor at bottom. No robots, no letters, no text, no buttons. Match the reference image style: cheerful shiny colorful toy robots, rounded surfaces, clean defined outlines, soft illumination and polished cartoon volume. Keep the composition readable and friendly."
+    },
+    {
+      "archivo": "public/assets/imagenes/fondoRobotsJardin.png",
+      "prompt": "Use case: illustration-story. Asset for Superletras children's Spanish reading game world 5. Landscape 16:9 background of a whimsical robot greenhouse workshop, small mechanical flowers and colorful pipes along edges, quiet light blue background and broad clean platform across lower third for four robot plants. Empty center for game options. No robot characters, no letters, no text, no buttons. Match the reference image style: cheerful shiny colorful toy robots, rounded surfaces, clean defined outlines, soft illumination and polished cartoon volume. Keep the composition readable and friendly."
+    },
+    {
+      "archivo": "public/assets/imagenes/robotSilabas1.png",
+      "prompt": "Use case: illustration-story. Asset for Superletras children's Spanish reading game world 5. ONE friendly little round red and yellow robot with small antenna, cyan eyes and hovering feet, complete front view. Big simple shapes, no letters or numbers anywhere. Isolated on real transparent alpha background. Match the reference image style: cheerful shiny colorful toy robots, rounded surfaces, clean defined outlines, soft illumination and polished cartoon volume. Keep the composition readable and friendly."
+    },
+    {
+      "archivo": "public/assets/imagenes/robotSilabas2.png",
+      "prompt": "Use case: illustration-story. Asset for Superletras children's Spanish reading game world 5. ONE friendly little rounded blue and cyan robot with small antenna, yellow eyes and hovering feet, complete front view. Big simple shapes, no letters or numbers anywhere. Isolated on real transparent alpha background. Match the reference image style: cheerful shiny colorful toy robots, rounded surfaces, clean defined outlines, soft illumination and polished cartoon volume. Keep the composition readable and friendly."
+    },
+    {
+      "archivo": "public/assets/imagenes/robotSilabas3.png",
+      "prompt": "Use case: illustration-story. Asset for Superletras children's Spanish reading game world 5. ONE friendly little rounded purple and pink robot with small antenna, cyan eyes and hovering feet, complete front view. Big simple shapes, no letters or numbers anywhere. Isolated on real transparent alpha background. Match the reference image style: cheerful shiny colorful toy robots, rounded surfaces, clean defined outlines, soft illumination and polished cartoon volume. Keep the composition readable and friendly."
+    },
+    {
+      "archivo": "public/assets/imagenes/robotSilabas4.png",
+      "prompt": "Use case: illustration-story. Asset for Superletras children's Spanish reading game world 5. ONE friendly little rounded green and yellow robot with small antenna, cyan eyes and hovering feet, complete front view. Big simple shapes, no letters or numbers anywhere. Isolated on real transparent alpha background. Match the reference image style: cheerful shiny colorful toy robots, rounded surfaces, clean defined outlines, soft illumination and polished cartoon volume. Keep the composition readable and friendly."
+    }
+  ]
+}

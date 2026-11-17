@@ -315,6 +315,27 @@
 	animation: mundo5-character-float 2.8s ease-in-out infinite;
 }
 
+.mundo5-character-spot {
+	position: absolute;
+	bottom: 7%;
+	left: clamp(12px, 5vw, 72px);
+	z-index: 3;
+	width: clamp(145px, 23vw, 320px);
+}
+
+.mundo5-character-spot.perched {
+	bottom: auto;
+	width: clamp(110px, 22vmin, 210px);
+	transform: translate(-50%, -100%);
+}
+
+.mundo5-character-spot .mundo5-character {
+	position: relative;
+	bottom: auto;
+	left: auto;
+	width: 100%;
+}
+
 .mundo5-character img {
 	display: block;
 	width: 100%;

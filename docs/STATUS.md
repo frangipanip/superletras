@@ -7,8 +7,8 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 ## Punto de retoma
 
 - **Publicado en dev**: 3.81.0, commit `5fb710c`, mergeado y subido a `develop`; despliegue de GitHub Actions completado correctamente. Incluye el Tren de Mundo 5.
-- **Trabajo posterior en la rama de auditoría**: documentación de proceso y estilo guardada en `0115e10` (3.81.4); ampliación del Tren implementada como 3.82.0. Todavía no está publicada.
-- **Próximo trabajo**: Mariposas y Flores de Mundo 5 con arte de robots; luego oraciones y los dos pendientes de fase 4.
+- **Trabajo posterior en la rama de auditoría**: documentación en `0115e10` (3.81.4); Tren en todos los mundos en `a7f79eb` (3.82.0); Mariposas, Flores, repaso y posiciones de Mundo 5 implementados en 3.83.0. Todavía no está publicado.
+- **Próximo trabajo**: oraciones y los dos pendientes de fase 4.
 - **Arte de trenes elegido**: está en la conversación de ChatGPT indicada por el usuario. No se pudo acceder desde esta sesión; el fondo y la locomotora de Mundo 5 publicados son imágenes nuevas generadas aquí. Queda recuperar e integrar los recursos elegidos.
 
 ## Verificación del Tren (3.82.0)
@@ -32,7 +32,7 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 | 4 | Consigna oral en todas las pantallas e íconos | 3.75.0 | ✅ Hecha, salvo dos puntos (ver abajo) |
 | 5 | Palabras: segunda vuelta sin modelo y cierre | 3.76.0 | ✅ Hecha |
 | 6 | Peluches en Mundo 4 | 3.77.0 | ✅ Hecha |
-| 7 | Mundo 5: G, GE, GUE, J, GÜE | 3.78.0 – 3.81.0 | 🟡 En curso: Inicio, Peluches, "¿J o G?" y Tren hechos; faltan Mariposas y Flores |
+| 7 | Mundo 5: G, GE, GUE, J, GÜE | 3.78.0 – 3.83.0 | ✅ Implementado: Inicio con repaso, Tren, Peluches, "¿J o G?", Mariposas y Flores |
 | 8 | Mundo 6: B, V, Ñ, K, X | 3.80.0 | ✅ Hecha: Inicio, Peluches y "¿B o V?" |
 | 9 | Tramo de oraciones | Por definir | ⏳ Pendiente: faltan los dibujos |
 | Ampliación | Tren en todos los mundos | 3.82.0 | ✅ Implementado y recorrido en los seis mundos; pendiente recuperar arte elegido anteriormente |
@@ -41,10 +41,18 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 
 - **Audios**: los 143 de la lista (`descargas/lista-audios.tsv`) están generados con ElevenLabs e instalados en `public/assets/sonido/supernena` (Malena) y `supernene` (Dante), incluidos los de las fases 4 a 9. `acierto.mp3` es común a las dos voces y está en `sonido/`.
 - **Dibujos y fondos**: se generan en chatgpt.com en láminas de 6 (3x2, fondo blanco), se copian con el botón "Copiar imagen" (sin descargas) y se recortan con un script (fondo transparente, 300 px). Los fondos se piden subiendo uno existente como modelo de composición. Ya están los de Mundos 4, 5 y 6 (`imagenes/peluches/MUNDO4|5|6/`, cada uno con su `fondo.jpg`) y los fondos propios de Inicio y "¿J o G?" / "¿B o V?" de Mundos 5 y 6 (`fondoInicioM5/M6.jpg`, `fondoElegirM5/M6.jpg`): cada actividad nueva lleva un fondo acorde al mundo y a la actividad, no el del menú. Faltan el cartel "ARA" de Mundo 3 (fase 4) y:
-  - Mundo 5: las criaturas robot y los fondos de Mariposas y Flores.
   - `imagenes/oraciones/`: un dibujo por oración (6).
 
 ## Hecho
+
+### Fase 7 — Robots voladores, jardín y repaso (3.83.0)
+- Mariposas y Flores de Mundo 5 usan `RobotsSilabas.jsx`, compartiendo consignas, ayuda, audios en secuencia y premio. Robots voladores: cinco sílabas del grupo; jardín: una ronda por sílaba, con botón para escuchar cada opción sin elegirla.
+- Dos fondos propios y cuatro robots transparentes. Prompts y rutas en `docs/arte/robots-prompts.json`.
+- `src/lib/mundo5.js` comparte sílabas y distractores: GE/GI nunca se enfrentan a JE/JI como respuestas equivocadas. Tren usa la misma lista.
+- Inicio generaliza el repaso de Q para GE, GUE y GÜE: muestra el grupo anterior y después mezcla las sílabas en las dos vueltas de pedidos.
+- `mundo5Perches` guarda la posición del personaje por letra sin modificar los datos previos; los nuevos carteles se agregan al final del camino.
+- Chromium: 20 recorridos de las dos actividades hasta el premio (cinco opciones × dos actividades × dos voces), con dos errores, halo, progreso y sin superposición de audios ni recursos faltantes. Ocho recorridos completos de Inicio Q/GE/GUE/GÜE con ambas voces. Verificados seis encuadres en celular y tablet y navegación desde el menú con posición guardada. Scripts y evidencia locales en `descargas/pruebas-robots/` y `descargas/*robots.mjs`, `descargas/probar-repasos.mjs`.
+- `npm.cmd run build` y `git diff --check` correctos.
 
 ### Ampliación — Tren en todos los mundos (3.82.0)
 - Tren agregado al final de los caminos de Mundos 2, 3, 4 y 6, conservando los índices previos de actividades y posiciones guardadas. Mundo 5 conserva su orden existente.
@@ -123,7 +131,7 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 - `PeluchesMundo5.jsx` (consigna "contiene"): 22 palabras con dibujo y audio y fondo de fábrica de robots. El dibujo equivocado es siempre de otro sonido de la misma letra.
 - Se corrigió el audio de GÜE de supernena (`suengaGÜE.mp3` → `suenaGÜE.mp3`): antes había un caso especial en el código.
 - Probado en el navegador: menú, Inicio de GE (presentación y sílabas) y Peluches de GÜE.
-- De esta fase siguen pendientes Mariposas y Flores de Mundo 5 (necesitan criaturas y fondos robot).
+- Mariposas y Flores se completaron en 3.83.0 (ver arriba).
 
 ### Fase 6 — Peluches en Mundo 4 (3.77.0)
 - `PeluchesMundo4.jsx` usa el mismo escenario de dos plataformas que Mundo 3 (`PeluchesPlataformas`, exportado desde `PeluchesMundo3.jsx`) con fondo submarino propio.

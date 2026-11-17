@@ -57,7 +57,9 @@ const ACTIVIDADES_M5 = [
 	{ clave: "inicio", ruta: "/inicio", cartel: "INICIALESbtn.png", nombre: "Iniciar actividad de sílabas" },
 	{ clave: "tren", ruta: "/tren", cartel: "TRENbtn.png", nombre: "Iniciar actividad del tren" },
 	{ clave: "peluches", ruta: "/peluches", cartel: "PELUCHESbtn.png", nombre: "Iniciar actividad de palabras con peluches" },
-	{ clave: "elegir", ruta: "/elegir", cartel: "JoGbtn.png", nombre: "Iniciar actividad: ¿va con J o con G?" }
+	{ clave: "elegir", ruta: "/elegir", cartel: "JoGbtn.png", nombre: "Iniciar actividad: ¿va con J o con G?" },
+	{ clave: "mariposas", ruta: "/mariposas", cartel: "MARIPOSAbtn.png", nombre: "Iniciar actividad de robots voladores" },
+	{ clave: "flores", ruta: "/flores", cartel: "FLORbtn.png", nombre: "Iniciar actividad del jardín de robots" }
 ];
 const PATH_BUTTONS = [
 	[8, 83], [17, 83], [26, 83], [35, 83], [44, 83],
@@ -65,6 +67,16 @@ const PATH_BUTTONS = [
 	[12.5, 83], [21.5, 83], [30.5, 83], [39.5, 83], [48.5, 83],
 	[57.5, 83], [66.5, 83], [75.5, 83], [85, 83]
 ];
+
+function readSavedPerches() {
+	try {
+		const guardadas = JSON.parse(readStorage(STORAGE_KEYS.mundo5Perches) || "{}");
+		return Object.fromEntries(Object.entries(guardadas).filter(([letra, indice]) =>
+			LETTERS.includes(letra) && Number.isInteger(indice) && indice >= 0 && indice < ACTIVIDADES_M5.length));
+	} catch {
+		return {};
+	}
+}
 
 export const MUNDO5_IMAGES = [
 	img("FONDOM5.png"),
@@ -88,6 +100,9 @@ export default function Mundo5() {
 		return LETTERS.includes(saved) ? saved : null;
 	});
 	const progreso = useSyncExternalStore(subscribeProgreso, getProgreso);
+	const [savedPerches, setSavedPerches] = useState(readSavedPerches);
+	const perch = savedPerches[selectedLetter];
+	const perchPosition = PATH_BUTTONS[perch];
 	const pathLetter = (selectedLetter || LETTERS[0]).toLowerCase();
 	const isActivityDone = (index) => index < ACTIVIDADES_M5.length && puntajeDe(progreso, pathLetter, ACTIVIDADES_M5[index].clave) > 0;
 	const nextActivityIndex = ACTIVIDADES_M5.findIndex((_, index) => !isActivityDone(index));
@@ -104,7 +119,7 @@ export default function Mundo5() {
 	const characterSpotRef = useRef(null);
 	const letterAudioRef = useRef(null);
 	const { offscreen: characterOffscreen, direction: characterDirection, scrollToCharacter } =
-		useCharacterLocator(pageRef, characterSpotRef, character);
+		useCharacterLocator(pageRef, characterSpotRef, character, perch);
 	const drag = useRef({ pointerId: null, startX: 0, startScroll: 0, moved: false }).current;
 	const [dragging, setDragging] = useState(false);
 
@@ -199,6 +214,9 @@ export default function Mundo5() {
 		const letter = selectedLetter || LETTERS[0];
 		setSelectedLetter(letter);
 		writeStorage(STORAGE_KEYS.mundo5MenuOption, letter);
+		const posiciones = { ...savedPerches, [letter]: index };
+		setSavedPerches(posiciones);
+		writeStorage(STORAGE_KEYS.mundo5Perches, JSON.stringify(posiciones));
 		navigate(actividad.ruta, { state: { world: 5, menuOption: letter } });
 	}
 
@@ -323,10 +341,12 @@ export default function Mundo5() {
 				</div>
 
 				{character && (
-					<button ref={characterSpotRef} className="mundo5-character" type="button" aria-label="Reproducir presentación" onClick={playIntroAudio}>
+					<div ref={characterSpotRef} className={`mundo5-character-spot${perchPosition ? " perched" : ""}`} style={perchPosition ? { left: `${perchPosition[0]}%`, top: `${perchPosition[1]}%` } : undefined}>
+					<button className="mundo5-character" type="button" aria-label="Reproducir presentación" onClick={playIntroAudio}>
 						<img src={MUNDO5_CHARACTERS[character].image} alt={MUNDO5_CHARACTERS[character].alt} draggable={false} />
 						{mouth.visible && <img className="mundo5-character-mouth" src={mouth.src} alt="" />}
 					</button>
+					</div>
 				)}
 
 				<aside ref={menuPanelRef} className="mundo5-menu-panel" aria-label="Letras del Mundo 5">

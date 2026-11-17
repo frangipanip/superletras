@@ -9,7 +9,7 @@ export const CAMINOS = {
 	2: ["inicio", "mariposas", "flores", "peluches", "tren"],
 	3: ["inicio", "mariposas", "flores", "peluches", "tren"],
 	4: ["inicio", "mariposas", "flores", "peluches", "tren"],
-	5: ["inicio", "tren", "peluches", "elegir"],
+	5: ["inicio", "tren", "peluches", "elegir", "mariposas", "flores"],
 	6: ["inicio", "peluches", "elegir", "tren"]
 };
 

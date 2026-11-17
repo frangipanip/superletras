@@ -1,4 +1,5 @@
 import { MUNDO4_SYLLABLES } from "./mundo4.js";
+import { MUNDO5_SYLLABLES } from "./mundo5.js";
 
 const conVocales = (letra) => ["A", "E", "I", "O", "U"].map((vocal) => `${letra}${vocal}`);
 
@@ -9,7 +10,7 @@ export const SILABAS_TREN = {
 		y: ["YA", "YE", "YO", "YU"], ll: conVocales("LL")
 	},
 	4: MUNDO4_SYLLABLES,
-	5: { g: ["GA", "GO", "GU"], ge: ["GE", "GI"], gu: ["GUE", "GUI"], j: conVocales("J"), "gü": ["GÜE", "GÜI"] },
+	5: MUNDO5_SYLLABLES,
 	6: Object.fromEntries(["b", "v", "ñ", "k", "x"].map((letra) => [letra, conVocales(letra.toUpperCase())]))
 };
 
