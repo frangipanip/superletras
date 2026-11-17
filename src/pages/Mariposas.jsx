@@ -109,12 +109,8 @@ const MUNDO3_BLOCK_ERROR_IMAGES = new Map([
 ]);
 const TOTAL_BUTTERFLIES = 8;
 const TOTAL_CORRECT = 5;
-// Ositos (Mundo 1, consonantes): después de "los ositos de la L" vienen dos rondas con una sílaba
-// sola ("tocá todos los ositos que dicen LA") entre las otras sílabas de la misma letra.
-const VUELTA2_RONDAS = 2;
 const CONSIGNA_CON_REGLA_M3 = { ar: "bloquesRSuave.mp3", rr: "bloquesRFuerte.mp3" };
 const CONSIGNA_CON_REGLA_M4 = { ce: "pecesCE.mp3", q: "pecesQ.mp3" };
-const VUELTA2_CORRECTOS = 3;
 const MUNDO4_CHARACTER_FRAME_DURATION = 375;
 const POSITIONS = [
 	[24, 18],
@@ -165,7 +161,7 @@ function createInstructionOrder(mode, syllableModes, isMundo3) {
 	return mode !== "a" ? [mode.toUpperCase()] : shuffle(VOWELS);
 }
 
-function createButterflies(mode, targetValue, generation, syllableModes = SYLLABLES, creatureImages = BUTTERFLY_IMAGES, creaturePositions, isMundo3 = false, isMundo4 = false, silabaPedida = null) {
+function createButterflies(mode, targetValue, generation, syllableModes = SYLLABLES, creatureImages = BUTTERFLY_IMAGES, creaturePositions, isMundo3 = false, isMundo4 = false) {
 	const items = [];
 	function addItem(value, correct, index) {
 		items.push({
@@ -176,13 +172,7 @@ function createButterflies(mode, targetValue, generation, syllableModes = SYLLAB
 		});
 	}
 
-	if (silabaPedida) {
-		const otras = syllableModes[mode].filter((item) => item !== silabaPedida);
-		const equivocadas = Array.from({ length: TOTAL_BUTTERFLIES - VUELTA2_CORRECTOS }, (_, index) => shuffle(otras)[index % otras.length]);
-		[...Array(VUELTA2_CORRECTOS).fill(silabaPedida), ...equivocadas].forEach((label, index) =>
-			addItem(label, label === silabaPedida, index)
-		);
-	} else if (isMundo3) {
+	if (isMundo3) {
 		const correctSyllables = syllableModes[mode].filter((item) => !SILABAS_SIN_PRACTICA.includes(item));
 		const incorrectPool = MUNDO3_CONTRASTE[mode] || MUNDO3_INCORRECT_SYLLABLES;
 		const incorrectSyllables = shuffle(incorrectPool).slice(0, TOTAL_BUTTERFLIES - TOTAL_CORRECT);
@@ -256,8 +246,9 @@ export default function Mariposas() {
 	const syllableModes = isMundo4 ? MUNDO4_SYLLABLES : isMundo3 ? MUNDO3_SYLLABLES : isMundo2 ? MUNDO2_SYLLABLES : SYLLABLES;
 	const creatureImages = isMundo4 ? MUNDO4_FISH_IMAGES : isMundo3 ? MUNDO3_BLOCK_IMAGES : isMundo2 ? BUTTERFLY_IMAGES : OSITO_IMAGES;
 	const [mode] = useState(() => (Object.hasOwn(syllableModes, activityMenuOption) ? activityMenuOption : isMundo4 ? "c" : isMundo3 ? "r" : isMundo2 ? "p" : "a"));
-	const conVuelta2 = !isMundo2 && !isMundo3 && !isMundo4 && mode !== "a";
-	const totalInstructions = mode === "a" ? VOWELS.length : conVuelta2 ? 1 + VUELTA2_RONDAS : 1;
+	// Una sola ronda ("tocá los ositos de la L"); con las vocales, una por vocal. Las rondas de una
+	// sílaba sola que se agregaron en la 3.75.0 se sacaron a pedido el 17/11/2026.
+	const totalInstructions = mode === "a" ? VOWELS.length : 1;
 	const [targetValue, setTargetValue] = useState("");
 	const [butterflies, setButterflies] = useState([]);
 	const [celebrating, setCelebrating] = useState(false);
@@ -325,10 +316,6 @@ export default function Mariposas() {
 			correctClicked: 0,
 			instructionSequenceId: 0,
 			instructionAudios: [],
-			// Vuelta 2 de Ositos: sílaba pedida en esta ronda (null en la vuelta 1) y cuántos ositos faltan.
-			silabaPedida: null,
-			silabasVuelta2: conVuelta2 ? shuffle(syllableModes[mode]).slice(0, VUELTA2_RONDAS) : [],
-			correctNeeded: TOTAL_CORRECT,
 			roundTransitionPending: false,
 			celebrationActive: false,
 			generation: 0,
@@ -378,7 +365,6 @@ export default function Mariposas() {
 		}
 		state.instructionIndex = 0;
 		state.instructionsCompleted = 0;
-		state.silabasVuelta2 = conVuelta2 ? shuffle(syllableModes[mode]).slice(0, VUELTA2_RONDAS) : [];
 		state.targetValue = mode !== "a" ? mode.toUpperCase() : state.instructionOrder[0];
 	}
 
@@ -402,9 +388,6 @@ export default function Mariposas() {
 
 	// Archivo de lo que se pide en esta ronda (la letra, la vocal o el sonido del mundo).
 	function optionAudioFile() {
-		if (state.silabaPedida) {
-			return getAudioFileName(state.silabaPedida);
-		}
 		return isMundo4
 			? MUNDO4_SYLLABLE_AUDIO[mode.toUpperCase()]
 			: isMundo3
@@ -421,11 +404,9 @@ export default function Mariposas() {
 		const promptFile = isMundo4 ? "pulsapeces.mp3" : isMundo3 ? "Pulsabloque.mp3" : isMundo2 ? "Pulsa.mp3" : "Pulsaosito.mp3";
 		// En las letras con regla (R suave/fuerte, CE, Q) la consigna dice la regla completa.
 		const ruleFile = isMundo3 ? CONSIGNA_CON_REGLA_M3[mode] : isMundo4 ? CONSIGNA_CON_REGLA_M4[mode] : null;
-		const sequence = state.silabaPedida
-			? [runtime.audio(sound("ositosDicen.mp3")), runtime.audio(optionFile)]
-			: ruleFile
-				? [runtime.audio(sound(ruleFile))]
-				: [runtime.audio(optionFile), runtime.audio(sound(promptFile)), runtime.audio(optionFile)];
+		const sequence = ruleFile
+			? [runtime.audio(sound(ruleFile))]
+			: [runtime.audio(optionFile), runtime.audio(sound(promptFile)), runtime.audio(optionFile)];
 		state.instructionAudios = sequence;
 		let audioIndex = 0;
 
@@ -490,10 +471,6 @@ export default function Mariposas() {
 
 	function buildButterflies() {
 		state.correctClicked = 0;
-		state.silabaPedida = conVuelta2 && state.instructionsCompleted >= 1
-			? state.silabasVuelta2[state.instructionsCompleted - 1]
-			: null;
-		state.correctNeeded = state.silabaPedida ? VUELTA2_CORRECTOS : TOTAL_CORRECT;
 		state.generation += 1;
 		setTargetValue(state.targetValue);
 		setButterflies(createButterflies(
@@ -504,8 +481,7 @@ export default function Mariposas() {
 			creatureImages,
 			isMundo3 ? MUNDO3_POSITIONS : isMundo4 ? MUNDO4_POSITIONS : isMundo2 ? undefined : OSITO_POSITIONS,
 			isMundo3,
-			isMundo4,
-			state.silabaPedida
+			isMundo4
 		));
 		ayuda.reiniciar();
 		playInstructionAudio();
@@ -542,7 +518,7 @@ export default function Mariposas() {
 		}
 
 		state.correctClicked += 1;
-		const completesRound = state.correctClicked === state.correctNeeded;
+		const completesRound = state.correctClicked === TOTAL_CORRECT;
 		const clickGeneration = state.generation;
 		button.disabled = true;
 		updateButterfly(butterfly.id, { flying: true });

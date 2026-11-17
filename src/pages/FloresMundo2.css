@@ -130,3 +130,11 @@
 		transform: translate(-50%, calc(-50% - 10px));
 	}
 }
+
+/* Parlante abajo de la oruga, centrado: en la esquina tapaba la sílaba (pedido del 17/11/2026). */
+.page-flores.world-mundo2 .opcion-parlante {
+	top: calc(100% + 0.6vh);
+	bottom: auto;
+	left: 50%;
+	transform: translateX(-50%);
+}

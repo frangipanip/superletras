@@ -228,19 +228,19 @@ Tres arreglos chicos, verificables por separado.
 
 **Ositos (actividad 2) sin rondas de sílaba.** La fase 4 agregó a Ositos de Mundo 1, en las consonantes, dos rondas de una sola sílaba ("tocá todos los ositos que dicen LA"). Se sacan (`VUELTA2_RONDAS`, `silabasVuelta2` y `conVuelta2` en `Mariposas.jsx`): vuelve a una sola ronda, "tocá los ositos de la L", como antes. Las vocales siguen pidiendo cada vocal, como antes de la fase 4. Mundos 2 a 5 ya tienen una sola ronda (Mariposas, Bloques, Peces y Robots voladores) y Mundo 6 no tiene esta actividad.
 
-- [ ] L, M, S y T: una sola ronda y premio; `ositosDicen.mp3` no suena más.
-- [ ] Vocales y Mundos 2 a 5 sin cambios.
+- [x] L, M, S y T: una sola ronda y premio; `ositosDicen.mp3` no suena más.
+- [x] Vocales y Mundos 2 a 5 sin cambios.
 
 **Dibujar pasa sola a la vocal siguiente.** Hoy solo la A pasa a la E (escrito a mano en `completeSegment`); E, I, O y U se reinician en la misma letra. Al terminar el audio de felicitación ("¡Muy bien! Dibujaste la letra:" + letra) pasa a la siguiente de `letterOptions`: A → E → I → O → U. Después de la U, si falta alguna vocal va a la primera que falte; con las cinco queda el premio. Al pasar dice "Ahora dibujá la letra:" + la letra (audio nuevo `dibujarAhora.mp3`, dos voces). Las consonantes no cambian. Los cierres de cada letra (`celebrar(...)` de A/O/U, E, I y curvas) pasan a una sola función que avanza.
 
-- [ ] A → E → I → O → U sin tocar el selector, cada paso después de la felicitación y con "Ahora dibujá la letra:".
-- [ ] Elegir una vocal en el selector y terminarla sigue con la próxima; con las cinco, premio.
-- [ ] L, M, S y T sin cambios. `dibujarAhora.mp3` en las dos voces.
+- [x] A → E → I → O → U sin tocar el selector, cada paso después de la felicitación y con "Ahora dibujá la letra:".
+- [x] Elegir una vocal en el selector y terminarla sigue con la próxima; con las cinco, premio.
+- [x] L, M, S y T sin cambios. `dibujarAhora.mp3` en las dos voces.
 
 **Flores de Mundo 2: parlante debajo de la oruga.** El parlante (`.opcion-parlante` en `global.css`, abajo a la izquierda de la opción) tapa la sílaba de la oruga. En `FloresMundo2.css`, bajo `.page-flores.world-mundo2`, el parlante va centrado debajo de la oruga, fuera de la etiqueta. Revisar que en Mundos 1, 3 y 4 tampoco tape la etiqueta.
 
-- [ ] Mundo 2: la sílaba se lee entera en 1138 × 712, 844 × 390 y 667 × 375; el parlante se toca sin elegir la oruga.
-- [ ] Mundos 1, 3 y 4: la etiqueta tampoco queda tapada.
+- [x] Mundo 2: la sílaba se lee entera en 1138 × 712, 844 × 390 y 667 × 375; el parlante se toca sin elegir la oruga.
+- [x] Mundos 1, 3 y 4: la etiqueta tampoco queda tapada.
 
 ### Fase 13 — El monstruo brilla cuando tiene comida para dar (3.88.0)
 

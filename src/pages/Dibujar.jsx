@@ -92,6 +92,7 @@ export default function Dibujar() {
 	const [aciertoAudio] = useState(() => runtime.audio(commonSound("acierto.mp3"), { preload: true }));
 	const [dibujasteAudio] = useState(() => runtime.audio(sound("dibujaste.mp3"), { preload: true }));
 	const [instructionAudio] = useState(() => runtime.audio(sound("dibujarConsigna.mp3"), { preload: true }));
+	const [dibujarAhoraAudio] = useState(() => runtime.audio(sound("dibujarAhora.mp3"), { preload: true }));
 	const [secuencia] = useState(() => crearSecuencia({ startTalking, stopTalking }));
 	const letter = activeLetter;
 	const curve = CURVE_TRACES[activeLetter];
@@ -117,13 +118,29 @@ export default function Dibujar() {
 		secuencia.cancelar();
 	}
 
-	// Al completar: acierto, "¡Muy bien! Dibujaste la letra:" y la letra; después sigue alTerminar.
+	// Al completar: acierto, "¡Muy bien! Dibujaste la letra:" y la letra. Con las vocales sigue sola
+	// la próxima que falte; si no hay otra (o es una consonante), alTerminar reinicia la misma letra.
 	function celebrar(alTerminar) {
 		secuencia.reproducir([
 			mudo(aciertoAudio),
 			dibujasteAudio,
 			runtime.audio(sound(audioDeLetra(activeLetter)))
-		], alTerminar);
+		], () => {
+			if (!pasarALaSiguienteVocal()) alTerminar?.();
+		});
+	}
+
+	// Orden A → E → I → O → U; después de la U (o si se eligió otra a mano), la primera que falte.
+	// Avisa "Ahora dibujá la letra:" y la vocal. Devuelve false si ya están todas.
+	function pasarALaSiguienteVocal() {
+		if (letterOptions.length < 2) return false;
+		const desde = letterOptions.indexOf(activeLetter);
+		const siguiente = [...letterOptions.slice(desde + 1), ...letterOptions.slice(0, desde)]
+			.find((vocal) => !completedVowelsRef.current.has(vocal));
+		if (!siguiente) return false;
+		switchLetter(siguiente);
+		secuencia.reproducir([dibujarAhoraAudio, runtime.audio(sound(audioDeLetra(siguiente)))]);
+		return true;
 	}
 
 	function playInstruction() {
@@ -456,9 +473,8 @@ export default function Dibujar() {
 			setCompleted(true);
 			awardCompletedLetter();
 			celebrar(() => {
-				setActiveLetter("E");
 				setShowTargets(true);
-				setPointerPosition(E_START_POINT);
+				setPointerPosition(START_POINT);
 				setDrawnSegments([]);
 				setDraftSegment(null);
 				setCompleted(false);
