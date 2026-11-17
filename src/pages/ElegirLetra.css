@@ -1,0 +1,154 @@
+/* "¿J o G?" / "¿B o V?": tarjeta con el dibujo y la palabra con hueco, y dos letras grandes. */
+.page-elegir-letra {
+	background: #8fd3f4 center / cover no-repeat;
+}
+
+.page-elegir-letra.elegir-mundo5 {
+	background-image: url("/assets/imagenes/FONDOM5.png");
+	background-position: left center;
+}
+
+.page-elegir-letra .elegir-escena {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: clamp(1rem, 5vw, 4rem);
+	padding: 4rem clamp(9rem, 26vw, 19rem) 1rem 1rem;
+}
+
+.page-elegir-letra .elegir-tarjeta {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: clamp(0.4rem, 2vmin, 1rem);
+	padding: clamp(0.8rem, 3vmin, 1.6rem) clamp(1rem, 4vmin, 2.4rem);
+	border: 5px solid #fff;
+	border-radius: 28px;
+	background: rgba(255, 255, 255, 0.92);
+	box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
+	animation: elegir-entrar 350ms ease-out both;
+}
+
+.page-elegir-letra .elegir-dibujo {
+	padding: 0;
+	border: 0;
+	background: transparent;
+	cursor: pointer;
+}
+
+.page-elegir-letra .elegir-dibujo img {
+	display: block;
+	width: auto;
+	height: clamp(140px, 42vh, 320px);
+	max-width: 40vw;
+	object-fit: contain;
+}
+
+.page-elegir-letra .elegir-palabra {
+	display: flex;
+	gap: 0.08em;
+	margin: 0;
+	color: #3b2a6b;
+	font: 900 clamp(2.2rem, 9vmin, 4.6rem) / 1 "Arial Black", Arial, Helvetica, sans-serif;
+	letter-spacing: 0.02em;
+}
+
+.page-elegir-letra .elegir-hueco {
+	display: inline-block;
+	min-width: 0.85em;
+	border-bottom: 0.12em solid #ff8a00;
+	color: #e0478d;
+	text-align: center;
+}
+
+.page-elegir-letra .elegir-hueco.lleno {
+	border-bottom-color: transparent;
+	animation: elegir-lleno 300ms ease-out both;
+}
+
+.page-elegir-letra .elegir-opciones {
+	display: flex;
+	flex-direction: column;
+	gap: clamp(0.8rem, 4vmin, 2rem);
+}
+
+.page-elegir-letra .elegir-letra {
+	display: grid;
+	place-items: center;
+	width: clamp(88px, 22vmin, 170px);
+	height: clamp(88px, 22vmin, 170px);
+	padding: 0;
+	border: 5px solid #fff;
+	border-radius: 26px;
+	background: linear-gradient(180deg, #ffd85c 0%, #ff9f1c 100%);
+	box-shadow: 0 6px 0 #c76b00, 0 10px 14px rgba(0, 0, 0, 0.3);
+	color: #3b2a6b;
+	font: 900 clamp(3rem, 14vmin, 7rem) / 1 "Arial Black", Arial, Helvetica, sans-serif;
+	cursor: pointer;
+	transition: transform 120ms ease;
+}
+
+.page-elegir-letra .elegir-letra:active {
+	transform: translateY(4px);
+	box-shadow: 0 2px 0 #c76b00, 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.page-elegir-letra .elegir-letra.pista-correcta {
+	box-shadow: 0 0 0 6px #fff, 0 0 28px 12px #ffd400;
+	animation: elegir-pista 0.9s ease-in-out infinite;
+}
+
+.page-elegir-letra .elegir-letra.correcta {
+	background: linear-gradient(180deg, #9cf27a 0%, #3fbf3f 100%);
+	box-shadow: 0 6px 0 #2a8a2a, 0 10px 14px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes elegir-entrar {
+	from {
+		opacity: 0;
+		transform: scale(0.85);
+	}
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+@keyframes elegir-pista {
+	0%,
+	100% {
+		transform: scale(1);
+	}
+	50% {
+		transform: scale(1.08);
+	}
+}
+
+@keyframes elegir-lleno {
+	from {
+		transform: scale(1.6);
+	}
+	to {
+		transform: scale(1);
+	}
+}
+
+@media (max-height: 500px) {
+	.page-elegir-letra .elegir-escena {
+		padding-top: 3rem;
+	}
+
+	.page-elegir-letra .elegir-dibujo img {
+		height: 36vh;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.page-elegir-letra .elegir-tarjeta,
+	.page-elegir-letra .elegir-hueco.lleno,
+	.page-elegir-letra .elegir-letra.pista-correcta {
+		animation: none;
+	}
+}

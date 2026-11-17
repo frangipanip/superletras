@@ -19,6 +19,7 @@ import PeluchesMundo2 from "./pages/PeluchesMundo2";
 import PeluchesMundo3 from "./pages/PeluchesMundo3";
 import PeluchesMundo4 from "./pages/PeluchesMundo4";
 import PeluchesMundo5 from "./pages/PeluchesMundo5";
+import ElegirLetra from "./pages/ElegirLetra";
 import Dibujar from "./pages/Dibujar";
 import Memotest from "./pages/Memotest";
 import Monstruo from "./pages/Monstruo";
@@ -88,6 +89,7 @@ export default function App() {
 				<Route path="/globos" element={<PlaceholderActivity key="globos" title="Globos" />} />
 				<Route path="/iniciales" element={<Navigate to="/peluches" replace />} />
 				<Route path="/peluches" element={<PeluchesRuta />} />
+				<Route path="/elegir" element={<ElegirLetra />} />
 				{Object.entries(LEGACY_REDIRECTS).map(([from, to]) => (
 					<Route key={from} path={from} element={<Navigate to={to} replace />} />
 				))}

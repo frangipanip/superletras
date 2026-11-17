@@ -14,7 +14,7 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 | 4 | Consigna oral en todas las pantallas e íconos | 3.75.0 | ✅ Hecha, salvo dos puntos (ver abajo) |
 | 5 | Palabras: segunda vuelta sin modelo y cierre | 3.76.0 | ✅ Hecha |
 | 6 | Peluches en Mundo 4 | 3.77.0 | ✅ Hecha |
-| 7 | Mundo 5: G, GE, GUE, J, GÜE | 3.78.0 | 🟡 En curso: Inicio y Peluches hechos; faltan Mariposas, Flores, Tren y "¿J o G?" |
+| 7 | Mundo 5: G, GE, GUE, J, GÜE | 3.78.0 – 3.79.0 | 🟡 En curso: Inicio, Peluches y "¿J o G?" hechos; faltan Mariposas, Flores y Tren |
 | 8 | Mundo 6: B, V, Ñ, K, X | 3.79.0 | ⏳ Pendiente: faltan los dibujos |
 | 9 | Tramo de oraciones | 3.80.0 | ⏳ Pendiente: faltan los dibujos |
 
@@ -71,6 +71,12 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 - Puzzle: en la vuelta 2 los casilleros no muestran la letra.
 - Escribir: seis palabras; en la vuelta 2 la palabra se ve 3 s y después "Ahora sin mirar".
 - Probado en el navegador: Barcos completo. Pastel, Puzzle, Escribir (vuelta 2) y Decora (premio) compilan pero no los recorrí hasta el final.
+
+### Fase 7 (segunda parte) — "¿Va con J o con G?" (3.79.0)
+- `ElegirLetra.jsx` (`/elegir`): dibujo, palabra con hueco (_IRAFA, ABE_A) y dos letras grandes. Dice la palabra, "¿Va con jota o con ge?" y la palabra otra vez. Error: ayuda en dos pasos con halo en la letra correcta. Al acertar se completa el hueco; 6 palabras y premio con estrellas.
+- Siempre salen GENTE, GELATINA, GIRASOL y JIRAFA (las que confunden de verdad) y dos de JUGO, JAULA, JABÓN y ABEJA. GIGANTE no se usa: su segunda G delataba la respuesta.
+- Tercer cartel del camino de Mundo 5 (`JoGbtn.png`, generado igual que los otros medallones). La pantalla ya acepta otro mundo con otro par de letras: en Mundo 6 se usa para B/V (`BoVbtn.png` ya está).
+- Probado en el navegador: ronda completa con dos errores (casi → mirá, es esta + halo) y premio.
 
 ### Fase 7 (primera parte) — Mundo 5: Inicio y Peluches (3.78.0)
 - El menú de Mundo 5 ya abre actividades: Inicio y Peluches, con marcas de completado, brillo en la siguiente y la letra sugerida titilando.

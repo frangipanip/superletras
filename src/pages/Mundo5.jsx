@@ -55,7 +55,8 @@ const ACTIVITY_SIGN_IMAGES = [
 // Actividades habilitadas del camino, en orden (tiene que coincidir con CAMINOS[5] de caminos.js).
 const ACTIVIDADES_M5 = [
 	{ clave: "inicio", ruta: "/inicio", cartel: "INICIALESbtn.png", nombre: "Iniciar actividad de sílabas" },
-	{ clave: "peluches", ruta: "/peluches", cartel: "PELUCHESbtn.png", nombre: "Iniciar actividad de palabras con peluches" }
+	{ clave: "peluches", ruta: "/peluches", cartel: "PELUCHESbtn.png", nombre: "Iniciar actividad de palabras con peluches" },
+	{ clave: "elegir", ruta: "/elegir", cartel: "JoGbtn.png", nombre: "Iniciar actividad: ¿va con J o con G?" }
 ];
 const PATH_BUTTONS = [
 	[8, 83], [17, 83], [26, 83], [35, 83], [44, 83],
