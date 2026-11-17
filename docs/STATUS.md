@@ -7,8 +7,8 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 ## Punto de retoma
 
 - **Publicado en dev**: 3.81.0, commit `5fb710c`, mergeado y subido a `develop`; despliegue de GitHub Actions completado correctamente. Incluye el Tren de Mundo 5.
-- **Trabajo posterior en la rama de auditoría**: documentación en `0115e10` (3.81.4); Tren en todos los mundos en `a7f79eb` (3.82.0); Mariposas, Flores, repaso y posiciones de Mundo 5 implementados en 3.83.0. Todavía no está publicado.
-- **Próximo trabajo**: oraciones y los dos pendientes de fase 4.
+- **Trabajo posterior en la rama de auditoría**: documentación en `0115e10` (3.81.4); Tren en `a7f79eb` (3.82.0); Mundo 5 en `ac28392` (3.83.0); cierre de fase 4 implementado en 3.84.0. Todavía no está publicado.
+- **Próximo trabajo**: tramo de oraciones (fase 9).
 - **Arte de trenes elegido**: está en la conversación de ChatGPT indicada por el usuario. No se pudo acceder desde esta sesión; el fondo y la locomotora de Mundo 5 publicados son imágenes nuevas generadas aquí. Queda recuperar e integrar los recursos elegidos.
 
 ## Verificación del Tren (3.82.0)
@@ -29,7 +29,7 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 | 1 | Distractores que suenan igual y contraste R/RR | 3.72.10 | ✅ Hecha (commit `6d023f7`) |
 | 2 | Devolución que ayuda y audios que no se pisan | 3.73.0 | ✅ Hecha (commit `d15342b`) |
 | 3 | Camino a palabras visible y corto | 3.74.0 | ✅ Hecha (commit `aae8b42`), en dev; 3.74.1 saca el bloqueo de Q y CE |
-| 4 | Consigna oral en todas las pantallas e íconos | 3.75.0 | ✅ Hecha, salvo dos puntos (ver abajo) |
+| 4 | Consigna oral en todas las pantallas e íconos | 3.75.0 y 3.84.0 | ✅ Hecha, incluidos Q en dos partes y cartel ARA |
 | 5 | Palabras: segunda vuelta sin modelo y cierre | 3.76.0 | ✅ Hecha |
 | 6 | Peluches en Mundo 4 | 3.77.0 | ✅ Hecha |
 | 7 | Mundo 5: G, GE, GUE, J, GÜE | 3.78.0 – 3.83.0 | ✅ Implementado: Inicio con repaso, Tren, Peluches, "¿J o G?", Mariposas y Flores |
@@ -40,10 +40,15 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 ## Recursos
 
 - **Audios**: los 143 de la lista (`descargas/lista-audios.tsv`) están generados con ElevenLabs e instalados en `public/assets/sonido/supernena` (Malena) y `supernene` (Dante), incluidos los de las fases 4 a 9. `acierto.mp3` es común a las dos voces y está en `sonido/`.
-- **Dibujos y fondos**: se generan en chatgpt.com en láminas de 6 (3x2, fondo blanco), se copian con el botón "Copiar imagen" (sin descargas) y se recortan con un script (fondo transparente, 300 px). Los fondos se piden subiendo uno existente como modelo de composición. Ya están los de Mundos 4, 5 y 6 (`imagenes/peluches/MUNDO4|5|6/`, cada uno con su `fondo.jpg`) y los fondos propios de Inicio y "¿J o G?" / "¿B o V?" de Mundos 5 y 6 (`fondoInicioM5/M6.jpg`, `fondoElegirM5/M6.jpg`): cada actividad nueva lleva un fondo acorde al mundo y a la actividad, no el del menú. Faltan el cartel "ARA" de Mundo 3 (fase 4) y:
+- **Dibujos y fondos**: la producción anterior usó ChatGPT y láminas de seis dibujos; la ampliación actual usa `imagegen` con referencias existentes y piezas transparentes. Ya están los recursos de Mundos 4, 5 y 6, los trenes de todos los mundos, los robots de sílabas y el cartel ARA. Cada actividad nueva lleva un fondo acorde al mundo y a la actividad. Faltan:
   - `imagenes/oraciones/`: un dibujo por oración (6).
 
 ## Hecho
+
+### Cierre de fase 4 — Q y ARA (3.84.0)
+- La presentación de Q se detiene después de nombrarla. Un botón luminoso Q → QU y «Tocala» invitan a continuar; al tocarlo sigue la explicación de U y aparecen las sílabas. El botón de saltear conserva su función.
+- El cartel y las etiquetas visibles de R suave muestran ARA; la clave interna AR y los datos guardados se conservan. Imagen `bloqueARA.png`, prompt en `docs/arte/ara-prompt.json`.
+- Comprobadas las dos partes de Q y el toque intermedio con ambas voces en 1138 × 712 y 667 × 375. Build y revisión del diff correctos. Capturas locales en `descargas/pruebas-fase4/`.
 
 ### Fase 7 — Robots voladores, jardín y repaso (3.83.0)
 - Mariposas y Flores de Mundo 5 usan `RobotsSilabas.jsx`, compartiendo consignas, ayuda, audios en secuencia y premio. Robots voladores: cinco sílabas del grupo; jardín: una ronda por sílaba, con botón para escuchar cada opción sin elegirla.
@@ -140,9 +145,7 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 - Cartel de Peluches habilitado en el camino de Mundo 4 y marcado en el progreso; "siguiente actividad" llega hasta Peluches.
 - Probado en el navegador: CH completo hasta el premio, sin audios ni dibujos faltantes; Peluches de Mundo 3 sigue igual.
 
-**Quedó pendiente de la fase 4:**
-- Explicación de la Q "partida en dos con un toque en el medio" en Inicio (animación nueva).
-- Cartel "ARA" del menú de Mundo 3 (falta la imagen).
+**Los dos pendientes de fase 4 se completaron en 3.84.0:** explicación de Q con toque intermedio y cartel ARA.
 
 ## Pendientes del lado de ustedes
 

@@ -1,0 +1,7 @@
+{
+  "fecha": "2026-11-17",
+  "herramienta": "imagegen (herramienta integrada)",
+  "archivo": "public/assets/imagenes/bloqueARA.png",
+  "referencia": "public/assets/imagenes/bloqueAR.png",
+  "prompt": "Edit the provided Superletras blue toy block image. Change ONLY the printed central text from \"AR\" to exactly \"ARA\" (A, R, A), using the same blue rounded bold lettering, sized to fit inside the existing cream circular panel. Preserve the blue block shape, studs, lighting, proportions and all other details. Maintain real transparent background and the same composition. No extra objects or text."
+}

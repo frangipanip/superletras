@@ -19,7 +19,7 @@ const LETTERS = ["R", "RR", "AR", "Y", "LL"];
 const LETTER_BLOCKS = {
 	R: img("bloqueR.png"),
 	RR: img("bloqueRR.png"),
-	AR: img("bloqueAR.png"),
+	AR: img("bloqueARA.png"),
 	Y: img("bloqueY.png"),
 	LL: img("bloqueLL.png")
 };
@@ -409,11 +409,11 @@ export default function Mundo3() {
 							className={`mundo3-letter mundo3-letter-${index + 1}${selectedLetter === letter ? " selected" : ""}${nextLetter === letter && selectedLetter !== letter ? " menu-letra-siguiente" : ""}`}
 							key={letter}
 							type="button"
-							aria-label={`Seleccionar letra ${letter}`}
+							aria-label={`Seleccionar ${letter === "AR" ? "ARA, R suave" : `letra ${letter}`}`}
 							aria-pressed={selectedLetter === letter}
 							onClick={() => selectLetter(letter)}
 						>
-							<span className="mundo3-letter__label">{letter}</span>
+							<span className="mundo3-letter__label">{letter === "AR" ? "ARA" : letter}</span>
 						</button>
 					))}
 				</aside>

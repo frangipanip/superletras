@@ -195,7 +195,7 @@ const MUNDO2_LETTER_IMAGES = {
 const MUNDO3_LETTER_IMAGES = {
 	r: "bloqueR.png",
 	rr: "bloqueRR.png",
-	ar: "bloqueAR.png",
+	ar: "bloqueARA.png",
 	y: "bloqueY.png",
 	ll: "bloqueLL.png"
 };
@@ -225,7 +225,7 @@ const MUNDO2_LETTER_LABELS = {
 const MUNDO3_LETTER_LABELS = {
 	r: "Letra R",
 	rr: "Letra RR",
-	ar: "Letra AR",
+	ar: "R suave entre vocales",
 	y: "Letra Y",
 	ll: "Letra LL"
 };
@@ -272,6 +272,7 @@ export default function InicioActividad() {
 		acierto: runtime.audio(commonSound("acierto.mp3"), { preload: true }),
 		qReviewWellDone: repaso ? runtime.audio(sound("muybien.mp3"), { preload: true }) : null,
 		qReview: repaso ? runtime.audio(sound(repaso.audio), { preload: true }) : null,
+		qContinue: isMundo4Q ? runtime.audio(sound("tocala.mp3"), { preload: true }) : null,
 		qReviewItems: repaso ? Object.fromEntries(repaso.items.map((item) => [
 			item,
 			runtime.audio(sound(`${item.toLowerCase()}.mp3`), { preload: true })
@@ -291,6 +292,8 @@ export default function InicioActividad() {
 	const [reviewClamVisible, setReviewClamVisible] = useState(false);
 	const [reviewClamArrived, setReviewClamArrived] = useState(false);
 	const [reviewItems, setReviewItems] = useState([]);
+	const [qContinueVisible, setQContinueVisible] = useState(false);
+	const qContinueRef = useRef(null);
 	const [visibleItems, setVisibleItems] = useState(() => new Set());
 	const [revealingItem, setRevealingItem] = useState(null);
 	const [isPhaseTwo, setIsPhaseTwo] = useState(false);
@@ -524,6 +527,9 @@ export default function InicioActividad() {
 			return;
 		}
 		setIntro(false);
+		setQContinueVisible(false);
+		qContinueRef.current = null;
+		secuencia.cancelar();
 		runtime.clearTimeout(sequenceTimer.current);
 		runtime.clearTimeout(revealTimer.current);
 		[...audios.intro, ...Object.values(audios.itemsLong), audios.pressure].forEach((audio) => {
@@ -737,6 +743,8 @@ export default function InicioActividad() {
 		setReviewClamArrived(false);
 		setReviewItems([]);
 		setIntro(true);
+		setQContinueVisible(false);
+		qContinueRef.current = null;
 		// Presentación: primero los audios de la letra y después cada cartel con su audio largo.
 		const steps = [
 			...audios.intro.map((audio) => ({ audio, item: null })),
@@ -792,6 +800,12 @@ export default function InicioActividad() {
 				step.audio.onended = null;
 				stopTalking();
 				setActiveItem(null);
+				if (isMundo4Q && isLetterIntroStep) {
+					qContinueRef.current = playNextStep;
+					setQContinueVisible(true);
+					secuencia.reproducir([audios.qContinue]);
+					return;
+				}
 				if (isMundo4 && isLastIntroStep) {
 					setClamState((current) => ({ ...current, moved: true }));
 				}
@@ -828,6 +842,7 @@ export default function InicioActividad() {
 		}
 		return () => {
 			cancelClamDrop();
+			qContinueRef.current = null;
 			setIntro(false);
 			runtime.clearTimeout(sequenceTimer.current);
 			runtime.clearTimeout(reviewClamTimer.current);
@@ -882,6 +897,13 @@ export default function InicioActividad() {
 		<div className={`page activity-page page-inicio-actividad${isMundo2 ? " world-insectos" : ""}${isMundo3 ? " world-bloques" : ""}${isMundo4 ? " world-almejas" : ""}${isMundo5 ? " world-robots" : ""}${isMundo6 ? " world-unicornios" : ""}`}>
 			<BackButton />
 			<FullscreenButton toggle />
+			{qContinueVisible && <button className="inicio-q-continuar pista-correcta" type="button" aria-label="Continuar la explicación de Q con U" onClick={() => {
+				const continuar = qContinueRef.current;
+				qContinueRef.current = null;
+				setQContinueVisible(false);
+				secuencia.cancelar();
+				continuar?.();
+			}}><span>Q</span><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 10h10l-4-4 3-3 9 9-9 9-3-3 4-4H4z" /></svg><span>QU</span></button>}
 			{/* Saltear la presentación es un botón aparte: un toque suelto en el fondo ya no la corta. */}
 			{introVisible && (
 				<div className="activity-controls" aria-label="Controles de actividad">

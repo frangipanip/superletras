@@ -80,6 +80,12 @@ Mejora 5 más los hallazgos por actividad. Las frases con parte variable se arma
 
 Además: "Reiniciar", "Limpiar", "Repetir consigna" y "Otra bebida" pasan a botón con ícono, y el cartel "AR" del menú de Mundo 3 se reemplaza por uno "ARA" (imagen nueva).
 
+Cierre de los pendientes (3.84.0):
+
+- [x] Explicación de Q dividida entre Q y QU con un botón luminoso para continuar al tocar.
+- [x] Cartel ARA en Mundo 3 e Inicio, conservando la clave AR de los datos guardados.
+- [x] Q comprobada con ambas voces en tablet y celular horizontal.
+
 ## Fase 5 — Tramo de palabras: segunda vuelta sin modelo y cierre (3.76.0)
 
 Mejora 1, con el patrón que ya tiene `Tren.jsx` (`isHintHidden` + `startPhaseTwo`). Las cinco actividades pasan a 3 rondas con modelo + 3 sin modelo, cartel de premio y botón a la siguiente. Como no tienen comida en `shared/comidas.js`, `otorgarPremio` devuelve un premio de estrellas y marca el progreso.
