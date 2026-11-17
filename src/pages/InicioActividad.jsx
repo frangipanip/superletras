@@ -132,6 +132,14 @@ const MUNDO5_MODES = {
 	j: { ...createSyllableMode("j", ["JA", "JE", "JI", "JO", "JU"]), intro: ["Esta es la letra J.mp3"] },
 	"gü": { ...createSyllableMode("gü", ["GÜE", "GÜI"]), intro: ["Esta es la letra GÜE.mp3"] }
 };
+// Mundo 6: B y V dicen que suenan igual; la K, que suena como CA y QUE.
+const MUNDO6_MODES = {
+	b: { ...createSyllableMode("b", ["BA", "BE", "BI", "BO", "BU"]), intro: ["Esta es la letra B.mp3", "ConLasVocales.mp3"] },
+	v: { ...createSyllableMode("v", ["VA", "VE", "VI", "VO", "VU"]), intro: ["Esta es la letra V.mp3", "ConLasVocales.mp3"] },
+	"ñ": { ...createSyllableMode("ñ", ["ÑA", "ÑE", "ÑI", "ÑO", "ÑU"]), intro: ["Esta es la letra Ñ.mp3", "ConLasVocales.mp3"] },
+	k: { ...createSyllableMode("k", ["KA", "KE", "KI", "KO", "KU"]), intro: ["Esta es la letra K.mp3", "recordaK.mp3"] },
+	x: { ...createSyllableMode("x", ["XA", "XE", "XI", "XO", "XU"]), intro: ["Esta es la letra X.mp3", "ConLasVocales.mp3"] }
+};
 const MUNDO5_LETTER_IMAGES = {
 	g: "robotG.png",
 	ge: "robotGE.png",
@@ -233,7 +241,8 @@ export default function InicioActividad() {
 	const isMundo3 = location.state?.world === 3;
 	const isMundo4 = location.state?.world === 4;
 	const isMundo5 = location.state?.world === 5;
-	usePageTitle(isMundo5 ? "Inicio - Mundo 5" : isMundo4 ? "Inicio - Mundo 4" : isMundo3 ? "Inicio - Mundo 3" : isMundo2 ? "Inicio - Mundo 2" : "Inicio - Mundo 1");
+	const isMundo6 = location.state?.world === 6;
+	usePageTitle(isMundo6 ? "Inicio - Mundo 6" : isMundo5 ? "Inicio - Mundo 5" : isMundo4 ? "Inicio - Mundo 4" : isMundo3 ? "Inicio - Mundo 3" : isMundo2 ? "Inicio - Mundo 2" : "Inicio - Mundo 1");
 	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
 	const activityCharacters = isMundo1 ? MUNDO1_CHARACTERS : isMundo2 ? MUNDO2_CHARACTERS : isMundo3 ? MUNDO3_CHARACTERS : isMundo4 ? MUNDO4_CHARACTERS : isMundo5 ? MUNDO5_CHARACTERS : CHARACTERS;
@@ -241,8 +250,8 @@ export default function InicioActividad() {
 	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime, mouthImages);
 	const menuOption = useActivityMenuOption();
 	const isMundo4Q = isMundo4 && menuOption === "q";
-	const modeOptions = isMundo5 ? MUNDO5_MODES : isMundo4 ? MUNDO4_MODES : isMundo3 ? MUNDO3_MODES : isMundo2 ? MUNDO2_MODES : MODES;
-	const fallbackOption = isMundo5 ? "g" : isMundo4 ? "c" : isMundo3 ? "r" : isMundo2 ? "p" : "a";
+	const modeOptions = isMundo6 ? MUNDO6_MODES : isMundo5 ? MUNDO5_MODES : isMundo4 ? MUNDO4_MODES : isMundo3 ? MUNDO3_MODES : isMundo2 ? MUNDO2_MODES : MODES;
+	const fallbackOption = isMundo6 ? "b" : isMundo5 ? "g" : isMundo4 ? "c" : isMundo3 ? "r" : isMundo2 ? "p" : "a";
 	const [mode] = useState(() => modeOptions[menuOption || fallbackOption] || modeOptions[fallbackOption]);
 	const [clamState, setClamState] = useState(() => ({
 		src: isMundo4 ? img(MUNDO4_SHELLS[menuOption || fallbackOption].closed) : "",
@@ -308,7 +317,7 @@ export default function InicioActividad() {
 	leftCars.current = activitySelectedItems;
 	const isDriving = isMundo3 && isPhaseThree && !isShuffling;
 	useCarPhysics(runtime, { active: isDriving, itemRefs: carRefs, stoppedRef: leftCars, obstacleRefs: [characterRef], background: MUNDO3_BACKGROUND_OBSTACLES });
-	const [premio, otorgarPremio] = useRecompensa("inicio", isMundo2 || isMundo3 || isMundo4 || isMundo5 ? null : MODES[menuOption] ? menuOption : "a");
+	const [premio, otorgarPremio] = useRecompensa("inicio", isMundo2 || isMundo3 || isMundo4 || isMundo5 || isMundo6 ? null : MODES[menuOption] ? menuOption : "a");
 	const LETTER_IMAGES = {
 		a: "letraA.png",
 		l: "letraL.png",
@@ -458,10 +467,10 @@ export default function InicioActividad() {
 				}
 				setShowConfetti(true);
 				// La actividad se completa al terminar la fase 3 (carteles en movimiento).
-				if (isPhaseThree && !isMundo2 && !isMundo3 && !isMundo4 && !isMundo5) {
+				if (isPhaseThree && !isMundo2 && !isMundo3 && !isMundo4 && !isMundo5 && !isMundo6) {
 					otorgarPremio(errorCount.current);
 				} else if (isPhaseThree && menuOption) {
-					// Mundos 2 a 5: sin comida, pero queda anotada para las marcas del camino.
+					// Mundos 2 a 6: sin comida, pero queda anotada para las marcas del camino.
 					marcarCompletada(menuOption, "inicio", premioPorErrores("inicio", errorCount.current));
 				}
 				audios.celebration.onended = () => {
@@ -869,7 +878,7 @@ export default function InicioActividad() {
 	}, [audios, isMundo4, menuOption, modeOptions]);
 
 	return (
-		<div className={`page activity-page page-inicio-actividad${isMundo2 ? " world-insectos" : ""}${isMundo3 ? " world-bloques" : ""}${isMundo4 ? " world-almejas" : ""}${isMundo5 ? " world-robots" : ""}`}>
+		<div className={`page activity-page page-inicio-actividad${isMundo2 ? " world-insectos" : ""}${isMundo3 ? " world-bloques" : ""}${isMundo4 ? " world-almejas" : ""}${isMundo5 ? " world-robots" : ""}${isMundo6 ? " world-unicornios" : ""}`}>
 			<BackButton />
 			<FullscreenButton toggle />
 			{/* Saltear la presentación es un botón aparte: un toque suelto en el fondo ya no la corta. */}
@@ -992,7 +1001,11 @@ export default function InicioActividad() {
 					className={`inicio-activity-letter-image-wrap${showBigLetter ? " is-visible" : ""}${bigLetterCentered ? " is-centered" : ""}`}
 					aria-hidden="true"
 				>
-					<img className="inicio-activity-letter-image" src={bigLetterImage} alt={letterLabels[menuOption] || letterLabels[fallbackOption]} />
+					{isMundo6 ? (
+						<span className="inicio-activity-letter-text">{(menuOption || fallbackOption).toUpperCase()}</span>
+					) : (
+						<img className="inicio-activity-letter-image" src={bigLetterImage} alt={letterLabels[menuOption] || letterLabels[fallbackOption]} />
+					)}
 				</div>}
 			<PremioComida premio={premio} />
 			{character && (

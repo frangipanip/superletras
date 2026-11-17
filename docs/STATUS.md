@@ -15,15 +15,14 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 | 5 | Palabras: segunda vuelta sin modelo y cierre | 3.76.0 | ✅ Hecha |
 | 6 | Peluches en Mundo 4 | 3.77.0 | ✅ Hecha |
 | 7 | Mundo 5: G, GE, GUE, J, GÜE | 3.78.0 – 3.79.0 | 🟡 En curso: Inicio, Peluches y "¿J o G?" hechos; faltan Mariposas, Flores y Tren |
-| 8 | Mundo 6: B, V, Ñ, K, X | 3.79.0 | ⏳ Pendiente: faltan los dibujos |
-| 9 | Tramo de oraciones | 3.80.0 | ⏳ Pendiente: faltan los dibujos |
+| 8 | Mundo 6: B, V, Ñ, K, X | 3.80.0 | ✅ Hecha: Inicio, Peluches y "¿B o V?" |
+| 9 | Tramo de oraciones | 3.81.0 | ⏳ Pendiente: faltan los dibujos |
 
 ## Recursos
 
 - **Audios**: los 143 de la lista (`descargas/lista-audios.tsv`) están generados con ElevenLabs e instalados en `public/assets/sonido/supernena` (Malena) y `supernene` (Dante), incluidos los de las fases 4 a 9. `acierto.mp3` es común a las dos voces y está en `sonido/`.
-- **Dibujos y fondos**: se generan en chatgpt.com en láminas de 6 (3x2, fondo blanco), se copian con el botón "Copiar imagen" (sin descargas) y se recortan con un script (fondo transparente, 300 px). Ya están los de Mundo 4 (`imagenes/peluches/MUNDO4/`, con `fondo.jpg` submarino). Faltan para las fases 7 a 9 y el cartel "ARA" de Mundo 3 (fase 4):
-  - Mundo 5: las criaturas robot y los fondos de Mariposas, Flores y Tren (los dibujos de Peluches ya están).
-  - `imagenes/peluches/MUNDO6/`: unas 22 palabras.
+- **Dibujos y fondos**: se generan en chatgpt.com en láminas de 6 (3x2, fondo blanco), se copian con el botón "Copiar imagen" (sin descargas) y se recortan con un script (fondo transparente, 300 px). Los fondos se piden subiendo uno existente como modelo de composición. Ya están los de Mundos 4, 5 y 6 (`imagenes/peluches/MUNDO4|5|6/`, cada uno con su `fondo.jpg`) y los fondos propios de Inicio y "¿J o G?" / "¿B o V?" de Mundos 5 y 6 (`fondoInicioM5/M6.jpg`, `fondoElegirM5/M6.jpg`): cada actividad nueva lleva un fondo acorde al mundo y a la actividad, no el del menú. Faltan el cartel "ARA" de Mundo 3 (fase 4) y:
+  - Mundo 5: las criaturas robot y los fondos de Mariposas, Flores y Tren.
   - `imagenes/oraciones/`: un dibujo por oración (6).
 
 ## Hecho
@@ -71,6 +70,15 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 - Puzzle: en la vuelta 2 los casilleros no muestran la letra.
 - Escribir: seis palabras; en la vuelta 2 la palabra se ve 3 s y después "Ahora sin mirar".
 - Probado en el navegador: Barcos completo. Pastel, Puzzle, Escribir (vuelta 2) y Decora (premio) compilan pero no los recorrí hasta el final.
+
+### Fase 8 — Mundo 6: B, V, Ñ, K, X (3.80.0)
+- El menú de Mundo 6 ya habla (bienvenida y el sonido de cada letra al elegirla) y abre Inicio, Peluches y "¿B o V?", con marcas de completado, brillo en la siguiente y letra sugerida.
+- Inicio con fondo propio de prado de unicornios y la letra escrita en un círculo (no hay imágenes de letra para Mundo 6). La K dice "recordá: suena como CA y QUE" (`recordaK.mp3`).
+- `PeluchesMundo6.jsx` (consigna "contiene"): 22 palabras con dibujo y audio y fondo de arcoíris. En la Ñ, MOÑO siempre aparece contra MONO (`pares` en `PeluchesPlataformas`): la única diferencia es la virgulilla.
+- "¿Va con B o con V?" en `ElegirLetra.jsx`: mitad de palabras con B y mitad con V (BARCO, BOTA, BURRO, BOXEO / VACA, VASO, VELA, VIOLÍN). BEBÉ no va: su segunda B delataba la respuesta.
+- Fondos propios para Inicio y "¿J o G?" / "¿B o V?" en Mundos 5 y 6 (taller de robots, establo de unicornios), en lugar del fondo del menú.
+- Probado en el navegador: menú, Inicio de K y X, Peluches de Ñ y "¿B o V?" completos hasta el premio, sin audios ni dibujos faltantes.
+- El personaje de Mundo 6 en las actividades es el común: no hay bocas de unicornio (`superbocaUnicornio*`).
 
 ### Fase 7 (segunda parte) — "¿Va con J o con G?" (3.79.0)
 - `ElegirLetra.jsx` (`/elegir`): dibujo, palabra con hueco (_IRAFA, ABE_A) y dos letras grandes. Dice la palabra, "¿Va con jota o con ge?" y la palabra otra vez. Error: ayuda en dos pasos con halo en la letra correcta. Al acertar se completa el hueco; 6 palabras y premio con estrellas.

@@ -1,16 +1,31 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useNavigate } from "react-router";
 import CharacterLocator from "../components/CharacterLocator";
 import UserNav from "../components/UserNav";
 import { useCharacterLocator } from "../hooks/useCharacterLocator";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
-import { img, MUNDO6_CHARACTER_FRAMES } from "../lib/assets";
+import { img, MUNDO6_CHARACTER_FRAMES, sound } from "../lib/assets";
+import { getProgreso, puntajeDe, subscribeProgreso } from "../lib/progreso";
 import { readStorage, STORAGE_KEYS, writeStorage } from "../lib/storage";
 import "./Mundo6.css";
 
 const LETTERS = ["B", "V", "Ñ", "K", "X"];
 const LETTER_COLORS = ["#f14c74", "#ffc400", "#10b7e5", "#80ca3e", "#b36be2"];
+const LETTER_SOUNDS = {
+	B: "suenaB.mp3",
+	V: "suenaV.mp3",
+	"Ñ": "suenaÑ.mp3",
+	K: "suenaK.mp3",
+	X: "suenaX.mp3"
+};
+// Actividades habilitadas del camino, en orden (tiene que coincidir con CAMINOS[6] de caminos.js).
+const ACTIVIDADES_M6 = [
+	{ clave: "inicio", ruta: "/inicio", cartel: "INICIALESbtn.png", nombre: "Iniciar actividad de sílabas" },
+	{ clave: "peluches", ruta: "/peluches", cartel: "PELUCHESbtn.png", nombre: "Iniciar actividad de palabras con peluches" },
+	{ clave: "elegir", ruta: "/elegir", cartel: "BoVbtn.png", nombre: "Iniciar actividad: ¿va con B o con V?" }
+];
 const CHARACTER_FRAME_DURATION = 180;
 const CHARACTERS = {
 	supernena: { image: img("PERSONAJES/supernenaUnicornio.png"), alt: "Supernena unicornio" },
@@ -49,12 +64,22 @@ export const MUNDO6_IMAGES = [
 export default function Mundo6() {
 	usePageTitle("Mundo 6");
 	const runtime = usePageRuntime();
+	const navigate = useNavigate();
 	const [character] = useSelectedCharacter();
 	const [characterFrame, setCharacterFrame] = useState(0);
 	const [selectedLetter, setSelectedLetter] = useState(() => {
 		const saved = readStorage(STORAGE_KEYS.mundo6MenuOption);
 		return LETTERS.includes(saved) ? saved : null;
 	});
+	const [introAudio] = useState(() => runtime.audio(sound("InicioMundos.mp3"), { preload: true }));
+	const letterAudioRef = useRef(null);
+	const progreso = useSyncExternalStore(subscribeProgreso, getProgreso);
+	const pathLetter = (selectedLetter || LETTERS[0]).toLowerCase();
+	const isActivityDone = (index) => index < ACTIVIDADES_M6.length && puntajeDe(progreso, pathLetter, ACTIVIDADES_M6[index].clave) > 0;
+	const nextActivityIndex = ACTIVIDADES_M6.findIndex((_, index) => !isActivityDone(index));
+	// Letra que conviene jugar (solo se sugiere): la primera con alguna actividad sin completar.
+	const nextLetter = LETTERS.find((letter) =>
+		ACTIVIDADES_M6.some(({ clave }) => !puntajeDe(progreso, letter.toLowerCase(), clave)));
 	const [menuPanelVisible, setMenuPanelVisible] = useState(true);
 	const [compactMenuOpen, setCompactMenuOpen] = useState(false);
 	const pageRef = useRef(null);
@@ -148,10 +173,34 @@ export default function Mundo6() {
 		};
 	}, [compactMenuOpen]);
 
+	// Al entrar suena la bienvenida (el unicornio no mueve la boca: solo se oye).
+	useEffect(() => {
+		if (!character) return undefined;
+		introAudio.currentTime = 0;
+		introAudio.play().catch(() => {});
+		return () => {
+			introAudio.pause();
+		};
+	}, [character]);
+
 	function selectLetter(letter) {
 		setSelectedLetter(letter);
 		writeStorage(STORAGE_KEYS.mundo6MenuOption, letter);
 		setCompactMenuOpen(false);
+		introAudio.pause();
+		letterAudioRef.current?.pause();
+		const audio = runtime.audio(sound(LETTER_SOUNDS[letter]));
+		letterAudioRef.current = audio;
+		audio.play().catch(() => {});
+	}
+
+	function openActivity(index) {
+		const actividad = ACTIVIDADES_M6[index];
+		if (!actividad) return;
+		const letter = selectedLetter || LETTERS[0];
+		setSelectedLetter(letter);
+		writeStorage(STORAGE_KEYS.mundo6MenuOption, letter);
+		navigate(actividad.ruta, { state: { world: 6, menuOption: letter } });
 	}
 
 	function handlePointerDown(event) {
@@ -242,16 +291,19 @@ export default function Mundo6() {
 				<div className="mundo6-path" aria-label="Camino de actividades">
 					{PATH_BUTTONS.map(([left, top], index) => (
 						<div
-							className="mundo6-path-activity mundo6-path-activity-hidden"
+							className={`mundo6-path-activity${ACTIVIDADES_M6[index] ? "" : " mundo6-path-activity-hidden"}`}
 							key={`${left}-${top}-${index}`}
 							style={{ left: `${left}%`, top: `${top}%` }}
 						>
-							<img className="mundo6-path-sign" src={img(ACTIVITY_SIGN_IMAGES[index] || "GLOBOSbtn.png")} alt="" draggable={false} />
+							{index === nextActivityIndex && <span className="camino-siguiente-brillo" aria-hidden="true" />}
+							{isActivityDone(index) && <span className="camino-hecho" aria-hidden="true">✓</span>}
+							<img className="mundo6-path-sign" src={img(ACTIVIDADES_M6[index]?.cartel || ACTIVITY_SIGN_IMAGES[index] || "GLOBOSbtn.png")} alt="" draggable={false} />
 							<button
-								className="mundo6-path-button"
+								className={`mundo6-path-button${ACTIVIDADES_M6[index] ? " is-available" : ""}`}
 								type="button"
-								disabled
-								aria-label={`Actividad del camino ${index + 1}, próximamente`}
+								disabled={!ACTIVIDADES_M6[index]}
+								aria-label={ACTIVIDADES_M6[index]?.nombre || `Actividad del camino ${index + 1}, próximamente`}
+								onClick={() => openActivity(index)}
 							>
 								<img src={img("boton.svg")} alt="" draggable={false} />
 							</button>
@@ -271,7 +323,7 @@ export default function Mundo6() {
 					<img className="mundo6-menu-image" src={img("MENUM6.png")} alt="" draggable={false} />
 					{LETTERS.map((letter, index) => (
 						<button
-							className={`mundo6-letter mundo6-letter-${index + 1}${selectedLetter === letter ? " selected" : ""}`}
+							className={`mundo6-letter mundo6-letter-${index + 1}${selectedLetter === letter ? " selected" : ""}${nextLetter === letter ? " menu-letra-siguiente" : ""}`}
 							key={letter}
 							type="button"
 							aria-label={`Seleccionar letra ${letter}`}

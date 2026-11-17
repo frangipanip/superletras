@@ -3,9 +3,13 @@
 	background: #8fd3f4 center / cover no-repeat;
 }
 
+/* Cada mundo tiene su escena: taller de robots (5), establo de unicornios (6). */
 .page-elegir-letra.elegir-mundo5 {
-	background-image: url("/assets/imagenes/FONDOM5.png");
-	background-position: left center;
+	background-image: url("/assets/imagenes/fondoElegirM5.jpg");
+}
+
+.page-elegir-letra.elegir-mundo6 {
+	background-image: url("/assets/imagenes/fondoElegirM6.jpg");
 }
 
 .page-elegir-letra .elegir-escena {

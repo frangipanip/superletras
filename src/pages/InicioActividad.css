@@ -1231,6 +1231,23 @@
 }
 /* Mundo 5 (robots): fondo del taller. */
 .page-inicio-actividad.world-robots {
-	background-image: url("/assets/imagenes/FONDOM5.png");
-	background-position: left center;
+	background-image: url("/assets/imagenes/fondoInicioM5.jpg");
+}
+
+/* Mundo 6 (unicornios): fondo propio y letra escrita (no hay imagen por letra). */
+.page-inicio-actividad.world-unicornios {
+	background-image: url("/assets/imagenes/fondoInicioM6.jpg");
+}
+
+.inicio-activity-letter-text {
+	display: grid;
+	place-items: center;
+	width: clamp(8rem, 18vw, 16rem);
+	aspect-ratio: 1;
+	border: 6px solid #fff;
+	border-radius: 50%;
+	background: radial-gradient(circle at 35% 30%, #fff6fb 0%, #ffc7e6 55%, #f59bd0 100%);
+	box-shadow: 0 8px 18px rgba(120, 40, 110, 0.3);
+	color: #8e3bd1;
+	font: 900 clamp(4rem, 11vw, 9rem) / 1 "Arial Black", Arial, Helvetica, sans-serif;
 }

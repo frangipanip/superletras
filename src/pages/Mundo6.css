@@ -294,3 +294,25 @@
 		height: 82vh;
 	}
 }
+
+/* Actividades habilitadas del camino. */
+.mundo6-path-button.is-available {
+	cursor: pointer;
+	pointer-events: auto;
+}
+
+.mundo6-path-button.is-available:hover,
+.mundo6-path-button.is-available:focus-visible {
+	transform: scale(1.06);
+}
+
+/* La letra que conviene jugar titila (las letras de Mundo 6 son texto, no imagen). */
+.mundo6-letter.menu-letra-siguiente {
+	animation: menu-letra-titila 1s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.mundo6-letter.menu-letra-siguiente {
+		animation: none;
+	}
+}

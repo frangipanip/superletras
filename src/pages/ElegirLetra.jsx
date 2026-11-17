@@ -29,12 +29,32 @@ const MUNDOS = {
 		fijas: ["gente", "gelatina", "girasol", "jirafa"],
 		otras: ["jugo", "jaula", "jabon", "abeja"],
 		acentos: { jabon: "jabón" }
+	},
+	// B y V suenan igual siempre: no hay "fijas", se reparten las rondas entre las dos letras.
+	// BEBÉ no va: su segunda B delataba la respuesta.
+	6: {
+		letras: ["B", "V"],
+		consigna: "vaConBoV.mp3",
+		carpeta: "MUNDO6",
+		fijas: [],
+		otras: ["barco", "bota", "burro", "boxeo", "vaca", "vaso", "vela", "violin"],
+		porLetra: true,
+		acentos: { violin: "violín" }
 	}
 };
 const RONDAS = 6;
 
+function letraDe(config, id) {
+	const texto = (config.acentos[id] || id).toUpperCase();
+	return config.letras.find((letra) => texto.startsWith(letra)) || null;
+}
+
 function crearRondas(config) {
-	const palabras = shuffle([...config.fijas, ...shuffle(config.otras).slice(0, RONDAS - config.fijas.length)]);
+	const elegidas = config.porLetra
+		// Mitad y mitad entre las dos letras.
+		? config.letras.flatMap((letra) => shuffle(config.otras.filter((id) => letraDe(config, id) === letra)).slice(0, RONDAS / config.letras.length))
+		: [...config.fijas, ...shuffle(config.otras).slice(0, RONDAS - config.fijas.length)];
+	const palabras = shuffle(elegidas);
 	return palabras.map((id) => {
 		const texto = (config.acentos[id] || id).toUpperCase();
 		// La letra que falta es la primera del par que aparece en la palabra (ABE_A, _IRAFA).

@@ -96,7 +96,7 @@ function ladosAlternados(cantidad) {
 	return lados;
 }
 
-function crearRondas(grupo) {
+function crearRondas(grupo, pares = {}) {
 	const consignas = Object.keys(grupo);
 	const usadas = new Set();
 	const sinOrden = [];
@@ -120,7 +120,8 @@ function crearRondas(grupo) {
 			// El error es del mismo grupo pero de otro sonido.
 			const distractores = consignas.filter((otra) => otra !== consigna).flatMap((otra) => grupo[otra]);
 			const noUsados = preferirCortas(distractores.filter((palabra) => !usadas.has(palabra)));
-			const incorrecta = shuffle(noUsados.length ? noUsados : distractores)[0];
+			// Un par fijo (MOÑO / MONO) manda sobre el sorteo: es el contraste que se quiere enseñar.
+			const incorrecta = pares[correcta] || shuffle(noUsados.length ? noUsados : distractores)[0];
 			usadas.add(incorrecta);
 			sinOrden.push({ consigna, correcta, incorrecta });
 		});
@@ -172,7 +173,7 @@ export default function PeluchesMundo3() {
 // Escenario de dos plataformas con un dibujo cada una (Mundos 3 y 4): cada mundo pone sus grupos
 // de palabras, su carpeta (imagenes/peluches/<carpeta>/ con fondo.jpg y sonido/<personaje>/peluche/<carpeta>/)
 // y si la consigna es "contiene" (el sonido puede estar en el medio de la palabra).
-export function PeluchesPlataformas({ titulo, grupos, acentos = {}, carpeta, letraPorDefecto, mouthImages, consignaAudio, usaContiene, className = "" }) {
+export function PeluchesPlataformas({ titulo, grupos, acentos = {}, pares = {}, carpeta, letraPorDefecto, mouthImages, consignaAudio, usaContiene, className = "" }) {
 	usePageTitle(titulo);
 	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
@@ -180,7 +181,7 @@ export function PeluchesPlataformas({ titulo, grupos, acentos = {}, carpeta, let
 	const menuOption = useActivityMenuOption();
 	const [letra] = useState(() => (Object.prototype.hasOwnProperty.call(grupos, menuOption || "") ? menuOption : letraPorDefecto));
 	const grupo = grupos[letra];
-	const [rondas] = useState(() => crearRondas(grupo));
+	const [rondas] = useState(() => crearRondas(grupo, pares));
 	const textoDe = (id) => acentos[id] || id;
 	const imagenDe = (id) => img(`peluches/${carpeta}/${id}.png`);
 	const FONDO = img(`peluches/${carpeta}/fondo.jpg`);
