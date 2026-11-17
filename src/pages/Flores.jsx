@@ -256,6 +256,29 @@ export default function Flores() {
 		}
 	}
 
+	// Parlante chico de cada opción: la escucha sin elegirla (no cuenta como respuesta).
+	function oirOpcion(flower, event) {
+		event.stopPropagation();
+		event.preventDefault();
+		if (game.current.transitionPending || game.current.celebrationActive) return;
+		secuencia.reproducir([labelAudio(flower.label)]);
+	}
+
+	function parlante(flower) {
+		if (flower.result) return null;
+		return (
+			<span
+				className="opcion-parlante"
+				role="button"
+				aria-label={`Escuchar ${flower.label}`}
+				onClick={(event) => oirOpcion(flower, event)}
+				onPointerDown={(event) => event.stopPropagation()}
+			>
+				<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3z" /><path d="M16.5 12a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z" /></svg>
+			</span>
+		);
+	}
+
 	function handleFlowerClick(index, event) {
 		const currentRound = roundRef.current;
 		const flower = currentRound.flowers[index];
@@ -335,7 +358,7 @@ export default function Flores() {
 			<FullscreenButton toggle />
 			<div className="activity-controls" aria-label="Controles de actividad">
 					<button className="restart-button" type="button" aria-label="Reiniciar actividad" onClick={restart}>
-					&#x21bb; Reiniciar
+					&#x21bb;
 				</button>
 			</div>
 			<main className="flower-activity">
@@ -374,6 +397,7 @@ export default function Flores() {
 										<img src={img("almejasilabas.png")} alt="" draggable={false} />
 										<span className="flower-label">{flower.label}</span>
 									</span>
+									{parlante(flower)}
 								</button>
 							</div>
 						) : (
@@ -402,6 +426,7 @@ export default function Flores() {
 										</span>
 									</span>
 								)}
+								{parlante(flower)}
 							</button>
 						)
 					))}

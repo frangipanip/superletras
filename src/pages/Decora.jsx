@@ -9,6 +9,7 @@ import { useTalkingMouth } from "../hooks/useTalkingMouth";
 import { useActivityMenuOption } from "../hooks/useActivityMenuOption";
 import { img, sound } from "../lib/assets";
 import { GROUPS } from "../lib/palabras";
+import { crearSecuencia } from "../lib/secuenciaAudio";
 import { shuffle } from "../lib/shuffle";
 import "./actividad.css";
 import "./Decora.css";
@@ -56,7 +57,14 @@ function crearRonda(letra, palabraAnterior) {
 	const grupo = GROUPS[Object.hasOwn(GROUPS, letra) ? letra : "l"];
 	const candidatas = grupo.items.filter((palabra) => palabra !== palabraAnterior);
 	const palabra = candidatas[Math.floor(Math.random() * candidatas.length)];
-	const opciones = shuffle([palabra, ...shuffle(grupo.items.filter((item) => item !== palabra)).slice(0, 2)]);
+	const prefijoComun = (otra) => {
+		let largo = 0;
+		while (largo < Math.min(otra.length, palabra.length) && otra[largo] === palabra[largo]) largo += 1;
+		return largo;
+	};
+	const otras = shuffle(grupo.items.filter((item) => item !== palabra))
+		.sort((a, b) => prefijoComun(b) - prefijoComun(a));
+	const opciones = shuffle([palabra, ...otras.slice(0, 2)]);
 	return {
 		palabra,
 		opciones: opciones.map((valor, indice) => ({
@@ -66,6 +74,9 @@ function crearRonda(letra, palabraAnterior) {
 		}))
 	};
 }
+
+// "Tocá la manga que dice:" + la palabra, según la etapa.
+const CONSIGNAS_ETAPA = ["decoraManga.mp3", "decoraFrasco.mp3", "decoraFrutilla.mp3", "decoraVela.mp3"];
 
 function obtenerDireccionEntrada(etapa) {
 	return ["right", "bottom", "right", "left"][etapa];
@@ -105,6 +116,7 @@ export default function Decora() {
 	const audioRef = useRef(null);
 	const audioSequenceRef = useRef(0);
 	const timersRef = useRef(new Set());
+	const [secuencia] = useState(() => crearSecuencia({ startTalking, stopTalking }));
 
 	const limpiarTemporizadores = useCallback(() => {
 		timersRef.current.forEach((timer) => runtime.clearTimeout(timer));
@@ -122,6 +134,7 @@ export default function Decora() {
 	}, [runtime]);
 
 	const detenerAudio = useCallback(() => {
+		secuencia.cancelar();
 		audioSequenceRef.current += 1;
 		const audio = audioRef.current;
 		audioRef.current = null;
@@ -154,12 +167,20 @@ export default function Decora() {
 
 	useEffect(() => {
 		if (fase === "playing") {
-			reproducirAudio(`PL${ronda.palabra.toLowerCase()}.mp3`);
+			consigna();
 		} else if (fase === "complete") {
 			reproducirAudio("Fabuloso.mp3");
 		}
 		return detenerAudio;
 	}, [detenerAudio, fase, reproducirAudio, ronda]);
+
+	function consigna() {
+		detenerAudio();
+		secuencia.reproducir([
+			runtime.audio(sound(CONSIGNAS_ETAPA[Math.min(etapa, CONSIGNAS_ETAPA.length - 1)])),
+			runtime.audio(sound(`PL${ronda.palabra.toLowerCase()}.mp3`))
+		]);
+	}
 
 	useEffect(() => {
 		const timer = runtime.setTimeout(() => setEntradaInicial(false), 1150);
@@ -541,7 +562,7 @@ export default function Decora() {
 			<FullscreenButton toggle />
 			<div className="activity-controls">
 				<button className="restart-button" type="button" aria-label="Reiniciar actividad" onClick={reiniciar}>
-					&#x21bb; Reiniciar
+					&#x21bb;
 				</button>
 			</div>
 			{character && (
@@ -549,8 +570,8 @@ export default function Decora() {
 					<Character
 						character={character}
 						mouth={mouth}
-						label={fase === "playing" ? "Escuchar la palabra otra vez" : "Personaje"}
-						onClick={fase === "playing" ? () => reproducirAudio(`PL${ronda.palabra.toLowerCase()}.mp3`) : undefined}
+						label={fase === "playing" ? "Repetir consigna" : "Personaje"}
+						onClick={fase === "playing" ? consigna : undefined}
 					/>
 				</div>
 			)}
@@ -624,6 +645,12 @@ export default function Decora() {
 				{mostrarBizcochueloConCrema && (
 					<div className="decora-cake decora-cake--frosted" aria-hidden="true">
 						<img src={img(imagenPastel)} alt="" draggable={false} />
+					</div>
+				)}
+				{fase === "complete" && (
+					<div className="decora-final" role="status">
+						<p>¡Fabuloso!</p>
+						<button className="decora-otro" type="button" onClick={reiniciar} aria-label="Decorar otro pastel">&#x21bb;</button>
 					</div>
 				)}
 				{confetiVisible && (

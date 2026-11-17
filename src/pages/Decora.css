@@ -675,3 +675,56 @@
 		transition: none;
 	}
 }
+
+/* Cartel de cierre: "¡Fabuloso!" y un botón ↻ para decorar otro pastel. */
+.decora-page .decora-final {
+	position: absolute;
+	top: 8%;
+	left: 50%;
+	z-index: 30;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.6rem;
+	padding: 0.8rem 1.6rem;
+	border: 4px solid #fff;
+	border-radius: 24px;
+	background: linear-gradient(180deg, #ff9ad5 0%, #e0479d 100%);
+	box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
+	transform: translateX(-50%);
+	animation: decora-final-entrar 400ms ease-out both;
+}
+
+.decora-page .decora-final p {
+	margin: 0;
+	color: #fff;
+	font: 900 clamp(1.6rem, 6vmin, 3rem) / 1 "Lilita One", "Arial Rounded MT Bold", sans-serif;
+	text-shadow: 0 3px 0 rgba(120, 20, 80, 0.5);
+}
+
+.decora-page .decora-otro {
+	display: grid;
+	place-items: center;
+	width: clamp(3.2rem, 9vmin, 80px);
+	height: clamp(3.2rem, 9vmin, 80px);
+	padding: 0;
+	border: 3px solid #2f8498;
+	border-radius: 50%;
+	background: linear-gradient(180deg, #d6f8ff 0%, #7bcfe3 75%, #5fb5cb 100%);
+	box-shadow: 0 3px 0 #286f84, 0 5px 6px rgba(0, 0, 0, 0.28);
+	color: #1f5b6b;
+	font-size: clamp(1.6rem, 5vmin, 2.6rem);
+	line-height: 1;
+	cursor: pointer;
+}
+
+@keyframes decora-final-entrar {
+	from {
+		opacity: 0;
+		transform: translateX(-50%) scale(0.7);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(-50%) scale(1);
+	}
+}

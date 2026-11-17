@@ -423,7 +423,7 @@ export default function Tren() {
 			<FullscreenButton toggle />
 			<div className="activity-controls" aria-label="Controles de actividad">
 				<button className="restart-button" type="button" aria-label="Reiniciar actividad" onClick={restartActivity}>
-					&#x21bb; Reiniciar
+					&#x21bb;
 				</button>
 			</div>
 			<main className="train-activity" aria-live="polite">

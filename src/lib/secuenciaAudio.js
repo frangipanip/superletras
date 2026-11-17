@@ -37,7 +37,9 @@ export function crearSecuencia({ startTalking, stopTalking } = {}) {
 			const { audio, boca } = lista[index];
 			let avanzado = false;
 			const avanzar = () => {
-				if (avanzado) {
+				// Una secuencia ya cancelada no toca el audio: puede estar sonando en la nueva (el
+				// play() cortado falla tarde y le borraba el onended).
+				if (avanzado || propio !== token) {
 					return;
 				}
 				avanzado = true;

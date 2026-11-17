@@ -212,3 +212,15 @@
 		top: 41%;
 	}
 }
+/* Segunda vuelta: tres dibujos. */
+.page-peluche .initials-grid.initials-grid--tres {
+	grid-template-columns: repeat(3, min(21vw, 36vh));
+	gap: 2.5vw;
+}
+
+@media (max-width: 700px) {
+	.page-peluche .initials-grid.initials-grid--tres {
+		grid-template-columns: repeat(3, 27vw);
+		gap: 1.5vw;
+	}
+}

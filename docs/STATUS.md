@@ -11,7 +11,7 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 | 1 | Distractores que suenan igual y contraste R/RR | 3.72.10 | ✅ Hecha (commit `6d023f7`) |
 | 2 | Devolución que ayuda y audios que no se pisan | 3.73.0 | ✅ Hecha (commit `d15342b`) |
 | 3 | Camino a palabras visible y corto | 3.74.0 | ✅ Hecha (commit `aae8b42`), en dev; 3.74.1 saca el bloqueo de Q y CE |
-| 4 | Consigna oral en todas las pantallas e íconos | 3.75.0 | 🔄 En curso |
+| 4 | Consigna oral en todas las pantallas e íconos | 3.75.0 | ✅ Hecha, salvo dos puntos (ver abajo) |
 | 5 | Palabras: segunda vuelta sin modelo y cierre | 3.76.0 | ⏳ Pendiente |
 | 6 | Peluches en Mundo 4 | 3.77.0 | ⏳ Pendiente: faltan los dibujos |
 | 7 | Mundo 5: G, GE, GUE, J, GÜE | 3.78.0 | ⏳ Pendiente: faltan los dibujos y los fondos |
@@ -49,6 +49,25 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 - `progreso.js` + `caminos.js`: tilde en las actividades completadas, brillo en la que sigue y letra que titila en los menús de Mundos 1 a 4.
 - Mundo 1: explicación la primera vez y las palabras se abren solas al evolucionar el monstruo.
 - Premio con botón "siguiente actividad". Mundo 2: se toca toda la flor. Sin prerrequisitos entre letras: la letra que titila es solo una sugerencia (el bloqueo de Q y CE se sacó el 17/11 a pedido).
+
+### Fase 4 — Consignas e íconos (3.75.0)
+- Memotest: consigna al entrar y al tocar al personaje.
+- Dibujar: consigna al entrar; un solo punto que titila con una línea-flecha hacia dónde ir (antes, números del 1 al 7); al terminar, acierto + "¡Muy bien! Dibujaste la letra:" + la letra; botón de borrar con ícono de 80 px y letras más grandes.
+- Puzzle: 1.ª ronda "Poné las letras en orden para armar:" + palabra, después "Escuchá:" + palabra; cada letra suena al tocarla.
+- Escribir: entra directo a la bebida; palabras de la letra elegida (antes siempre LULA, OLA, LALI); "Escribí:" + palabra (+ cómo usar las teclas en la 1.ª ronda); cada tecla dice su letra; "Otra bebida" pasa a ícono ↻.
+- Decora: consigna por etapa ("Tocá la manga/el frasco/la frutilla/la vela que dice:" + palabra); las equivocadas empiezan lo más parecido posible a la pedida; cartel de cierre "¡Fabuloso!" con ↻.
+- Ositos (Mundo 1, consonantes): dos rondas más con una sola sílaba ("tocá todos los ositos que dicen LA") entre las otras sílabas de la letra.
+- Bloques de Mundo 3 (R suave, RR) y Peces de Mundo 4 (CE, Q): la consigna dice la regla.
+- Inicio: presentaciones de H muda, RR fuerte, R suave y Z igual que S.
+- Peluches de Mundo 1: la segunda vuelta muestra tres dibujos y los dibujos se nombran al aparecer.
+- Flores: parlante chico en cada opción para escucharla sin elegirla.
+- Peluches de Mundos 2 y 3: entrada de ~5 s a ~2 s y se prefieren palabras de hasta 3 sílabas (`src/lib/palabrasCortas.js`).
+- "↻ Reiniciar" y "Repetir consigna" pasan a botones con ícono.
+- Arreglo en `secuenciaAudio.js`: una secuencia cancelada ya no corta la nueva cuando comparten audio (en Dibujar quedaba muda después del acierto).
+
+**Quedó pendiente de la fase 4:**
+- Explicación de la Q "partida en dos con un toque en el medio" en Inicio (animación nueva).
+- Cartel "ARA" del menú de Mundo 3 (falta la imagen).
 
 ## Pendientes del lado de ustedes
 

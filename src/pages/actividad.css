@@ -71,6 +71,24 @@
 		transition: transform 180ms ease, filter 180ms ease;
 	}
 
+	/* Solo ícono (↻ o parlante): los chicos no leen "Reiniciar". */
+	.restart-button {
+		display: grid;
+		place-items: center;
+		width: clamp(3.2rem, 9vmin, 80px);
+		height: clamp(3.2rem, 9vmin, 80px);
+		padding: 0;
+		border-radius: 50%;
+		color: #1f5b6b;
+		font-size: clamp(1.6rem, 5vmin, 2.6rem);
+		line-height: 1;
+	}
+
+	.restart-button__icono {
+		width: 60%;
+		height: 60%;
+	}
+
 	.case-button {
 		display: grid;
 		place-items: center;

@@ -74,6 +74,7 @@ export default function Memotest() {
 	const activeCardAudio = useRef(null);
 	const [celebrationAudio] = useState(() => runtime.audio(sound("Felicitaciones.mp3"), { preload: true }));
 	const [successAudio] = useState(() => runtime.audio(sound("correcto.mp3"), { preload: true }));
+	const [instructionAudio] = useState(() => runtime.audio(sound("memotest.mp3"), { preload: true }));
 
 	function stopCardAudio() {
 		const audio = activeCardAudio.current;
@@ -87,11 +88,19 @@ export default function Memotest() {
 	}
 
 	function playCardAudio(label) {
+		playVoice(cardAudios[label]);
+	}
+
+	// Consigna: al entrar y al tocar al personaje.
+	function playInstruction() {
+		playVoice(instructionAudio);
+	}
+
+	function playVoice(audio) {
 		stopCardAudio();
 		successAudio.pause();
 		successAudio.currentTime = 0;
 		successAudio.onended = null;
-		const audio = cardAudios[label];
 		if (!audio) {
 			return;
 		}
@@ -127,6 +136,8 @@ export default function Memotest() {
 		successAudio.currentTime = 0;
 		stopCardAudio();
 		stopTalking();
+		const timer = runtime.setTimeout(playInstruction, 500);
+		return () => runtime.clearTimeout(timer);
 	}, [mode]);
 
 	useEffect(() => {
@@ -234,7 +245,7 @@ export default function Memotest() {
 
 			<div className="activity-controls" aria-label="Controles del memotest">
 				<button className="restart-button" type="button" aria-label="Reiniciar memotest" onClick={resetGame}>
-					&#x21bb; Reiniciar
+					&#x21bb;
 				</button>
 			</div>
 
@@ -278,7 +289,7 @@ export default function Memotest() {
 				</div>
 			)}
 
-			<Character character={character} mouth={mouth} celebrating={celebrating} />
+			<Character character={character} mouth={mouth} celebrating={celebrating} label="Repetir consigna" onClick={playInstruction} />
 			<PremioComida premio={premio} />
 		</div>
 	);

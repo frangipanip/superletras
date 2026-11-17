@@ -373,7 +373,7 @@ export default function Pastel() {
 						aria-label="Repetir consigna"
 						onClick={() => speakPrompt(round.palabra)}
 					>
-						Repetir consigna
+						<svg className="restart-button__icono" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3z" /><path d="M16.5 12a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z" /></svg>
 					</button>
 				</div>
 			)}

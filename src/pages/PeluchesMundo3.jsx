@@ -12,6 +12,7 @@ import { useTalkingMouth } from "../hooks/useTalkingMouth";
 import { img, MUNDO3_MOUTH_IMAGES, preloadImages } from "../lib/assets";
 import { shuffle } from "../lib/shuffle";
 import "./actividad.css";
+import { preferirCortas } from "../lib/palabrasCortas";
 import "./PeluchesMundo3.css";
 
 // Palabras de Mundo 3 por grupo y sonido, tal como vienen clasificadas (el sonido puede estar al
@@ -116,12 +117,13 @@ function crearRondas(letra) {
 			if (vuelta >= opciones.length) {
 				return;
 			}
-			const nuevas = opciones.filter((palabra) => !usadas.has(palabra));
+			// Se prefieren palabras de hasta 3 sílabas.
+			const nuevas = preferirCortas(opciones.filter((palabra) => !usadas.has(palabra)));
 			const correcta = shuffle(nuevas.length ? nuevas : opciones)[0];
 			usadas.add(correcta);
 			// El error es del mismo grupo pero de otro sonido.
 			const distractores = consignas.filter((otra) => otra !== consigna).flatMap((otra) => grupo[otra]);
-			const noUsados = distractores.filter((palabra) => !usadas.has(palabra));
+			const noUsados = preferirCortas(distractores.filter((palabra) => !usadas.has(palabra)));
 			const incorrecta = shuffle(noUsados.length ? noUsados : distractores)[0];
 			usadas.add(incorrecta);
 			sinOrden.push({ consigna, correcta, incorrecta });

@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import BackButton from "../components/BackButton";
 import Character from "../components/Character";
 import FullscreenButton from "../components/FullscreenButton";
@@ -8,7 +8,8 @@ import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useActivityMenuOption } from "../hooks/useActivityMenuOption";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
-import { img, sound } from "../lib/assets";
+import { commonSound, img, sound } from "../lib/assets";
+import { crearSecuencia, mudo } from "../lib/secuenciaAudio";
 import {
 	START_POINT,
 	MID_POINT,
@@ -44,6 +45,10 @@ import {
 import "./Dibujar.css";
 
 const LETTERS = ["A", "E", "I", "O", "U", "L", "S", "T", "M"];
+function audioDeLetra(letra) {
+	return "AEIOU".includes(letra) ? `${letra.toLowerCase()}.mp3` : `nombre${letra}.mp3`;
+}
+
 const ENABLED_LETTERS = ["A", "E", "I", "O", "U", "L", "S", "T", "M"];
 // Letras del selector según la opción elegida en el menú del Mundo 1: vocales o solo esa consonante.
 const LETTER_OPTIONS_BY_MENU = {
@@ -84,9 +89,17 @@ export default function Dibujar() {
 	const segmentProgressRef = useRef(0);
 	const boardRef = useRef(null);
 	const [correctAudio] = useState(() => runtime.audio(sound("correcto.mp3"), { preload: true }));
-	const [celebrationAudio] = useState(() => runtime.audio(sound("Felicitaciones.mp3"), { preload: true }));
+	const [aciertoAudio] = useState(() => runtime.audio(commonSound("acierto.mp3"), { preload: true }));
+	const [dibujasteAudio] = useState(() => runtime.audio(sound("dibujaste.mp3"), { preload: true }));
+	const [instructionAudio] = useState(() => runtime.audio(sound("dibujarConsigna.mp3"), { preload: true }));
+	const [secuencia] = useState(() => crearSecuencia({ startTalking, stopTalking }));
 	const letter = activeLetter;
 	const curve = CURVE_TRACES[activeLetter];
+
+	useEffect(() => {
+		const timer = runtime.setTimeout(playInstruction, 500);
+		return () => runtime.clearTimeout(timer);
+	}, []);
 
 	function getBoardPoint(event) {
 		const board = boardRef.current;
@@ -101,9 +114,20 @@ export default function Dibujar() {
 
 	// Corta "Felicitaciones" y evita que su final reinicie una letra que ya no está activa.
 	function stopCelebration() {
-		celebrationAudio.onended = null;
-		celebrationAudio.pause();
-		celebrationAudio.currentTime = 0;
+		secuencia.cancelar();
+	}
+
+	// Al completar: acierto, "¡Muy bien! Dibujaste la letra:" y la letra; después sigue alTerminar.
+	function celebrar(alTerminar) {
+		secuencia.reproducir([
+			mudo(aciertoAudio),
+			dibujasteAudio,
+			runtime.audio(sound(audioDeLetra(activeLetter)))
+		], alTerminar);
+	}
+
+	function playInstruction() {
+		secuencia.reproducir([instructionAudio]);
 	}
 
 	function awardCompletedLetter() {
@@ -202,16 +226,7 @@ export default function Dibujar() {
 		setPointerPosition(curve.start);
 		setCompleted(true);
 		awardCompletedLetter();
-		startTalking();
-		celebrationAudio.onended = () => {
-			celebrationAudio.onended = null;
-			celebrationAudio.pause();
-			celebrationAudio.currentTime = 0;
-			restartCurve();
-		};
-		celebrationAudio.currentTime = 0;
-		celebrationAudio.play().catch(() => {
-			celebrationAudio.onended = null;
+		celebrar(() => {
 			restartCurve();
 		});
 	}
@@ -220,17 +235,7 @@ export default function Dibujar() {
 	function celebrateAndReset(onReset) {
 		setCompleted(true);
 		awardCompletedLetter();
-		startTalking();
-		const finish = () => {
-			celebrationAudio.onended = null;
-			celebrationAudio.pause();
-			celebrationAudio.currentTime = 0;
-			stopTalking();
-			onReset();
-		};
-		celebrationAudio.onended = finish;
-		celebrationAudio.currentTime = 0;
-		celebrationAudio.play().catch(finish);
+		celebrar(onReset);
 	}
 
 	function restartL() {
@@ -265,16 +270,7 @@ export default function Dibujar() {
 		if (!samePoint(point, I_DOT_POINT, 0.12)) return;
 		setCompleted(true);
 		awardCompletedLetter();
-		startTalking();
-		celebrationAudio.onended = () => {
-			celebrationAudio.onended = null;
-			celebrationAudio.pause();
-			celebrationAudio.currentTime = 0;
-			restartI();
-		};
-		celebrationAudio.currentTime = 0;
-		celebrationAudio.play().catch(() => {
-			celebrationAudio.onended = null;
+		celebrar(() => {
 			restartI();
 		});
 	}
@@ -421,23 +417,7 @@ export default function Dibujar() {
 			} else if (phase === 4) {
 				setCompleted(true);
 				awardCompletedLetter();
-				startTalking();
-				celebrationAudio.onended = () => {
-					celebrationAudio.onended = null;
-					celebrationAudio.pause();
-					celebrationAudio.currentTime = 0;
-					stopTalking();
-					setShowTargets(true);
-					setPointerPosition(E_START_POINT);
-					setDrawnSegments([]);
-					setDraftSegment(null);
-					setCompleted(false);
-					changePhase(1);
-				};
-				celebrationAudio.currentTime = 0;
-				celebrationAudio.play().catch(() => {
-					celebrationAudio.onended = null;
-					stopTalking();
+				celebrar(() => {
 					setShowTargets(true);
 					setPointerPosition(E_START_POINT);
 					setDrawnSegments([]);
@@ -475,24 +455,7 @@ export default function Dibujar() {
 		} else {
 			setCompleted(true);
 			awardCompletedLetter();
-			startTalking();
-			celebrationAudio.onended = () => {
-				celebrationAudio.onended = null;
-				celebrationAudio.pause();
-				celebrationAudio.currentTime = 0;
-				stopTalking();
-				setActiveLetter("E");
-				setShowTargets(true);
-				setPointerPosition(E_START_POINT);
-				setDrawnSegments([]);
-				setDraftSegment(null);
-				setCompleted(false);
-				changePhase(1);
-			};
-			celebrationAudio.currentTime = 0;
-			celebrationAudio.play().catch(() => {
-				celebrationAudio.onended = null;
-				stopTalking();
+			celebrar(() => {
 				setActiveLetter("E");
 				setShowTargets(true);
 				setPointerPosition(E_START_POINT);
@@ -504,11 +467,22 @@ export default function Dibujar() {
 		}
 	}
 
+	// Dónde apoyar el dedo ahora (y hacia dónde ir); la I termina tocando el punto de arriba.
+	function getGuide() {
+		if (completed || !showTargets) return null;
+		if (curve) return curveProgress > 0 ? null : { start: curve.start, target: null };
+		if (activeLetter === "I" && phaseRef.current === 2) return { start: I_DOT_POINT, target: null };
+		return getCurrentSegment();
+	}
+	const guide = getGuide();
+
 	return (
 		<div className="page activity-page page-dibujar">
 			<BackButton onClick={leaveActivity} />
 			<FullscreenButton toggle />
-			<button className="dibujar-clear" type="button" onClick={resetActivity} aria-label="Reiniciar actividad">Limpiar</button>
+			<button className="dibujar-clear" type="button" onClick={resetActivity} aria-label="Borrar y empezar de nuevo">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7" /><path d="M3 3v6h6" /></svg>
+			</button>
 			<main className="dibujar-layout">
 				<div className="dibujar-workspace">
 					<div className="dibujar-vowel-picker" aria-label="Selector de letras">
@@ -544,48 +518,29 @@ export default function Dibujar() {
 						aria-label={`Trazar la vocal ${letter}`}
 					>
 						<img className="dibujar-guide-image" src={TRACE_IMAGES[letter]} alt={`Guía para trazar la vocal ${letter}`} draggable={false} />
-						{showTargets && activeLetter === "A" && (
-							<>
-								<div className="dibujar-point dibujar-point-start" style={{ left: `${START_POINT.x * 100}%`, top: `${START_POINT.y * 100}%` }}>1</div>
-								<div className="dibujar-point dibujar-point-end" style={{ left: `${MID_POINT.x * 100}%`, top: `${MID_POINT.y * 100}%` }}>2</div>
-								<div className="dibujar-point dibujar-point-end" style={{ left: `${END_POINT.x * 100}%`, top: `${END_POINT.y * 100}%` }}>3</div>
-								<div className="dibujar-point dibujar-point-end" style={{ left: `${HORIZONTAL_START_POINT.x * 100}%`, top: `${HORIZONTAL_START_POINT.y * 100}%` }}>4</div>
-								<div className="dibujar-point dibujar-point-end" style={{ left: `${HORIZONTAL_END_POINT.x * 100}%`, top: `${HORIZONTAL_END_POINT.y * 100}%` }}>5</div>
-							</>
-						)}
-						{showTargets && activeLetter === "E" && (
-							<>
-								<div className="dibujar-point dibujar-point-start" style={{ left: `${E_START_POINT.x * 100}%`, top: `${E_START_POINT.y * 100}%` }}>1</div>
-								<div className="dibujar-point dibujar-point-end" style={{ left: `${E_SECOND_POINT.x * 100}%`, top: `${E_SECOND_POINT.y * 100}%` }}>2</div>
-								<div className="dibujar-point dibujar-point-end" style={{ left: `${E_THIRD_POINT.x * 100}%`, top: `${E_THIRD_POINT.y * 100}%` }}>3</div>
-								<div className="dibujar-point dibujar-point-end" style={{ left: `${E_FOURTH_POINT.x * 100}%`, top: `${E_FOURTH_POINT.y * 100}%` }}>4</div>
-								<div className="dibujar-point dibujar-point-end" style={{ left: `${E_FIFTH_POINT.x * 100}%`, top: `${E_FIFTH_POINT.y * 100}%` }}>5</div>
-								<div className="dibujar-point dibujar-point-end" style={{ left: `${E_SIXTH_POINT.x * 100}%`, top: `${E_SIXTH_POINT.y * 100}%` }}>6</div>
-								<div className="dibujar-point dibujar-point-end" style={{ left: `${E_SEVENTH_POINT.x * 100}%`, top: `${E_SEVENTH_POINT.y * 100}%` }}>7</div>
-							</>
-						)}
-						{showTargets && activeLetter === "I" && (
-							<>
-								<div className="dibujar-point dibujar-point-start" style={{ left: `${I_START_POINT.x * 100}%`, top: `${I_START_POINT.y * 100}%` }}>1</div>
-								<div className="dibujar-point dibujar-point-end" style={{ left: `${I_DOT_POINT.x * 100}%`, top: `${I_DOT_POINT.y * 100}%` }}>2</div>
-							</>
-						)}
-						{showTargets && activeLetter === "L" && (
-							<>
-								<div className="dibujar-point dibujar-point-start" style={{ left: `${L_START_POINT.x * 100}%`, top: `${L_START_POINT.y * 100}%` }}>1</div>
-								<div className="dibujar-point dibujar-point-end" style={{ left: `${L_CORNER_POINT.x * 100}%`, top: `${L_CORNER_POINT.y * 100}%` }}>2</div>
-							</>
-						)}
-						{showTargets && activeLetter === "T" && (
-							<>
-								<div className="dibujar-point dibujar-point-start" style={{ left: `${T_VERTICAL_START.x * 100}%`, top: `${T_VERTICAL_START.y * 100}%` }}>1</div>
-								<div className="dibujar-point dibujar-point-end" style={{ left: `${T_HORIZONTAL_START.x * 100}%`, top: `${T_HORIZONTAL_START.y * 100}%` }}>2</div>
-							</>
-						)}
-						{showTargets && curve && (
-							<div className="dibujar-point dibujar-point-start" style={{ left: `${curve.start.x * 100}%`, top: `${curve.start.y * 100}%` }}>1</div>
+						{guide && (
+							<div className="dibujar-point dibujar-point-start dibujar-point-guia" style={{ left: `${guide.start.x * 100}%`, top: `${guide.start.y * 100}%` }} />
 						)}
 						<svg className="dibujar-trace" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+							<defs>
+								<marker id="dibujar-flecha" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
+									<path d="M0 0L10 5L0 10z" fill="#3a2a63" />
+								</marker>
+							</defs>
+							{guide?.target && !isDragging && (
+								<line
+									className="dibujar-guia-linea"
+									x1={guide.start.x * 100}
+									y1={guide.start.y * 100}
+									x2={guide.target.x * 100}
+									y2={guide.target.y * 100}
+									stroke="#3a2a63"
+									strokeWidth="2.5"
+									strokeDasharray="4 4"
+									strokeLinecap="round"
+									markerEnd="url(#dibujar-flecha)"
+								/>
+							)}
 							{activeLetter === "I" && completed && (
 								<ellipse cx={I_DOT_POINT.x * 100} cy={I_DOT_POINT.y * 100} rx="7" ry="7" fill="#fc2cd2" />
 							)}
@@ -615,7 +570,7 @@ export default function Dibujar() {
 					</section>
 				</div>
 			</main>
-			<Character character={character} mouth={mouth} />
+			<Character character={character} mouth={mouth} label="Repetir consigna" onClick={playInstruction} />
 			<PremioComida premio={premio} />
 		</div>
 	);

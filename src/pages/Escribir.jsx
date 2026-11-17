@@ -8,6 +8,9 @@ import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
 import { useActivityMenuOption } from "../hooks/useActivityMenuOption";
 import { img, preloadImages, sound } from "../lib/assets";
+import { GROUPS } from "../lib/palabras";
+import { crearSecuencia } from "../lib/secuenciaAudio";
+import { shuffle } from "../lib/shuffle";
 import "./actividad.css";
 import "./Escribir.css";
 
@@ -18,10 +21,24 @@ const OPCIONES = [
 	{ nombre: "Bebida", imagen: img("opbebida.png"), habilitada: true }
 ];
 const RONDAS = [
-	{ palabra: "LULA", imagen: img("vaso.png"), audio: "PLlula.mp3", entrega: [1, 2, 3, 4] },
-	{ palabra: "OLA", imagen: img("vasolleno.png"), audio: "PLola.mp3", entrega: [5, 6, 7, 8, 9, 10, 11] },
-	{ palabra: "LALI", imagen: img("vasocrema.png"), audio: "PLlali.mp3", entrega: [12, 13, 14, 15] }
+	{ imagen: img("vaso.png"), entrega: [1, 2, 3, 4] },
+	{ imagen: img("vasolleno.png"), entrega: [5, 6, 7, 8, 9, 10, 11] },
+	{ imagen: img("vasocrema.png"), entrega: [12, 13, 14, 15] }
 ];
+
+// Tres palabras de la letra elegida (antes eran siempre LULA, OLA y LALI).
+function elegirPalabras(letra) {
+	const grupo = GROUPS[Object.hasOwn(GROUPS, letra) ? letra : "l"];
+	return shuffle(grupo.items).slice(0, RONDAS.length);
+}
+
+function audioDePalabra(palabra) {
+	return `PL${palabra.toLowerCase()}.mp3`;
+}
+
+function audioDeLetra(letra) {
+	return LETRAS_VOCAL.has(letra) ? `${letra.toLowerCase()}.mp3` : `nombre${letra}.mp3`;
+}
 const FILAS_TECLADO = [["L", "M"], ["S", "T"], ["A", "E", "I"], ["O", "U"]];
 const LETRAS_VOCAL = new Set(["A", "E", "I", "O", "U"]);
 
@@ -37,9 +54,14 @@ export default function Escribir() {
 	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
 	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime);
-	useActivityMenuOption();
+	const menuOption = useActivityMenuOption();
+	const [palabras, setPalabras] = useState(() => elegirPalabras(menuOption));
+	const [secuencia] = useState(() => crearSecuencia({ startTalking, stopTalking }));
+	const [escribiAudio] = useState(() => runtime.audio(sound("escribi.mp3"), { preload: true }));
+	const [tecladoAudio] = useState(() => runtime.audio(sound("escribiTeclas.mp3"), { preload: true }));
 
-	const [fase, setFase] = useState("elegir");
+	// Se entra directo a preparar la bebida: el helado y el cupcake todavía no existen.
+	const [fase, setFase] = useState("jugando");
 	const [ronda, setRonda] = useState(0);
 	const [escrito, setEscrito] = useState([]);
 	const [productoFrame, setProductoFrame] = useState(null);
@@ -59,6 +81,7 @@ export default function Escribir() {
 	}, []);
 
 	const detenerAudio = useCallback(() => {
+		secuencia.cancelar();
 		const audio = audioRef.current;
 		audioRef.current = null;
 		if (audio) {
@@ -98,7 +121,7 @@ export default function Escribir() {
 
 	useEffect(() => {
 		if (fase === "jugando") {
-			reproducirAudio(RONDAS[ronda].audio, true);
+			consigna();
 			return detenerAudio;
 		}
 		if (fase === "final") {
@@ -108,6 +131,13 @@ export default function Escribir() {
 		return undefined;
 	}, [fase, ronda, reproducirAudio, detenerAudio]);
 
+	// "Escribí: LULA" y, en la primera ronda, cómo se escribe.
+	function consigna() {
+		detenerAudio();
+		const palabra = runtime.audio(sound(audioDePalabra(palabras[ronda])));
+		secuencia.reproducir(ronda === 0 ? [escribiAudio, palabra, tecladoAudio] : [escribiAudio, palabra]);
+	}
+
 	const reiniciar = useCallback(() => {
 		runtime.clearInterval(entregaTimerRef.current);
 		runtime.clearTimeout(errorTimerRef.current);
@@ -115,13 +145,14 @@ export default function Escribir() {
 		errorTimerRef.current = 0;
 		fijarBloqueado(false);
 		detenerAudio();
-		setFase("elegir");
+		setPalabras(elegirPalabras(menuOption));
+		setFase("jugando");
 		setRonda(0);
 		setEscrito([]);
 		setEquivocadas(new Set());
 		setProductoFrame(null);
 		setEstado("jugando");
-	}, [detenerAudio, fijarBloqueado, runtime]);
+	}, [detenerAudio, fijarBloqueado, menuOption, runtime]);
 
 	function elegirBebida() {
 		setRonda(0);
@@ -131,12 +162,15 @@ export default function Escribir() {
 		setFase("jugando");
 	}
 
-	const largo = RONDAS[ronda]?.palabra.length || 0;
+	const palabraActual = palabras[ronda] || "";
+	const largo = palabraActual.length;
 	const llenas = Array.from({ length: largo }, (_, indice) => escrito[indice]).filter(Boolean).length;
 
 	// La letra va a la primera casilla vacía (después de un error puede haber huecos en el medio).
 	function presionarLetra(letra) {
 		if (bloqueadoRef.current || fase !== "jugando") return;
+		detenerAudio();
+		secuencia.reproducir([runtime.audio(sound(audioDeLetra(letra)))]);
 		setEscrito((actual) => {
 			const siguiente = Array.from({ length: largo }, (_, indice) => actual[indice] || null);
 			const vacia = siguiente.indexOf(null);
@@ -188,13 +222,13 @@ export default function Escribir() {
 		if (bloqueadoRef.current || fase !== "jugando" || llenas !== largo) return;
 		fijarBloqueado(true);
 		detenerAudio();
-		if (escrito.join("") === RONDAS[ronda].palabra) {
+		if (escrito.join("") === palabraActual) {
 			reproducirAudio("correcto.mp3");
 			animarEntrega();
 			return;
 		}
 
-		const palabra = RONDAS[ronda].palabra;
+		const palabra = palabraActual;
 		const malas = new Set(escrito.map((letra, indice) => (letra === palabra[indice] ? -1 : indice)).filter((indice) => indice >= 0));
 		reproducirAudio("error.mp3");
 		setEquivocadas(malas);
@@ -206,7 +240,7 @@ export default function Escribir() {
 		}, 650);
 	}
 
-	const rondaActual = RONDAS[ronda];
+	const rondaActual = RONDAS[ronda] && { ...RONDAS[ronda], palabra: palabraActual };
 
 	return (
 		<div className="page activity-page page-escribir">
@@ -303,7 +337,7 @@ export default function Escribir() {
 					{fase === "final" && (
 						<div className="escribir-final">
 							<p>¡Fabuloso!</p>
-							<button type="button" onClick={reiniciar}>Otra bebida</button>
+							<button className="escribir-otra" type="button" onClick={reiniciar} aria-label="Preparar otra bebida">&#x21bb;</button>
 						</div>
 					)}
 				</div>
@@ -313,7 +347,7 @@ export default function Escribir() {
 						character={character}
 						mouth={mouth}
 						label={fase === "jugando" ? "Escuchar la palabra otra vez" : "Personaje"}
-						onClick={fase === "jugando" && rondaActual ? () => reproducirAudio(rondaActual.audio, true) : undefined}
+						onClick={fase === "jugando" && rondaActual ? consigna : undefined}
 					/>
 				)}
 			</main>

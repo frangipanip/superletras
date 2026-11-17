@@ -262,7 +262,7 @@ export default function Barcos() {
 			<FullscreenButton toggle />
 			<div className="activity-controls">
 				<button className="restart-button" type="button" aria-label="Reiniciar actividad" onClick={restartRound}>
-					&#x21bb; Reiniciar
+					&#x21bb;
 				</button>
 			</div>
 			{character && (

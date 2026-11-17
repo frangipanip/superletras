@@ -78,6 +78,10 @@ export default function Puzzle() {
 	const [rebote, setRebote] = useState(null);
 	const [errorAudio] = useState(() => runtime.audio(sound("error.mp3"), { preload: true }));
 	const [secuencia] = useState(() => crearSecuencia({ startTalking, stopTalking }));
+	const [ponerAudio] = useState(() => runtime.audio(sound("puzzlePone.mp3"), { preload: true }));
+	const [escuchaAudio] = useState(() => runtime.audio(sound("escucha.mp3"), { preload: true }));
+	// La primera ronda explica qué hacer; las siguientes solo dicen "Escuchá:" y la palabra.
+	const roundsShownRef = useRef(0);
 	const sceneRef = useRef(null);
 	const dragRef = useRef(null);
 	const slotsRef = useRef(slots);
@@ -159,7 +163,10 @@ export default function Puzzle() {
 	}, [letter]);
 
 	useEffect(() => {
-		speakWord(round.palabra);
+		stopWordAudio();
+		const consigna = roundsShownRef.current === 0 ? ponerAudio : escuchaAudio;
+		roundsShownRef.current += 1;
+		secuencia.reproducir([consigna, runtime.audio(sound(`PL${round.palabra.toLowerCase()}.mp3`))]);
 		return stopWordAudio;
 	}, [round, speakWord, stopWordAudio]);
 
@@ -300,6 +307,12 @@ export default function Puzzle() {
 			return;
 		}
 		setSelectedCookie(cookieId);
+		// Cada letra suena al tocarla (mientras la palabra no está completa).
+		const cookie = roundRef.current.galletitas.find(({ id }) => id === cookieId);
+		if (cookie && !slotsRef.current.every(Boolean)) {
+			stopWordAudio();
+			secuencia.reproducir([runtime.audio(sound(audioDeLetra(cookie.valor)))]);
+		}
 	}
 
 	function restartActivity() {
@@ -315,7 +328,7 @@ export default function Puzzle() {
 			<FullscreenButton toggle />
 			<div className="activity-controls">
 				<button className="restart-button" type="button" aria-label="Reiniciar actividad" onClick={restartActivity}>
-					&#x21bb; Reiniciar
+					&#x21bb;
 				</button>
 			</div>
 			{character && (

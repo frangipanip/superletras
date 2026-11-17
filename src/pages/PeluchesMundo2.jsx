@@ -13,6 +13,7 @@ import { img, MUNDO2_CHARACTER_FRAMES, MUNDO2_MOUTH_IMAGES, preloadImages } from
 import { whenPageReady } from "../lib/pageGate";
 import { shuffle } from "../lib/shuffle";
 import "./actividad.css";
+import { preferirCortas } from "../lib/palabrasCortas";
 import "./PeluchesMundo2.css";
 
 // Palabras de las láminas de Mundo 2. El nombre de la imagen (peluchesM2/<id>.png) y del audio
@@ -53,10 +54,10 @@ const LADOS = [
 ];
 // Secuencia de entrada (una sola vez, cuando terminó de cargar la pantalla). Las duraciones de
 // las animaciones están en PeluchesMundo2.css y tienen que coincidir con estas.
-const VUELO_MS = 2800; // las luciérnagas entran volando y se posan
-const HAZ_DEMORA_MS = 500; // se acomodan en la brizna antes de encender la luz
-const HAZ_MS = 900; // el haz baja hasta el suelo
-const APARECER_MS = 700; // las opciones se materializan dentro del haz
+const VUELO_MS = 1200; // las luciérnagas entran volando y se posan
+const HAZ_DEMORA_MS = 200; // se acomodan en la brizna antes de encender la luz
+const HAZ_MS = 500; // el haz baja hasta el suelo
+const APARECER_MS = 400; // las opciones se materializan dentro del haz
 const SALIR_MS = 450; // entre rondas: se apagan las opciones anteriores
 // Chispitas que flotan dentro de cada haz (posición en % del haz, demora y tamaño).
 const PARTICULAS = [
@@ -96,12 +97,13 @@ function crearRondas(letra) {
 		}
 		orden.forEach((consigna) => {
 			// Se prefieren palabras que todavía no aparecieron (ni como acierto ni como error).
-			const opciones = PALABRAS.filter((palabra) => palabra.startsWith(consigna));
+			// Se prefieren palabras de hasta 3 sílabas (auditoría: las largas cansan y distraen).
+			const opciones = preferirCortas(PALABRAS.filter((palabra) => palabra.startsWith(consigna)));
 			const nuevas = opciones.filter((palabra) => !usadas.has(palabra));
 			const correcta = shuffle(nuevas.length ? nuevas : opciones)[0];
 			usadas.add(correcta);
 			// El error empieza con la misma consonante y otra vocal.
-			const distractores = PALABRAS.filter((palabra) => palabra.startsWith(letra) && !palabra.startsWith(consigna));
+			const distractores = preferirCortas(PALABRAS.filter((palabra) => palabra.startsWith(letra) && !palabra.startsWith(consigna)));
 			const noUsados = distractores.filter((palabra) => !usadas.has(palabra));
 			const incorrecta = shuffle(noUsados.length ? noUsados : distractores)[0];
 			usadas.add(incorrecta);

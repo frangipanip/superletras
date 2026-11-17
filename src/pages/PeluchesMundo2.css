@@ -102,7 +102,7 @@
 
 	&.pm2-volando .pm2-luciernaga {
 		visibility: visible;
-		animation: pm2-vuelo-izquierda 2.8s cubic-bezier(0.22, 0.55, 0.36, 1) both;
+		animation: pm2-vuelo-izquierda 1.2s cubic-bezier(0.22, 0.55, 0.36, 1) both;
 	}
 
 	&.pm2-volando .pm2-lado-derecha .pm2-luciernaga {
@@ -110,7 +110,7 @@
 	}
 
 	&.pm2-volando .pm2-luciernaga-ondas {
-		animation: pm2-vuelo-ondas 2.8s both;
+		animation: pm2-vuelo-ondas 1.2s both;
 	}
 
 	&.pm2-volando .pm2-luciernaga img {
@@ -197,7 +197,7 @@
 
 	&.pm2-proyectando .pm2-haz-cono,
 	&.pm2-proyectando .pm2-haz-particulas {
-		animation: pm2-haz-crecer 900ms cubic-bezier(0.3, 0.7, 0.4, 1) both;
+		animation: pm2-haz-crecer 500ms cubic-bezier(0.3, 0.7, 0.4, 1) both;
 	}
 
 	.pm2-haz-particulas span {
@@ -268,7 +268,7 @@
 	}
 
 	.pm2-opciones-apareciendo .pm2-proyeccion {
-		animation: pm2-materializar 700ms ease-out both;
+		animation: pm2-materializar 400ms ease-out both;
 	}
 
 	.pm2-opciones-visibles .pm2-option,

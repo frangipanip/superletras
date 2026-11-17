@@ -390,3 +390,15 @@
 		animation: none;
 	}
 }
+
+/* "Otra bebida" pasa a ícono ↻ (los chicos no leen el texto). */
+.page-escribir .escribir-final .escribir-otra {
+	display: grid;
+	place-items: center;
+	width: clamp(3rem, 9vmin, 80px);
+	height: clamp(3rem, 9vmin, 80px);
+	padding: 0;
+	border-radius: 50%;
+	font-size: clamp(1.6rem, 5vmin, 2.6rem);
+	line-height: 1;
+}

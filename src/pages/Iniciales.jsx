@@ -98,13 +98,15 @@ function crearRondas(letra) {
 				return perteneceAlGrupo && !empiezaCon(palabra, consigna);
 			});
 			const noUsados = distractores.filter((palabra) => !usadas.has(palabra));
-			const incorrecta = shuffle(noUsados.length ? noUsados : distractores)[0];
-			usadas.add(incorrecta);
+			// La segunda vuelta muestra tres dibujos (uno correcto y dos que empiezan distinto).
+			const cantidadIncorrectas = vuelta === 0 ? 1 : 2;
+			const incorrectas = shuffle(noUsados.length >= cantidadIncorrectas ? noUsados : distractores).slice(0, cantidadIncorrectas);
+			incorrectas.forEach((palabra) => usadas.add(palabra));
 			rondas.push({
 				consigna,
 				options: shuffle([
 					{ name: correcta, correct: true },
-					{ name: incorrecta, correct: false }
+					...incorrectas.map((name) => ({ name, correct: false }))
 				])
 			});
 		});
@@ -168,10 +170,12 @@ export default function Peluche() {
 		])));
 	}, [rondas]);
 
-	// Consigna: sonido + "pulsá el dibujo…" + sonido. "Apretá el texto…" se dice solo en la primera ronda.
-	function playInstruction() {
+	// Al aparecer se nombran los dibujos (algunos se confunden: colectivo/micro); después la consigna:
+	// sonido + "pulsá el dibujo…" + sonido. "Apretá el texto…" se dice solo en la primera ronda.
+	function playInstruction(nombrarDibujos = false) {
 		const targetAudio = consignaAudios[activity.consigna];
-		secuencia.reproducir([targetAudio, instructionAudio, targetAudio, activityIndex === 0 ? helpAudio : null]);
+		const nombres = nombrarDibujos ? activity.options.map((option) => wordAudios[option.name]) : [];
+		secuencia.reproducir([...nombres, targetAudio, instructionAudio, targetAudio, activityIndex === 0 ? helpAudio : null]);
 	}
 
 	// Durante el acierto no se corta el audio: su final es el que pasa a la siguiente ronda.
@@ -185,7 +189,7 @@ export default function Peluche() {
 
 	useEffect(() => {
 		ayuda.reiniciar();
-		playInstruction();
+		playInstruction(true);
 		return secuencia.cancelar;
 	}, [activityIndex]);
 
@@ -240,7 +244,7 @@ export default function Peluche() {
 			<BackButton />
 			<FullscreenButton toggle />
 			<main className="initials-activity">
-				<section className="initials-grid" aria-label="Imágenes para elegir">
+				<section className={`initials-grid${activity.options.length > 2 ? " initials-grid--tres" : ""}`} aria-label="Imágenes para elegir">
 					{activity.options.map((option, optionIndex) => {
 						const classNames = ["initials-option"];
 						if (acertada === option.name) {
@@ -278,7 +282,7 @@ export default function Peluche() {
 									</button>
 									<button
 										type="button"
-										className={`initials-name color-${(activityIndex * 2 + optionIndex) % 4}`}
+										className={`initials-name color-${(activityIndex * 3 + optionIndex) % 4}`}
 										onClick={() => escucharPalabra(option.name)}
 									>
 										<>

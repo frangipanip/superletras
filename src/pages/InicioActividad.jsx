@@ -103,7 +103,8 @@ const MUNDO2_MODES = {
 	n: createSyllableMode("n", N_SYLLABLES),
 	d: createSyllableMode("d", D_SYLLABLES),
 	f: createSyllableMode("f", F_SYLLABLES),
-	h: createSyllableMode("h", H_SYLLABLES)
+	// La H no suena: la presentación lo dice (auditoría).
+	h: { ...createSyllableMode("h", H_SYLLABLES), intro: ["HMuda.mp3", "ConLasVocales.mp3"] }
 };
 const MUNDO3_MODES = Object.fromEntries([
 	["r", R_SYLLABLES],
@@ -112,11 +113,14 @@ const MUNDO3_MODES = Object.fromEntries([
 	["y", Y_SYLLABLES],
 	["ll", LL_SYLLABLES]
 ].map(([letter, items, audioFiles]) => [letter, createSyllableMode(letter, items, audioFiles)]));
+// RR fuerte y R suave dicen la regla ("Esta es la letra AR" no explicaba nada).
+MUNDO3_MODES.rr.intro = ["Esta es la letra RR.mp3", "RRFuerte.mp3"];
+MUNDO3_MODES.ar.intro = ["RSuave.mp3"];
 const MUNDO4_MODES = {
 	c: { ...createSyllableMode("c", ["CA", "CO", "CU"]), intro: ["Esta es la letra C.mp3"] },
 	ce: { ...createSyllableMode("ce", ["CE", "CI"]), intro: ["Esta es la letra CE.mp3"] },
 	q: { ...createSyllableMode("q", ["QUE", "QUI"]), intro: ["Esta es la letra Q.mp3", "ConLasVocalesQ.mp3"] },
-	z: createSyllableMode("z", ["ZA", "ZE", "ZI", "ZO", "ZU"]),
+	z: { ...createSyllableMode("z", ["ZA", "ZE", "ZI", "ZO", "ZU"]), intro: ["ZIgualS.mp3", "ConLasVocales.mp3"] },
 	ch: createSyllableMode("ch", ["CHA", "CHE", "CHI", "CHO", "CHU"])
 };
 const MUNDO4_Q_REVIEW_ITEMS = ["CA", "CO", "CU"];
