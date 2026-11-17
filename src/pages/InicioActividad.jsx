@@ -7,7 +7,7 @@ import { usePageTitle } from "../hooks/usePageTitle";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
-import { CHARACTERS, img, MUNDO1_CHARACTERS, MUNDO2_CHARACTER_FRAMES, MUNDO2_CHARACTERS, MUNDO2_MOUTH_IMAGES, MUNDO3_CHARACTERS, MUNDO3_MOUTH_IMAGES, MUNDO4_CHARACTERS, MUNDO4_MOUTH_IMAGES, commonSound, sound } from "../lib/assets";
+import { CHARACTERS, img, MUNDO1_CHARACTERS, MUNDO2_CHARACTER_FRAMES, MUNDO2_CHARACTERS, MUNDO2_MOUTH_IMAGES, MUNDO3_CHARACTERS, MUNDO3_MOUTH_IMAGES, MUNDO4_CHARACTERS, MUNDO4_MOUTH_IMAGES, MUNDO5_CHARACTERS, MUNDO5_MOUTH_IMAGES, commonSound, sound } from "../lib/assets";
 import { whenPageReady } from "../lib/pageGate";
 import { shuffle } from "../lib/shuffle";
 import { useActivityMenuOption } from "../hooks/useActivityMenuOption";
@@ -123,6 +123,29 @@ const MUNDO4_MODES = {
 	z: { ...createSyllableMode("z", ["ZA", "ZE", "ZI", "ZO", "ZU"]), intro: ["ZIgualS.mp3", "ConLasVocales.mp3"] },
 	ch: createSyllableMode("ch", ["CHA", "CHE", "CHI", "CHO", "CHU"])
 };
+// Mundo 5: cada presentación dice la regla (G suave con A, O, U; GE fuerte como la J; la U muda de
+// GUE; la diéresis de GÜE). Las claves son las del menú en minúscula.
+const MUNDO5_MODES = {
+	g: { ...createSyllableMode("g", ["GA", "GO", "GU"]), intro: ["Esta es la letra G.mp3"] },
+	ge: { ...createSyllableMode("ge", ["GE", "GI"]), intro: ["Esta es la letra GE.mp3"] },
+	gu: { ...createSyllableMode("gu", ["GUE", "GUI"]), intro: ["Esta es la letra GUE.mp3"] },
+	j: { ...createSyllableMode("j", ["JA", "JE", "JI", "JO", "JU"]), intro: ["Esta es la letra J.mp3"] },
+	"gü": { ...createSyllableMode("gü", ["GÜE", "GÜI"]), intro: ["Esta es la letra GÜE.mp3"] }
+};
+const MUNDO5_LETTER_IMAGES = {
+	g: "robotG.png",
+	ge: "robotGE.png",
+	gu: "robotGU.png",
+	j: "robotJ.png",
+	"gü": "robotGUdiresis.png"
+};
+const MUNDO5_LETTER_LABELS = {
+	g: "Letra G",
+	ge: "GE y GI",
+	gu: "GUE y GUI",
+	j: "Letra J",
+	"gü": "GÜE y GÜI"
+};
 const MUNDO4_Q_REVIEW_ITEMS = ["CA", "CO", "CU"];
 const MUNDO4_Q_ROUND_ITEMS = ["QUE", "QUI", ...MUNDO4_Q_REVIEW_ITEMS];
 const MUNDO4_Q_REVIEW_CLAM_MS = 6900;
@@ -209,16 +232,17 @@ export default function InicioActividad() {
 	const isMundo2 = location.state?.world === 2;
 	const isMundo3 = location.state?.world === 3;
 	const isMundo4 = location.state?.world === 4;
-	usePageTitle(isMundo4 ? "Inicio - Mundo 4" : isMundo3 ? "Inicio - Mundo 3" : isMundo2 ? "Inicio - Mundo 2" : "Inicio - Mundo 1");
+	const isMundo5 = location.state?.world === 5;
+	usePageTitle(isMundo5 ? "Inicio - Mundo 5" : isMundo4 ? "Inicio - Mundo 4" : isMundo3 ? "Inicio - Mundo 3" : isMundo2 ? "Inicio - Mundo 2" : "Inicio - Mundo 1");
 	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
-	const activityCharacters = isMundo1 ? MUNDO1_CHARACTERS : isMundo2 ? MUNDO2_CHARACTERS : isMundo3 ? MUNDO3_CHARACTERS : isMundo4 ? MUNDO4_CHARACTERS : CHARACTERS;
-	const mouthImages = isMundo3 ? MUNDO3_MOUTH_IMAGES : isMundo2 ? MUNDO2_MOUTH_IMAGES : isMundo4 ? MUNDO4_MOUTH_IMAGES : undefined;
+	const activityCharacters = isMundo1 ? MUNDO1_CHARACTERS : isMundo2 ? MUNDO2_CHARACTERS : isMundo3 ? MUNDO3_CHARACTERS : isMundo4 ? MUNDO4_CHARACTERS : isMundo5 ? MUNDO5_CHARACTERS : CHARACTERS;
+	const mouthImages = isMundo3 ? MUNDO3_MOUTH_IMAGES : isMundo2 ? MUNDO2_MOUTH_IMAGES : isMundo4 ? MUNDO4_MOUTH_IMAGES : isMundo5 ? MUNDO5_MOUTH_IMAGES : undefined;
 	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime, mouthImages);
 	const menuOption = useActivityMenuOption();
 	const isMundo4Q = isMundo4 && menuOption === "q";
-	const modeOptions = isMundo4 ? MUNDO4_MODES : isMundo3 ? MUNDO3_MODES : isMundo2 ? MUNDO2_MODES : MODES;
-	const fallbackOption = isMundo4 ? "c" : isMundo3 ? "r" : isMundo2 ? "p" : "a";
+	const modeOptions = isMundo5 ? MUNDO5_MODES : isMundo4 ? MUNDO4_MODES : isMundo3 ? MUNDO3_MODES : isMundo2 ? MUNDO2_MODES : MODES;
+	const fallbackOption = isMundo5 ? "g" : isMundo4 ? "c" : isMundo3 ? "r" : isMundo2 ? "p" : "a";
 	const [mode] = useState(() => modeOptions[menuOption || fallbackOption] || modeOptions[fallbackOption]);
 	const [clamState, setClamState] = useState(() => ({
 		src: isMundo4 ? img(MUNDO4_SHELLS[menuOption || fallbackOption].closed) : "",
@@ -284,7 +308,7 @@ export default function InicioActividad() {
 	leftCars.current = activitySelectedItems;
 	const isDriving = isMundo3 && isPhaseThree && !isShuffling;
 	useCarPhysics(runtime, { active: isDriving, itemRefs: carRefs, stoppedRef: leftCars, obstacleRefs: [characterRef], background: MUNDO3_BACKGROUND_OBSTACLES });
-	const [premio, otorgarPremio] = useRecompensa("inicio", isMundo2 || isMundo3 || isMundo4 ? null : MODES[menuOption] ? menuOption : "a");
+	const [premio, otorgarPremio] = useRecompensa("inicio", isMundo2 || isMundo3 || isMundo4 || isMundo5 ? null : MODES[menuOption] ? menuOption : "a");
 	const LETTER_IMAGES = {
 		a: "letraA.png",
 		l: "letraL.png",
@@ -299,9 +323,9 @@ export default function InicioActividad() {
 		s: "Letra S",
 		t: "Letra T"
 	};
-	const letterImages = isMundo2 ? MUNDO2_LETTER_IMAGES : LETTER_IMAGES;
+	const letterImages = isMundo5 ? MUNDO5_LETTER_IMAGES : isMundo2 ? MUNDO2_LETTER_IMAGES : LETTER_IMAGES;
 	const activityLetterImages = isMundo3 ? MUNDO3_LETTER_IMAGES : letterImages;
-	const letterLabels = isMundo3 ? MUNDO3_LETTER_LABELS : isMundo2 ? MUNDO2_LETTER_LABELS : LETTER_LABELS;
+	const letterLabels = isMundo5 ? MUNDO5_LETTER_LABELS : isMundo3 ? MUNDO3_LETTER_LABELS : isMundo2 ? MUNDO2_LETTER_LABELS : LETTER_LABELS;
 	const bigLetterImage = img(activityLetterImages[menuOption] || activityLetterImages[fallbackOption]);
 	// Mundo 3: el bloque cae del cielo al centro y se va a su lugar (atrás) cuando empiezan los carros.
 	const bigLetterCentered = isMundo3 && showBigLetter && visibleItems.size === 0;
@@ -434,10 +458,10 @@ export default function InicioActividad() {
 				}
 				setShowConfetti(true);
 				// La actividad se completa al terminar la fase 3 (carteles en movimiento).
-				if (isPhaseThree && !isMundo2 && !isMundo3 && !isMundo4) {
+				if (isPhaseThree && !isMundo2 && !isMundo3 && !isMundo4 && !isMundo5) {
 					otorgarPremio(errorCount.current);
 				} else if (isPhaseThree && menuOption) {
-					// Mundos 2 a 4: sin comida, pero queda anotada para las marcas del camino.
+					// Mundos 2 a 5: sin comida, pero queda anotada para las marcas del camino.
 					marcarCompletada(menuOption, "inicio", premioPorErrores("inicio", errorCount.current));
 				}
 				audios.celebration.onended = () => {
@@ -845,7 +869,7 @@ export default function InicioActividad() {
 	}, [audios, isMundo4, menuOption, modeOptions]);
 
 	return (
-		<div className={`page activity-page page-inicio-actividad${isMundo2 ? " world-insectos" : ""}${isMundo3 ? " world-bloques" : ""}${isMundo4 ? " world-almejas" : ""}`}>
+		<div className={`page activity-page page-inicio-actividad${isMundo2 ? " world-insectos" : ""}${isMundo3 ? " world-bloques" : ""}${isMundo4 ? " world-almejas" : ""}${isMundo5 ? " world-robots" : ""}`}>
 			<BackButton />
 			<FullscreenButton toggle />
 			{/* Saltear la presentación es un botón aparte: un toque suelto en el fondo ya no la corta. */}

@@ -14,7 +14,7 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 | 4 | Consigna oral en todas las pantallas e íconos | 3.75.0 | ✅ Hecha, salvo dos puntos (ver abajo) |
 | 5 | Palabras: segunda vuelta sin modelo y cierre | 3.76.0 | ✅ Hecha |
 | 6 | Peluches en Mundo 4 | 3.77.0 | ✅ Hecha |
-| 7 | Mundo 5: G, GE, GUE, J, GÜE | 3.78.0 | ⏳ Pendiente: faltan los dibujos y los fondos |
+| 7 | Mundo 5: G, GE, GUE, J, GÜE | 3.78.0 | 🟡 En curso: Inicio y Peluches hechos; faltan Mariposas, Flores, Tren y "¿J o G?" |
 | 8 | Mundo 6: B, V, Ñ, K, X | 3.79.0 | ⏳ Pendiente: faltan los dibujos |
 | 9 | Tramo de oraciones | 3.80.0 | ⏳ Pendiente: faltan los dibujos |
 
@@ -22,7 +22,7 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 
 - **Audios**: los 143 de la lista (`descargas/lista-audios.tsv`) están generados con ElevenLabs e instalados en `public/assets/sonido/supernena` (Malena) y `supernene` (Dante), incluidos los de las fases 4 a 9. `acierto.mp3` es común a las dos voces y está en `sonido/`.
 - **Dibujos y fondos**: se generan en chatgpt.com en láminas de 6 (3x2, fondo blanco), se copian con el botón "Copiar imagen" (sin descargas) y se recortan con un script (fondo transparente, 300 px). Ya están los de Mundo 4 (`imagenes/peluches/MUNDO4/`, con `fondo.jpg` submarino). Faltan para las fases 7 a 9 y el cartel "ARA" de Mundo 3 (fase 4):
-  - `imagenes/peluches/MUNDO5/`: unas 20 palabras, más el fondo y las criaturas robot de cada actividad.
+  - Mundo 5: las criaturas robot y los fondos de Mariposas, Flores y Tren (los dibujos de Peluches ya están).
   - `imagenes/peluches/MUNDO6/`: unas 22 palabras.
   - `imagenes/oraciones/`: un dibujo por oración (6).
 
@@ -72,6 +72,14 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 - Escribir: seis palabras; en la vuelta 2 la palabra se ve 3 s y después "Ahora sin mirar".
 - Probado en el navegador: Barcos completo. Pastel, Puzzle, Escribir (vuelta 2) y Decora (premio) compilan pero no los recorrí hasta el final.
 
+### Fase 7 (primera parte) — Mundo 5: Inicio y Peluches (3.78.0)
+- El menú de Mundo 5 ya abre actividades: Inicio y Peluches, con marcas de completado, brillo en la siguiente y la letra sugerida titilando.
+- Inicio presenta cada letra con su regla ("con la a, la o y la u suena suave", "la u no se escucha", "con los dos puntitos la u sí se escucha") y usa el robot de la letra, el personaje robot y el fondo del taller.
+- `PeluchesMundo5.jsx` (consigna "contiene"): 22 palabras con dibujo y audio y fondo de fábrica de robots. El dibujo equivocado es siempre de otro sonido de la misma letra.
+- Se corrigió el audio de GÜE de supernena (`suengaGÜE.mp3` → `suenaGÜE.mp3`): antes había un caso especial en el código.
+- Probado en el navegador: menú, Inicio de GE (presentación y sílabas) y Peluches de GÜE.
+- Falta: Mariposas y Flores de Mundo 5 (necesitan criaturas y fondos robot), Tren con fichas GU+E y la actividad "¿Va con J o con G?" (`vaConJoG.mp3` ya está).
+
 ### Fase 6 — Peluches en Mundo 4 (3.77.0)
 - `PeluchesMundo4.jsx` usa el mismo escenario de dos plataformas que Mundo 3 (`PeluchesPlataformas`, exportado desde `PeluchesMundo3.jsx`) con fondo submarino propio.
 - Consigna "contiene" y sílaba resaltada en la palabra: C (CA, CO, CU), CE (CE, CI), Q (QUE, QUI), Z (ZA, ZO, ZU) y CH (CHA, CHE, CHO, CHU). El dibujo equivocado es de otro sonido de la misma letra, nunca uno que suene igual.
@@ -87,7 +95,6 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 
 - Escuchar `sonidoL.mp3`, `sonidoM.mp3` y `sonidoS.mp3` (fonemas sueltos suelen salir mal en texto a voz). Si no sirven, las teclas y el Puzzle usan `nombreX.mp3`.
 - Confirmar si `letraL.mp3` dice "ele" o el sonido.
-- Bug viejo: en supernena el archivo se llama `suengaGÜE.mp3` y `Mundo5.jsx` busca `suenaGÜE.mp3` (se arregla en la fase 7).
 - Probar con chicos (la última página de la auditoría).
 
 ## Notas

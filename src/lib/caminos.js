@@ -8,7 +8,8 @@ export const CAMINOS = {
 	1: ACTIVIDADES.map(({ clave }) => clave),
 	2: ["inicio", "mariposas", "flores", "peluches"],
 	3: ["inicio", "mariposas", "flores", "peluches"],
-	4: ["inicio", "mariposas", "flores", "peluches"]
+	4: ["inicio", "mariposas", "flores", "peluches"],
+	5: ["inicio", "peluches"]
 };
 
 function palabrasDesbloqueadas(letra) {

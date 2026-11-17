@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useNavigate } from "react-router";
 import CharacterLocator from "../components/CharacterLocator";
 import UserNav from "../components/UserNav";
 import { useCharacterLocator } from "../hooks/useCharacterLocator";
@@ -7,6 +8,7 @@ import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
 import { img, MUNDO5_CHARACTERS, MUNDO5_MOUTH_IMAGES, sound } from "../lib/assets";
+import { getProgreso, puntajeDe, subscribeProgreso } from "../lib/progreso";
 import { readStorage, STORAGE_KEYS, writeStorage } from "../lib/storage";
 import "./Mundo5.css";
 
@@ -50,6 +52,11 @@ const ACTIVITY_SIGN_IMAGES = [
 	"DECORAbtn.png",
 	"GLOBOSbtn.png"
 ];
+// Actividades habilitadas del camino, en orden (tiene que coincidir con CAMINOS[5] de caminos.js).
+const ACTIVIDADES_M5 = [
+	{ clave: "inicio", ruta: "/inicio", cartel: "INICIALESbtn.png", nombre: "Iniciar actividad de sílabas" },
+	{ clave: "peluches", ruta: "/peluches", cartel: "PELUCHESbtn.png", nombre: "Iniciar actividad de palabras con peluches" }
+];
 const PATH_BUTTONS = [
 	[8, 83], [17, 83], [26, 83], [35, 83], [44, 83],
 	[53, 83], [62, 83], [71, 83], [80, 83], [90, 83],
@@ -71,12 +78,20 @@ export const MUNDO5_IMAGES = [
 export default function Mundo5() {
 	usePageTitle("Mundo 5");
 	const runtime = usePageRuntime();
+	const navigate = useNavigate();
 	const [character] = useSelectedCharacter();
 	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime, MUNDO5_MOUTH_IMAGES);
 	const [selectedLetter, setSelectedLetter] = useState(() => {
 		const saved = readStorage(STORAGE_KEYS.mundo5MenuOption);
 		return LETTERS.includes(saved) ? saved : null;
 	});
+	const progreso = useSyncExternalStore(subscribeProgreso, getProgreso);
+	const pathLetter = (selectedLetter || LETTERS[0]).toLowerCase();
+	const isActivityDone = (index) => index < ACTIVIDADES_M5.length && puntajeDe(progreso, pathLetter, ACTIVIDADES_M5[index].clave) > 0;
+	const nextActivityIndex = ACTIVIDADES_M5.findIndex((_, index) => !isActivityDone(index));
+	// Letra que conviene jugar (solo se sugiere): la primera con alguna actividad sin completar.
+	const nextLetter = LETTERS.find((letter) =>
+		ACTIVIDADES_M5.some(({ clave }) => !puntajeDe(progreso, letter.toLowerCase(), clave)));
 	const [menuPanelVisible, setMenuPanelVisible] = useState(true);
 	const [compactMenuOpen, setCompactMenuOpen] = useState(false);
 	const [introAudio] = useState(() => runtime.audio(sound("InicioMundos.mp3"), { preload: true }));
@@ -158,10 +173,7 @@ export default function Mundo5() {
 			letterAudioRef.current.currentTime = 0;
 			letterAudioRef.current.onended = null;
 		}
-		const soundName = letter === "GÜ" && character !== "supernene"
-			? "suengaGÜE.mp3"
-			: LETTER_SOUNDS[letter];
-		const audio = runtime.audio(sound(soundName));
+		const audio = runtime.audio(sound(LETTER_SOUNDS[letter]));
 		letterAudioRef.current = audio;
 		startTalking();
 		audio.onended = () => {
@@ -177,6 +189,15 @@ export default function Mundo5() {
 				stopTalking();
 			}
 		});
+	}
+
+	function openActivity(index) {
+		const actividad = ACTIVIDADES_M5[index];
+		if (!actividad) return;
+		const letter = selectedLetter || LETTERS[0];
+		setSelectedLetter(letter);
+		writeStorage(STORAGE_KEYS.mundo5MenuOption, letter);
+		navigate(actividad.ruta, { state: { world: 5, menuOption: letter } });
 	}
 
 	function handlePointerDown(event) {
@@ -279,16 +300,19 @@ export default function Mundo5() {
 				<div className="mundo5-path" aria-label="Camino de actividades">
 					{PATH_BUTTONS.map(([left, top], index) => (
 						<div
-							className="mundo5-path-activity mundo5-path-activity-hidden"
+							className={`mundo5-path-activity${ACTIVIDADES_M5[index] ? "" : " mundo5-path-activity-hidden"}`}
 							key={`${left}-${top}-${index}`}
 							style={{ left: `${left}%`, top: `${top}%` }}
 						>
-							<img className="mundo5-path-sign" src={img(ACTIVITY_SIGN_IMAGES[index] || "GLOBOSbtn.png")} alt="" draggable={false} />
+							{index === nextActivityIndex && <span className="camino-siguiente-brillo" aria-hidden="true" />}
+							{isActivityDone(index) && <span className="camino-hecho" aria-hidden="true">✓</span>}
+							<img className="mundo5-path-sign" src={img(ACTIVIDADES_M5[index]?.cartel || ACTIVITY_SIGN_IMAGES[index] || "GLOBOSbtn.png")} alt="" draggable={false} />
 							<button
-								className="mundo5-path-button"
+								className={`mundo5-path-button${ACTIVIDADES_M5[index] ? " is-available" : ""}`}
 								type="button"
-								disabled
-								aria-label={`Actividad del camino ${index + 1}, próximamente`}
+								disabled={!ACTIVIDADES_M5[index]}
+								aria-label={ACTIVIDADES_M5[index]?.nombre || `Actividad del camino ${index + 1}, próximamente`}
+								onClick={() => openActivity(index)}
 							>
 								<img src={img("boton.svg")} alt="" draggable={false} />
 							</button>
@@ -307,7 +331,7 @@ export default function Mundo5() {
 					<img className="mundo5-menu-image" src={img("MENUM5.png")} alt="" draggable={false} />
 					{LETTERS.map((letter, index) => (
 						<button
-							className={`mundo5-letter mundo5-letter-${index + 1} letter-color-${LETTER_COLORS[letter]}${selectedLetter === letter ? " selected" : ""}`}
+							className={`mundo5-letter mundo5-letter-${index + 1} letter-color-${LETTER_COLORS[letter]}${selectedLetter === letter ? " selected" : ""}${nextLetter === letter ? " menu-letra-siguiente" : ""}`}
 							key={letter}
 							type="button"
 							aria-label={`Seleccionar letra ${LETTER_LABELS[letter] || letter}`}

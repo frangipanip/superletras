@@ -1229,3 +1229,8 @@
 		transform: translateY(15%);
 	}
 }
+/* Mundo 5 (robots): fondo del taller. */
+.page-inicio-actividad.world-robots {
+	background-image: url("/assets/imagenes/FONDOM5.png");
+	background-position: left center;
+}

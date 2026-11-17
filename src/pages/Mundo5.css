@@ -361,3 +361,25 @@
 		animation: none;
 	}
 }
+
+/* Actividades habilitadas del camino. */
+.mundo5-path-button.is-available {
+	cursor: pointer;
+	pointer-events: auto;
+}
+
+.mundo5-path-button.is-available:hover,
+.mundo5-path-button.is-available:focus-visible {
+	transform: scale(1.06);
+}
+
+/* La letra que conviene jugar titila (las letras de Mundo 5 son texto, no imagen). */
+.mundo5-letter.menu-letra-siguiente {
+	animation: menu-letra-titila 1s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.mundo5-letter.menu-letra-siguiente {
+		animation: none;
+	}
+}
