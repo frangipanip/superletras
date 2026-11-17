@@ -194,13 +194,13 @@ Hoy, Peluches de Mundo 1 (`Iniciales.jsx`) dice los nombres de los dibujos antes
 
 Criterios:
 
-- [ ] Mundo 1, vocales y una consonante: ningún dibujo se nombra solo; la consigna arranca al aparecer la ronda.
-- [ ] Tocar un dibujo o un parlante durante la consigna no hace nada; al terminar, el primer toque responde.
-- [ ] El parlante dice la palabra sin contar como respuesta ni como error, en los seis mundos.
-- [ ] Mundo 1: 6 rondas (2 de dos dibujos + 4 de tres) y premio; cada sonido pedido al menos una vez.
-- [ ] Mundos 2 a 6: como máximo 6 rondas (de dos dibujos hasta la fase 15) y premio.
-- [ ] `tocaParlante.mp3` en `supernena/` y `supernene/`; recorridos con las dos voces sin recursos faltantes.
-- [ ] En 1138 × 712, 844 × 390 y 667 × 375 el parlante no tapa la palabra ni el dibujo.
+- [x] Mundo 1, vocales y una consonante: ningún dibujo se nombra solo; la consigna arranca al aparecer la ronda.
+- [x] Tocar un dibujo o un parlante durante la consigna no hace nada; al terminar, el primer toque responde.
+- [x] El parlante dice la palabra sin contar como respuesta ni como error, en los seis mundos.
+- [x] Mundo 1: 6 rondas (2 de dos dibujos + 4 de tres) y premio; cada sonido pedido al menos una vez.
+- [x] Mundos 2 a 6: como máximo 6 rondas (de dos dibujos hasta la fase 15) y premio.
+- [x] `tocaParlante.mp3` en `supernena/` y `supernene/`; recorridos con las dos voces sin recursos faltantes.
+- [x] En 1138 × 712, 844 × 390 y 667 × 375 el parlante no tapa la palabra ni el dibujo.
 
 ### Fase 11 — Tilde solo con las 3 comidas o estrellas (3.87.0)
 

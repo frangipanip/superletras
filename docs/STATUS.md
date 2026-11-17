@@ -7,7 +7,8 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 ## Punto de retoma
 
 - **Pedidos nuevos (17/11/2026)**: diez mensajes del usuario después de probar 3.85.1 en dev, más tres sobre las escenas de Peluches. Están planificados como fases 10 a 15 en [PLAN.md](PLAN.md#ajustes-de-la-prueba-del-17112026-fases-10-a-15); no hay nada implementado todavía. Plan registrado en 3.85.2 (solo documentación).
-- **Próximo paso**: confirmar las decisiones pendientes de [Pedidos del 17/11/2026](#pedidos-del-17112026) y empezar la fase 10 (Peluches). Antes de las fases 10, 12 y 14 hay que generar sus audios nuevos; la fase 15 necesita fondos y soportes nuevos para Mundos 3 a 6.
+- **Avance**: cada fase cerrada se mergea a `develop` y se sube para verla en dev (pedido del 17/11/2026). Fase 10 hecha (3.86.0). Los tres audios nuevos de las fases 10, 12 y 14 ya están en las dos voces.
+- **Próximo paso**: fase 11 (tilde con 3). Las decisiones pendientes siguen la propuesta mientras no se diga otra cosa; la fase 15 necesita fondos y soportes nuevos para Mundos 3 a 6.
 - **Entrega funcional publicada en dev**: 3.85.0, commit `b4cb081`, mergeado y subido a `develop`; despliegue de GitHub Actions `44131620057` completado correctamente y `/version.json` confirmado en 3.85.0. Incluye Tren en todos los mundos, Mundo 5 completo, Q/ARA y Oraciones. Producción (`master`) no se modificó.
 - **Versión de cierre documental**: 3.85.1, actualización de este estado y de la versión visible. Los commits funcionales por fase son `a7f79eb` (Tren, 3.82.0), `ac28392` (Mundo 5, 3.83.0), `d814ec2` (Q/ARA, 3.84.0) y `b4cb081` (Oraciones, 3.85.0); la documentación previa está en `0115e10`.
 - **Pendiente de antes**: revisión con personas de pronunciación, ritmo, tacto y encuadres en dispositivos reales; recuperar el arte de trenes elegido anteriormente. Las implementaciones pendientes de fases 4, 7 y 9 y la ampliación del Tren están completas. Las pruebas humanas y los recorridos de fase 5 señalados abajo siguen pendientes.
@@ -38,7 +39,7 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 | 8 | Mundo 6: B, V, Ñ, K, X | 3.80.0 | ✅ Hecha: Inicio, Peluches y "¿B o V?" |
 | 9 | Tramo de oraciones | 3.85.0 | ✅ Implementado y recorrido hasta el premio con ambas voces |
 | Ampliación | Tren en todos los mundos | 3.82.0 | ✅ Implementado y recorrido en los seis mundos; pendiente recuperar arte elegido anteriormente |
-| 10 | Peluches: consigna primero, sin nombrar, parlante y 6 rondas | 3.86.0 | ⬜ Pendiente (necesita `tocaParlante.mp3`) |
+| 10 | Peluches: consigna primero, sin nombrar, parlante y 6 rondas | 3.86.0 | ✅ Hecha y recorrida en los seis mundos con las dos voces |
 | 11 | Tilde solo con las 3 comidas o estrellas sumadas | 3.87.0 | ⬜ Pendiente |
 | 12 | Ositos en una ronda, Dibujar sigue a la vocal siguiente, parlante de Flores M2 | 3.87.1 | ⬜ Pendiente (necesita `dibujarAhora.mp3`) |
 | 13 | Monstruo que brilla con comida para dar | 3.88.0 | ⬜ Pendiente |
@@ -99,6 +100,14 @@ ABEJA para Memotest solo si se elige la alternativa 5.
 - **Dibujos y fondos**: la producción anterior usó ChatGPT y láminas de seis dibujos; la ampliación actual usa `imagegen` con referencias existentes y piezas transparentes. Ya están los recursos de Mundos 4, 5 y 6, los trenes de todos los mundos, los robots de sílabas, el cartel ARA y las seis escenas de Oraciones con su fondo. Prompts y rutas de los recursos nuevos en `docs/arte/`. Sigue pendiente recuperar el arte de trenes elegido en la conversación anterior para compararlo con el nuevo integrado.
 
 ## Hecho
+
+### Fase 10 — Peluches: consigna primero, sin nombrar, parlante y 6 rondas (3.86.0)
+- Peluches de Mundo 1 (`Iniciales.jsx`) pasa al motor compartido `usePeluchesJuego`, como los otros mundos. Ya no nombra los dibujos al aparecer.
+- Mientras suena la consigna, los dibujos y los parlantes no responden y se ven apagados (`peluches-esperando`); se encienden al terminar. Entre rondas también quedan apagados hasta la consigna nueva (en Mundo 2, mientras aparecen).
+- Parlante junto a cada palabra (`.palabra-parlante`, `IconoParlante`) en los seis mundos; en la primera ronda la consigna agrega `tocaParlante.mp3` (nuevo, dos voces) en lugar de `apetaeltexto.mp3`.
+- Rondas (`src/lib/peluchesRondas.js`): 6 pedidos, cada sonido al menos una vez, nunca el mismo seguido, el correcto repartido entre los lugares. Mundo 1: 2 de dos dibujos + 4 de tres. Mundos 2 a 6: hasta 6 de dos dibujos (menos si el grupo tiene pocas palabras: GÜ tiene 2) hasta la fase 15. MOÑO sigue contra MONO.
+- Banco y audios de Mundo 1 en `src/lib/peluchesMundo1.js` (para Memotest en la fase 14). En celulares de 667 px los tres dibujos se corren para que el personaje no tape el tercero.
+- Chromium (`descargas/probar-peluches.mjs`): 18 recorridos hasta el premio (vocales, L, S, P, RR, LL, CH, GÜ y Ñ, con las dos voces), en 1138 × 712, 844 × 390 y 667 × 375. Toque y parlante durante la consigna sin efecto, ningún dibujo nombrado solo, `tocaParlante` solo en la primera ronda, parlante sin contar como respuesta, sin recursos faltantes ni audios superpuestos. Capturas en `descargas/pruebas-peluches/`.
 
 ### Fase 9 — Oraciones (3.85.0)
 - Nueva ruta `/oraciones`, al final del camino de Mundo 1, después de Escribir; se abre junto al tramo de palabras. Reutiliza el cartel `oracionesM1.png`.

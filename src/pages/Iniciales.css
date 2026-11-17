@@ -218,9 +218,11 @@
 	gap: 2.5vw;
 }
 
+/* En celulares chicos el personaje ocupa el cuarto derecho: los tres dibujos se corren a la izquierda. */
 @media (max-width: 700px) {
 	.page-peluche .initials-grid.initials-grid--tres {
-		grid-template-columns: repeat(3, 27vw);
+		left: 40%;
+		grid-template-columns: repeat(3, 22vw);
 		gap: 1.5vw;
 	}
 }

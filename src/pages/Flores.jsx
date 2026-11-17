@@ -3,6 +3,7 @@ import { useLocation } from "react-router";
 import BackButton from "../components/BackButton";
 import Character from "../components/Character";
 import FullscreenButton from "../components/FullscreenButton";
+import IconoParlante from "../components/IconoParlante";
 import PremioComida, { useRecompensa } from "../components/PremioComida";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
@@ -274,7 +275,7 @@ export default function Flores() {
 				onClick={(event) => oirOpcion(flower, event)}
 				onPointerDown={(event) => event.stopPropagation()}
 			>
-				<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3z" /><path d="M16.5 12a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z" /></svg>
+				<IconoParlante />
 			</span>
 		);
 	}

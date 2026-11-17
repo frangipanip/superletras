@@ -509,3 +509,45 @@
 		margin-right: 8px;
 	}
 }
+
+/* Peluches: mientras suena la consigna los dibujos esperan apagados y no responden; al terminar
+   se encienden. Se apaga la imagen (no el botón) para no pisar las sombras y animaciones del botón. */
+.activity-page .opcion-peluche img {
+	transition: filter 300ms ease;
+}
+
+.activity-page.peluches-esperando .opcion-peluche {
+	cursor: default;
+}
+
+.activity-page.peluches-esperando .opcion-peluche img {
+	filter: saturate(0.45) brightness(0.88);
+}
+
+/* Parlante pegado a la palabra de cada dibujo (Peluches): avisa que tocarla la hace sonar. Va
+   dentro del botón de la palabra, así el área de toque es la palabra entera. */
+.activity-page .palabra-parlante {
+	position: absolute;
+	top: 50%;
+	left: 0;
+	z-index: 2;
+	display: grid;
+	place-items: center;
+	box-sizing: border-box;
+	width: clamp(26px, 5.4vmin, 40px);
+	height: clamp(26px, 5.4vmin, 40px);
+	padding: 5px;
+	border: 2px solid #fff;
+	border-radius: 50%;
+	background: rgba(40, 90, 160, 0.9);
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.35);
+	color: #fff;
+	-webkit-text-fill-color: #fff;
+	transform: translate(-70%, -50%);
+	pointer-events: auto;
+}
+
+.activity-page .palabra-parlante svg {
+	width: 100%;
+	height: 100%;
+}

@@ -9,8 +9,9 @@ import { usePageTitle } from "../hooks/usePageTitle";
 import { usePeluchesJuego } from "../hooks/usePeluchesJuego";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
+import IconoParlante from "../components/IconoParlante";
 import { img, MUNDO3_MOUTH_IMAGES, preloadImages } from "../lib/assets";
-import { shuffle } from "../lib/shuffle";
+import { elegirSinRepetir, opcionesDeRonda, ordenDeConsignas, ubicarOpciones } from "../lib/peluchesRondas";
 import "./actividad.css";
 import { preferirCortas } from "../lib/palabrasCortas";
 import "./PeluchesMundo3.css";
@@ -72,65 +73,26 @@ const AUDIOS_R_SUAVE = {
 	ro: "ro suave.mp3",
 	ru: "ru suave.mp3"
 };
-// Cada sonido se pide dos veces (con imágenes distintas), como en los otros mundos.
-const VUELTAS = 2;
+// Rondas con tres dibujos: todavía no, las dos hamacas son parte del fondo (fase 15).
+const CON_TRES = false;
 
-
-// Lado (0 izquierda, 1 derecha) del correcto en cada ronda: mitad y mitad, sin más de dos seguidos.
-function ladosAlternados(cantidad) {
-	const lados = [];
-	for (let index = 0; index < cantidad; index += 1) {
-		const repetido = index >= 2 && lados[index - 1] === lados[index - 2];
-		const izquierdas = lados.filter((lado) => lado === 0).length;
-		const derechas = index - izquierdas;
-		if (repetido) {
-			lados.push(1 - lados[index - 1]);
-		} else if (izquierdas - derechas >= 1) {
-			lados.push(1);
-		} else if (derechas - izquierdas >= 1) {
-			lados.push(0);
-		} else {
-			lados.push(Math.random() < 0.5 ? 0 : 1);
-		}
-	}
-	return lados;
-}
-
-function crearRondas(grupo, pares = {}) {
+// 6 rondas, cada sonido al menos una vez. Un sonido con una sola palabra (LLU: lluvia) se pide una
+// vez: repetirlo era acertar de memoria. Se prefieren palabras nuevas y de hasta 3 sílabas. El error
+// es del mismo grupo pero de otro sonido; un par fijo (MOÑO / MONO) manda sobre el sorteo, porque
+// es el contraste que se quiere enseñar. El correcto se reparte entre los lugares (ubicarOpciones).
+function crearRondas(grupo, pares = {}, conTres = CON_TRES) {
 	const consignas = Object.keys(grupo);
+	const orden = ordenDeConsignas(consignas, { maximo: (consigna) => grupo[consigna].length });
 	const usadas = new Set();
-	const sinOrden = [];
-	for (let vuelta = 0; vuelta < VUELTAS; vuelta += 1) {
-		let orden = shuffle(consignas);
-		// Que no se repita el mismo sonido entre el final de una vuelta y el comienzo de la otra.
-		if (orden.length > 1 && orden[0] === sinOrden[sinOrden.length - 1]?.consigna) {
-			orden = [...orden.slice(1), orden[0]];
-		}
-		orden.forEach((consigna) => {
-			// Se prefieren palabras que todavía no aparecieron (ni como acierto ni como error).
-			const opciones = grupo[consigna];
-			// Un sonido con una sola palabra (LLU: lluvia) se pide una vez: repetirlo era acertar de memoria.
-			if (vuelta >= opciones.length) {
-				return;
-			}
-			// Se prefieren palabras de hasta 3 sílabas.
-			const nuevas = preferirCortas(opciones.filter((palabra) => !usadas.has(palabra)));
-			const correcta = shuffle(nuevas.length ? nuevas : opciones)[0];
-			usadas.add(correcta);
-			// El error es del mismo grupo pero de otro sonido.
-			const distractores = consignas.filter((otra) => otra !== consigna).flatMap((otra) => grupo[otra]);
-			const noUsados = preferirCortas(distractores.filter((palabra) => !usadas.has(palabra)));
-			// Un par fijo (MOÑO / MONO) manda sobre el sorteo: es el contraste que se quiere enseñar.
-			const incorrecta = pares[correcta] || shuffle(noUsados.length ? noUsados : distractores)[0];
-			usadas.add(incorrecta);
-			sinOrden.push({ consigna, correcta, incorrecta });
-		});
-	}
-	const lados = ladosAlternados(sinOrden.length);
-	return sinOrden.map(({ consigna, correcta, incorrecta }, index) => {
-		const opciones = [{ id: correcta, correct: true }, { id: incorrecta, correct: false }];
-		return { consigna, options: lados[index] === 0 ? opciones : opciones.reverse() };
-	});
+	return ubicarOpciones(orden.map((consigna, indice) => {
+		const [correcta] = elegirSinRepetir(preferirCortas(grupo[consigna]), usadas, 1);
+		const distractores = preferirCortas(consignas.filter((otra) => otra !== consigna).flatMap((otra) => grupo[otra]));
+		const cantidad = opcionesDeRonda(indice, conTres) - 1;
+		const fijo = pares[correcta] ? [pares[correcta]] : [];
+		fijo.forEach((palabra) => usadas.add(palabra));
+		const sorteadas = elegirSinRepetir(distractores.filter((palabra) => !fijo.includes(palabra)), usadas, cantidad - fijo.length);
+		return { consigna, correcta, incorrectas: [...fijo, ...sorteadas] };
+	}));
 }
 
 // Sonido de la palabra dentro del grupo (puede estar en el medio: "guitaRRA", "ciRUela").
@@ -185,7 +147,7 @@ export function PeluchesPlataformas({ titulo, grupos, acentos = {}, pares = {}, 
 	const textoDe = (id) => acentos[id] || id;
 	const imagenDe = (id) => img(`peluches/${carpeta}/${id}.png`);
 	const FONDO = img(`peluches/${carpeta}/fondo.jpg`);
-	const { activity, activityIndex, acertada, vibrating, premio, pista, elegir, escucharPalabra, repetirConsigna } = usePeluchesJuego({
+	const { activity, activityIndex, acertada, vibrating, premio, pista, esperandoConsigna, elegir, escucharPalabra, repetirConsigna } = usePeluchesJuego({
 		runtime,
 		letra,
 		rondas,
@@ -201,7 +163,7 @@ export function PeluchesPlataformas({ titulo, grupos, acentos = {}, pares = {}, 
 	}, [rondas]);
 
 	return (
-		<div className={`page activity-page page-peluches-m3 ${className}`.trim()}>
+		<div className={`page activity-page page-peluches-m3 ${className}${esperandoConsigna ? " peluches-esperando" : ""}`.trim()}>
 			<BackButton />
 			<FullscreenButton toggle />
 			{/* Escenario con las proporciones del fondo (1600x883): todo se ubica en % sobre él. */}
@@ -211,7 +173,7 @@ export function PeluchesPlataformas({ titulo, grupos, acentos = {}, pares = {}, 
 				</div>
 				{activity.options.map((option, optionIndex) => {
 					const texto = textoDe(option.id);
-					const classNames = ["pm3-option", `pm3-side-${optionIndex + 1}`];
+					const classNames = ["pm3-option", "opcion-peluche", `pm3-side-${optionIndex + 1}`];
 					if (acertada === option.id) {
 						classNames.push("correct");
 					} else if (acertada) {
@@ -241,6 +203,7 @@ export function PeluchesPlataformas({ titulo, grupos, acentos = {}, pares = {}, 
 							onClick={() => escucharPalabra(option.id)}
 							aria-label={`Escuchar ${texto}`}
 						>
+							<span className="palabra-parlante"><IconoParlante /></span>
 							<PalabraResaltada grupo={grupo} id={option.id} texto={texto} />
 						</button>
 					];

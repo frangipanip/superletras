@@ -11,7 +11,8 @@ import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
 import { img, MUNDO2_CHARACTER_FRAMES, MUNDO2_MOUTH_IMAGES, preloadImages } from "../lib/assets";
 import { whenPageReady } from "../lib/pageGate";
-import { shuffle } from "../lib/shuffle";
+import { elegirSinRepetir, opcionesDeRonda, ordenDeConsignas, ubicarOpciones } from "../lib/peluchesRondas";
+import IconoParlante from "../components/IconoParlante";
 import "./actividad.css";
 import { preferirCortas } from "../lib/palabrasCortas";
 import "./PeluchesMundo2.css";
@@ -42,8 +43,8 @@ const ACENTOS = {
 };
 const LETRAS = ["p", "n", "d", "f", "h"];
 const VOCALES = ["a", "e", "i", "o", "u"];
-// Cada sílaba se pide dos veces (con imágenes distintas).
-const VUELTAS = 2;
+// Rondas con tres dibujos: todavía no, la escena tiene un haz por luciérnaga (fase 15).
+const CON_TRES = false;
 // Aleteo del personaje: los 4 cuadros en 1 s, igual que en Inicio de Mundo 2.
 const WING_FRAME_MS = 250;
 
@@ -83,40 +84,22 @@ const CHISPAS_ACIERTO = 10;
 const textoDe = (id) => ACENTOS[id] || id;
 const imagenDe = (id) => img(`peluchesM2/${id}.png`);
 
-function crearRondas(letra) {
+// 6 rondas, cada sílaba al menos una vez. Se prefieren palabras que todavía no aparecieron y de
+// hasta 3 sílabas (auditoría: las largas cansan y distraen). El error empieza con la misma
+// consonante y otra vocal. `conTres`: las rondas 3 a 6 muestran tres dibujos.
+function crearRondas(letra, conTres) {
 	const consignas = VOCALES.map((vocal) => letra + vocal).filter((consigna) =>
 		PALABRAS.some((palabra) => palabra.startsWith(consigna))
 	);
+	const palabrasDe = (consigna) => preferirCortas(PALABRAS.filter((palabra) => palabra.startsWith(consigna)));
+	const orden = ordenDeConsignas(consignas, { maximo: (consigna) => palabrasDe(consigna).length });
 	const usadas = new Set();
-	const rondas = [];
-	for (let vuelta = 0; vuelta < VUELTAS; vuelta += 1) {
-		let orden = shuffle(consignas);
-		// Que no se repita la misma sílaba entre el final de una vuelta y el comienzo de la otra.
-		if (orden.length > 1 && orden[0] === rondas[rondas.length - 1]?.consigna) {
-			orden = [...orden.slice(1), orden[0]];
-		}
-		orden.forEach((consigna) => {
-			// Se prefieren palabras que todavía no aparecieron (ni como acierto ni como error).
-			// Se prefieren palabras de hasta 3 sílabas (auditoría: las largas cansan y distraen).
-			const opciones = preferirCortas(PALABRAS.filter((palabra) => palabra.startsWith(consigna)));
-			const nuevas = opciones.filter((palabra) => !usadas.has(palabra));
-			const correcta = shuffle(nuevas.length ? nuevas : opciones)[0];
-			usadas.add(correcta);
-			// El error empieza con la misma consonante y otra vocal.
-			const distractores = preferirCortas(PALABRAS.filter((palabra) => palabra.startsWith(letra) && !palabra.startsWith(consigna)));
-			const noUsados = distractores.filter((palabra) => !usadas.has(palabra));
-			const incorrecta = shuffle(noUsados.length ? noUsados : distractores)[0];
-			usadas.add(incorrecta);
-			rondas.push({
-				consigna,
-				options: shuffle([
-					{ id: correcta, correct: true },
-					{ id: incorrecta, correct: false }
-				])
-			});
-		});
-	}
-	return rondas;
+	return ubicarOpciones(orden.map((consigna, indice) => {
+		const [correcta] = elegirSinRepetir(palabrasDe(consigna), usadas, 1);
+		const distractores = preferirCortas(PALABRAS.filter((palabra) => palabra.startsWith(letra) && !palabra.startsWith(consigna)));
+		const incorrectas = elegirSinRepetir(distractores, usadas, opcionesDeRonda(indice, conTres) - 1);
+		return { consigna, correcta, incorrectas };
+	}));
 }
 
 export default function PeluchesMundo2() {
@@ -126,10 +109,10 @@ export default function PeluchesMundo2() {
 	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime, MUNDO2_MOUTH_IMAGES);
 	const menuOption = useActivityMenuOption();
 	const [letra] = useState(() => (LETRAS.includes(menuOption) ? menuOption : "p"));
-	const [rondas] = useState(() => crearRondas(letra));
+	const [rondas] = useState(() => crearRondas(letra, CON_TRES));
 	// Ronda cuyas opciones ya se ven: la consigna espera a que aparezcan (ver usePeluchesJuego).
 	const [rondaVisible, setRondaVisible] = useState(-1);
-	const { activityIndex, acertada, vibrating, premio, pista, elegir, escucharPalabra, repetirConsigna } = usePeluchesJuego({
+	const { activityIndex, acertada, vibrating, premio, pista, esperandoConsigna, elegir, escucharPalabra, repetirConsigna } = usePeluchesJuego({
 		runtime,
 		letra,
 		rondas,
@@ -212,6 +195,7 @@ export default function PeluchesMundo2() {
 	if (escena !== "espera") pageClassNames.push("pm2-volando");
 	if (escena === "posadas" || escena === "proyectando") pageClassNames.push("pm2-posadas");
 	if (escena === "proyectando") pageClassNames.push("pm2-proyectando");
+	if (esperandoConsigna) pageClassNames.push("peluches-esperando");
 
 	return (
 		<div className={pageClassNames.join(" ")}>
@@ -222,7 +206,7 @@ export default function PeluchesMundo2() {
 					{LADOS.map((lado, optionIndex) => {
 						const option = ronda.options[optionIndex];
 						const texto = textoDe(option.id);
-						const classNames = ["pm2-option"];
+						const classNames = ["pm2-option", "opcion-peluche"];
 						const hazClassNames = ["pm2-haz"];
 						if (acertada === option.id) {
 							classNames.push("correct");
@@ -286,6 +270,7 @@ export default function PeluchesMundo2() {
 										onClick={() => interactivo && escucharPalabra(option.id)}
 										aria-label={`Escuchar ${texto}`}
 									>
+										<span className="palabra-parlante"><IconoParlante /></span>
 										<span className="pm2-name-texto">
 											<span className="requested-sound">{texto.slice(0, 2)}</span>
 											{texto.slice(2)}
