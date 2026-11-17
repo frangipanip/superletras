@@ -13,7 +13,7 @@ import { STORAGE_KEYS, readStorage, writeStorage } from "../lib/storage";
 import { ACTIVIDADES, TIPOS_ACTIVIDAD } from "../../shared/actividades.js";
 import { COMIDA_POR_ACTIVIDAD, COMIDAS } from "../../shared/comidas.js";
 import { cantidadComida, getRecompensas, subscribeRecompensas } from "../lib/recompensas";
-import { getProgreso, puntajeDe, subscribeProgreso } from "../lib/progreso";
+import { actividadCompleta, getProgreso, subscribeProgreso } from "../lib/progreso";
 import "./Mundo1.css";
 
 const MENU_OPTIONS = [
@@ -318,13 +318,14 @@ export default function Mundo1() {
 		return Boolean(availableActivities && availableActivities.indexOf(index) !== -1);
 	}
 
-	// Completada: anotada en progreso.js o, para quien jugaba antes, con comida ganada.
+	// Completada (tilde): se juntaron las 3 comidas de la actividad (dadas al monstruo o no) o, en las
+	// de palabras y oraciones, las 3 estrellas, aunque sea en varias partidas.
 	function isActivityDone(index) {
 		const clave = ACTIVIDADES[index]?.clave;
 		if (!clave || !selectedOption) return false;
 		const comida = COMIDA_POR_ACTIVIDAD[clave];
-		return puntajeDe(progreso, selectedOption, clave) > 0 ||
-			Boolean(comida && cantidadComida(recompensasPorLetra, selectedOption, comida.clave).ganadas > 0);
+		const ganadas = comida ? cantidadComida(recompensasPorLetra, selectedOption, comida.clave).ganadas : 0;
+		return actividadCompleta(progreso, selectedOption, clave, ganadas);
 	}
 
 	function isActivityVisible(index) {

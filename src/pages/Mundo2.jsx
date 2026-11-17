@@ -10,7 +10,7 @@ import { useTeleport } from "../hooks/useTeleport";
 import { img, MUNDO2_CHARACTER_FRAMES, MUNDO2_CHARACTERS, MUNDO2_MOUTH_IMAGES, sound } from "../lib/assets";
 import { STORAGE_KEYS, readStorage, writeStorage } from "../lib/storage";
 import { CAMINOS } from "../lib/caminos";
-import { getProgreso, puntajeDe, subscribeProgreso } from "../lib/progreso";
+import { actividadCompleta, getProgreso, subscribeProgreso } from "../lib/progreso";
 import "./Mundo2.css";
 
 const LETTERS = ["P", "N", "D", "F", "H"];
@@ -103,7 +103,7 @@ export default function Mundo2() {
 	});
 	const [savedPerches, setSavedPerches] = useState(readSavedPerches);
 	const progreso = useSyncExternalStore(subscribeProgreso, getProgreso);
-	const isDone = (letter, index) => puntajeDe(progreso, letter.toLowerCase(), CAMINOS[2][index]) > 0;
+	const isDone = (letter, index) => actividadCompleta(progreso, letter.toLowerCase(), CAMINOS[2][index]);
 	const pathLetter = selectedLetter || LETTERS[0];
 	const nextActivityIndex = CAMINOS[2].findIndex((_, index) => !isDone(pathLetter, index));
 	const nextLetter = LETTERS.find((letter) => CAMINOS[2].some((_, index) => !isDone(letter, index)));

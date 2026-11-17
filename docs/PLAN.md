@@ -214,13 +214,13 @@ Hoy la tilde (`.camino-hecho`) aparece al terminar la actividad una vez: `progre
 
 Criterios:
 
-- [ ] Mundo 1: Inicio con 1 o 2 errores (2 cerezas) → sin tilde; otra partida con 3 errores (1 cereza) → tilde, aunque las cerezas no se hayan dado al monstruo.
-- [ ] Mundo 1: una partida sin errores (3) → tilde de una vez.
-- [ ] Mundos 2 y 5 (estrellas): mismo recorrido 2 + 1 → tilde recién en la segunda partida.
-- [ ] La actividad completa se puede volver a jugar; la suma no pasa de 3.
-- [ ] Datos viejos: una actividad guardada con 3 conserva la tilde; con 1 o 2 la pierde hasta completar.
-- [ ] El brillo de la que sigue y la letra sugerida avanzan recién con la tilde.
-- [ ] `CLAUDE.md` actualizado (progreso: suma con tope 3, no mejor puntaje).
+- [x] Mundo 1: Inicio con 1 o 2 errores (2 cerezas) → sin tilde; otra partida con 3 errores (1 cereza) → tilde, aunque las cerezas no se hayan dado al monstruo.
+- [x] Mundo 1: una partida sin errores (3) → tilde de una vez.
+- [x] Mundos 2 y 5 (estrellas): mismo recorrido 2 + 1 → tilde recién en la segunda partida.
+- [x] La actividad completa se puede volver a jugar; la suma no pasa de 3.
+- [x] Datos viejos: una actividad guardada con 3 conserva la tilde; con 1 o 2 la pierde hasta completar.
+- [x] El brillo de la que sigue y la letra sugerida avanzan recién con la tilde.
+- [x] `CLAUDE.md` actualizado (progreso: suma con tope 3, no mejor puntaje).
 
 ### Fase 12 — Ositos, Dibujar y parlantes de Flores (3.87.1)
 

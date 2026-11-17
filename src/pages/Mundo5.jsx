@@ -8,7 +8,7 @@ import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
 import { img, MUNDO5_CHARACTERS, MUNDO5_MOUTH_IMAGES, sound } from "../lib/assets";
-import { getProgreso, puntajeDe, subscribeProgreso } from "../lib/progreso";
+import { actividadCompleta, getProgreso, subscribeProgreso } from "../lib/progreso";
 import { readStorage, STORAGE_KEYS, writeStorage } from "../lib/storage";
 import "./Mundo5.css";
 
@@ -104,11 +104,11 @@ export default function Mundo5() {
 	const perch = savedPerches[selectedLetter];
 	const perchPosition = PATH_BUTTONS[perch];
 	const pathLetter = (selectedLetter || LETTERS[0]).toLowerCase();
-	const isActivityDone = (index) => index < ACTIVIDADES_M5.length && puntajeDe(progreso, pathLetter, ACTIVIDADES_M5[index].clave) > 0;
+	const isActivityDone = (index) => index < ACTIVIDADES_M5.length && actividadCompleta(progreso, pathLetter, ACTIVIDADES_M5[index].clave);
 	const nextActivityIndex = ACTIVIDADES_M5.findIndex((_, index) => !isActivityDone(index));
 	// Letra que conviene jugar (solo se sugiere): la primera con alguna actividad sin completar.
 	const nextLetter = LETTERS.find((letter) =>
-		ACTIVIDADES_M5.some(({ clave }) => !puntajeDe(progreso, letter.toLowerCase(), clave)));
+		ACTIVIDADES_M5.some(({ clave }) => !actividadCompleta(progreso, letter.toLowerCase(), clave)));
 	const [menuPanelVisible, setMenuPanelVisible] = useState(true);
 	const [compactMenuOpen, setCompactMenuOpen] = useState(false);
 	const [introAudio] = useState(() => runtime.audio(sound("InicioMundos.mp3"), { preload: true }));

@@ -7,8 +7,8 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 ## Punto de retoma
 
 - **Pedidos nuevos (17/11/2026)**: diez mensajes del usuario después de probar 3.85.1 en dev, más tres sobre las escenas de Peluches. Están planificados como fases 10 a 15 en [PLAN.md](PLAN.md#ajustes-de-la-prueba-del-17112026-fases-10-a-15); no hay nada implementado todavía. Plan registrado en 3.85.2 (solo documentación).
-- **Avance**: cada fase cerrada se mergea a `develop` y se sube para verla en dev (pedido del 17/11/2026). Fase 10 hecha (3.86.0). Los tres audios nuevos de las fases 10, 12 y 14 ya están en las dos voces.
-- **Próximo paso**: fase 11 (tilde con 3). Las decisiones pendientes siguen la propuesta mientras no se diga otra cosa; la fase 15 necesita fondos y soportes nuevos para Mundos 3 a 6.
+- **Avance**: cada fase cerrada se mergea a `develop` y se sube para verla en dev (pedido del 17/11/2026). Fases 10 (3.86.0) y 11 (3.87.0) hechas. Los tres audios nuevos de las fases 10, 12 y 14 ya están en las dos voces.
+- **Próximo paso**: fase 12 (Ositos, Dibujar y parlantes de Flores). Las decisiones pendientes siguen la propuesta mientras no se diga otra cosa; la fase 15 necesita fondos y soportes nuevos para Mundos 3 a 6.
 - **Entrega funcional publicada en dev**: 3.85.0, commit `b4cb081`, mergeado y subido a `develop`; despliegue de GitHub Actions `44131620057` completado correctamente y `/version.json` confirmado en 3.85.0. Incluye Tren en todos los mundos, Mundo 5 completo, Q/ARA y Oraciones. Producción (`master`) no se modificó.
 - **Versión de cierre documental**: 3.85.1, actualización de este estado y de la versión visible. Los commits funcionales por fase son `a7f79eb` (Tren, 3.82.0), `ac28392` (Mundo 5, 3.83.0), `d814ec2` (Q/ARA, 3.84.0) y `b4cb081` (Oraciones, 3.85.0); la documentación previa está en `0115e10`.
 - **Pendiente de antes**: revisión con personas de pronunciación, ritmo, tacto y encuadres en dispositivos reales; recuperar el arte de trenes elegido anteriormente. Las implementaciones pendientes de fases 4, 7 y 9 y la ampliación del Tren están completas. Las pruebas humanas y los recorridos de fase 5 señalados abajo siguen pendientes.
@@ -40,7 +40,7 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 | 9 | Tramo de oraciones | 3.85.0 | ✅ Implementado y recorrido hasta el premio con ambas voces |
 | Ampliación | Tren en todos los mundos | 3.82.0 | ✅ Implementado y recorrido en los seis mundos; pendiente recuperar arte elegido anteriormente |
 | 10 | Peluches: consigna primero, sin nombrar, parlante y 6 rondas | 3.86.0 | ✅ Hecha y recorrida en los seis mundos con las dos voces |
-| 11 | Tilde solo con las 3 comidas o estrellas sumadas | 3.87.0 | ⬜ Pendiente |
+| 11 | Tilde solo con las 3 comidas o estrellas sumadas | 3.87.0 | ✅ Hecha |
 | 12 | Ositos en una ronda, Dibujar sigue a la vocal siguiente, parlante de Flores M2 | 3.87.1 | ⬜ Pendiente (necesita `dibujarAhora.mp3`) |
 | 13 | Monstruo que brilla con comida para dar | 3.88.0 | ⬜ Pendiente |
 | 14 | Memotest de letra y dibujo | 3.89.0 | ⬜ Pendiente (necesita `memotestDibujos.mp3`) |
@@ -100,6 +100,11 @@ ABEJA para Memotest solo si se elige la alternativa 5.
 - **Dibujos y fondos**: la producción anterior usó ChatGPT y láminas de seis dibujos; la ampliación actual usa `imagegen` con referencias existentes y piezas transparentes. Ya están los recursos de Mundos 4, 5 y 6, los trenes de todos los mundos, los robots de sílabas, el cartel ARA y las seis escenas de Oraciones con su fondo. Prompts y rutas de los recursos nuevos en `docs/arte/`. Sigue pendiente recuperar el arte de trenes elegido en la conversación anterior para compararlo con el nuevo integrado.
 
 ## Hecho
+
+### Fase 11 — Tilde solo con las 3 comidas o estrellas (3.87.0)
+- `progreso.js` suma lo obtenido en cada partida (tope 3) en lugar de guardar el mejor puntaje; misma clave y formato, lo guardado antes cuenta como suma inicial. `actividadCompleta()` pide 3 estrellas o, en Mundo 1, 3 comidas ganadas (dadas al monstruo o no).
+- Los menús de los seis mundos usan `actividadCompleta` para la tilde, el brillo de la que sigue y la letra sugerida.
+- Chromium (`descargas/probar-tilde.mjs`, sin API para controlar las comidas): Mundo 1 con 2 cerezas sin tilde y con 1 más con tilde; 3 confites sin dar con tilde; dato viejo en 3 conserva la tilde; Peluches 1 → 2 sin tilde → 3 con tilde sin pasar de 3; el brillo de la que sigue se queda en Inicio hasta completarla. Mundo 2 con 2 estrellas sin tilde y con 3 con tilde; Mundo 5 con una actividad en 2 sin tilde.
 
 ### Fase 10 — Peluches: consigna primero, sin nombrar, parlante y 6 rondas (3.86.0)
 - Peluches de Mundo 1 (`Iniciales.jsx`) pasa al motor compartido `usePeluchesJuego`, como los otros mundos. Ya no nombra los dibujos al aparecer.

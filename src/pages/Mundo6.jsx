@@ -7,7 +7,7 @@ import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { img, MUNDO6_CHARACTER_FRAMES, sound } from "../lib/assets";
-import { getProgreso, puntajeDe, subscribeProgreso } from "../lib/progreso";
+import { actividadCompleta, getProgreso, subscribeProgreso } from "../lib/progreso";
 import { readStorage, STORAGE_KEYS, writeStorage } from "../lib/storage";
 import "./Mundo6.css";
 
@@ -76,11 +76,11 @@ export default function Mundo6() {
 	const letterAudioRef = useRef(null);
 	const progreso = useSyncExternalStore(subscribeProgreso, getProgreso);
 	const pathLetter = (selectedLetter || LETTERS[0]).toLowerCase();
-	const isActivityDone = (index) => index < ACTIVIDADES_M6.length && puntajeDe(progreso, pathLetter, ACTIVIDADES_M6[index].clave) > 0;
+	const isActivityDone = (index) => index < ACTIVIDADES_M6.length && actividadCompleta(progreso, pathLetter, ACTIVIDADES_M6[index].clave);
 	const nextActivityIndex = ACTIVIDADES_M6.findIndex((_, index) => !isActivityDone(index));
 	// Letra que conviene jugar (solo se sugiere): la primera con alguna actividad sin completar.
 	const nextLetter = LETTERS.find((letter) =>
-		ACTIVIDADES_M6.some(({ clave }) => !puntajeDe(progreso, letter.toLowerCase(), clave)));
+		ACTIVIDADES_M6.some(({ clave }) => !actividadCompleta(progreso, letter.toLowerCase(), clave)));
 	const [menuPanelVisible, setMenuPanelVisible] = useState(true);
 	const [compactMenuOpen, setCompactMenuOpen] = useState(false);
 	const pageRef = useRef(null);
