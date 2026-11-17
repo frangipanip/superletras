@@ -239,8 +239,3 @@ img {
 	}
 }
 
-/* Letra del menú que todavía no se puede elegir (por ejemplo Q y CE de Mundo 4 antes de la C). */
-.letra-bloqueada {
-	filter: grayscale(1) opacity(0.5);
-	cursor: not-allowed;
-}

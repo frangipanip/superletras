@@ -105,8 +105,6 @@ export const MUNDO4_IMAGES = [
 	...MUNDO4_MOUTH_IMAGES
 ];
 
-// Q y CE se aprenden contra la C: se habilitan después de completar Inicio de la C.
-const LETRAS_DESPUES_DE_C = ["Q", "CE"];
 const ACTIVIDADES_M4 = ["inicio", "mariposas", "flores"];
 
 export default function Mundo4() {
@@ -124,15 +122,11 @@ export default function Mundo4() {
 	});
 	const [savedPerches, setSavedPerches] = useState(readSavedPerches);
 	const progreso = useSyncExternalStore(subscribeProgreso, getProgreso);
-	const cDone = puntajeDe(progreso, "c", "inicio") > 0;
-	// Quien ya jugó una de esas letras la sigue teniendo.
-	const isLetterLocked = (letter) => LETRAS_DESPUES_DE_C.includes(letter) && !cDone &&
-		!ACTIVIDADES_M4.some((clave) => puntajeDe(progreso, letter.toLowerCase(), clave) > 0);
 	const pathLetter = (selectedLetter || LETTERS[0]).toLowerCase();
 	const isActivityDone = (index) => index < ACTIVIDADES_M4.length && puntajeDe(progreso, pathLetter, ACTIVIDADES_M4[index]) > 0;
 	const nextActivityIndex = ACTIVIDADES_M4.findIndex((_, index) => !isActivityDone(index));
-	// Letra que conviene jugar: la primera habilitada con alguna actividad sin completar.
-	const nextLetter = LETTERS.find((letter) => !isLetterLocked(letter) &&
+	// Letra que conviene jugar (solo se sugiere, todas se pueden elegir): la primera con alguna actividad sin completar.
+	const nextLetter = LETTERS.find((letter) =>
 		ACTIVIDADES_M4.some((clave) => !puntajeDe(progreso, letter.toLowerCase(), clave)));
 	const perchIndex = selectedLetter ? (savedPerches[selectedLetter] ?? null) : null;
 	const characterIndex = teleport ? teleport.position : perchIndex;
@@ -239,7 +233,6 @@ export default function Mundo4() {
 	}
 
 	function selectLetter(letter) {
-		if (isLetterLocked(letter)) return;
 		introAudio.pause();
 		introAudio.currentTime = 0;
 		introAudio.onended = null;
@@ -377,10 +370,10 @@ export default function Mundo4() {
 						<div className="mundo4-compact-menu__options" id="mundo4-compact-menu-options">
 							{LETTERS.map((letter) => (
 								<button
-									className={`mundo4-compact-menu__option${selectedLetter === letter ? " selected" : ""}${isLetterLocked(letter) ? " letra-bloqueada" : ""}`}
+									className={`mundo4-compact-menu__option${selectedLetter === letter ? " selected" : ""}`}
 									key={letter}
 									type="button"
-									disabled={Boolean(teleport) || isLetterLocked(letter)}
+									disabled={Boolean(teleport)}
 									aria-label={`Elegir letra ${letter}`}
 									aria-pressed={selectedLetter === letter}
 									onClick={() => selectLetter(letter)}
@@ -449,11 +442,11 @@ export default function Mundo4() {
 					<img className="mundo4-menu-image" src={img("MENUM4.png")} alt="" draggable={false} />
 					{LETTERS.map((letter, index) => (
 						<button
-							className={`mundo4-letter mundo4-letter-${index + 1}${selectedLetter === letter ? " selected" : ""}${isLetterLocked(letter) ? " letra-bloqueada" : ""}${nextLetter === letter && selectedLetter !== letter ? " menu-letra-siguiente" : ""}`}
+							className={`mundo4-letter mundo4-letter-${index + 1}${selectedLetter === letter ? " selected" : ""}${nextLetter === letter && selectedLetter !== letter ? " menu-letra-siguiente" : ""}`}
 							data-letter={letter.toLowerCase()}
 							key={letter}
 							type="button"
-							disabled={Boolean(teleport) || isLetterLocked(letter)}
+							disabled={Boolean(teleport)}
 							aria-label={`Seleccionar letra ${letter}`}
 							aria-pressed={selectedLetter === letter}
 							onClick={() => selectLetter(letter)}

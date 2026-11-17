@@ -433,7 +433,7 @@ export default function InicioActividad() {
 				if (isPhaseThree && !isMundo2 && !isMundo3 && !isMundo4) {
 					otorgarPremio(errorCount.current);
 				} else if (isPhaseThree && menuOption) {
-					// Mundos 2 a 4: sin comida, pero queda anotada (Mundo 4 destraba Q y CE con esto).
+					// Mundos 2 a 4: sin comida, pero queda anotada para las marcas del camino.
 					marcarCompletada(menuOption, "inicio", premioPorErrores("inicio", errorCount.current));
 				}
 				audios.celebration.onended = () => {
