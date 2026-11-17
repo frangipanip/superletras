@@ -252,9 +252,9 @@ Comida para dar: alguna comida de la letra con `ganadas > dadas` (`cantidadComid
 
 Criterios:
 
-- [ ] Ganar comida en una actividad y volver al mundo → el monstruo de la nube brilla; darle todo → deja de brillar.
-- [ ] Con comida en otra letra, ese monstruo brilla en el selector de `/monstruo`; al darle todo, se apaga.
-- [ ] Sin comida guardada no brilla nada. Encuadres de celular y tablet.
+- [x] Ganar comida en una actividad y volver al mundo → el monstruo de la nube brilla; darle todo → deja de brillar.
+- [x] Con comida en otra letra, ese monstruo brilla en el selector de `/monstruo`; al darle todo, se apaga.
+- [x] Sin comida guardada no brilla nada. Encuadres de celular y tablet.
 
 ### Fase 14 — Memotest de letra y dibujo (3.89.0)
 

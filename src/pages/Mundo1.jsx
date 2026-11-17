@@ -12,7 +12,7 @@ import { img, MUNDO1_CHARACTERS, MUNDO1_MOUTH_IMAGES, sound } from "../lib/asset
 import { STORAGE_KEYS, readStorage, writeStorage } from "../lib/storage";
 import { ACTIVIDADES, TIPOS_ACTIVIDAD } from "../../shared/actividades.js";
 import { COMIDA_POR_ACTIVIDAD, COMIDAS } from "../../shared/comidas.js";
-import { cantidadComida, getRecompensas, subscribeRecompensas } from "../lib/recompensas";
+import { cantidadComida, getRecompensas, subscribeRecompensas, tieneComidaParaDar } from "../lib/recompensas";
 import { actividadCompleta, getProgreso, subscribeProgreso } from "../lib/progreso";
 import "./Mundo1.css";
 
@@ -157,6 +157,8 @@ export default function Mundo1() {
 		cantidadComida(recompensasPorLetra, letter, clave).dadas >= necesarias
 	);
 	const selectedMonsterEvolved = Boolean(selectedOption && monsterEvolved(selectedOption));
+	// Comida ganada sin dar: el monstruo de la nube brilla (fase 13, pedido del 17/11/2026).
+	const monsterHasFood = tieneComidaParaDar(recompensasPorLetra, selectedOption || "a");
 	// Letra que conviene jugar: la primera cuyo monstruo todavía no evolucionó (titila en el menú).
 	const nextLetter = MENU_OPTIONS.find(({ key }) => !monsterEvolved(key))?.key || null;
 	const [savedPerches, setSavedPerches] = useState(readSavedPerches);
@@ -619,7 +621,12 @@ export default function Mundo1() {
 			)}
 
 			{/* Fijo arriba al centro: sigue ahí aunque se recorra el camino. */}
-			<button className="mundo1-monster-button" type="button" aria-label="Ver al monstruo y sus comidas" onClick={openMonster}>
+			<button
+				className={`mundo1-monster-button${monsterHasFood ? " monstruo-con-comida" : ""}`}
+				type="button"
+				aria-label={`Ver al monstruo y sus comidas${monsterHasFood ? ": tiene comida para darle" : ""}`}
+				onClick={openMonster}
+			>
 				<img className="mundo1-monster-cloud" src={img("nube.png")} alt="" aria-hidden="true" draggable={false} />
 				<Monstruo letra={selectedOption || "a"} evolucionado={selectedMonsterEvolved} />
 			</button>

@@ -7,8 +7,8 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 ## Punto de retoma
 
 - **Pedidos nuevos (17/11/2026)**: diez mensajes del usuario después de probar 3.85.1 en dev, más tres sobre las escenas de Peluches. Están planificados como fases 10 a 15 en [PLAN.md](PLAN.md#ajustes-de-la-prueba-del-17112026-fases-10-a-15); no hay nada implementado todavía. Plan registrado en 3.85.2 (solo documentación).
-- **Avance**: cada fase cerrada se mergea a `develop` y se sube para verla en dev (pedido del 17/11/2026). Fases 10 (3.86.0), 11 (3.87.0) y 12 (3.87.1) hechas. Los tres audios nuevos de las fases 10, 12 y 14 ya están en las dos voces.
-- **Próximo paso**: fase 13 (brillo del monstruo con comida para dar). Las decisiones pendientes siguen la propuesta mientras no se diga otra cosa; la fase 15 necesita fondos y soportes nuevos para Mundos 3 a 6.
+- **Avance**: cada fase cerrada se mergea a `develop` y se sube para verla en dev (pedido del 17/11/2026). Fases 10 (3.86.0), 11 (3.87.0), 12 (3.87.1) y 13 (3.88.0) hechas. Los tres audios nuevos de las fases 10, 12 y 14 ya están en las dos voces.
+- **Próximo paso**: fase 14 (Memotest de letra y dibujo). Las decisiones pendientes siguen la propuesta mientras no se diga otra cosa; la fase 15 necesita fondos y soportes nuevos para Mundos 3 a 6.
 - **Entrega funcional publicada en dev**: 3.85.0, commit `b4cb081`, mergeado y subido a `develop`; despliegue de GitHub Actions `44131620057` completado correctamente y `/version.json` confirmado en 3.85.0. Incluye Tren en todos los mundos, Mundo 5 completo, Q/ARA y Oraciones. Producción (`master`) no se modificó.
 - **Versión de cierre documental**: 3.85.1, actualización de este estado y de la versión visible. Los commits funcionales por fase son `a7f79eb` (Tren, 3.82.0), `ac28392` (Mundo 5, 3.83.0), `d814ec2` (Q/ARA, 3.84.0) y `b4cb081` (Oraciones, 3.85.0); la documentación previa está en `0115e10`.
 - **Pendiente de antes**: revisión con personas de pronunciación, ritmo, tacto y encuadres en dispositivos reales; recuperar el arte de trenes elegido anteriormente. Las implementaciones pendientes de fases 4, 7 y 9 y la ampliación del Tren están completas. Las pruebas humanas y los recorridos de fase 5 señalados abajo siguen pendientes.
@@ -42,7 +42,7 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 | 10 | Peluches: consigna primero, sin nombrar, parlante y 6 rondas | 3.86.0 | ✅ Hecha y recorrida en los seis mundos con las dos voces |
 | 11 | Tilde solo con las 3 comidas o estrellas sumadas | 3.87.0 | ✅ Hecha |
 | 12 | Ositos en una ronda, Dibujar sigue a la vocal siguiente, parlante de Flores M2 | 3.87.1 | ✅ Hecha |
-| 13 | Monstruo que brilla con comida para dar | 3.88.0 | ⬜ Pendiente |
+| 13 | Monstruo que brilla con comida para dar | 3.88.0 | ✅ Hecha |
 | 14 | Memotest de letra y dibujo | 3.89.0 | ⬜ Pendiente (necesita `memotestDibujos.mp3`) |
 | 15 | Peluches de Mundos 2 a 6 con tres dibujos: soportes separados del fondo | 3.90.0 | ⬜ Pendiente (necesita fondos y soportes de Mundos 3 a 6) |
 
@@ -100,6 +100,11 @@ ABEJA para Memotest solo si se elige la alternativa 5.
 - **Dibujos y fondos**: la producción anterior usó ChatGPT y láminas de seis dibujos; la ampliación actual usa `imagegen` con referencias existentes y piezas transparentes. Ya están los recursos de Mundos 4, 5 y 6, los trenes de todos los mundos, los robots de sílabas, el cartel ARA y las seis escenas de Oraciones con su fondo. Prompts y rutas de los recursos nuevos en `docs/arte/`. Sigue pendiente recuperar el arte de trenes elegido en la conversación anterior para compararlo con el nuevo integrado.
 
 ## Hecho
+
+### Fase 13 — El monstruo brilla cuando tiene comida para dar (3.88.0)
+- `tieneComidaParaDar(letras, letra)` en `recompensas.js`: alguna comida con `ganadas > dadas`.
+- Mundo 1: el monstruo de la nube (letra elegida) late con un halo dorado (`drop-shadow`) mientras tenga comida para dar; se apaga al darle todo. `/monstruo`: en el selector, los monstruos de otras letras con comida sin dar tienen un aro dorado que late (sobre el círculo blanco el halo del dibujo no se veía). Con movimiento reducido, brillo fijo. Estilos compartidos en `global.css` (clase `monstruo-con-comida`).
+- Chromium (`descargas/probar-brillo.mjs`, sin API): brilla con comida, se apaga al darla, en el selector solo brilla la letra con comida sin dar (no la que no tiene ni la que ya recibió todo), sin comida no brilla nada; en 1138 × 712, 844 × 390 y 667 × 375.
 
 ### Fase 12 — Ositos de una ronda, Dibujar que avanza y parlante de Flores M2 (3.87.1)
 - Ositos (Mundo 1, L/M/S/T): se sacaron las dos rondas de una sílaba sola (`ositosDicen.mp3` no suena más); una ronda y premio. Vocales y Mundos 2 a 4 sin cambios.

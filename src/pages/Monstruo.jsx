@@ -8,7 +8,7 @@ import PufCrema from "../components/PufCrema";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { preloadImages, sound } from "../lib/assets";
-import { cantidadComida, darComida, forzarMonstruo, getRecompensas, sincronizar, subscribeRecompensas, sumarComidaPrueba } from "../lib/recompensas";
+import { cantidadComida, darComida, forzarMonstruo, getRecompensas, sincronizar, subscribeRecompensas, sumarComidaPrueba, tieneComidaParaDar } from "../lib/recompensas";
 import { readMenuOption, STORAGE_KEYS, writeStorage } from "../lib/storage";
 import "./actividad.css";
 import "./Monstruo.css";
@@ -294,8 +294,8 @@ export default function MonstruoPage() {
 					<button
 						key={otraLetra}
 						type="button"
-						className="monstruo-selector__boton"
-						aria-label={`Monstruo de la ${otraLetra.toUpperCase()}`}
+						className={`monstruo-selector__boton${tieneComidaParaDar(letras, otraLetra) ? " monstruo-con-comida" : ""}`}
+						aria-label={`Monstruo de la ${otraLetra.toUpperCase()}${tieneComidaParaDar(letras, otraLetra) ? ", tiene comida para darle" : ""}`}
 						title={`Monstruo de la ${otraLetra.toUpperCase()}`}
 						onClick={() => seleccionarMonstruo(otraLetra)}
 					>

@@ -1,4 +1,4 @@
-import { COMIDA_POR_ACTIVIDAD, COMIDA_POR_CLAVE, LETRAS, premioPorErrores } from "../../shared/comidas.js";
+import { COMIDA_POR_ACTIVIDAD, COMIDA_POR_CLAVE, COMIDAS, LETRAS, premioPorErrores } from "../../shared/comidas.js";
 import { marcarCompletada } from "./progreso";
 import { STORAGE_KEYS, readStorage, writeStorage } from "./storage";
 
@@ -54,6 +54,15 @@ export function getRecompensas() {
 
 export function cantidadComida(letras, letra, clave) {
 	return letras[letra]?.[clave] || { ganadas: 0, dadas: 0 };
+}
+
+// Hay comida ganada que todavía no se le dio al monstruo de la letra: el monstruo brilla en el
+// menú de Mundo 1 y en el selector de /monstruo para que se note que lo están esperando.
+export function tieneComidaParaDar(letras, letra) {
+	return COMIDAS.some(({ clave }) => {
+		const { ganadas, dadas } = cantidadComida(letras, letra, clave);
+		return ganadas > dadas;
+	});
 }
 
 function nuevoId() {
