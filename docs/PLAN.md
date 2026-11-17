@@ -86,6 +86,8 @@ Cierre de los pendientes (3.84.0):
 - [x] Cartel ARA en Mundo 3 e Inicio, conservando la clave AR de los datos guardados.
 - [x] Q comprobada con ambas voces en tablet y celular horizontal.
 
+Revisado el 17/11/2026 a pedido: la segunda vuelta de Ositos con una sola sílaba y la lectura de los dibujos al aparecer en Peluches de Mundo 1 se sacan (fases 12 y 10).
+
 ## Fase 5 — Tramo de palabras: segunda vuelta sin modelo y cierre (3.76.0)
 
 Mejora 1, con el patrón que ya tiene `Tren.jsx` (`isHintHidden` + `startPhaseTwo`). Las cinco actividades pasan a 3 rondas con modelo + 3 sin modelo, cartel de premio y botón a la siguiente. Como no tienen comida en `shared/comidas.js`, `otorgarPremio` devuelve un premio de estrellas y marca el progreso.
@@ -160,6 +162,145 @@ Como las palabras de las actividades no cambian, las oraciones usan su propia li
 - [x] Encuadres en 1138 × 712, 844 × 390 y 667 × 375.
 - [x] Entrada desde el camino de Mundo 1, bloqueo hasta abrir palabras, siguiente desde Escribir y regreso al mundo.
 
+## Ajustes de la prueba del 17/11/2026 (fases 10 a 15)
+
+Pedidos del usuario después de probar la 3.85.1 en dev (diez mensajes del 17/11/2026, más tres sobre las escenas de Peluches que responden la decisión 1 de `STATUS.md`). Los tres primeros sobre Peluches se van corrigiendo entre sí; vale el último: **los dibujos no se nombran solos**, se escuchan con un parlante junto a la palabra, y mientras suena la consigna los dibujos no responden.
+
+| Pedido | Fase |
+|---|---|
+| Peluches: no poder tocar mientras habla; consigna primero; no nombrar los dibujos; parlante junto a la palabra | 10 |
+| Peluches: 2 rondas de dos dibujos + 4 rondas de tres | 10 |
+| Tilde solo cuando la suma de comidas o estrellas llega a 3, en todas las actividades y mundos | 11 |
+| Actividad 2 (Ositos): una sola ronda, sin las rondas de sílaba | 12 |
+| Dibujar: pasar sola a la vocal siguiente después de la felicitación | 12 |
+| Flores de Mundo 2: parlante debajo de la oruga, sin tapar la sílaba | 12 |
+| Monstruo de la nube (y los del selector de `/monstruo`) brilla si tiene comida para dar | 13 |
+| Memotest: pareja de letra o sílaba escrita + dibujo que empieza igual | 14 |
+| Peluches de Mundos 2 a 6 también con rondas de tres: soportes separados del fondo (luces en Mundo 2, hamacas sueltas en Mundos 3, 5 y 6, cofres en Mundo 4) | 15 |
+
+Orden: primero lo que confunde al chico mientras juega (Peluches), después la marca de completado que usan todos los menús, los arreglos chicos y, al final, lo que suma contenido (Memotest). La fase 15 depende de dibujos nuevos: se hace apenas estén, aunque sea antes de las fases 11 a 14 (las versiones se asignan en el orden en que se implementan). Cada fase es un commit con su versión, `npm run build`, `git diff --check` y recorrido en el navegador con las dos voces. Las decisiones que tomé por defecto y las que faltan confirmar están en `STATUS.md`.
+
+### Fase 10 — Peluches: consigna primero, sin nombrar y más corto (3.86.0)
+
+Hoy, Peluches de Mundo 1 (`Iniciales.jsx`) dice los nombres de los dibujos antes de la consigna (`playInstruction(true)`) y se puede tocar mientras habla; tiene 10 rondas (cada sonido dos veces: 5 de dos dibujos y 5 de tres). Mundos 2 a 6 (`usePeluchesJuego.js`) no nombran los dibujos, pero también se tocan mientras habla y tienen dos vueltas por sonido (10 rondas en Mundo 2). En todos, la palabra debajo del dibujo ya suena al tocarla, pero nada indica que se puede.
+
+- `Iniciales.jsx`: se saca la lectura de los nombres al aparecer (revierte ese punto de la fase 4). La consigna queda: sonido + "Pulsá el dibujo…" + sonido (+ explicación del parlante solo en la primera ronda).
+- Dibujos bloqueados mientras suena la consigna, en `Iniciales.jsx` y en `usePeluchesJuego.js` (todos los mundos): tocar un dibujo o un parlante no hace nada, no suena ni suma error. Se habilitan al terminar la secuencia (`secuencia.reproducir(lista, alTerminar)`); repetir la consigna tocando al personaje vuelve a bloquear hasta que termina. La ayuda tras un error no bloquea. Mientras está bloqueado, los dibujos se ven apenas atenuados y se encienden al terminar la consigna, para que se note cuándo se puede tocar.
+- Parlante junto a la palabra de cada dibujo (mismo ícono que `.opcion-parlante` de Flores, dentro del botón de la palabra para que el área de toque sea grande): dice la palabra sin elegir el dibujo. En Mundo 1 (`initials-name`), Mundo 2 (`pm2-name`) y `PeluchesPlataformas` (Mundos 3 a 6).
+- Audio nuevo `tocaParlante.mp3` ("Si no sabés qué dibujo es, tocá el parlante."), dos voces, en lugar de `apetaeltexto.mp3` en la primera ronda.
+- Mundo 1, `crearRondas`: 6 rondas, las 2 primeras con dos dibujos y las 4 siguientes con tres. Cada sonido de la letra se pide al menos una vez; el sexto pedido repite uno, nunca dos veces seguidas. Los distractores siguen sin repetirse dentro de la partida.
+- Mundos 2 a 6: tope de 6 rondas con dos dibujos, como paso intermedio para que no sea tan larga; las rondas de tres llegan con las escenas nuevas de la fase 15.
+- El premio no cambia (3 sin errores, 2 con 1 o 2, 1 con 3 o más).
+
+Criterios:
+
+- [ ] Mundo 1, vocales y una consonante: ningún dibujo se nombra solo; la consigna arranca al aparecer la ronda.
+- [ ] Tocar un dibujo o un parlante durante la consigna no hace nada; al terminar, el primer toque responde.
+- [ ] El parlante dice la palabra sin contar como respuesta ni como error, en los seis mundos.
+- [ ] Mundo 1: 6 rondas (2 de dos dibujos + 4 de tres) y premio; cada sonido pedido al menos una vez.
+- [ ] Mundos 2 a 6: como máximo 6 rondas (de dos dibujos hasta la fase 15) y premio.
+- [ ] `tocaParlante.mp3` en `supernena/` y `supernene/`; recorridos con las dos voces sin recursos faltantes.
+- [ ] En 1138 × 712, 844 × 390 y 667 × 375 el parlante no tapa la palabra ni el dibujo.
+
+### Fase 11 — Tilde solo con las 3 comidas o estrellas (3.87.0)
+
+Hoy la tilde (`.camino-hecho`) aparece al terminar la actividad una vez: `progreso.js` guarda el mejor puntaje y los menús preguntan `puntajeDe(...) > 0`; en Mundo 1 alcanza también con una comida ganada. Pedido: la tilde aparece recién cuando la suma de lo obtenido llega a 3, en todas las actividades y mundos, aunque la comida esté sin dar al monstruo. Se puede seguir jugando igual.
+
+- `src/lib/progreso.js`: `marcarCompletada(letra, actividad, puntaje)` suma en lugar de guardar el máximo, con tope 3. Misma clave (`actividadesCompletadas`) y mismo formato `{ letra: { actividad: n } }`: lo guardado hasta hoy se toma como suma inicial (quien tenía 3 conserva la tilde; quien tenía 1 o 2 la recupera al juntar lo que falta). No rompe datos: MINOR.
+- Nueva `actividadCompleta(progreso, letra, clave)` (`n >= 3`). En Mundo 1 la actividad con comida también está completa si `cantidadComida(...).ganadas >= necesarias` (las comidas se sincronizan con la API, así la tilde se ve en otro dispositivo).
+- Menús de Mundos 1 a 6: tilde, brillo de la que sigue (`.camino-siguiente-brillo`) y letra sugerida (`.menu-letra-siguiente`) usan `actividadCompleta` en lugar de `puntajeDe > 0` (`isActivityDone`/`isDone` de `Mundo1.jsx` a `Mundo6.jsx`).
+- Actividades sin comida (palabras, oraciones, Mundos 2 a 6): suman las estrellas de cada partida (`otorgarPremio` → `marcarCompletada`, e `InicioActividad` en Mundos 2 a 4).
+- El cartel de premio no cambia: muestra lo ganado en esa partida.
+
+Criterios:
+
+- [ ] Mundo 1: Inicio con 1 o 2 errores (2 cerezas) → sin tilde; otra partida con 3 errores (1 cereza) → tilde, aunque las cerezas no se hayan dado al monstruo.
+- [ ] Mundo 1: una partida sin errores (3) → tilde de una vez.
+- [ ] Mundos 2 y 5 (estrellas): mismo recorrido 2 + 1 → tilde recién en la segunda partida.
+- [ ] La actividad completa se puede volver a jugar; la suma no pasa de 3.
+- [ ] Datos viejos: una actividad guardada con 3 conserva la tilde; con 1 o 2 la pierde hasta completar.
+- [ ] El brillo de la que sigue y la letra sugerida avanzan recién con la tilde.
+- [ ] `CLAUDE.md` actualizado (progreso: suma con tope 3, no mejor puntaje).
+
+### Fase 12 — Ositos, Dibujar y parlantes de Flores (3.87.1)
+
+Tres arreglos chicos, verificables por separado.
+
+**Ositos (actividad 2) sin rondas de sílaba.** La fase 4 agregó a Ositos de Mundo 1, en las consonantes, dos rondas de una sola sílaba ("tocá todos los ositos que dicen LA"). Se sacan (`VUELTA2_RONDAS`, `silabasVuelta2` y `conVuelta2` en `Mariposas.jsx`): vuelve a una sola ronda, "tocá los ositos de la L", como antes. Las vocales siguen pidiendo cada vocal, como antes de la fase 4. Mundos 2 a 5 ya tienen una sola ronda (Mariposas, Bloques, Peces y Robots voladores) y Mundo 6 no tiene esta actividad.
+
+- [ ] L, M, S y T: una sola ronda y premio; `ositosDicen.mp3` no suena más.
+- [ ] Vocales y Mundos 2 a 5 sin cambios.
+
+**Dibujar pasa sola a la vocal siguiente.** Hoy solo la A pasa a la E (escrito a mano en `completeSegment`); E, I, O y U se reinician en la misma letra. Al terminar el audio de felicitación ("¡Muy bien! Dibujaste la letra:" + letra) pasa a la siguiente de `letterOptions`: A → E → I → O → U. Después de la U, si falta alguna vocal va a la primera que falte; con las cinco queda el premio. Al pasar dice "Ahora dibujá la letra:" + la letra (audio nuevo `dibujarAhora.mp3`, dos voces). Las consonantes no cambian. Los cierres de cada letra (`celebrar(...)` de A/O/U, E, I y curvas) pasan a una sola función que avanza.
+
+- [ ] A → E → I → O → U sin tocar el selector, cada paso después de la felicitación y con "Ahora dibujá la letra:".
+- [ ] Elegir una vocal en el selector y terminarla sigue con la próxima; con las cinco, premio.
+- [ ] L, M, S y T sin cambios. `dibujarAhora.mp3` en las dos voces.
+
+**Flores de Mundo 2: parlante debajo de la oruga.** El parlante (`.opcion-parlante` en `global.css`, abajo a la izquierda de la opción) tapa la sílaba de la oruga. En `FloresMundo2.css`, bajo `.page-flores.world-mundo2`, el parlante va centrado debajo de la oruga, fuera de la etiqueta. Revisar que en Mundos 1, 3 y 4 tampoco tape la etiqueta.
+
+- [ ] Mundo 2: la sílaba se lee entera en 1138 × 712, 844 × 390 y 667 × 375; el parlante se toca sin elegir la oruga.
+- [ ] Mundos 1, 3 y 4: la etiqueta tampoco queda tapada.
+
+### Fase 13 — El monstruo brilla cuando tiene comida para dar (3.88.0)
+
+Comida para dar: alguna comida de la letra con `ganadas > dadas` (`cantidadComida`, `src/lib/recompensas.js`).
+
+- `Mundo1.jsx`: el monstruo de la nube (`.mundo1-monster-button`) brilla con un halo que late cuando el monstruo de la letra elegida tiene comida para dar; se apaga cuando no queda.
+- `src/pages/Monstruo.jsx`: en el selector de monstruos (`.monstruo-selector__boton`) brillan los de otras letras que tengan comida para dar.
+- Halo con `filter: drop-shadow` animado (compatible con chrome87 y safari14), en `Mundo1.css` y `Monstruo.css`. Se actualiza solo al ganar o dar comida (`subscribeRecompensas`).
+
+Criterios:
+
+- [ ] Ganar comida en una actividad y volver al mundo → el monstruo de la nube brilla; darle todo → deja de brillar.
+- [ ] Con comida en otra letra, ese monstruo brilla en el selector de `/monstruo`; al darle todo, se apaga.
+- [ ] Sin comida guardada no brilla nada. Encuadres de celular y tablet.
+
+### Fase 14 — Memotest de letra y dibujo (3.89.0)
+
+Memotest solo existe en Mundo 1. Hoy cada pareja son dos cartas iguales (A con A). Pasa a una carta con la letra o sílaba escrita y otra con un dibujo de Peluches que empieza con ese sonido (A con ÁRBOL, E con ESCALERA, I con ISLA, LA con LANA, MO con MONO…).
+
+- `BANCO` y `wordAudioFile` salen de `Iniciales.jsx` a `src/lib/peluchesBanco.js` (los usan Peluches de Mundo 1 y Memotest).
+- `Memotest.jsx`, `buildDeck`: por cada sonido de la letra (A: las vocales; L, M, S y T: sus sílabas) una carta escrita y una carta con un dibujo del banco que empiece con ese sonido, elegido al azar en cada partida. La pareja se reconoce por el sonido, no por el contenido de la carta.
+- Al dar vuelta: la carta escrita dice su sonido (como hoy) y la del dibujo dice la palabra (`sonido/<personaje>/peluche/`). El dibujo va sin texto (`peluches/<nombre>.png`, con respaldo `.webp`) y con su tamaño en `Memotest.css` para tablet y celular.
+- Consigna nueva `memotestDibujos.mp3` ("Buscá la carta escrita y el dibujo que empieza igual. Tocá una y después otra."), dos voces, en lugar de `memotest.mp3`.
+- No hay dibujo de ABEJA: la A usa ANILLO, ÁRBOL, AUTO o AVIÓN (ABEJA pediría dibujo y audio nuevos).
+- Premio y tiempos sin cambios (1,5 s para ver dos cartas distintas; estrellas según movimientos).
+
+Criterios:
+
+- [ ] Vocales y las cuatro consonantes: 5 parejas de carta escrita + dibujo; cada dibujo empieza con el sonido de su pareja.
+- [ ] Dos cartas escritas o dos dibujos nunca forman pareja.
+- [ ] Cada carta suena al darla vuelta; la consigna nueva suena al entrar y al tocar al personaje.
+- [ ] Peluches de Mundo 1 sigue igual con el banco compartido.
+- [ ] Las dos voces sin recursos faltantes; encuadres en 1138 × 712, 844 × 390 y 667 × 375.
+
+### Fase 15 — Peluches de Mundos 2 a 6 con tres dibujos: soportes separados del fondo (3.90.0)
+
+Decisión del 17/11/2026: Mundos 2 a 6 también tienen 2 rondas de dos dibujos y 4 de tres, como Mundo 1. Hoy no se puede sumar un tercer dibujo en Mundos 3 a 6 porque las dos hamacas donde se apoyan son parte de la imagen de fondo (`imagenes/peluches/MUNDO3` a `MUNDO6/fondo.jpg`, todas con la misma composición: viga arriba con el cartel de la consigna y dos hamacas colgando). El soporte pasa a ser un elemento aparte que se repite dos o tres veces según la ronda; al no ser parte del fondo, también se puede animar. Hasta que esta fase esté, Mundos 2 a 6 quedan con 6 rondas de dos dibujos (fase 10).
+
+**Mundo 2 (luciérnagas, sin arte nuevo).** El fondo ya no tiene soportes: cada luciérnaga, posada en su brizna, proyecta un haz de luz hecho con CSS (`PeluchesMundo2.css`) con un dibujo adentro. En las rondas de tres, las dos luciérnagas giran la luz hacia el centro y los haces se juntan en una zona iluminada más grande donde aparecen los tres dibujos en fila, cada uno con su palabra y su parlante. En las rondas de dos queda como hoy. Al pasar de la ronda 2 a la 3 las luces se mueven con una transición, no de golpe.
+
+**Mundos 3, 5 y 6 (hamacas).**
+
+- Arte: el fondo de cada mundo sin las hamacas (queda la viga con el cartel de la consigna) y una hamaca suelta en PNG transparente (enganche con polea, sogas o cadenas y asiento con la placa del nombre), con el estilo de cada mundo: sogas violetas y asiento de bloques (Mundo 3), cadenas y asiento robot (Mundo 5), cintas arcoíris y nube dorada (Mundo 6). Se hacen editando el fondo actual y recortando su hamaca, para no cambiar el estilo. Prompts en `docs/arte/peluches-soportes-prompts.json`.
+- `PeluchesPlataformas` (`PeluchesMundo3.jsx`): una hamaca por opción, colgada de la viga, que lleva adentro el dibujo y la placa con la palabra y el parlante, así se mueven juntos. Posiciones para dos y para tres hamacas en `PeluchesMundo3.css`, respetando el lugar del personaje a la izquierda.
+- Al aparecer, cada hamaca baja y se balancea con un vaivén que se va frenando (giro desde el enganche). En la ronda 3 baja una tercera hamaca y las otras se reacomodan. El acierto, el error (vibrar) y el halo de la pista se ven sobre la hamaca.
+
+**Mundo 4 (cofres).** Para Mundo 4 se había pedido que el soporte fueran cofres, pero quedó con la misma hamaca (de nácar) que los otros mundos. Pasa a fondo marino sin viga ni hamacas, cartel de la consigna como elemento aparte y dos o tres cofres abiertos apoyados en la arena: el dibujo sale del cofre y el nombre va en una placa del cofre (a confirmar en `STATUS.md`). Arte: fondo sin viga ni hamacas, cofre y cartel en PNG transparente.
+
+**Rondas** (`crearRondas` de `PeluchesMundo2.jsx` y `PeluchesMundo3.jsx`): 2 de dos dibujos y 4 de tres; cada sonido se pide al menos una vez. Los dos dibujos equivocados de una ronda son de otro sonido del mismo grupo (nunca uno que suene igual) y distintos entre sí. En la Ñ, MOÑO sigue saliendo contra MONO.
+
+Criterios:
+
+- [ ] Fondos sin soportes y soportes sueltos de Mundos 3 a 6 revisados antes de integrarlos; prompts registrados.
+- [ ] Mundos 2 a 6: rondas 1 y 2 con dos dibujos, 3 a 6 con tres; premio al final.
+- [ ] Mundo 2: en las rondas de tres las luces se juntan en el centro y los tres dibujos se ven enteros dentro de la luz.
+- [ ] Mundos 3, 5 y 6: dos o tres hamacas según la ronda, con vaivén al aparecer; dibujo, palabra y parlante se mueven con la hamaca y se pueden tocar mientras se balancea.
+- [ ] Mundo 4: cofres en la arena (o la opción que se elija).
+- [ ] Ningún grupo se queda sin distractores y ninguna ronda repite un dibujo.
+- [ ] Las dos voces sin recursos faltantes; encuadres en 1138 × 712, 844 × 390 y 667 × 375 con tres soportes, sin tapar al personaje.
+
 ## Cómo produzco audios y dibujos
 
 - **Audios**: Chrome sobre tu sesión de elevenlabs.io. Por cada texto genero con Malena y con Dante, descargo y muevo el mp3 a `public/assets/sonido/supernena|supernene/` con el nombre de la tabla. Uso la configuración del archivo que ya está en el repo (`…Malena…_s50_sim75_v4`). **Consume créditos de tu cuenta**: son unos 45 textos de consigna + ~90 palabras, por dos voces.
@@ -181,4 +322,8 @@ No hay tests ni linter: en cada fase corro `npm run build` y `npm run dev`, y re
 - Fase 3: `npm run api` con una base nueva; un jugador con datos viejos (más de 3 comidas) queda evolucionado; con 21 comidas evoluciona y las palabras se abren solas al volver al mundo; app y API devuelven el mismo tope.
 - Fases 4 y 5: cada pantalla habla al entrar; en la vuelta 2 la respuesta no está escrita en pantalla; todas terminan con cartel.
 - Fases 6 a 9: cada actividad nueva de punta a punta con supernena y supernene, consola sin 404 de audio o imagen.
+- Fase 10: registro de audios y toques para comprobar que durante la consigna ningún toque llega a `elegir`; conteo de rondas por mundo.
+- Fase 11: escenarios en localStorage (0, 1, 2 y 3 acumuladas; datos viejos con 2 y con 3) y comidas ganadas desde la API en Mundo 1.
+- Fases 12 a 14: Dibujar de la A a la U sin tocar el selector, Ositos de consonantes en una ronda, Flores de Mundo 2 en los tres tamaños, brillo del monstruo al ganar y al dar comida, Memotest de las cinco letras.
+- Fase 15: una letra por mundo (2 a 6) de punta a punta con las dos voces, más los grupos con pocas palabras (ZU, CHA, CHE, LLU, Ñ); capturas con dos y con tres soportes.
 - En todas: `AppVersion` muestra la versión nueva, los redirects de `legacy/` en `src/App.jsx` siguen andando y CLAUDE.md queda actualizado cuando cambia la arquitectura.
