@@ -7,8 +7,8 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 ## Punto de retoma
 
 - **Pedidos nuevos (17/11/2026)**: diez mensajes del usuario después de probar 3.85.1 en dev, más tres sobre las escenas de Peluches. Están planificados como fases 10 a 15 en [PLAN.md](PLAN.md#ajustes-de-la-prueba-del-17112026-fases-10-a-15); no hay nada implementado todavía. Plan registrado en 3.85.2 (solo documentación).
-- **Avance**: cada fase cerrada se mergea a `develop` y se sube para verla en dev (pedido del 17/11/2026). Fases 10 (3.86.0), 11 (3.87.0), 12 (3.87.1), 13 (3.88.0) y 14 (3.89.0) hechas. Los tres audios nuevos de las fases 10, 12 y 14 ya están en las dos voces.
-- **Próximo paso**: fase 15 (Peluches de Mundos 2 a 6 con tres dibujos: arte nuevo). Las decisiones pendientes siguen la propuesta mientras no se diga otra cosa; la fase 15 necesita fondos y soportes nuevos para Mundos 3 a 6.
+- **Avance**: cada fase cerrada se mergea a `develop` y se sube para verla en dev (pedido del 17/11/2026). Fases 10 (3.86.0), 11 (3.87.0), 12 (3.87.1), 13 (3.88.0) y 14 (3.89.0) hechas; de la 15, Mundo 2 (3.90.0). Los tres audios nuevos de las fases 10, 12 y 14 ya están en las dos voces.
+- **Próximo paso**: fase 15 en Mundos 3 a 6. Falta el arte (fondos sin hamacas, hamacas sueltas y cofres de Mundo 4) y decidir con qué herramienta generarlo; hasta entonces esos mundos siguen con 6 rondas de dos dibujos. Las decisiones pendientes siguen la propuesta mientras no se diga otra cosa; la fase 15 necesita fondos y soportes nuevos para Mundos 3 a 6.
 - **Entrega funcional publicada en dev**: 3.85.0, commit `b4cb081`, mergeado y subido a `develop`; despliegue de GitHub Actions `44131620057` completado correctamente y `/version.json` confirmado en 3.85.0. Incluye Tren en todos los mundos, Mundo 5 completo, Q/ARA y Oraciones. Producción (`master`) no se modificó.
 - **Versión de cierre documental**: 3.85.1, actualización de este estado y de la versión visible. Los commits funcionales por fase son `a7f79eb` (Tren, 3.82.0), `ac28392` (Mundo 5, 3.83.0), `d814ec2` (Q/ARA, 3.84.0) y `b4cb081` (Oraciones, 3.85.0); la documentación previa está en `0115e10`.
 - **Pendiente de antes**: revisión con personas de pronunciación, ritmo, tacto y encuadres en dispositivos reales; recuperar el arte de trenes elegido anteriormente. Las implementaciones pendientes de fases 4, 7 y 9 y la ampliación del Tren están completas. Las pruebas humanas y los recorridos de fase 5 señalados abajo siguen pendientes.
@@ -44,7 +44,7 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 | 12 | Ositos en una ronda, Dibujar sigue a la vocal siguiente, parlante de Flores M2 | 3.87.1 | ✅ Hecha |
 | 13 | Monstruo que brilla con comida para dar | 3.88.0 | ✅ Hecha |
 | 14 | Memotest de letra y dibujo | 3.89.0 | ✅ Hecha |
-| 15 | Peluches de Mundos 2 a 6 con tres dibujos: soportes separados del fondo | 3.90.0 | ⬜ Pendiente (necesita fondos y soportes de Mundos 3 a 6) |
+| 15 | Peluches de Mundos 2 a 6 con tres dibujos: soportes separados del fondo | 3.90.0 | 🟡 Mundo 2 hecho (3.90.0); Mundos 3 a 6 esperan el arte nuevo |
 
 ## Pedidos del 17/11/2026
 
@@ -100,6 +100,12 @@ ABEJA para Memotest solo si se elige la alternativa 5.
 - **Dibujos y fondos**: la producción anterior usó ChatGPT y láminas de seis dibujos; la ampliación actual usa `imagegen` con referencias existentes y piezas transparentes. Ya están los recursos de Mundos 4, 5 y 6, los trenes de todos los mundos, los robots de sílabas, el cartel ARA y las seis escenas de Oraciones con su fondo. Prompts y rutas de los recursos nuevos en `docs/arte/`. Sigue pendiente recuperar el arte de trenes elegido en la conversación anterior para compararlo con el nuevo integrado.
 
 ## Hecho
+
+### Fase 15 (parte 1) — Peluches de Mundo 2 con tres dibujos (3.90.0)
+- Rondas 1 y 2 con dos dibujos y 3 a 6 con tres (`CON_TRES = true` en `PeluchesMundo2.jsx`).
+- Los dibujos ya no van atados a cada luciérnaga: se ubican por `POSICIONES` (dos: debajo de cada luciérnaga; tres: 27, 51 y 75 % de la escena). En las rondas de tres las dos luciérnagas giran su haz hacia el centro (desde donde nace la luz) y se enciende una zona iluminada única en el pasto; el giro tiene transición y los dibujos nuevos aparecen recién cuando terminó (`GIRO_MS`). Al acertar brillan las dos luces.
+- Con tres, los carteles son más chicos, sin hojitas, y el parlante va en la esquina de arriba: al costado se metía en el cartel vecino. `descargas/medir-nombres-m2.mjs` mide todas las palabras que pueden salir (hasta 3 sílabas): ningún par se pisa en 667 × 375, 844 × 390, 1024 × 768 ni 1138 × 712.
+- Chromium (`descargas/probar-peluches.mjs`): P, N, D, F y H con las dos voces hasta el premio, rondas 2-2-3-3-3-3, sin recursos faltantes; las rondas de dos se ven como antes.
 
 ### Fase 14 — Memotest de letra y dibujo (3.89.0)
 - Cada pareja es una carta con la vocal o sílaba escrita y otra con un dibujo del banco de Peluches de Mundo 1 que empieza con ese sonido, sorteado en cada partida (A: anillo, árbol, auto o avión; LA: lago, lana, lápiz o lata…). La pareja se reconoce por el sonido.

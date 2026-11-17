@@ -294,8 +294,8 @@ Decisión del 17/11/2026: Mundos 2 a 6 también tienen 2 rondas de dos dibujos y
 Criterios:
 
 - [ ] Fondos sin soportes y soportes sueltos de Mundos 3 a 6 revisados antes de integrarlos; prompts registrados.
-- [ ] Mundos 2 a 6: rondas 1 y 2 con dos dibujos, 3 a 6 con tres; premio al final.
-- [ ] Mundo 2: en las rondas de tres las luces se juntan en el centro y los tres dibujos se ven enteros dentro de la luz.
+- [ ] Mundos 2 a 6: rondas 1 y 2 con dos dibujos, 3 a 6 con tres; premio al final. (Mundo 2 hecho en 3.90.0.)
+- [x] Mundo 2: en las rondas de tres las luces se juntan en el centro y los tres dibujos se ven enteros dentro de la luz.
 - [ ] Mundos 3, 5 y 6: dos o tres hamacas según la ronda, con vaivén al aparecer; dibujo, palabra y parlante se mueven con la hamaca y se pueden tocar mientras se balancea.
 - [ ] Mundo 4: cofres en la arena (o la opción que se elija).
 - [ ] Ningún grupo se queda sin distractores y ninguna ronda repite un dibujo.

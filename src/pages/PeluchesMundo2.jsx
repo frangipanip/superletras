@@ -43,8 +43,8 @@ const ACENTOS = {
 };
 const LETRAS = ["p", "n", "d", "f", "h"];
 const VOCALES = ["a", "e", "i", "o", "u"];
-// Rondas con tres dibujos: todavía no, la escena tiene un haz por luciérnaga (fase 15).
-const CON_TRES = false;
+// Rondas 3 a 6 con tres dibujos: las luciérnagas giran la luz hacia el centro (fase 15).
+const CON_TRES = true;
 // Aleteo del personaje: los 4 cuadros en 1 s, igual que en Inicio de Mundo 2.
 const WING_FRAME_MS = 250;
 
@@ -60,6 +60,10 @@ const HAZ_DEMORA_MS = 200; // se acomodan en la brizna antes de encender la luz
 const HAZ_MS = 500; // el haz baja hasta el suelo
 const APARECER_MS = 400; // las opciones se materializan dentro del haz
 const SALIR_MS = 450; // entre rondas: se apagan las opciones anteriores
+const GIRO_MS = 700; // de dos a tres dibujos: las luces giran hacia el centro antes de mostrarlos
+// Centro de cada dibujo y su palabra (% del ancho de la escena): debajo de cada luciérnaga cuando
+// son dos; en fila dentro de la zona iluminada del centro cuando son tres.
+const POSICIONES = { 2: [30.5, 71.4], 3: [27, 51, 75] };
 // Chispitas que flotan dentro de cada haz (posición en % del haz, demora y tamaño).
 const PARTICULAS = [
 	{ x: 50, y: 18, d: 0, s: 1 },
@@ -130,6 +134,7 @@ export default function PeluchesMundo2() {
 	// "ocultas" | "apareciendo" | "visibles" | "saliendo"
 	const [opciones, setOpciones] = useState("ocultas");
 	const ronda = rondas[mostrada];
+	const tres = ronda.options.length === 3;
 	// Solo se puede tocar cuando las opciones de la ronda actual terminaron de aparecer.
 	const interactivo = opciones === "visibles" && rondaVisible === activityIndex;
 
@@ -154,13 +159,22 @@ export default function PeluchesMundo2() {
 		}, VUELO_MS);
 	}), [runtime]);
 
-	// Cambio de ronda: las luciérnagas se quedan; se apagan las opciones y aparecen las nuevas.
+	// Cambio de ronda: las luciérnagas se quedan; se apagan las opciones y aparecen las nuevas. Si
+	// cambia la cantidad de dibujos, primero giran las luces (con las opciones todavía apagadas).
 	useEffect(() => {
 		if (activityIndex === 0) {
 			return;
 		}
+		const giran = rondas[activityIndex].options.length !== rondas[activityIndex - 1].options.length;
 		setOpciones("saliendo");
-		runtime.setTimeout(() => mostrarOpciones(activityIndex), SALIR_MS);
+		runtime.setTimeout(() => {
+			if (!giran) {
+				mostrarOpciones(activityIndex);
+				return;
+			}
+			setMostrada(activityIndex);
+			runtime.setTimeout(() => mostrarOpciones(activityIndex), GIRO_MS);
+		}, SALIR_MS);
 	}, [activityIndex]);
 
 	useEffect(() => {
@@ -202,25 +216,18 @@ export default function PeluchesMundo2() {
 			<BackButton />
 			<FullscreenButton toggle />
 			<main className="pm2-activity">
-				<section className={`pm2-scene pm2-opciones-${opciones}`} aria-label="Dibujos para elegir">
-					{LADOS.map((lado, optionIndex) => {
-						const option = ronda.options[optionIndex];
-						const texto = textoDe(option.id);
-						const classNames = ["pm2-option", "opcion-peluche"];
+				<section className={`pm2-scene pm2-opciones-${opciones}${tres ? " pm2-tres" : ""}`} aria-label="Dibujos para elegir">
+					{LADOS.map((lado, ladoIndex) => {
+						// Con dos dibujos cada haz acompaña al suyo; con tres, los dos iluminan la misma zona.
+						const propias = tres ? ronda.options : [ronda.options[ladoIndex]];
 						const hazClassNames = ["pm2-haz"];
-						if (acertada === option.id) {
-							classNames.push("correct");
+						if (propias.some((option) => acertada === option.id)) {
 							hazClassNames.push("brillando");
 						} else if (acertada) {
-							classNames.push("dimmed");
 							hazClassNames.push("tenue");
 						}
-						if (vibrating.has(option.id)) {
-							classNames.push("vibrating");
+						if (propias.some((option) => vibrating.has(option.id))) {
 							hazClassNames.push("parpadeo");
-						}
-						if (pista && option.correct) {
-							classNames.push("pista-correcta");
 						}
 						return (
 							<div className={`pm2-lado pm2-lado-${lado.id}`} key={lado.id}>
@@ -236,7 +243,7 @@ export default function PeluchesMundo2() {
 											{PARTICULAS.map((particula, index) => (
 												<span
 													key={index}
-													style={{ "--x": `${particula.x}%`, "--y": `${particula.y}%`, "--d": `${particula.d + optionIndex * 0.6}s`, "--s": particula.s }}
+													style={{ "--x": `${particula.x}%`, "--y": `${particula.y}%`, "--d": `${particula.d + ladoIndex * 0.6}s`, "--s": particula.s }}
 												/>
 											))}
 										</div>
@@ -248,35 +255,59 @@ export default function PeluchesMundo2() {
 										</div>
 									</div>
 								</div>
-								<div className="pm2-proyeccion" key={`${mostrada}-${option.id}`}>
-									<button
-										type="button"
-										className={classNames.join(" ")}
-										onClick={() => interactivo && elegir(option)}
-										aria-label={texto}
-									>
-										<img src={imagenDe(option.id)} alt={texto} draggable={false} />
-									</button>
-									{acertada === option.id && (
-										<span className="pm2-chispas" aria-hidden="true">
-											{Array.from({ length: CHISPAS_ACIERTO }, (_, index) => (
-												<span key={index} style={{ "--a": `${(360 / CHISPAS_ACIERTO) * index}deg` }} />
-											))}
-										</span>
-									)}
-									<button
-										type="button"
-										className={`pm2-name${texto.length > 10 ? " long" : ""}`}
-										onClick={() => interactivo && escucharPalabra(option.id)}
-										aria-label={`Escuchar ${texto}`}
-									>
-										<span className="palabra-parlante"><IconoParlante /></span>
-										<span className="pm2-name-texto">
-											<span className="requested-sound">{texto.slice(0, 2)}</span>
-											{texto.slice(2)}
-										</span>
-									</button>
-								</div>
+							</div>
+						);
+					})}
+					{/* Zona iluminada del centro: donde se juntan las dos luces en las rondas de tres. */}
+					<div className="pm2-zona" aria-hidden="true" />
+					{ronda.options.map((option, optionIndex) => {
+						const texto = textoDe(option.id);
+						const classNames = ["pm2-option", "opcion-peluche"];
+						if (acertada === option.id) {
+							classNames.push("correct");
+						} else if (acertada) {
+							classNames.push("dimmed");
+						}
+						if (vibrating.has(option.id)) {
+							classNames.push("vibrating");
+						}
+						if (pista && option.correct) {
+							classNames.push("pista-correcta");
+						}
+						const largo = texto.length > (tres ? 7 : 10);
+						return (
+							<div
+								className="pm2-proyeccion"
+								key={`${mostrada}-${option.id}`}
+								style={{ "--pm2-x": `${POSICIONES[ronda.options.length][optionIndex]}%`, "--pm2-demora": `${optionIndex * (tres ? -0.87 : -1.3)}s` }}
+							>
+								<button
+									type="button"
+									className={classNames.join(" ")}
+									onClick={() => interactivo && elegir(option)}
+									aria-label={texto}
+								>
+									<img src={imagenDe(option.id)} alt={texto} draggable={false} />
+								</button>
+								{acertada === option.id && (
+									<span className="pm2-chispas" aria-hidden="true">
+										{Array.from({ length: CHISPAS_ACIERTO }, (_, index) => (
+											<span key={index} style={{ "--a": `${(360 / CHISPAS_ACIERTO) * index}deg` }} />
+										))}
+									</span>
+								)}
+								<button
+									type="button"
+									className={`pm2-name${largo ? " long" : ""}`}
+									onClick={() => interactivo && escucharPalabra(option.id)}
+									aria-label={`Escuchar ${texto}`}
+								>
+									<span className="palabra-parlante"><IconoParlante /></span>
+									<span className="pm2-name-texto">
+										<span className="requested-sound">{texto.slice(0, 2)}</span>
+										{texto.slice(2)}
+									</span>
+								</button>
 							</div>
 						);
 					})}

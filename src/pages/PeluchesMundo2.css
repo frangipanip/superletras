@@ -276,10 +276,12 @@
 		pointer-events: auto;
 	}
 
+	/* Cada opción se centra en --pm2-x (lo pone el JSX según la ronda tenga dos o tres dibujos). */
 	.pm2-option {
 		position: absolute;
 		top: 47.5%;
-		width: 20%;
+		left: calc(var(--pm2-x) - var(--pm2-ancho, 20%) / 2);
+		width: var(--pm2-ancho, 20%);
 		height: 34.5%;
 		padding: 0;
 		border: 0;
@@ -290,14 +292,6 @@
 		transition: opacity 250ms ease, filter 250ms ease;
 	}
 
-	.pm2-lado-izquierda .pm2-option {
-		left: calc(30.5% - 10%);
-	}
-
-	.pm2-lado-derecha .pm2-option {
-		left: calc(71.4% - 10%);
-	}
-
 	.pm2-option img {
 		display: block;
 		width: 100%;
@@ -306,11 +300,7 @@
 		object-position: 50% 100%;
 		user-select: none;
 		transform-origin: 50% 100%;
-		animation: pm2-flotar 2.6s ease-in-out infinite;
-	}
-
-	.pm2-lado-derecha .pm2-option img {
-		animation-delay: -1.3s;
+		animation: pm2-flotar 2.6s ease-in-out var(--pm2-demora, 0s) infinite;
 	}
 
 	.pm2-option.correct {
@@ -332,16 +322,9 @@
 	.pm2-chispas {
 		position: absolute;
 		top: 64%;
+		left: var(--pm2-x);
 		width: 0;
 		height: 0;
-	}
-
-	.pm2-lado-izquierda .pm2-chispas {
-		left: 30.5%;
-	}
-
-	.pm2-lado-derecha .pm2-chispas {
-		left: 71.4%;
 	}
 
 	.pm2-chispas span {
@@ -360,6 +343,7 @@
 	.pm2-name {
 		position: absolute;
 		top: 83.2%;
+		left: var(--pm2-x);
 		padding: 0;
 		border: 0;
 		background: none;
@@ -367,14 +351,6 @@
 		cursor: pointer;
 		transform: translateX(-50%);
 		transition: transform 160ms ease, filter 160ms ease;
-	}
-
-	.pm2-lado-izquierda .pm2-name {
-		left: 30.5%;
-	}
-
-	.pm2-lado-derecha .pm2-name {
-		left: 71.4%;
 	}
 
 	.pm2-name::before,
@@ -729,4 +705,75 @@
 	.page-peluches-m2 {
 		--pm2-char: clamp(90px, 26vw, 160px);
 	}
+}
+
+/* ---------- Rondas de tres dibujos (fase 15) ----------
+   Las dos luciérnagas giran su haz hacia el centro (desde el punto donde nace) y las luces se juntan
+   en una zona iluminada más grande, con los tres dibujos en fila. El giro tiene transición: al pasar
+   de la ronda 2 a la 3 las luces se mueven antes de que aparezcan los dibujos (GIRO_MS en el JSX). */
+.page-peluches-m2 .pm2-haz {
+	transform-origin: 50% 0;
+	transition: opacity 300ms ease, transform 700ms ease-in-out;
+}
+
+.page-peluches-m2 .pm2-tres .pm2-lado-izquierda .pm2-haz {
+	transform: rotate(-11deg) scaleX(1.12);
+}
+
+.page-peluches-m2 .pm2-tres .pm2-lado-derecha .pm2-haz {
+	transform: rotate(11deg) scaleX(1.12);
+}
+
+/* El suelo de cada haz quedaría inclinado: en su lugar se enciende una sola zona en el centro. */
+.page-peluches-m2 .pm2-tres .pm2-haz-suelo {
+	visibility: hidden;
+}
+
+.page-peluches-m2 .pm2-zona {
+	position: absolute;
+	z-index: 2;
+	top: 84%;
+	left: 10%;
+	width: 82%;
+	height: 17%;
+	border-radius: 50%;
+	background: radial-gradient(ellipse at center, rgba(255, 246, 170, 0.8) 0%, rgba(240, 240, 110, 0.45) 45%, rgba(220, 240, 90, 0) 72%);
+	opacity: 0;
+	transition: opacity 600ms ease;
+	pointer-events: none;
+}
+
+.page-peluches-m2.pm2-proyectando .pm2-tres .pm2-zona {
+	opacity: 1;
+}
+
+.page-peluches-m2 .pm2-tres {
+	--pm2-ancho: 19%;
+}
+
+/* Tres palabras en fila: cartel más chico, sin las hojitas de los costados. */
+.page-peluches-m2 .pm2-tres .pm2-name {
+	font-size: calc(var(--pm2-name-size) * 0.8);
+}
+
+.page-peluches-m2 .pm2-tres .pm2-name.long {
+	font-size: calc(var(--pm2-name-size) * 0.68);
+}
+
+.page-peluches-m2 .pm2-tres .pm2-name::before,
+.page-peluches-m2 .pm2-tres .pm2-name::after {
+	display: none;
+}
+
+.page-peluches-m2 .pm2-tres .pm2-name-texto {
+	padding: 0.32em 0.62em 0.26em;
+}
+
+/* El parlante va en la esquina de arriba del cartel: al costado se metía en el cartel vecino. */
+.page-peluches-m2 .pm2-tres .palabra-parlante {
+	top: 0;
+	width: clamp(22px, 4.6vmin, 34px);
+	height: clamp(22px, 4.6vmin, 34px);
+	padding: 4px;
+	transform: translate(-55%, -50%);
 }
