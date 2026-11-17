@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router";
 import BackButton from "../components/BackButton";
 import Character from "../components/Character";
 import FullscreenButton from "../components/FullscreenButton";
@@ -22,6 +23,30 @@ const MIN_DROP_OVERLAP = 0.15;
 const RONDAS_CON_MODELO = 2;
 // Un toque que casi no se mueve no es un arrastre: elige el vagón para después tocar el casillero.
 const TOQUE_MAX_PX = 12;
+
+const MUNDO5_SECUENCIAS = {
+	g: ["GA", "GO", "GU"],
+	ge: ["GE", "GI"],
+	gu: ["GUE", "GUI"],
+	j: ["JA", "JE", "JI", "JO", "JU"],
+	"gü": ["GÜE", "GÜI"]
+};
+
+function configMundo5(letra) {
+	const sequences = MUNDO5_SECUENCIAS[letra];
+	return {
+		sequences,
+		sequenceTokens: Object.fromEntries(sequences.map((silaba) => [
+			silaba,
+			letra === "gu" ? ["GU", silaba.slice(-1)] : letra === "gü" ? ["GÜ", silaba.slice(-1)] : [silaba[0], silaba.slice(-1)]
+		])),
+		speechAudios: {
+			vagones: "Vagones.mp3",
+			...Object.fromEntries(sequences.map((silaba) => [silaba, `${silaba.toLowerCase()}.mp3`])),
+			fabuloso: "Fabuloso.mp3"
+		}
+	};
+}
 
 const ACTIVITY_CONFIG = {
 	a: {
@@ -120,13 +145,17 @@ function randomItem(items) {
 }
 
 export default function Tren() {
-	usePageTitle("Tren - Mundo 1");
+	const location = useLocation();
+	const isMundo5 = location.state?.world === 5;
+	usePageTitle(`Tren - Mundo ${isMundo5 ? 5 : 1}`);
 	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
 	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime);
 	const activityMenuOption = useActivityMenuOption();
-	const [menuOption] = useState(() => (ACTIVITY_CONFIG[activityMenuOption] ? activityMenuOption : "a"));
-	const config = ACTIVITY_CONFIG[menuOption];
+	const [menuOption] = useState(() => isMundo5
+		? (MUNDO5_SECUENCIAS[activityMenuOption] ? activityMenuOption : "g")
+		: (ACTIVITY_CONFIG[activityMenuOption] ? activityMenuOption : "a"));
+	const config = isMundo5 ? configMundo5(menuOption) : ACTIVITY_CONFIG[menuOption];
 	const [speechAudios] = useState(() =>
 		Object.fromEntries(Object.entries(config.speechAudios).map(([key, file]) => [key, runtime.audio(sound(file), { preload: true })]))
 	);
@@ -197,7 +226,7 @@ export default function Tren() {
 	}
 
 	function getSequenceTokens(sequenceKey) {
-		return menuOption === "l" ? config.sequenceTokens[sequenceKey] || [] : Array.from(sequenceKey);
+		return config.sequenceTokens[sequenceKey] || Array.from(sequenceKey);
 	}
 
 	function updateDeparting(value) {
@@ -418,7 +447,7 @@ export default function Tren() {
 	const pistaIndex = convoy.tokens ? convoy.tokens.findIndex((token) => !token.disabled && token.value === proximoValor) : -1;
 
 	return (
-		<div className="page activity-page page-tren">
+		<div className={`page activity-page page-tren${isMundo5 ? " world-robots" : ""}`}>
 			<BackButton />
 			<FullscreenButton toggle />
 			<div className="activity-controls" aria-label="Controles de actividad">
@@ -427,7 +456,7 @@ export default function Tren() {
 				</button>
 			</div>
 			<main className="train-activity" aria-live="polite">
-				<section className="sequence-board" ref={sequenceBoardRef} aria-label="Secuencia de vocales">
+				<section className="sequence-board" ref={sequenceBoardRef} aria-label="Sílabas del tren">
 					{slots.map((slot, index) => (
 						<div
 							key={`${convoy.generation}-${index}`}
@@ -439,7 +468,7 @@ export default function Tren() {
 						</div>
 					))}
 				</section>
-				<section className="train-yard" aria-label="Vagones con vocales">
+				<section className="train-yard" aria-label="Vagones con letras">
 					<div key={convoy.generation} className={convoyClassName}>
 						{convoy.tokens?.map((token, index) => (
 							<div className="wagon" key={index}>
@@ -452,7 +481,7 @@ export default function Tren() {
 										ayuda.pista && index === pistaIndex && "pista-correcta"
 									].filter(Boolean).join(" ")}
 									type="button"
-									aria-label={menuOption === "l" ? `Sílaba ${token.value}` : `Vocal ${token.value}`}
+									aria-label={`Ficha ${token.value}`}
 									disabled={token.disabled}
 									style={drag?.index === index ? { visibility: "hidden" } : undefined}
 									onPointerDown={(event) => startDragging(event, index, token.value)}
@@ -461,7 +490,7 @@ export default function Tren() {
 								</button>
 							</div>
 						))}
-						{convoy.tokens && <img className="locomotive" src={img("locomotora.png")} alt="Locomotora" draggable={false} />}
+						{convoy.tokens && <img className="locomotive" src={img(isMundo5 ? "locomotoraM5.png" : "locomotora.png")} alt="Locomotora" draggable={false} />}
 					</div>
 				</section>
 			</main>

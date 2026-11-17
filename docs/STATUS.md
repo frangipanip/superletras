@@ -14,18 +14,22 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 | 4 | Consigna oral en todas las pantallas e íconos | 3.75.0 | ✅ Hecha, salvo dos puntos (ver abajo) |
 | 5 | Palabras: segunda vuelta sin modelo y cierre | 3.76.0 | ✅ Hecha |
 | 6 | Peluches en Mundo 4 | 3.77.0 | ✅ Hecha |
-| 7 | Mundo 5: G, GE, GUE, J, GÜE | 3.78.0 – 3.79.0 | 🟡 En curso: Inicio, Peluches y "¿J o G?" hechos; faltan Mariposas, Flores y Tren |
+| 7 | Mundo 5: G, GE, GUE, J, GÜE | 3.78.0 – 3.81.0 | 🟡 En curso: Inicio, Peluches, "¿J o G?" y Tren hechos; faltan Mariposas y Flores |
 | 8 | Mundo 6: B, V, Ñ, K, X | 3.80.0 | ✅ Hecha: Inicio, Peluches y "¿B o V?" |
-| 9 | Tramo de oraciones | 3.81.0 | ⏳ Pendiente: faltan los dibujos |
+| 9 | Tramo de oraciones | Por definir | ⏳ Pendiente: faltan los dibujos |
 
 ## Recursos
 
 - **Audios**: los 143 de la lista (`descargas/lista-audios.tsv`) están generados con ElevenLabs e instalados en `public/assets/sonido/supernena` (Malena) y `supernene` (Dante), incluidos los de las fases 4 a 9. `acierto.mp3` es común a las dos voces y está en `sonido/`.
 - **Dibujos y fondos**: se generan en chatgpt.com en láminas de 6 (3x2, fondo blanco), se copian con el botón "Copiar imagen" (sin descargas) y se recortan con un script (fondo transparente, 300 px). Los fondos se piden subiendo uno existente como modelo de composición. Ya están los de Mundos 4, 5 y 6 (`imagenes/peluches/MUNDO4|5|6/`, cada uno con su `fondo.jpg`) y los fondos propios de Inicio y "¿J o G?" / "¿B o V?" de Mundos 5 y 6 (`fondoInicioM5/M6.jpg`, `fondoElegirM5/M6.jpg`): cada actividad nueva lleva un fondo acorde al mundo y a la actividad, no el del menú. Faltan el cartel "ARA" de Mundo 3 (fase 4) y:
-  - Mundo 5: las criaturas robot y los fondos de Mariposas, Flores y Tren.
+  - Mundo 5: las criaturas robot y los fondos de Mariposas y Flores.
   - `imagenes/oraciones/`: un dibujo por oración (6).
 
 ## Hecho
+
+### Fase 7 (Tren de Mundo 5) — 3.81.0
+- Tren habilitado en el camino de Mundo 5 para G, GE, GUE, J y GÜE. Las fichas GU + E/I y GÜ + E/I se arman en dos casilleros; todos los audios de sílabas están en las dos voces.
+- Fondo y locomotora robot propios. `npm run build` pasó; falta recorrerlo en navegador en tamaños de celular y tablet.
 
 ### Fase 1 — Distractores (3.72.10)
 - Z y CE ya no ofrecen SA…SU como equivocadas (Peces y Caballitos de Mundo 4).
@@ -92,7 +96,7 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 - `PeluchesMundo5.jsx` (consigna "contiene"): 22 palabras con dibujo y audio y fondo de fábrica de robots. El dibujo equivocado es siempre de otro sonido de la misma letra.
 - Se corrigió el audio de GÜE de supernena (`suengaGÜE.mp3` → `suenaGÜE.mp3`): antes había un caso especial en el código.
 - Probado en el navegador: menú, Inicio de GE (presentación y sílabas) y Peluches de GÜE.
-- Falta: Mariposas y Flores de Mundo 5 (necesitan criaturas y fondos robot), Tren con fichas GU+E y la actividad "¿Va con J o con G?" (`vaConJoG.mp3` ya está).
+- De esta fase siguen pendientes Mariposas y Flores de Mundo 5 (necesitan criaturas y fondos robot).
 
 ### Fase 6 — Peluches en Mundo 4 (3.77.0)
 - `PeluchesMundo4.jsx` usa el mismo escenario de dos plataformas que Mundo 3 (`PeluchesPlataformas`, exportado desde `PeluchesMundo3.jsx`) con fondo submarino propio.

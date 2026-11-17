@@ -411,6 +411,10 @@
 	background: url("/assets/imagenes/escenarioTren.png") center / cover no-repeat;
 }
 
+.activity-page.page-tren.world-robots {
+	background-image: url("/assets/imagenes/escenarioTrenM5.png");
+}
+
 .page-tren .selected-character {
 	--selected-character-width: clamp(109px, 30vmin, 208px);
 }
