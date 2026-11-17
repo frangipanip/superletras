@@ -2,7 +2,7 @@
 // en shared/ para que la API pueda distinguir las recompensas de sílabas y de palabras.
 // "clave" es la misma que usa COMIDAS (shared/comidas.js) y la ruta es /<clave>.
 // Las de palabras se desbloquean al evolucionar el monstruo de la letra.
-export const TIPOS_ACTIVIDAD = { silabas: "silabas", palabras: "palabras" };
+export const TIPOS_ACTIVIDAD = { silabas: "silabas", palabras: "palabras", oraciones: "oraciones" };
 
 export const ACTIVIDADES = [
 	{ clave: "inicio", tipo: TIPOS_ACTIVIDAD.silabas },
@@ -16,11 +16,13 @@ export const ACTIVIDADES = [
 	{ clave: "pastel", tipo: TIPOS_ACTIVIDAD.palabras },
 	{ clave: "puzzle", tipo: TIPOS_ACTIVIDAD.palabras },
 	{ clave: "decora", tipo: TIPOS_ACTIVIDAD.palabras },
-	{ clave: "escribir", tipo: TIPOS_ACTIVIDAD.palabras }
+	{ clave: "escribir", tipo: TIPOS_ACTIVIDAD.palabras },
+	{ clave: "oraciones", tipo: TIPOS_ACTIVIDAD.oraciones }
 ];
 
 export const ACTIVIDAD_POR_CLAVE = Object.fromEntries(ACTIVIDADES.map((actividad) => [actividad.clave, actividad]));
 
 export function esActividadDePalabras(clave) {
-	return ACTIVIDAD_POR_CLAVE[clave]?.tipo === TIPOS_ACTIVIDAD.palabras;
+	const tipo = ACTIVIDAD_POR_CLAVE[clave]?.tipo;
+	return tipo === TIPOS_ACTIVIDAD.palabras || tipo === TIPOS_ACTIVIDAD.oraciones;
 }

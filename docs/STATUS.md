@@ -7,8 +7,8 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 ## Punto de retoma
 
 - **Publicado en dev**: 3.81.0, commit `5fb710c`, mergeado y subido a `develop`; despliegue de GitHub Actions completado correctamente. Incluye el Tren de Mundo 5.
-- **Trabajo posterior en la rama de auditoría**: documentación en `0115e10` (3.81.4); Tren en `a7f79eb` (3.82.0); Mundo 5 en `ac28392` (3.83.0); cierre de fase 4 implementado en 3.84.0. Todavía no está publicado.
-- **Próximo trabajo**: tramo de oraciones (fase 9).
+- **Trabajo posterior en la rama de auditoría**: documentación en `0115e10` (3.81.4); Tren en `a7f79eb` (3.82.0); Mundo 5 en `ac28392` (3.83.0); cierre de fase 4 en `d814ec2` (3.84.0); Oraciones implementada en 3.85.0. Todavía no está publicado.
+- **Próximo paso**: publicar la entrega en dev y hacer la revisión con personas: pronunciación y ritmo de las dos voces, tacto y encuadres en dispositivos reales. Las implementaciones pendientes de fases 4, 7 y 9 y la ampliación del Tren están completas.
 - **Arte de trenes elegido**: está en la conversación de ChatGPT indicada por el usuario. No se pudo acceder desde esta sesión; el fondo y la locomotora de Mundo 5 publicados son imágenes nuevas generadas aquí. Queda recuperar e integrar los recursos elegidos.
 
 ## Verificación del Tren (3.82.0)
@@ -34,16 +34,23 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 | 6 | Peluches en Mundo 4 | 3.77.0 | ✅ Hecha |
 | 7 | Mundo 5: G, GE, GUE, J, GÜE | 3.78.0 – 3.83.0 | ✅ Implementado: Inicio con repaso, Tren, Peluches, "¿J o G?", Mariposas y Flores |
 | 8 | Mundo 6: B, V, Ñ, K, X | 3.80.0 | ✅ Hecha: Inicio, Peluches y "¿B o V?" |
-| 9 | Tramo de oraciones | Por definir | ⏳ Pendiente: faltan los dibujos |
+| 9 | Tramo de oraciones | 3.85.0 | ✅ Implementado y recorrido hasta el premio con ambas voces |
 | Ampliación | Tren en todos los mundos | 3.82.0 | ✅ Implementado y recorrido en los seis mundos; pendiente recuperar arte elegido anteriormente |
 
 ## Recursos
 
 - **Audios**: los 143 de la lista (`descargas/lista-audios.tsv`) están generados con ElevenLabs e instalados en `public/assets/sonido/supernena` (Malena) y `supernene` (Dante), incluidos los de las fases 4 a 9. `acierto.mp3` es común a las dos voces y está en `sonido/`.
-- **Dibujos y fondos**: la producción anterior usó ChatGPT y láminas de seis dibujos; la ampliación actual usa `imagegen` con referencias existentes y piezas transparentes. Ya están los recursos de Mundos 4, 5 y 6, los trenes de todos los mundos, los robots de sílabas y el cartel ARA. Cada actividad nueva lleva un fondo acorde al mundo y a la actividad. Faltan:
-  - `imagenes/oraciones/`: un dibujo por oración (6).
+- **Dibujos y fondos**: la producción anterior usó ChatGPT y láminas de seis dibujos; la ampliación actual usa `imagegen` con referencias existentes y piezas transparentes. Ya están los recursos de Mundos 4, 5 y 6, los trenes de todos los mundos, los robots de sílabas, el cartel ARA y las seis escenas de Oraciones con su fondo. Prompts y rutas de los recursos nuevos en `docs/arte/`. Sigue pendiente recuperar el arte de trenes elegido en la conversación anterior para compararlo con el nuevo integrado.
 
 ## Hecho
+
+### Fase 9 — Oraciones (3.85.0)
+- Nueva ruta `/oraciones`, al final del camino de Mundo 1, después de Escribir; se abre junto al tramo de palabras. Reutiliza el cartel `oracionesM1.png`.
+- Seis frases confirmadas por el usuario, con tres o cuatro palabras: primera vuelta con modelo tenue y segunda sin modelo, doce rondas en total. Admite toque en orden, arrastre a casilleros y teclado.
+- Audios de oración y palabras en ambas voces; dos niveles de ayuda y halo. El error conserva lo ya armado. La escena se anima al completar, dice la frase y avanza al terminar el audio; premio final de estrellas y progreso local.
+- Seis ilustraciones nuevas y fondo propio en `public/assets/imagenes/oraciones/`; prompts en `docs/arte/oraciones-prompts.json`.
+- Chromium: doce rondas completas con cada voz, dos errores y halo, arrastre, teclado y premio. Sin audios o imágenes faltantes ni superposición de voces. Comprobados tres tamaños horizontales, navegación del menú, bloqueo de palabras, siguiente desde Escribir y regreso. Evidencia local en `descargas/pruebas-oraciones/` y scripts `descargas/probar-oraciones.mjs`, `descargas/revisar-oraciones.mjs`.
+- `npm.cmd run build` y `git diff --check` correctos en 3.85.0. También se comprobó el redirect `/tren.html`, conservando las bocas del personaje original cuando se entra sin contexto de mundo.
 
 ### Cierre de fase 4 — Q y ARA (3.84.0)
 - La presentación de Q se detiene después de nombrarla. Un botón luminoso Q → QU y «Tocala» invitan a continuar; al tocarlo sigue la explicación de U y aparecen las sílabas. El botón de saltear conserva su función.

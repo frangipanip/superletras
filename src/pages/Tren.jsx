@@ -127,7 +127,7 @@ export default function Tren() {
 	usePageTitle(`Tren - Mundo ${mundo}`);
 	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
-	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime, BOCAS[mundo]);
+	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime, location.state?.world ? BOCAS[mundo] : undefined);
 	const activityMenuOption = useActivityMenuOption();
 	const [menuOption] = useState(() => {
 		const opciones = SILABAS_TREN[mundo] || ACTIVITY_CONFIG;

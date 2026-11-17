@@ -15,6 +15,7 @@ import Mariposas from "./pages/Mariposas";
 import Tren from "./pages/Tren";
 import Flores from "./pages/Flores";
 import RobotsSilabas from "./pages/RobotsSilabas";
+import Oraciones from "./pages/Oraciones";
 import Peluche from "./pages/Iniciales";
 import PeluchesMundo2 from "./pages/PeluchesMundo2";
 import PeluchesMundo3 from "./pages/PeluchesMundo3";
@@ -99,6 +100,7 @@ export default function App() {
 				<Route path="/iniciales" element={<Navigate to="/peluches" replace />} />
 				<Route path="/peluches" element={<PeluchesRuta />} />
 				<Route path="/elegir" element={<ElegirLetra />} />
+				<Route path="/oraciones" element={<Oraciones />} />
 				{Object.entries(LEGACY_REDIRECTS).map(([from, to]) => (
 					<Route key={from} path={from} element={<Navigate to={to} replace />} />
 				))}

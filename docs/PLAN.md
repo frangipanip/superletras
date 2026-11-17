@@ -148,11 +148,17 @@ Criterios verificados de la ampliación:
 - [x] Capturas y comprobación de encuadre en 1138 × 712, 844 × 390 y 667 × 375.
 - [ ] Recuperar los recursos elegidos en la conversación de ChatGPT para compararlos con el arte nuevo integrado.
 
-## Fase 9 — Tramo de oraciones (3.80.0)
+## Fase 9 — Tramo de oraciones (3.85.0)
 
-`Oraciones.jsx` en `/oraciones`, tipo `oraciones` en `shared/actividades.js` y cartel nuevo en `PATH_BUTTONS` / `ACTIVITY_SIGN_IMAGES` de `Mundo1.jsx` (hay 19 posiciones y se usan 12). Se oye una oración de tres palabras, se ordenan tres fichas y el dibujo se anima al acertar. Vuelta 1 con modelo tenue, vuelta 2 sin modelo.
+`Oraciones.jsx` en `/oraciones`, tipo `oraciones` en `shared/actividades.js` y cartel `oracionesM1.png` en el camino de `Mundo1.jsx` (posición 13 de las 19 existentes). Se oye una oración de tres o cuatro palabras, se ordenan las fichas y el dibujo se anima al acertar. Vuelta 1 con las seis oraciones y modelo tenue; vuelta 2 con las mismas seis mezcladas y sin modelo. Se puede tocar en orden o arrastrar a los casilleros; termina con premio de estrellas y progreso por letra.
 
-Como las palabras de las actividades no cambian, las oraciones usan su propia lista de palabras reales con las letras vistas. Propuesta inicial, a confirmar al llegar a la fase: LA MULA SALTA · EL SOL SALE · LOLA TOMA TÉ · EL OSO SALE · TITO TOMA MATE · MAMI AMA A LOLA. Cada una lleva un dibujo, el audio de la oración y el de cada palabra.
+Como las palabras de las actividades no cambian, las oraciones usan su propia lista de palabras reales con las letras vistas (`src/lib/oraciones.js`). Las seis frases fueron confirmadas por el usuario el 17/11/2026: LA MULA SALTA · EL SOL SALE · LOLA TOMA TÉ · EL OSO SALE · TITO TOMA MATE · MAMI AMA A LOLA. Cada una tiene dibujo, audio de oración y audios de palabras en ambas voces.
+
+- [x] Seis ilustraciones, fondo propio y todos los audios existentes comprobados en ambas voces.
+- [x] Doce rondas, modelo solo en la primera vuelta, ayuda tras errores, animación y premio final.
+- [x] Dos recorridos completos en Chromium, uno por voz, con toque, arrastre y teclado; sin recursos faltantes ni superposición de audios.
+- [x] Encuadres en 1138 × 712, 844 × 390 y 667 × 375.
+- [x] Entrada desde el camino de Mundo 1, bloqueo hasta abrir palabras, siguiente desde Escribir y regreso al mundo.
 
 ## Cómo produzco audios y dibujos
 

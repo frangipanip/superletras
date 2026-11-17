@@ -69,7 +69,8 @@ const ACTIVITY_SIGN_IMAGES = [
 	"PASTELbtn.png",
 	"PUZZLEbtn.png",
 	"DECORAbtn.png",
-	"GLOBOSbtn.png"
+	"GLOBOSbtn.png",
+	"oracionesM1.png"
 ];
 
 // Todo lo que muestra la pantalla al entrar; Mundos lo precarga para que no aparezca de a partes.
@@ -101,11 +102,11 @@ const FIRST_WORD_PATH_INDEX = ACTIVIDADES.findIndex(({ tipo }) => tipo === TIPOS
 // Índices de PATH_ROUTES habilitados por letra: el resto del camino queda apagado
 // hasta que la actividad tenga los audios de esa letra. Sin entrada, la letra no abre nada.
 const AVAILABLE_ACTIVITIES = {
-	a: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
-	l: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
-	m: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
-	s: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
-	t: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+	a: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+	l: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+	m: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+	s: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+	t: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 };
 
 // Desplazamiento con el mouse: se arrastra la escena con click sostenido.

@@ -1,0 +1,38 @@
+{
+  "fecha": "2026-11-17",
+  "herramienta": "imagegen (herramienta integrada)",
+  "referencias": [
+    "public/assets/imagenes/escenarioTren.png",
+    "public/assets/imagenes/peluches/MUNDO5/gato.png"
+  ],
+  "imagenes": [
+    {
+      "archivo": "public/assets/imagenes/oraciones/fondo.png",
+      "prompt": "Use case: illustration-story. Asset: landscape 16:9 background for Superletras sentence ordering game in candy fantasy world. Cheerful open storybook theater or reading garden with rounded candy trees, pastel hills and soft cyan sky, warm cream low tabletop/platform across lower third for word tiles. Very quiet empty center and upper middle for an illustration and large words, decorations only at edges. Colorful polished children's cartoon, soft toy volume, matching Superletras existing world 1 train background reference. No characters, no text, no letters, no UI, no train or rails."
+    },
+    {
+      "archivo": "public/assets/imagenes/oraciones/la-mula-salta.png",
+      "prompt": "Use case: illustration-story. Asset: single isolated scene for Spanish sentence learning in Superletras. Sentence illustration: A friendly brown MULE with unmistakably long ears and short upright mane, happily jumping above a small patch of grass, all four legs visibly off the ground. Match the style reference: bright friendly children's cartoon with clean dark outlines, rounded proportions, simple soft shading and vivid colors. Readable at small size, complete subjects with generous margins. One coherent scene, true transparent alpha background, no words, letters, numbers or labels. Landscape composition about 3:2."
+    },
+    {
+      "archivo": "public/assets/imagenes/oraciones/el-sol-sale.png",
+      "prompt": "Use case: illustration-story. Asset: single isolated scene for Spanish sentence learning in Superletras. Sentence illustration: A cheerful golden SUN rising from behind two small rounded green hills, rays clearly visible, a tiny flower at the base. Match the style reference: bright friendly children's cartoon with clean dark outlines, rounded proportions, simple soft shading and vivid colors. Readable at small size, complete subjects with generous margins. One coherent scene, true transparent alpha background, no words, letters, numbers or labels. Landscape composition about 3:2."
+    },
+    {
+      "archivo": "public/assets/imagenes/oraciones/lola-toma-te.png",
+      "prompt": "Use case: illustration-story. Asset: single isolated scene for Spanish sentence learning in Superletras. Sentence illustration: LOLA, a little girl with chestnut bobbed hair and a pink dress, holding and drinking from a teacup, sitting beside a little rounded table with a small teapot. Match the style reference: bright friendly children's cartoon with clean dark outlines, rounded proportions, simple soft shading and vivid colors. Readable at small size, complete subjects with generous margins. One coherent scene, true transparent alpha background, no words, letters, numbers or labels. Landscape composition about 3:2."
+    },
+    {
+      "archivo": "public/assets/imagenes/oraciones/el-oso-sale.png",
+      "prompt": "Use case: illustration-story. Asset: single isolated scene for Spanish sentence learning in Superletras. Sentence illustration: A friendly round brown BEAR stepping OUT of the entrance of a small rocky cave, one paw already outside, little grass at entrance. Match the style reference: bright friendly children's cartoon with clean dark outlines, rounded proportions, simple soft shading and vivid colors. Readable at small size, complete subjects with generous margins. One coherent scene, true transparent alpha background, no words, letters, numbers or labels. Landscape composition about 3:2."
+    },
+    {
+      "archivo": "public/assets/imagenes/oraciones/tito-toma-mate.png",
+      "prompt": "Use case: illustration-story. Asset: single isolated scene for Spanish sentence learning in Superletras. Sentence illustration: TITO, a little boy in a blue shirt and red cap, drinking traditional Argentine MATE from a small green gourd cup through a clearly visible metal BOMBILLA straw. Seated on a small stool. Make the mate gourd and straw recognizable, not a teacup. Match the style reference: bright friendly children's cartoon with clean dark outlines, rounded proportions, simple soft shading and vivid colors. Readable at small size, complete subjects with generous margins. One coherent scene, true transparent alpha background, no words, letters, numbers or labels. Landscape composition about 3:2."
+    },
+    {
+      "archivo": "public/assets/imagenes/oraciones/mami-ama-a-lola.png",
+      "prompt": "Use case: illustration-story. Asset: single isolated scene for Spanish sentence learning in Superletras. Sentence illustration: A warm smiling mother with chestnut hair hugging her little daughter LOLA with chestnut bobbed hair and pink dress. The loving hug is the whole scene, clearly visible arms, both faces smiling. Match the style reference: bright friendly children's cartoon with clean dark outlines, rounded proportions, simple soft shading and vivid colors. Readable at small size, complete subjects with generous margins. One coherent scene, true transparent alpha background, no words, letters, numbers or labels. Landscape composition about 3:2."
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+.activity-page.page-oraciones { background: url("/assets/imagenes/oraciones/fondo.png") center / cover no-repeat; }
+.page-oraciones .oracion-juego { position: absolute; inset: 0; }
+.page-oraciones .oracion-avance { position: absolute; top: 4%; left: 46%; transform: translateX(-50%); display: flex; gap: 0.4em; align-items: center; color: #d4e2eb; font-size: clamp(16px, 3.8vmin, 28px); }
+.page-oraciones .oracion-avance .hecha { color: #ffd229; }
+.page-oraciones .oracion-avance .actual { color: #6c35a8; }
+.page-oraciones .oracion-modelo-icono { width: 1.3em; height: 1.3em; margin-right: 0.3em; color: #6c35a8; }
+.page-oraciones .oracion-dibujo { position: absolute; top: 15%; left: 46%; transform: translateX(-50%); width: 55%; height: 37%; object-fit: contain; }
+.page-oraciones .oracion-tablero { position: absolute; top: 56%; left: 5%; width: 80%; display: grid; grid-template-columns: repeat(var(--palabras), minmax(0, 1fr)); gap: 1.2vw; }
+.page-oraciones .oracion-casillero { display: grid; place-items: center; min-height: 13vmin; padding: 0.15em 0.1em; box-sizing: border-box; border: 3px dashed #9766af; border-radius: 12px; background: rgba(255, 255, 255, 0.85); color: #58317f; font: 900 clamp(20px, 4.9vmin, 40px) / 1 Arial, sans-serif; }
+.page-oraciones .oracion-casillero.llena { border-style: solid; border-color: #57aa62; background: #e0ffdb; }
+.page-oraciones .oracion-modelo { color: #89719c; opacity: 0.5; }
+.page-oraciones .oracion-vacio { color: #c0a3d0; }
+.page-oraciones .oracion-opciones { position: absolute; top: 79%; left: 5%; width: 80%; display: flex; justify-content: center; gap: 1.5vw; }
+.page-oraciones .oracion-ficha { display: grid; place-items: center; min-width: 10%; padding: 0.3em 0.45em; border: 3px solid #fff; border-radius: 12px; background: #ffe8a1; box-shadow: 0 4px 0 #b17733, 0 6px 9px #0002; color: #5d3284; font: 900 clamp(20px, 4.9vmin, 40px) / 1.1 Arial, sans-serif; cursor: grab; touch-action: none; user-select: none; }
+.page-oraciones .oracion-ficha:disabled { visibility: hidden; }
+.page-oraciones .oracion-ficha.incorrecta { animation: oracion-error 300ms ease; }
+.page-oraciones .oracion-ficha:focus-visible { outline: 3px solid #f18f26; outline-offset: 3px; }
+.page-oraciones .oracion-ficha.arrastrando { position: fixed; z-index: 20; transform: translate(-50%, -50%); box-sizing: border-box; pointer-events: none; }
+.page-oraciones .oracion-juego.completada .oracion-dibujo { animation: oracion-festejo 900ms ease both; }
+.page-oraciones .selected-character { top: auto; bottom: 2%; left: auto; right: 1%; transform: none; width: clamp(85px, 21vmin, 150px); }
+.page-oraciones .selected-character > img:first-child { max-height: 29vh; object-fit: contain; }
+@keyframes oracion-error { 25%, 75% { transform: translateX(-8px); } 50% { transform: translateX(8px); } }
+@keyframes oracion-festejo { 25%, 75% { transform: translate(-50%, -10%) rotate(-3deg); } 50% { transform: translate(-50%, 0) rotate(3deg); } }
+@media (max-height: 420px) {
+	.page-oraciones .oracion-avance { top: 6%; }
+	.page-oraciones .oracion-dibujo { top: 19%; height: 33%; }
+	.page-oraciones .oracion-tablero { top: 55%; }
+	.page-oraciones .oracion-opciones { top: 78%; }
+}
+@media (prefers-reduced-motion: reduce) {
+	.page-oraciones .oracion-ficha.incorrecta, .page-oraciones .oracion-juego.completada .oracion-dibujo { animation: none; }
+}
