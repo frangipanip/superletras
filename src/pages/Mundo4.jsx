@@ -31,8 +31,8 @@ const LETTER_SOUNDS = {
 	CH: "suenaCH.mp3"
 };
 const CHARACTER_FRAME_DURATION = 375;
-// Inicio, Peces, Caballitos y Peluches.
-const ACTIVIDADES_ABIERTAS = 4;
+// Inicio, Peces, Caballitos, Peluches y Tren.
+const ACTIVIDADES_ABIERTAS = 5;
 const ACTIVITY_SIGN_IMAGES = [
 	"INICIALESbtn.png",
 	"MARIPOSAbtn.png",
@@ -107,7 +107,7 @@ export const MUNDO4_IMAGES = [
 	...MUNDO4_MOUTH_IMAGES
 ];
 
-const ACTIVIDADES_M4 = ["inicio", "mariposas", "flores", "peluches"];
+const ACTIVIDADES_M4 = ["inicio", "mariposas", "flores", "peluches", "tren"];
 
 export default function Mundo4() {
 	usePageTitle("Mundo 4");
@@ -272,7 +272,7 @@ export default function Mundo4() {
 		const nextPerches = { ...savedPerches, [letter]: index };
 		setSavedPerches(nextPerches);
 		writeStorage(STORAGE_KEYS.mundo4Perches, JSON.stringify(nextPerches));
-		const activityPath = ["/inicio", "/mariposas", "/flores", "/peluches"][index];
+		const activityPath = `/${ACTIVIDADES_M4[index]}`;
 		const goToActivity = () => navigate(activityPath, {
 			state: { world: 4, menuOption: letter }
 		});
@@ -412,7 +412,7 @@ export default function Mundo4() {
 											? "Iniciar actividad de sílabas con caballitos de mar"
 											: index === 3
 												? "Iniciar actividad de palabras con peluches"
-												: `Actividad del camino ${index + 1}, próximamente`}
+												: index === 4 ? "Iniciar actividad del tren" : `Actividad del camino ${index + 1}, próximamente`}
 								onClick={() => openActivity(index)}
 							>
 								<img src={img("boton.svg")} alt="" draggable={false} />

@@ -6,11 +6,11 @@ import { STORAGE_KEYS, readStorage } from "./storage";
 // coincidir con esto.
 export const CAMINOS = {
 	1: ACTIVIDADES.map(({ clave }) => clave),
-	2: ["inicio", "mariposas", "flores", "peluches"],
-	3: ["inicio", "mariposas", "flores", "peluches"],
-	4: ["inicio", "mariposas", "flores", "peluches"],
+	2: ["inicio", "mariposas", "flores", "peluches", "tren"],
+	3: ["inicio", "mariposas", "flores", "peluches", "tren"],
+	4: ["inicio", "mariposas", "flores", "peluches", "tren"],
 	5: ["inicio", "tren", "peluches", "elegir"],
-	6: ["inicio", "peluches", "elegir"]
+	6: ["inicio", "peluches", "elegir", "tren"]
 };
 
 function palabrasDesbloqueadas(letra) {

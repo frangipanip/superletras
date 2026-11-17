@@ -79,8 +79,8 @@ const PATH_BUTTONS = [
 	[94, 82],
 	[98, 78]
 ];
-const VISIBLE_ACTIVITY_SIGNS = ["INICIALESbtn.png", "MARIPOSAbtn.png", "FLORbtn.png", "PELUCHESbtn.png"];
-const VISIBLE_ACTIVITY_COUNT = 4;
+const VISIBLE_ACTIVITY_SIGNS = ["INICIALESbtn.png", "MARIPOSAbtn.png", "FLORbtn.png", "PELUCHESbtn.png", "TRENbtn.png"];
+const VISIBLE_ACTIVITY_COUNT = VISIBLE_ACTIVITY_SIGNS.length;
 
 function readSavedPerches() {
 	try {
@@ -265,7 +265,7 @@ export default function Mundo3() {
 		const nextPerches = { ...savedPerches, [letter]: index };
 		setSavedPerches(nextPerches);
 		writeStorage(STORAGE_KEYS.mundo3Perches, JSON.stringify(nextPerches));
-		const activityPath = ["/inicio", "/mariposas", "/flores", "/peluches"][index];
+		const activityPath = `/${CAMINOS[3][index]}`;
 		const goToActivity = () => navigate(activityPath, {
 			state: { menuOption: letter.toLowerCase(), world: 3 }
 		});

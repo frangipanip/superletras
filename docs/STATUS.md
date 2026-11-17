@@ -7,16 +7,20 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 ## Punto de retoma
 
 - **Publicado en dev**: 3.81.0, commit `5fb710c`, mergeado y subido a `develop`; despliegue de GitHub Actions completado correctamente. Incluye el Tren de Mundo 5.
-- **Cambios locales posteriores**: ampliación del plan para llevar Tren a todos los mundos, actualización de este estado, adaptación de `docs/PROCESS.md` al proyecto y guía `docs/BRAND.md` con estilo visual, referencias, prompts y producción de imágenes y audios. Versión local 3.81.4; estos cambios de documentación todavía no están publicados.
-- **Próximo trabajo**: incorporar Tren en Mundos 2, 3, 4 y 6, con sus sílabas, audios, fondos, locomotoras y vagones. Luego quedan Mariposas y Flores de Mundo 5, oraciones y los dos pendientes de fase 4.
+- **Trabajo posterior en la rama de auditoría**: documentación de proceso y estilo guardada en `0115e10` (3.81.4); ampliación del Tren implementada como 3.82.0. Todavía no está publicada.
+- **Próximo trabajo**: Mariposas y Flores de Mundo 5 con arte de robots; luego oraciones y los dos pendientes de fase 4.
 - **Arte de trenes elegido**: está en la conversación de ChatGPT indicada por el usuario. No se pudo acceder desde esta sesión; el fondo y la locomotora de Mundo 5 publicados son imágenes nuevas generadas aquí. Queda recuperar e integrar los recursos elegidos.
 
-## Pruebas pendientes de 3.81.0
+## Verificación del Tren (3.82.0)
 
-- Mundo 5 → Tren: probar las cinco letras, especialmente GU + E/I y GÜ + E/I; selección por toque y arrastre.
-- Provocar dos errores para comprobar repetición de la consigna y halo; completar ambas vueltas hasta el premio y comprobar progreso y siguiente actividad.
-- Revisar las dos voces, el encuadre en celular horizontal de poca altura y tablet de 1138 × 712, y una ronda del Tren de Mundo 1.
-- El build y `git diff --check` pasaron. No se hizo el recorrido del Tren de Mundo 5 en navegador y todavía no hay resultados de pruebas del usuario.
+- Chromium con Playwright: 22 recorridos completos (11 casos con ambas voces), incluyendo todos los mundos, dos errores, halo, ambas vueltas, premio y progreso. Casos: vocales, H, RR, R suave, LL, Q, CH, GUE, GÜE, Ñ y X. Sin errores de carga ni superposición de audios detectados. Los recorridos automáticos aceleran audios y esperas; no sustituyen la escucha humana de pronunciación y ritmo.
+- Comprobación de las 25 configuraciones de Mundos 2 a 6: fichas que forman la secuencia exacta y todos sus audios presentes en ambas voces.
+- Capturas de los seis mundos en 1138 × 712, 844 × 390 y 667 × 375; modelo y fichas dentro de pantalla. Ajustados el personaje de Mundo 3 y las fichas de varias letras.
+- Prueba adicional de Mundo 1: vocales y L completos con ambas voces.
+- Entrada al Tren desde los menús de Mundos 2 a 6, arrastre real de ficha, reinicio durante la salida del convoy y regreso al mundo comprobados con Chromium.
+- `npm.cmd run build` y `git diff --check` correctos en 3.82.0.
+- Evidencia y scripts de comprobación locales en `descargas/pruebas-tren/`, `descargas/probar-trenes.mjs`, `descargas/revisar-trenes.mjs` y `descargas/navegar-trenes.mjs` (ignorados por Git).
+- Pendiente del usuario: escuchar consignas y pronunciaciones y probar el tacto en dispositivos reales.
 
 ## Resumen
 
@@ -31,7 +35,7 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 | 7 | Mundo 5: G, GE, GUE, J, GÜE | 3.78.0 – 3.81.0 | 🟡 En curso: Inicio, Peluches, "¿J o G?" y Tren hechos; faltan Mariposas y Flores |
 | 8 | Mundo 6: B, V, Ñ, K, X | 3.80.0 | ✅ Hecha: Inicio, Peluches y "¿B o V?" |
 | 9 | Tramo de oraciones | Por definir | ⏳ Pendiente: faltan los dibujos |
-| Ampliación | Tren en todos los mundos | Por definir | 🟡 Implementado en Mundos 1 y 5; pendientes Mundos 2, 3, 4 y 6 |
+| Ampliación | Tren en todos los mundos | 3.82.0 | ✅ Implementado y recorrido en los seis mundos; pendiente recuperar arte elegido anteriormente |
 
 ## Recursos
 
@@ -41,6 +45,13 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
   - `imagenes/oraciones/`: un dibujo por oración (6).
 
 ## Hecho
+
+### Ampliación — Tren en todos los mundos (3.82.0)
+- Tren agregado al final de los caminos de Mundos 2, 3, 4 y 6, conservando los índices previos de actividades y posiciones guardadas. Mundo 5 conserva su orden existente.
+- Configuración por mundo y letra en `src/lib/tren.js`, con fichas de varias letras y distractor G para GU, GU para GÜ y Q para QU. Los audios usan los archivos existentes de ambas voces.
+- Trece imágenes nuevas: cuatro fondos, cuatro locomotoras y cinco vagones, con transparencia en las piezas. Rutas, referencias y prompts en `docs/arte/trenes-prompts.json`.
+- Unificada la secuencia de voz del Tren. Reiniciar invalida las transiciones anteriores; repetir la voz al completar ya no corta la partida; cancelación de arrastres y protección frente a toques duplicados.
+- Las letras sin monstruo reciben estrellas y guardan su progreso local, evitando enviar grupos como RR o GÜ a la API de comidas. Mundo 1 conserva su comida.
 
 ### Fase 7 (Tren de Mundo 5) — 3.81.0
 - Tren habilitado en el camino de Mundo 5 para G, GE, GUE, J y GÜE. Las fichas GU + E/I y GÜ + E/I se arman en dos casilleros; todos los audios de sílabas están en las dos voces.
@@ -133,7 +144,7 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 
 ## Notas
 
-- **Nuevo alcance (17/11/2026)**: todos los mundos tendrán Tren. Ya está implementado en Mundos 1 y 5; quedan Mundos 2, 3, 4 y 6, con sílabas y arte propios (ver ampliación en `PLAN.md`).
+- **Nuevo alcance (17/11/2026)**: Tren implementado en todos los mundos (ver ampliación en `PLAN.md`).
 
 - Si se pasa a la actividad siguiente con el botón del premio y se vuelve al mundo, el personaje aparece en la actividad anterior; el brillo de "la que sigue" sí marca la correcta.
 - Las marcas de completado viven en el navegador (no viajan con el código de jugador). En Mundo 1 también cuenta como completada toda actividad con comida ganada.

@@ -411,12 +411,36 @@
 	background: url("/assets/imagenes/escenarioTren.png") center / cover no-repeat;
 }
 
-.activity-page.page-tren.world-robots {
-	background-image: url("/assets/imagenes/escenarioTrenM5.png");
-}
-
 .page-tren .selected-character {
 	--selected-character-width: clamp(109px, 30vmin, 208px);
+}
+
+.page-tren:not(.tren-mundo-1) .selected-character:not(.celebrating) {
+	top: auto;
+	bottom: 4%;
+	transform: none;
+}
+
+.page-tren:not(.tren-mundo-1) .selected-character:not(.celebrating) > img:first-child {
+	max-height: 32vh;
+	object-fit: contain;
+}
+
+.page-tren .vowel-token.double-token {
+	width: 72%;
+	aspect-ratio: 1.2 / 1;
+	font-size: clamp(1.15rem, 3.7vmin, 2.1rem);
+}
+
+.page-tren .sequence-slot.double-token {
+	width: clamp(4rem, 12vmin, 7rem);
+	font-size: clamp(1.8rem, 6vmin, 3.8rem);
+}
+
+.page-tren .sequence-slot:focus-visible,
+.page-tren .vowel-token:focus-visible {
+	outline: 3px solid #ff8a00;
+	outline-offset: 3px;
 }
 
 @media (min-width: 521px) and (max-width: 1200px) {

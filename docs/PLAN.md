@@ -116,14 +116,24 @@ Molde de la Q: presentar, contrastar, mezclar. Los audios de sílabas ya existen
 - **X**: Peluches con "contiene" (taxi, saxo, boxeo, examen); sin xilófono.
 - `Mundo6.jsx`: mismo cableado que Mundo 5 (hoy ni siquiera tiene audio). Clave nueva `mundo6Perches`.
 
-## Ampliación — Tren en todos los mundos
+## Ampliación — Tren en todos los mundos (3.82.0)
 
-- **Estado actual**: Tren está implementado en Mundos 1 y 5. Falta incorporarlo en Mundos 2, 3, 4 y 6.
+- **Estado actual**: Tren está implementado en los seis mundos. La configuración de Mundos 2 a 6 está en `src/lib/tren.js`; Mundo 1 conserva sus secuencias originales.
 - `Tren.jsx`: reutilizar el motor con configuración por mundo y letra, sus sílabas y audios en ambas voces. Admitir fichas de varias letras cuando corresponda (por ejemplo, CH, RR, QU, GU y GÜ), respetando las reglas de cada grupo.
 - Agregar el cartel de Tren al camino de cada mundo y mantener sincronizados los menús, `CAMINOS`, el progreso y el botón de siguiente actividad del premio.
 - Cada mundo tendrá fondo, locomotora y vagones acordes a su temática: insectos, bloques, submarino, robots y unicornios. Integrar los fondos y trenes elegidos en la conversación de arte cuando estén disponibles.
 - Conservar las dos vueltas (demostración breve con modelo y práctica sin modelo), selección por toque o arrastre, ayuda tras errores y premio final.
 - Verificar cada mundo con las dos voces, sin recursos faltantes, en celular horizontal de poca altura y tablet de 1138 × 712.
+
+Criterios verificados de la ampliación:
+
+- [x] Tren accesible desde los caminos de los seis mundos, con progreso y cierre.
+- [x] Fichas CH, LL, RR, QU, GU y GÜ; R suave con ARA/ERE/IRI/ORO/URU; YI fuera de la práctica.
+- [x] Audios disponibles con nombres exactos para las 25 letras de Mundos 2 a 6, en ambas voces.
+- [x] Fondos y locomotoras de Mundos 2, 3, 4 y 6; vagones propios de Mundos 2 a 6. Prompts registrados en `docs/arte/trenes-prompts.json`.
+- [x] Recorridos completos de los seis mundos con ambas voces, ayuda tras errores, vuelta sin modelo y premio; comprobación automática de carga y superposición de audios.
+- [x] Capturas y comprobación de encuadre en 1138 × 712, 844 × 390 y 667 × 375.
+- [ ] Recuperar los recursos elegidos en la conversación de ChatGPT para compararlos con el arte nuevo integrado.
 
 ## Fase 9 — Tramo de oraciones (3.80.0)
 

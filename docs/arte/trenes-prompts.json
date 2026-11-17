@@ -1,0 +1,85 @@
+{
+  "fecha": "2026-11-17",
+  "herramienta": "imagegen (herramienta integrada)",
+  "nota": "Arte nuevo; sigue pendiente recuperar los archivos elegidos en la conversación de ChatGPT.",
+  "imagenes": [
+    {
+      "mundo": 2,
+      "archivo": "public/assets/imagenes/escenarioTrenM2.png",
+      "referencia": "public/assets/imagenes/escenarioTren.png",
+      "prompt": "Use case: illustration-story. Asset: background for Superletras train reading game world 2. Theme: garden of flowers, butterflies and caterpillars, leafy stations. Match the provided train background's bright rounded toy illustration style, gentle volume and lighting, exact landscape 16:9 composition. A SINGLE straight horizontal railway crosses the full width, front supporting rail at 72 percent of image height, never curves or recedes. Quiet open sky/water across upper center for letter UI and open center for train sprites; themed decorations concentrated at edges, no large foreground objects blocking railway. No train, no text, no labels, no buttons."
+    },
+    {
+      "mundo": 3,
+      "archivo": "public/assets/imagenes/escenarioTrenM3.png",
+      "referencia": "public/assets/imagenes/escenarioTren.png",
+      "prompt": "Use case: illustration-story. Asset: background for Superletras train reading game world 3. Theme: land of colorful toy construction blocks and block towers. Match the provided train background's bright rounded toy illustration style, gentle volume and lighting, exact landscape 16:9 composition. A SINGLE straight horizontal railway crosses the full width, front supporting rail at 72 percent of image height, never curves or recedes. Quiet open sky/water across upper center for letter UI and open center for train sprites; themed decorations concentrated at edges, no large foreground objects blocking railway. No train, no text, no labels, no buttons."
+    },
+    {
+      "mundo": 4,
+      "archivo": "public/assets/imagenes/escenarioTrenM4.png",
+      "referencia": "public/assets/imagenes/escenarioTren.png",
+      "prompt": "Use case: illustration-story. Asset: background for Superletras train reading game world 4. Theme: underwater coral garden, shells, bubbles and distant sea plants. Match the provided train background's bright rounded toy illustration style, gentle volume and lighting, exact landscape 16:9 composition. A SINGLE straight horizontal railway crosses the full width, front supporting rail at 72 percent of image height, never curves or recedes. Quiet open sky/water across upper center for letter UI and open center for train sprites; themed decorations concentrated at edges, no large foreground objects blocking railway. No train, no text, no labels, no buttons."
+    },
+    {
+      "mundo": 6,
+      "archivo": "public/assets/imagenes/escenarioTrenM6.png",
+      "referencia": "public/assets/imagenes/escenarioTren.png",
+      "prompt": "Use case: illustration-story. Asset: background for Superletras train reading game world 6. Theme: pastel rainbow cloud kingdom with distant unicorn castle. Match the provided train background's bright rounded toy illustration style, gentle volume and lighting, exact landscape 16:9 composition. A SINGLE straight horizontal railway crosses the full width, front supporting rail at 72 percent of image height, never curves or recedes. Quiet open sky/water across upper center for letter UI and open center for train sprites; themed decorations concentrated at edges, no large foreground objects blocking railway. No train, no text, no labels, no buttons."
+    },
+    {
+      "mundo": 2,
+      "archivo": "public/assets/imagenes/locomotoraM2.png",
+      "referencia": "public/assets/imagenes/locomotora.png",
+      "prompt": "Use case: illustration-story. Asset: single isolated locomotive sprite for Superletras world 2. Theme garden butterfly train, green leaves roof, yellow and pink flower decorations. Match provided reference's rounded friendly toy cartoon style, bold clean outlines, bright colors, soft shading. Strict flat side view facing RIGHT. One complete compact locomotive only with bottom-aligned wheels, friendly little face, no track, no wagons, no text or letters, no environment. Fully visible centered with tiny even margins, real transparent alpha background. Width about 1.4 times height like reference."
+    },
+    {
+      "mundo": 3,
+      "archivo": "public/assets/imagenes/locomotoraM3.png",
+      "referencia": "public/assets/imagenes/locomotora.png",
+      "prompt": "Use case: illustration-story. Asset: single isolated locomotive sprite for Superletras world 3. Theme colorful interlocking toy construction blocks, red yellow and blue. Match provided reference's rounded friendly toy cartoon style, bold clean outlines, bright colors, soft shading. Strict flat side view facing RIGHT. One complete compact locomotive only with bottom-aligned wheels, friendly little face, no track, no wagons, no text or letters, no environment. Fully visible centered with tiny even margins, real transparent alpha background. Width about 1.4 times height like reference."
+    },
+    {
+      "mundo": 4,
+      "archivo": "public/assets/imagenes/locomotoraM4.png",
+      "referencia": "public/assets/imagenes/locomotora.png",
+      "prompt": "Use case: illustration-story. Asset: single isolated locomotive sprite for Superletras world 4. Theme friendly underwater submarine train, turquoise and coral, round portholes and shell details. Match provided reference's rounded friendly toy cartoon style, bold clean outlines, bright colors, soft shading. Strict flat side view facing RIGHT. One complete compact locomotive only with bottom-aligned wheels, friendly little face, no track, no wagons, no text or letters, no environment. Fully visible centered with tiny even margins, real transparent alpha background. Width about 1.4 times height like reference."
+    },
+    {
+      "mundo": 6,
+      "archivo": "public/assets/imagenes/locomotoraM6.png",
+      "referencia": "public/assets/imagenes/locomotora.png",
+      "prompt": "Use case: illustration-story. Asset: single isolated locomotive sprite for Superletras world 6. Theme unicorn train with small horn, pastel pink lavender and cyan, rainbow details. Match provided reference's rounded friendly toy cartoon style, bold clean outlines, bright colors, soft shading. Strict flat side view facing RIGHT. One complete compact locomotive only with bottom-aligned wheels, friendly little face, no track, no wagons, no text or letters, no environment. Fully visible centered with tiny even margins, real transparent alpha background. Width about 1.4 times height like reference."
+    },
+    {
+      "mundo": 2,
+      "archivo": "public/assets/imagenes/vagonM2.png",
+      "referencia": "public/assets/imagenes/vagon1.png",
+      "prompt": "Use case: illustration-story. Asset: ONE isolated short open cargo train wagon sprite, theme green leaf carriage with pink and yellow flower details, for children's Superletras game world 2. Use provided wagon as shape/composition/style reference: rounded friendly toy, colorful, soft shading, bold clean outlines. Strict side elevation, horizontal upper rim, simple wide open box on two big wheels, NO roof, NO locomotive, NO contents, NO letters or text. Aspect ratio about 1.7 wide to 1 high, object nearly fills image with small even transparent margins, wheels bottom-aligned. Real transparent alpha background."
+    },
+    {
+      "mundo": 3,
+      "archivo": "public/assets/imagenes/vagonM3.png",
+      "referencia": "public/assets/imagenes/vagon1.png",
+      "prompt": "Use case: illustration-story. Asset: ONE isolated short open cargo train wagon sprite, theme red blue and yellow toy construction blocks with round block wheels, for children's Superletras game world 3. Use provided wagon as shape/composition/style reference: rounded friendly toy, colorful, soft shading, bold clean outlines. Strict side elevation, horizontal upper rim, simple wide open box on two big wheels, NO roof, NO locomotive, NO contents, NO letters or text. Aspect ratio about 1.7 wide to 1 high, object nearly fills image with small even transparent margins, wheels bottom-aligned. Real transparent alpha background."
+    },
+    {
+      "mundo": 4,
+      "archivo": "public/assets/imagenes/vagonM4.png",
+      "referencia": "public/assets/imagenes/vagon1.png",
+      "prompt": "Use case: illustration-story. Asset: ONE isolated short open cargo train wagon sprite, theme turquoise and coral submarine cargo carriage with shell details, for children's Superletras game world 4. Use provided wagon as shape/composition/style reference: rounded friendly toy, colorful, soft shading, bold clean outlines. Strict side elevation, horizontal upper rim, simple wide open box on two big wheels, NO roof, NO locomotive, NO contents, NO letters or text. Aspect ratio about 1.7 wide to 1 high, object nearly fills image with small even transparent margins, wheels bottom-aligned. Real transparent alpha background."
+    },
+    {
+      "mundo": 5,
+      "archivo": "public/assets/imagenes/vagonM5.png",
+      "referencia": "public/assets/imagenes/vagon1.png",
+      "prompt": "Use case: illustration-story. Asset: ONE isolated short open cargo train wagon sprite, theme purple and teal robot factory cargo carriage, small cyan lights and metal wheels, for children's Superletras game world 5. Use provided wagon as shape/composition/style reference: rounded friendly toy, colorful, soft shading, bold clean outlines. Strict side elevation, horizontal upper rim, simple wide open box on two big wheels, NO roof, NO locomotive, NO contents, NO letters or text. Aspect ratio about 1.7 wide to 1 high, object nearly fills image with small even transparent margins, wheels bottom-aligned. Real transparent alpha background."
+    },
+    {
+      "mundo": 6,
+      "archivo": "public/assets/imagenes/vagonM6.png",
+      "referencia": "public/assets/imagenes/vagon1.png",
+      "prompt": "Use case: illustration-story. Asset: ONE isolated short open cargo train wagon sprite, theme pastel pink lavender rainbow carriage with cloud details, for children's Superletras game world 6. Use provided wagon as shape/composition/style reference: rounded friendly toy, colorful, soft shading, bold clean outlines. Strict side elevation, horizontal upper rim, simple wide open box on two big wheels, NO roof, NO locomotive, NO contents, NO letters or text. Aspect ratio about 1.7 wide to 1 high, object nearly fills image with small even transparent margins, wheels bottom-aligned. Real transparent alpha background."
+    }
+  ]
+}

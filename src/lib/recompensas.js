@@ -1,4 +1,4 @@
-import { COMIDA_POR_ACTIVIDAD, COMIDA_POR_CLAVE, premioPorErrores } from "../../shared/comidas.js";
+import { COMIDA_POR_ACTIVIDAD, COMIDA_POR_CLAVE, LETRAS, premioPorErrores } from "../../shared/comidas.js";
 import { marcarCompletada } from "./progreso";
 import { STORAGE_KEYS, readStorage, writeStorage } from "./storage";
 
@@ -97,9 +97,9 @@ export function otorgarPremio(letra, actividad, errores = 0, cantidadSolicitada)
 	}
 	// Completar la actividad se anota aunque el monstruo ya no necesite esa comida.
 	marcarCompletada(letra, actividad, premioPorErrores(actividad, errores, cantidadSolicitada));
-	const comida = COMIDA_POR_ACTIVIDAD[actividad];
+	const comida = LETRAS.includes(letra) ? COMIDA_POR_ACTIVIDAD[actividad] : null;
 	if (!comida) {
-		// Las actividades de palabras no alimentan al monstruo: su premio son estrellas.
+		// Solo las letras de Mundo 1 tienen monstruo; los otros caminos premian con estrellas.
 		return { id: nuevoId(), comida: PREMIO_ESTRELLAS, cantidad: 0, score: premioPorErrores(actividad, errores, cantidadSolicitada) };
 	}
 	const evento = { id: nuevoId(), tipo: "premio", letra, actividad, errores, codigo: state.codigo };

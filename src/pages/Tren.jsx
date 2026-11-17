@@ -8,7 +8,8 @@ import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
-import { CHARACTERS, img, sound } from "../lib/assets";
+import { img, sound, MUNDO1_MOUTH_IMAGES, MUNDO2_MOUTH_IMAGES, MUNDO3_MOUTH_IMAGES, MUNDO4_MOUTH_IMAGES, MUNDO5_MOUTH_IMAGES } from "../lib/assets";
+import { arteTren, crearConfigTren, SILABAS_TREN } from "../lib/tren";
 import { shuffle } from "../lib/shuffle";
 import { useActivityMenuOption } from "../hooks/useActivityMenuOption";
 import { useAyudaError } from "../hooks/useAyudaError";
@@ -16,37 +17,13 @@ import { crearSecuencia, mudo } from "../lib/secuenciaAudio";
 import "./actividad.css";
 
 const VOWELS = ["A", "E", "I", "O", "U"];
-const WAGON_IMAGES = ["vagon1.png", "vagon2.png", "vagon3.png", "vagon4.png"];
+const BOCAS = { 1: MUNDO1_MOUTH_IMAGES, 2: MUNDO2_MOUTH_IMAGES, 3: MUNDO3_MOUTH_IMAGES, 4: MUNDO4_MOUTH_IMAGES, 5: MUNDO5_MOUTH_IMAGES };
 const MIN_DROP_OVERLAP = 0.15;
 // La primera vuelta (con las letras a la vista) es una demostración corta; la segunda, sin modelo,
 // pide todas las secuencias.
 const RONDAS_CON_MODELO = 2;
 // Un toque que casi no se mueve no es un arrastre: elige el vagón para después tocar el casillero.
 const TOQUE_MAX_PX = 12;
-
-const MUNDO5_SECUENCIAS = {
-	g: ["GA", "GO", "GU"],
-	ge: ["GE", "GI"],
-	gu: ["GUE", "GUI"],
-	j: ["JA", "JE", "JI", "JO", "JU"],
-	"gü": ["GÜE", "GÜI"]
-};
-
-function configMundo5(letra) {
-	const sequences = MUNDO5_SECUENCIAS[letra];
-	return {
-		sequences,
-		sequenceTokens: Object.fromEntries(sequences.map((silaba) => [
-			silaba,
-			letra === "gu" ? ["GU", silaba.slice(-1)] : letra === "gü" ? ["GÜ", silaba.slice(-1)] : [silaba[0], silaba.slice(-1)]
-		])),
-		speechAudios: {
-			vagones: "Vagones.mp3",
-			...Object.fromEntries(sequences.map((silaba) => [silaba, `${silaba.toLowerCase()}.mp3`])),
-			fabuloso: "Fabuloso.mp3"
-		}
-	};
-}
 
 const ACTIVITY_CONFIG = {
 	a: {
@@ -146,22 +123,23 @@ function randomItem(items) {
 
 export default function Tren() {
 	const location = useLocation();
-	const isMundo5 = location.state?.world === 5;
-	usePageTitle(`Tren - Mundo ${isMundo5 ? 5 : 1}`);
+	const mundo = location.state?.world || 1;
+	usePageTitle(`Tren - Mundo ${mundo}`);
 	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
-	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime);
+	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime, BOCAS[mundo]);
 	const activityMenuOption = useActivityMenuOption();
-	const [menuOption] = useState(() => isMundo5
-		? (MUNDO5_SECUENCIAS[activityMenuOption] ? activityMenuOption : "g")
-		: (ACTIVITY_CONFIG[activityMenuOption] ? activityMenuOption : "a"));
-	const config = isMundo5 ? configMundo5(menuOption) : ACTIVITY_CONFIG[menuOption];
+	const [menuOption] = useState(() => {
+		const opciones = SILABAS_TREN[mundo] || ACTIVITY_CONFIG;
+		return Object.hasOwn(opciones, activityMenuOption) ? activityMenuOption : Object.keys(opciones)[0];
+	});
+	const [config] = useState(() => mundo === 1 ? ACTIVITY_CONFIG[menuOption] : crearConfigTren(mundo, menuOption));
+	const arte = arteTren(mundo);
 	const [speechAudios] = useState(() =>
 		Object.fromEntries(Object.entries(config.speechAudios).map(([key, file]) => [key, runtime.audio(sound(file), { preload: true })]))
 	);
 	const [errorAudio] = useState(() => runtime.audio(sound("error.mp3"), { preload: true }));
 
-	const [roundIndex, setRoundIndex] = useState(0);
 	const [slots, setSlots] = useState([]);
 	const [convoy, setConvoy] = useState({ generation: 0, tokens: [] });
 	const [arriving, setArriving] = useState(false);
@@ -184,7 +162,9 @@ export default function Tren() {
 		completedSlots: 0,
 		selected: null,
 		currentSequence: "",
-		activeSpeechAudio: null,
+		generation: 0,
+		usedTokens: new Set(),
+		filledSlots: new Set(),
 		activityFinished: false,
 		departing: false,
 		drag: null,
@@ -204,25 +184,10 @@ export default function Tren() {
 
 	function stopSpeech() {
 		secuencia.cancelar();
-		if (game.activeSpeechAudio) {
-			game.activeSpeechAudio.pause();
-			game.activeSpeechAudio.currentTime = 0;
-			game.activeSpeechAudio.onended = null;
-		}
-		game.activeSpeechAudio = null;
-		stopTalking();
 	}
 
 	function speak(audio, onEnded = null) {
-		stopSpeech();
-		game.activeSpeechAudio = audio;
-		startTalking();
-		audio.onended = () => {
-			stopSpeech();
-			onEnded?.();
-		};
-		audio.currentTime = 0;
-		audio.play().catch(stopSpeech);
+		secuencia.reproducir([audio], onEnded);
 	}
 
 	function getSequenceTokens(sequenceKey) {
@@ -236,20 +201,25 @@ export default function Tren() {
 
 	function createConvoy() {
 		const tokens = getSequenceTokens(game.currentSequence);
-		const extra = randomItem(VOWELS.filter((vowel) => !tokens.includes(vowel)));
+		const extra = randomItem(config.distractores || VOWELS.filter((vowel) => !tokens.includes(vowel)));
 		setConvoy((current) => ({
 			generation: current.generation + 1,
 			tokens: shuffle([...tokens, extra]).map((value) => ({ value, disabled: false }))
 		}));
 		updateDeparting(false);
 		setArriving(true);
-		runtime.setTimeout(() => setArriving(false), 1800);
+		const generation = game.generation;
+		runtime.setTimeout(() => { if (game.generation === generation) setArriving(false); }, 1800);
 	}
 
 	function loadRound(announce = true) {
+		game.generation += 1;
 		game.currentSequence = game.sequenceOrder[game.roundIndex];
 		game.completedSlots = 0;
-		setRoundIndex(game.roundIndex);
+		game.usedTokens.clear();
+		game.filledSlots.clear();
+		game.drag = null;
+		setDrag(null);
 		setSlots(getSequenceTokens(game.currentSequence).map((value) => ({ value, filled: false })));
 		select(null);
 		ayuda.reiniciar();
@@ -278,6 +248,7 @@ export default function Tren() {
 	}
 
 	function completeRound() {
+		const generation = game.generation;
 		game.roundIndex += 1;
 		updateDeparting(true);
 		if (game.roundIndex === game.totalRounds) {
@@ -287,8 +258,10 @@ export default function Tren() {
 				otorgarPremio(game.errors);
 			}
 			runtime.setTimeout(() => {
+				if (game.generation !== generation) return;
 				setConvoy((current) => ({ ...current, tokens: null }));
 				runtime.requestAnimationFrame(() => {
+					if (game.generation !== generation) return;
 					setCelebrating(true);
 					speak(speechAudios.fabuloso, () => {
 						if (!game.isHintHidden) {
@@ -299,7 +272,7 @@ export default function Tren() {
 			}, 1500);
 			return;
 		}
-		runtime.setTimeout(loadRound, 1500);
+		runtime.setTimeout(() => { if (game.generation === generation) loadRound(); }, 1500);
 	}
 
 	function restartActivity() {
@@ -322,7 +295,7 @@ export default function Tren() {
 	}
 
 	function startDragging(event, index, value) {
-		if (game.roundIndex >= game.totalRounds || game.departing) {
+		if (game.roundIndex >= game.totalRounds || game.departing || game.usedTokens.has(index)) {
 			return;
 		}
 		const rect = event.currentTarget.getBoundingClientRect();
@@ -386,7 +359,7 @@ export default function Tren() {
 	// Pone el vagón `index` en el casillero `targetIndex` (arrastrado, o elegido y después tocado).
 	function placeToken(index, value, targetIndex) {
 		const target = sequenceBoardRef.current.querySelectorAll(".sequence-slot")[targetIndex];
-		if (!target || target.classList.contains("filled") || game.departing) {
+		if (!target || game.filledSlots.has(targetIndex) || game.usedTokens.has(index) || game.departing || game.activityFinished) {
 			return;
 		}
 		select(null);
@@ -398,6 +371,8 @@ export default function Tren() {
 			return;
 		}
 
+		game.usedTokens.add(index);
+		game.filledSlots.add(targetIndex);
 		setSlots((current) => current.map((slot, slotIndex) => (slotIndex === targetIndex ? { ...slot, filled: true } : slot)));
 		setConvoy((current) => ({
 			...current,
@@ -427,16 +402,21 @@ export default function Tren() {
 		}
 	}
 
+	function cancelDragging() {
+		game.drag = null;
+		setDrag(null);
+	}
+
 	useEffect(() => {
 		loadRound(false);
 		announceCurrentRound();
 		window.addEventListener("pointermove", dragToken);
 		window.addEventListener("pointerup", finishDragging);
-		window.addEventListener("pointercancel", finishDragging);
+		window.addEventListener("pointercancel", cancelDragging);
 		return () => {
 			window.removeEventListener("pointermove", dragToken);
 			window.removeEventListener("pointerup", finishDragging);
-			window.removeEventListener("pointercancel", finishDragging);
+			window.removeEventListener("pointercancel", cancelDragging);
 		};
 	}, []);
 
@@ -447,7 +427,7 @@ export default function Tren() {
 	const pistaIndex = convoy.tokens ? convoy.tokens.findIndex((token) => !token.disabled && token.value === proximoValor) : -1;
 
 	return (
-		<div className={`page activity-page page-tren${isMundo5 ? " world-robots" : ""}`}>
+		<div className={`page activity-page page-tren tren-mundo-${mundo}`} style={{ backgroundImage: `url("${img(arte.fondo)}")` }}>
 			<BackButton />
 			<FullscreenButton toggle />
 			<div className="activity-controls" aria-label="Controles de actividad">
@@ -462,7 +442,11 @@ export default function Tren() {
 							key={`${convoy.generation}-${index}`}
 							className={["sequence-slot", slot.value.length > 1 && "double-token", slot.filled && "filled"].filter(Boolean).join(" ")}
 							data-vowel={slot.value}
+							role="button"
+							tabIndex={slot.filled ? -1 : 0}
+							aria-label={`Casillero ${index + 1}${slot.filled ? `: ${slot.value}` : " vacío"}`}
 							onClick={() => placeSelected(index)}
+							onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); placeSelected(index); } }}
 						>
 							{isHintHidden && !slot.filled ? "_" : formatToken(slot.value)}
 						</div>
@@ -472,7 +456,7 @@ export default function Tren() {
 					<div key={convoy.generation} className={convoyClassName}>
 						{convoy.tokens?.map((token, index) => (
 							<div className="wagon" key={index}>
-								<img src={img(WAGON_IMAGES[index % WAGON_IMAGES.length])} alt="Vagon" draggable={false} />
+								<img src={img(arte.vagones[index % arte.vagones.length])} alt="Vagón" draggable={false} />
 								<button
 									className={[
 										"vowel-token",
@@ -485,12 +469,13 @@ export default function Tren() {
 									disabled={token.disabled}
 									style={drag?.index === index ? { visibility: "hidden" } : undefined}
 									onPointerDown={(event) => startDragging(event, index, token.value)}
+									onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); select(selected === index ? null : index); } }}
 								>
 									{formatToken(token.value)}
 								</button>
 							</div>
 						))}
-						{convoy.tokens && <img className="locomotive" src={img(isMundo5 ? "locomotoraM5.png" : "locomotora.png")} alt="Locomotora" draggable={false} />}
+						{convoy.tokens && <img className="locomotive" src={img(arte.locomotora)} alt="Locomotora" draggable={false} />}
 					</div>
 				</section>
 			</main>
@@ -518,7 +503,7 @@ export default function Tren() {
 				celebrating={celebrating}
 				label="Escuchar al personaje"
 				onClick={() => {
-					if (!game.activityFinished) {
+					if (!game.activityFinished && !game.departing) {
 						speak(speechAudios[game.currentSequence]);
 					}
 				}}
