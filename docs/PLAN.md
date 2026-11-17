@@ -11,6 +11,7 @@ Decisiones tuyas que este plan respeta:
 - **Dibujos y fondos nuevos**: los genero en chatgpt.com.
 - **Monstruo**: 3 comidas por actividad (21 por letra en vez de 60).
 - **Palabras**: `src/lib/palabras.js` no se toca (siguen LOLE, SASO, etc.).
+- **Tren en todos los mundos**: los Mundos 1 a 6 tendrán la actividad Tren en su camino, adaptada a las letras y sílabas de cada mundo (decisión del 17/11/2026).
 
 Cada fase es un commit propio con su subida de versión (regla de CLAUDE.md), se verifica con `npm run build` y se prueba en el navegador antes de pasar a la siguiente. El orden sigue la prioridad de la auditoría.
 
@@ -114,6 +115,15 @@ Molde de la Q: presentar, contrastar, mezclar. Los audios de sílabas ya existen
 - **K**: camino corto, Inicio con repaso ("suena igual que CA y QUE") y Peluches (kiwi, koala, karate, kilo).
 - **X**: Peluches con "contiene" (taxi, saxo, boxeo, examen); sin xilófono.
 - `Mundo6.jsx`: mismo cableado que Mundo 5 (hoy ni siquiera tiene audio). Clave nueva `mundo6Perches`.
+
+## Ampliación — Tren en todos los mundos
+
+- **Estado actual**: Tren está implementado en Mundos 1 y 5. Falta incorporarlo en Mundos 2, 3, 4 y 6.
+- `Tren.jsx`: reutilizar el motor con configuración por mundo y letra, sus sílabas y audios en ambas voces. Admitir fichas de varias letras cuando corresponda (por ejemplo, CH, RR, QU, GU y GÜ), respetando las reglas de cada grupo.
+- Agregar el cartel de Tren al camino de cada mundo y mantener sincronizados los menús, `CAMINOS`, el progreso y el botón de siguiente actividad del premio.
+- Cada mundo tendrá fondo, locomotora y vagones acordes a su temática: insectos, bloques, submarino, robots y unicornios. Integrar los fondos y trenes elegidos en la conversación de arte cuando estén disponibles.
+- Conservar las dos vueltas (demostración breve con modelo y práctica sin modelo), selección por toque o arrastre, ayuda tras errores y premio final.
+- Verificar cada mundo con las dos voces, sin recursos faltantes, en celular horizontal de poca altura y tablet de 1138 × 712.
 
 ## Fase 9 — Tramo de oraciones (3.80.0)
 

@@ -4,6 +4,20 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 
 Última actualización: 17/11/2026.
 
+## Punto de retoma
+
+- **Publicado en dev**: 3.81.0, commit `5fb710c`, mergeado y subido a `develop`; despliegue de GitHub Actions completado correctamente. Incluye el Tren de Mundo 5.
+- **Cambios locales posteriores**: ampliación del plan para llevar Tren a todos los mundos, actualización de este estado, adaptación de `docs/PROCESS.md` al proyecto y guía `docs/BRAND.md` con estilo visual, referencias, prompts y producción de imágenes y audios. Versión local 3.81.4; estos cambios de documentación todavía no están publicados.
+- **Próximo trabajo**: incorporar Tren en Mundos 2, 3, 4 y 6, con sus sílabas, audios, fondos, locomotoras y vagones. Luego quedan Mariposas y Flores de Mundo 5, oraciones y los dos pendientes de fase 4.
+- **Arte de trenes elegido**: está en la conversación de ChatGPT indicada por el usuario. No se pudo acceder desde esta sesión; el fondo y la locomotora de Mundo 5 publicados son imágenes nuevas generadas aquí. Queda recuperar e integrar los recursos elegidos.
+
+## Pruebas pendientes de 3.81.0
+
+- Mundo 5 → Tren: probar las cinco letras, especialmente GU + E/I y GÜ + E/I; selección por toque y arrastre.
+- Provocar dos errores para comprobar repetición de la consigna y halo; completar ambas vueltas hasta el premio y comprobar progreso y siguiente actividad.
+- Revisar las dos voces, el encuadre en celular horizontal de poca altura y tablet de 1138 × 712, y una ronda del Tren de Mundo 1.
+- El build y `git diff --check` pasaron. No se hizo el recorrido del Tren de Mundo 5 en navegador y todavía no hay resultados de pruebas del usuario.
+
 ## Resumen
 
 | Fase | Qué | Versión | Estado |
@@ -17,6 +31,7 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 | 7 | Mundo 5: G, GE, GUE, J, GÜE | 3.78.0 – 3.81.0 | 🟡 En curso: Inicio, Peluches, "¿J o G?" y Tren hechos; faltan Mariposas y Flores |
 | 8 | Mundo 6: B, V, Ñ, K, X | 3.80.0 | ✅ Hecha: Inicio, Peluches y "¿B o V?" |
 | 9 | Tramo de oraciones | Por definir | ⏳ Pendiente: faltan los dibujos |
+| Ampliación | Tren en todos los mundos | Por definir | 🟡 Implementado en Mundos 1 y 5; pendientes Mundos 2, 3, 4 y 6 |
 
 ## Recursos
 
@@ -30,6 +45,7 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 ### Fase 7 (Tren de Mundo 5) — 3.81.0
 - Tren habilitado en el camino de Mundo 5 para G, GE, GUE, J y GÜE. Las fichas GU + E/I y GÜ + E/I se arman en dos casilleros; todos los audios de sílabas están en las dos voces.
 - Fondo y locomotora robot propios. `npm run build` pasó; falta recorrerlo en navegador en tamaños de celular y tablet.
+- Mergeado a `develop` y desplegado en dev como 3.81.0 (commit `5fb710c`).
 
 ### Fase 1 — Distractores (3.72.10)
 - Z y CE ya no ofrecen SA…SU como equivocadas (Peces y Caballitos de Mundo 4).
@@ -116,6 +132,8 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 - Probar con chicos (la última página de la auditoría).
 
 ## Notas
+
+- **Nuevo alcance (17/11/2026)**: todos los mundos tendrán Tren. Ya está implementado en Mundos 1 y 5; quedan Mundos 2, 3, 4 y 6, con sílabas y arte propios (ver ampliación en `PLAN.md`).
 
 - Si se pasa a la actividad siguiente con el botón del premio y se vuelve al mundo, el personaje aparece en la actividad anterior; el brillo de "la que sigue" sí marca la correcta.
 - Las marcas de completado viven en el navegador (no viajan con el código de jugador). En Mundo 1 también cuenta como completada toda actividad con comida ganada.
