@@ -334,13 +334,15 @@ Criterios:
 
 ### Fase 17 — Cuadros de comer de los 40 monstruos (ChatGPT)
 
+Hecha en 4.1.0 a 4.1.3 (Mundo 2 y R/RR con la fase 19; Mundo 3 en 4.1.1, Mundo 4 en 4.1.2 y Mundo 5 en 4.1.3). Hojas originales en `descargas/monstruos/hojas/`, cortadas con `scripts/cortar-hoja-monstruo.py`; la boca de cada monstruo y nivel está en `BOCAS` de `src/components/Monstruo.jsx`, revisada sobre el cuadro de boca abierta. Con todos los cuadros hechos se sacó `CON_CUADROS`.
+
 - Por monstruo y nivel, una hoja de 6 cuadros como los de Mundo 1 (normal, boca abierta, masticando, se relame, feliz, sexto cuadro), generada con ChatGPT a partir del recorte de la lámina y de los cuadros de un monstruo de Mundo 1 como guía. Se corta en 6 archivos `.webp`.
 - Prompts en `docs/arte/monstruos-prompts.json`. Se integra de a un mundo.
 
 Criterios:
 
-- [ ] Cada monstruo se reconoce igual al de la lámina en los 6 cuadros, sin cambiar de tamaño ni de lugar entre cuadros.
-- [ ] La comida vuela hasta la boca de cada monstruo.
+- [x] Cada monstruo se reconoce igual al de la lámina en los 6 cuadros, sin cambiar de tamaño ni de lugar entre cuadros.
+- [x] La comida vuela hasta la boca de cada monstruo.
 
 ### Fase 18 — Fondo de la pantalla de alimentar por mundo (ChatGPT)
 

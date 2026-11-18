@@ -34,7 +34,17 @@
     "z-nivel1",
     "z-nivel2",
     "ch-nivel1",
-    "ch-nivel2"
+    "ch-nivel2",
+    "g-nivel1",
+    "g-nivel2",
+    "ge-nivel1",
+    "ge-nivel2",
+    "gu-nivel1",
+    "gu-nivel2",
+    "j-nivel1",
+    "j-nivel2",
+    "gü-nivel1",
+    "gü-nivel2"
   ],
   "notas": "A veces ChatGPT deja el fondo blanco semitransparente (alfa ~150, n-nivel1): el script calcula el umbral de cada hoja con los bordes de las celdas. Para los bloques de Mundo 3 se cambia 'pelo, antenas' por 'forma de bloque, encastres de arriba' y los evolucionados sin letra llevan 'Sin texto, sin letras'. La boca de cada uno (para que la comida vuele ahí) la imprime el script y va a BOCAS en src/components/Monstruo.jsx."
 }
