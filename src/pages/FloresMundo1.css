@@ -149,8 +149,8 @@
 		transform: scaleY(3);
 	}
 
+	/* Se sacude y vuelve a quedar disponible (no se apaga). */
 	.flower-button.wrong .candy {
-		opacity: 0.45;
 		filter: drop-shadow(0 0 10px rgba(235, 86, 86, 0.95));
 		transform-origin: 50% 95%;
 		animation: flores-m1-candy-shake 520ms ease-in-out;

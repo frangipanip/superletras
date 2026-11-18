@@ -79,6 +79,14 @@ export default function RobotsSilabas({ actividad }) {
 		if (!opcion.correcta) {
 			game.errores += 1;
 			setOpciones((actuales) => actuales.map((o, i) => i === indice ? { ...o, resultado: "error" } : o));
+			if (!recolectar) {
+				// Jardín: el robot se sacude y vuelve a quedar disponible.
+				const ronda = game.ronda;
+				runtime.setTimeout(() => {
+					if (token !== game.token || ronda !== game.ronda) return;
+					setOpciones((actuales) => actuales.map((o, i) => i === indice && o.resultado === "error" ? { ...o, resultado: null } : o));
+				}, 400);
+			}
 			const repetir = recolectar ? audio(MUNDO5_PRESENTACIONES[modo]) : audio(`${pedido.current.toLowerCase()}.mp3`);
 			secuencia.reproducir([sonido, mudo(audio("error.mp3")), ...ayuda.trasError(repetir)], () => { if (token === game.token) game.bloqueado = false; });
 			return;
@@ -124,9 +132,6 @@ export default function RobotsSilabas({ actividad }) {
 							<img src={img(o.imagen)} alt="" draggable={false} />
 							<span className="robot-silaba">{o.silaba}</span>
 						</button>
-						{!recolectar && !o.resultado && <button className="robot-escuchar" type="button" aria-label={`Escuchar ${o.silaba}`} onClick={() => { if (!game.bloqueado && !terminado) secuencia.reproducir([audio(`${o.silaba.toLowerCase()}.mp3`)]); }}>
-							<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 9v6h4l5 5V4L7 9H3zM16.5 12a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z" /></svg>
-						</button>}
 					</div>
 				))}
 			</main>

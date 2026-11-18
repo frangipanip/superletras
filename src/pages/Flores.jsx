@@ -54,6 +54,12 @@ const MUNDO4_SEAHORSE_RESULTS = {
 // Mundo 1: un chupetín de cada color por ronda (los 4 tienen el mismo lienzo y las mismas medidas).
 const CANDY_IMAGES = ["violeta", "rosa", "amarillo", "celeste"].map((color) => img(`chupetin-${color}.png`));
 const MUNDO3_ANIMALS = ["conejo", "flamenco", "gato", "jirafa"];
+// Cuánto dura la reacción a una opción equivocada antes de que vuelva a estar disponible
+// (Mundo 1: la sacudida; Mundo 2: la oruga dormida; Mundo 4: el caballito escondido en la arena).
+// En Mundo 3 el animalito equivocado se desarma y queda así.
+const ERROR_MS_MUNDO1 = 560;
+const ERROR_MS_MUNDO2 = 1000;
+const ERROR_MS_MUNDO4 = 1000;
 // YI casi no existe en palabras: se presenta en Inicio pero no se practica.
 const SILABAS_SIN_PRACTICA = ["YI"];
 
@@ -179,6 +185,7 @@ export default function Flores() {
 							? img(`oruga${(index % 2) + 1}.png`)
 							: candyImages[index],
 				animal: MUNDO3_ANIMALS[index],
+				baseImage: null,
 				caterpillar: (index % 2) + 1,
 				correct: label === target,
 				result: null
@@ -247,8 +254,28 @@ export default function Flores() {
 			}));
 			if (frame > 1) {
 				advanceWrongSeahorse(index, frame - 1, generation);
+			} else {
+				// Se queda un momento escondido y vuelve a salir (la animación arranca asomándose).
+				recoverWrongOption(index, generation, ERROR_MS_MUNDO4);
 			}
 		}, 150);
+	}
+
+	// La opción equivocada vuelve a estar como al principio y se puede tocar otra vez.
+	function recoverWrongOption(index, generation, delay) {
+		runtime.setTimeout(() => {
+			if (roundRef.current.generation !== generation || roundRef.current.flowers[index]?.result !== "wrong") {
+				return;
+			}
+			setRound((current) => ({
+				...current,
+				flowers: current.flowers.map((item, itemIndex) => (
+					itemIndex === index && item.result === "wrong"
+						? { ...item, result: null, wrongFrame: null, image: item.baseImage || item.image }
+						: item
+				))
+			}));
+		}, delay);
 	}
 
 	function repeatInstruction() {
@@ -257,7 +284,7 @@ export default function Flores() {
 		}
 	}
 
-	// Parlante chico de cada opción: la escucha sin elegirla (no cuenta como respuesta).
+	// Parlante chico de cada opción (solo Mundo 3): la escucha sin elegirla (no cuenta como respuesta).
 	function oirOpcion(flower, event) {
 		event.stopPropagation();
 		event.preventDefault();
@@ -305,6 +332,7 @@ export default function Flores() {
 					...item,
 					result: isMundo4 && !item.correct ? "wrong-pending" : result,
 					wrongFrame: isMundo4 && !item.correct ? wrongSeahorseFrame : null,
+					baseImage: item.image,
 					image: isMundo3
 						? img(`animal ${item.animal}${item.correct ? " evolucionado" : " error"}.png`)
 						: isMundo2
@@ -318,6 +346,8 @@ export default function Flores() {
 			game.current.errors += 1;
 			if (isMundo4) {
 				advanceWrongSeahorse(index, wrongSeahorseFrame, currentRound.generation);
+			} else if (!isMundo3) {
+				recoverWrongOption(index, currentRound.generation, isMundo2 ? ERROR_MS_MUNDO2 : ERROR_MS_MUNDO1);
 			}
 		}
 		if (!flower.correct) {
@@ -398,7 +428,6 @@ export default function Flores() {
 										<img src={img("almejasilabas.png")} alt="" draggable={false} />
 										<span className="flower-label">{flower.label}</span>
 									</span>
-									{parlante(flower)}
 								</button>
 							</div>
 						) : (
@@ -427,7 +456,7 @@ export default function Flores() {
 										</span>
 									</span>
 								)}
-								{parlante(flower)}
+								{isMundo3 && parlante(flower)}
 							</button>
 						)
 					))}
