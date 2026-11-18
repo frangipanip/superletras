@@ -276,7 +276,9 @@ export default function Mariposas() {
 
 	useEffect(() => {
 		if (isMundo3) preloadImages([...MUNDO3_BLOCK_ERROR_IMAGES.values()]);
-	}, [isMundo3]);
+		// Los cuadros del pez que nada: que estén bajados antes de que aparezcan los peces.
+		if (isMundo4) preloadImages(MUNDO4_FISH_FRAMES.flat());
+	}, [isMundo3, isMundo4]);
 
 	useEffect(() => {
 		if (!isMundo4 || !character) return undefined;
@@ -762,12 +764,11 @@ export default function Mariposas() {
 											className="fish-frames"
 											role="img"
 											aria-label={`Pez con sílaba ${butterfly.value}`}
-											style={{
-												"--fish-frame-1": `url("${MUNDO4_FISH_FRAMES[fishIndex][0]}")`,
-												"--fish-frame-2": `url("${MUNDO4_FISH_FRAMES[fishIndex][1]}")`,
-												"--fish-frame-3": `url("${MUNDO4_FISH_FRAMES[fishIndex][2]}")`
-											}}
-										/>
+										>
+											{MUNDO4_FISH_FRAMES[fishIndex].map((src, frameIndex) => (
+												<img key={src} className={`fish-frame fish-frame-${frameIndex + 1}`} src={src} alt="" draggable={false} />
+											))}
+										</span>
 									) : (
 										<img
 											src={butterfly.image}
