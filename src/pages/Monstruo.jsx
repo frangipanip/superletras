@@ -8,7 +8,8 @@ import PufCrema from "../components/PufCrema";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { preloadImages, sound } from "../lib/assets";
-import { cantidadComida, darComida, forzarMonstruo, getRecompensas, sincronizar, subscribeRecompensas, sumarComidaPrueba, tieneComidaParaDar } from "../lib/recompensas";
+import { cantidadComida, darComida, forzarMonstruo, comidaParaDar, getRecompensas, sincronizar, subscribeRecompensas, sumarComidaPrueba } from "../lib/recompensas";
+import ContadorComida from "../components/ContadorComida";
 import { readMenuOption, STORAGE_KEYS, writeStorage } from "../lib/storage";
 import "./actividad.css";
 import "./Monstruo.css";
@@ -290,18 +291,23 @@ export default function MonstruoPage() {
 			<BackButton />
 			<FullscreenButton toggle />
 			<nav className="monstruo-selector" aria-label="Elegir monstruo">
-				{LETRAS.filter((otraLetra) => otraLetra !== letra).map((otraLetra) => (
-					<button
-						key={otraLetra}
-						type="button"
-						className={`monstruo-selector__boton${tieneComidaParaDar(letras, otraLetra) ? " monstruo-con-comida" : ""}`}
-						aria-label={`Monstruo de la ${otraLetra.toUpperCase()}${tieneComidaParaDar(letras, otraLetra) ? ", tiene comida para darle" : ""}`}
-						title={`Monstruo de la ${otraLetra.toUpperCase()}`}
-						onClick={() => seleccionarMonstruo(otraLetra)}
-					>
-						<Monstruo letra={otraLetra} evolucionado={monstruosEvolucionados[otraLetra]} className="monstruo-selector__imagen" />
-					</button>
-				))}
+				{LETRAS.filter((otraLetra) => otraLetra !== letra).map((otraLetra) => {
+					// Cada monstruo con su propio contador de comidas sin dar (pedido del 18/11/2026).
+					const pendientes = comidaParaDar(letras, otraLetra);
+					return (
+						<button
+							key={otraLetra}
+							type="button"
+							className={`monstruo-selector__boton${pendientes > 0 ? " monstruo-con-comida" : ""}`}
+							aria-label={`Monstruo de la ${otraLetra.toUpperCase()}${pendientes > 0 ? `, tiene ${pendientes} ${pendientes === 1 ? "comida" : "comidas"} para darle` : ""}`}
+							title={`Monstruo de la ${otraLetra.toUpperCase()}`}
+							onClick={() => seleccionarMonstruo(otraLetra)}
+						>
+							<Monstruo letra={otraLetra} evolucionado={monstruosEvolucionados[otraLetra]} className="monstruo-selector__imagen" />
+							<ContadorComida cantidad={pendientes} />
+						</button>
+					);
+				})}
 			</nav>
 
 			<main className="monstruo-escena">

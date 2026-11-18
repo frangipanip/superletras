@@ -56,13 +56,14 @@ export function cantidadComida(letras, letra, clave) {
 	return letras[letra]?.[clave] || { ganadas: 0, dadas: 0 };
 }
 
-// Hay comida ganada que todavía no se le dio al monstruo de la letra: el monstruo brilla en el
-// menú de Mundo 1 y en el selector de /monstruo para que se note que lo están esperando.
-export function tieneComidaParaDar(letras, letra) {
-	return COMIDAS.some(({ clave }) => {
+// Total de comidas ganadas que todavía no se le dieron al monstruo de la letra (todas las comidas
+// sumadas). Si hay alguna, el monstruo brilla y muestra este número en un contador rojo, en el
+// menú de Mundo 1 y en el selector de /monstruo, para que se note que lo están esperando.
+export function comidaParaDar(letras, letra) {
+	return COMIDAS.reduce((total, { clave }) => {
 		const { ganadas, dadas } = cantidadComida(letras, letra, clave);
-		return ganadas > dadas;
-	});
+		return total + Math.max(0, ganadas - dadas);
+	}, 0);
 }
 
 function nuevoId() {

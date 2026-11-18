@@ -284,6 +284,35 @@ img {
 	}
 }
 
+/*
+ * Contador rojo con el total de comidas para darle (ContadorComida): mismo estilo que los
+ * contadores de cada comida en /monstruo (.monstruo-insignia), arriba a la derecha del monstruo.
+ */
+.monstruo-contador {
+	position: absolute;
+	top: -0.2em;
+	right: -0.2em;
+	z-index: 2;
+	min-width: 1.6em;
+	padding: 0.15em 0.3em;
+	box-sizing: border-box;
+	border: 2px solid #ffffff;
+	border-radius: 999px;
+	background: #e2474a;
+	color: #ffffff;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: clamp(0.7rem, 2.4vmin, 1rem);
+	font-weight: 900;
+	line-height: 1.2;
+	text-align: center;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+	pointer-events: none;
+}
+
+.monstruo-selector__boton {
+	position: relative;
+}
+
 /* En el selector de /monstruo el dibujo llena un círculo blanco: el que late es el aro del botón. */
 .monstruo-selector__boton.monstruo-con-comida {
 	border-color: #ffd23f;

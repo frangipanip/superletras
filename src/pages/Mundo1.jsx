@@ -12,7 +12,8 @@ import { img, MUNDO1_CHARACTERS, MUNDO1_MOUTH_IMAGES, sound } from "../lib/asset
 import { STORAGE_KEYS, readStorage, writeStorage } from "../lib/storage";
 import { ACTIVIDADES, TIPOS_ACTIVIDAD } from "../../shared/actividades.js";
 import { COMIDA_POR_ACTIVIDAD, COMIDAS } from "../../shared/comidas.js";
-import { cantidadComida, getRecompensas, subscribeRecompensas, tieneComidaParaDar } from "../lib/recompensas";
+import { cantidadComida, comidaParaDar, getRecompensas, subscribeRecompensas } from "../lib/recompensas";
+import ContadorComida from "../components/ContadorComida";
 import { actividadCompleta, getProgreso, subscribeProgreso } from "../lib/progreso";
 import "./Mundo1.css";
 
@@ -157,8 +158,10 @@ export default function Mundo1() {
 		cantidadComida(recompensasPorLetra, letter, clave).dadas >= necesarias
 	);
 	const selectedMonsterEvolved = Boolean(selectedOption && monsterEvolved(selectedOption));
-	// Comida ganada sin dar: el monstruo de la nube brilla (fase 13, pedido del 17/11/2026).
-	const monsterHasFood = tieneComidaParaDar(recompensasPorLetra, selectedOption || "a");
+	// Comida ganada sin dar: el monstruo de la nube brilla (fase 13, pedido del 17/11/2026) y
+	// muestra el total en un contador rojo (pedido del 18/11/2026). Solo el de la letra elegida.
+	const monsterFood = comidaParaDar(recompensasPorLetra, selectedOption || "a");
+	const monsterHasFood = monsterFood > 0;
 	// Letra que conviene jugar: la primera cuyo monstruo todavía no evolucionó (titila en el menú).
 	const nextLetter = MENU_OPTIONS.find(({ key }) => !monsterEvolved(key))?.key || null;
 	const [savedPerches, setSavedPerches] = useState(readSavedPerches);
@@ -624,11 +627,12 @@ export default function Mundo1() {
 			<button
 				className={`mundo1-monster-button${monsterHasFood ? " monstruo-con-comida" : ""}`}
 				type="button"
-				aria-label={`Ver al monstruo y sus comidas${monsterHasFood ? ": tiene comida para darle" : ""}`}
+				aria-label={`Ver al monstruo y sus comidas${monsterHasFood ? `: tiene ${monsterFood} ${monsterFood === 1 ? "comida" : "comidas"} para darle` : ""}`}
 				onClick={openMonster}
 			>
 				<img className="mundo1-monster-cloud" src={img("nube.png")} alt="" aria-hidden="true" draggable={false} />
 				<Monstruo letra={selectedOption || "a"} evolucionado={selectedMonsterEvolved} />
+				<ContadorComida cantidad={monsterFood} />
 			</button>
 			{characterOffscreen && character && (
 				<button className={`mundo1-character-locator direction-${characterDirection}`} type="button" aria-label="Ir hasta mi personaje" onClick={scrollToCharacter}>
