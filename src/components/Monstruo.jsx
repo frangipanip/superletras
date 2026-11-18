@@ -11,9 +11,27 @@ export const CUADROS_MONSTRUO = { normal: 1, abre: 2, mastica: 3, relame: 4, fel
 // scripts/cortar-hoja-monstruo.py) usan el cuadro 1 en todos los estados.
 const MUNDO1 = ["a", "l", "m", "s", "t"];
 const CON_CUADROS = {
-	1: new Set([...MUNDO1, "p", "n", "d"]),
-	2: new Set([...MUNDO1, "p", "n"])
+	1: new Set([...MUNDO1, "p", "n", "d", "f", "h", "r", "rr"]),
+	2: new Set([...MUNDO1, "p", "n", "d", "f", "h", "r"])
 };
+
+// Dónde está la boca (fracción de la imagen) de los monstruos que no la tienen en el centro, para
+// que la comida vuele ahí. La calcula scripts/cortar-hoja-monstruo.py al cortar cada hoja.
+const BOCA_CENTRO = { x: 0.5, y: 0.54 };
+const BOCAS = {
+	1: {
+		p: { x: 0.5, y: 0.66 }, n: { x: 0.5, y: 0.66 }, d: { x: 0.53, y: 0.7 }, f: { x: 0.52, y: 0.59 },
+		h: { x: 0.5, y: 0.68 }, r: { x: 0.55, y: 0.74 }, rr: { x: 0.55, y: 0.74 }
+	},
+	2: {
+		m: { x: 0.5, y: 0.6 }, p: { x: 0.58, y: 0.56 }, n: { x: 0.62, y: 0.54 }, d: { x: 0.65, y: 0.54 },
+		f: { x: 0.64, y: 0.52 }, h: { x: 0.68, y: 0.55 }, r: { x: 0.51, y: 0.55 }
+	}
+};
+
+export function bocaMonstruo(letra, evolucionado = false) {
+	return BOCAS[evolucionado ? 2 : 1][letra] ?? BOCA_CENTRO;
+}
 
 // Nombre de la letra en el archivo: sin diéresis, para el servidor Linux y las URLs.
 function archivo(letra) {

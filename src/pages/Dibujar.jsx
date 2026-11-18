@@ -1,171 +1,167 @@
 import { useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router";
 import BackButton from "../components/BackButton";
 import Character from "../components/Character";
 import FullscreenButton from "../components/FullscreenButton";
+import GuiaTrazado from "../components/GuiaTrazado";
 import PremioComida, { useRecompensa } from "../components/PremioComida";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useActivityMenuOption } from "../hooks/useActivityMenuOption";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
-import { commonSound, img, sound } from "../lib/assets";
+import { commonSound, sound, MUNDO1_MOUTH_IMAGES, MUNDO2_MOUTH_IMAGES, MUNDO3_MOUTH_IMAGES, MUNDO4_MOUTH_IMAGES, MUNDO5_MOUTH_IMAGES } from "../lib/assets";
+import { DIBUJAR_POR_MUNDO, PRIMERA_LETRA, audioDeTrazo } from "../lib/dibujar";
 import { crearSecuencia, mudo } from "../lib/secuenciaAudio";
 import {
-	START_POINT,
-	MID_POINT,
-	END_POINT,
-	HORIZONTAL_START_POINT,
-	HORIZONTAL_END_POINT,
-	E_START_POINT,
-	E_SECOND_POINT,
-	E_THIRD_POINT,
-	E_FOURTH_POINT,
-	E_FIFTH_POINT,
-	E_SIXTH_POINT,
-	E_SEVENTH_POINT,
-	I_START_POINT,
-	I_END_POINT,
-	I_DOT_POINT,
-	L_START_POINT,
-	L_CORNER_POINT,
-	L_END_POINT,
-	T_VERTICAL_START,
-	T_VERTICAL_END,
-	T_HORIZONTAL_START,
-	T_HORIZONTAL_END,
-	CONTINUOUS_LETTERS,
-	SEGMENT_AUTO_ADVANCE,
 	CURVE_COMPLETE_PROGRESS,
-	clamp,
-	CURVE_TRACES,
-	getCurveArcPoints,
-	getLetterStart,
+	advancePath,
+	anchoDeTablero,
+	armarTrazos,
+	getPathPoint,
+	puntosHasta,
 	samePoint,
 } from "../lib/trazados";
 import "./Dibujar.css";
 
-const LETTERS = ["A", "E", "I", "O", "U", "L", "S", "T", "M"];
-function audioDeLetra(letra) {
-	return "AEIOU".includes(letra) ? `${letra.toLowerCase()}.mp3` : `nombre${letra}.mp3`;
-}
+const BOCAS = { 1: MUNDO1_MOUTH_IMAGES, 2: MUNDO2_MOUTH_IMAGES, 3: MUNDO3_MOUTH_IMAGES, 4: MUNDO4_MOUTH_IMAGES, 5: MUNDO5_MOUTH_IMAGES };
+// Distancia al punto donde quedó el trazo (o al punto para tocar) para poder apoyar el dedo.
+const TOQUE = 0.12;
 
-const ENABLED_LETTERS = ["A", "E", "I", "O", "U", "L", "S", "T", "M"];
-// Letras del selector según la opción elegida en el menú del Mundo 1: vocales o solo esa consonante.
-const LETTER_OPTIONS_BY_MENU = {
-	a: ["A", "E", "I", "O", "U"],
-	l: ["L"],
-	m: ["M"],
-	s: ["S"],
-	t: ["T"],
-};
-// Guías vectoriales generadas desde los recorridos de src/lib/trazados.js (npm run trazados), para que coincidan.
-const TRACE_IMAGES = Object.fromEntries(LETTERS.map((letter) => [letter, img(`trazado${letter}.svg`)]));
+// Dibujar en todos los mundos: se traza cada opción de la lista de la izquierda (las vocales en
+// Mundo 1, o las sílabas de la letra: LA, LE, LI...). Al terminar una se la nombra y se pasa sola a la
+// siguiente que falte; con todas, 3 comidas (estrellas en Mundo 6, que no tiene monstruos).
 export default function Dibujar() {
-	usePageTitle("Dibujar - Mundo 1");
+	const location = useLocation();
+	const mundo = DIBUJAR_POR_MUNDO[location.state?.world] ? location.state.world : 1;
+	usePageTitle(`Dibujar - Mundo ${mundo}`);
 	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
-	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime);
+	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime, location.state?.world ? BOCAS[mundo] : undefined);
 	const menuOption = useActivityMenuOption();
-	const [letterOptions] = useState(() => LETTER_OPTIONS_BY_MENU[menuOption] || LETTER_OPTIONS_BY_MENU.a);
-	// Las vocales comparten un premio por completar el grupo; las consonantes premian su letra.
-	const [premio, otorgarPremio] = useRecompensa("dibujar", LETTER_OPTIONS_BY_MENU[menuOption] ? menuOption : "a");
-	const firstLetter = letterOptions[0];
-	const [pointerPosition, setPointerPosition] = useState(() => getLetterStart(firstLetter));
-	const [isDragging, setIsDragging] = useState(false);
-	const [completed, setCompleted] = useState(false);
-	// Tramo en curso: vive en un ref porque se lee y avanza dentro de los movimientos del dedo.
-	const phaseRef = useRef(1);
-	// Evita completar dos veces la letra si llegan más movimientos antes de re-renderizar.
-	const strokeFinishedRef = useRef(false);
-	const [drawnSegments, setDrawnSegments] = useState([]);
-	const [draftSegment, setDraftSegment] = useState(null);
-	const [activeLetter, setActiveLetter] = useState(firstLetter);
-	const [showTargets, setShowTargets] = useState(true);
-	const [curveProgress, setCurveProgress] = useState(0);
-	const curveProgressRef = useRef(0);
-	const completedVowelsRef = useRef(new Set());
-	const rewardGrantedRef = useRef(false);
-	// Avance (0 a 1) del segmento recto en curso; se conserva al soltar para continuar desde ahí.
-	const segmentProgressRef = useRef(0);
+	const opcionesDelMundo = DIBUJAR_POR_MUNDO[mundo];
+	const [letra] = useState(() => (Object.hasOwn(opcionesDelMundo, menuOption) ? menuOption : PRIMERA_LETRA[mundo]));
+	const opciones = opcionesDelMundo[letra];
+	// Las vocales de Mundo 1 trazan la i minúscula, como siempre; en las sílabas la I va en mayúscula.
+	const vocales = mundo === 1 && letra === "a";
+	const [ancho] = useState(() => anchoDeTablero(opciones, vocales));
+	const [premio, otorgarPremio] = useRecompensa("dibujar", letra);
+
+	const [activa, setActiva] = useState(opciones[0]);
+	const [trazos, setTrazos] = useState(() => armarTrazos(opciones[0], ancho, vocales));
+	// Trazo en curso y su avance (0 a 1): viven en refs porque se leen dentro de los movimientos del dedo.
+	const [indice, setIndice] = useState(0);
+	const [avance, setAvance] = useState(0);
+	const juego = useRef({ indice: 0, avance: 0, terminada: false, hechas: new Set(), premiada: false }).current;
+	const [arrastrando, setArrastrando] = useState(false);
+	const [terminada, setTerminada] = useState(false);
+	const [hechas, setHechas] = useState(() => new Set());
 	const boardRef = useRef(null);
+
 	const [correctAudio] = useState(() => runtime.audio(sound("correcto.mp3"), { preload: true }));
 	const [aciertoAudio] = useState(() => runtime.audio(commonSound("acierto.mp3"), { preload: true }));
 	const [dibujasteAudio] = useState(() => runtime.audio(sound("dibujaste.mp3"), { preload: true }));
 	const [instructionAudio] = useState(() => runtime.audio(sound("dibujarConsigna.mp3"), { preload: true }));
 	const [dibujarAhoraAudio] = useState(() => runtime.audio(sound("dibujarAhora.mp3"), { preload: true }));
 	const [secuencia] = useState(() => crearSecuencia({ startTalking, stopTalking }));
-	const letter = activeLetter;
-	const curve = CURVE_TRACES[activeLetter];
 
 	useEffect(() => {
 		const timer = runtime.setTimeout(playInstruction, 500);
 		return () => runtime.clearTimeout(timer);
 	}, []);
 
-	function getBoardPoint(event) {
-		const board = boardRef.current;
-		if (!board) return START_POINT;
-		const point = event?.touches?.[0] ?? event?.changedTouches?.[0] ?? event;
-		const bounds = board.getBoundingClientRect();
-		return {
-			x: ((point?.clientX ?? 0) - bounds.left - board.clientLeft) / board.clientWidth,
-			y: ((point?.clientY ?? 0) - bounds.top - board.clientTop) / board.clientHeight,
-		};
-	}
-
-	// Corta "Felicitaciones" y evita que su final reinicie una letra que ya no está activa.
-	function stopCelebration() {
-		secuencia.cancelar();
-	}
-
-	// Al completar: acierto, "¡Muy bien! Dibujaste la letra:" y la letra. Con las vocales sigue sola
-	// la próxima que falte; si no hay otra (o es una consonante), alTerminar reinicia la misma letra.
-	function celebrar(alTerminar) {
-		secuencia.reproducir([
-			mudo(aciertoAudio),
-			dibujasteAudio,
-			runtime.audio(sound(audioDeLetra(activeLetter)))
-		], () => {
-			if (!pasarALaSiguienteVocal()) alTerminar?.();
-		});
-	}
-
-	// Orden A → E → I → O → U; después de la U (o si se eligió otra a mano), la primera que falte.
-	// Avisa "Ahora dibujá la letra:" y la vocal. Devuelve false si ya están todas.
-	function pasarALaSiguienteVocal() {
-		if (letterOptions.length < 2) return false;
-		const desde = letterOptions.indexOf(activeLetter);
-		const siguiente = [...letterOptions.slice(desde + 1), ...letterOptions.slice(0, desde)]
-			.find((vocal) => !completedVowelsRef.current.has(vocal));
-		if (!siguiente) return false;
-		switchLetter(siguiente);
-		secuencia.reproducir([dibujarAhoraAudio, runtime.audio(sound(audioDeLetra(siguiente)))]);
-		return true;
-	}
+	const trazo = trazos[indice];
+	// Dónde apoyar el dedo: donde quedó el trazo, o el punto para tocar.
+	const apoyo = trazo ? (trazo.punto ?? getPathPoint(trazo.path, avance)) : null;
 
 	function playInstruction() {
 		secuencia.reproducir([instructionAudio]);
 	}
 
-	function awardCompletedLetter() {
-		if (letterOptions.length === 1) {
-			rewardGrantedRef.current = true;
-			otorgarPremio(0, 3);
-			return;
-		}
-		completedVowelsRef.current.add(activeLetter);
-		if (completedVowelsRef.current.size === letterOptions.length && !rewardGrantedRef.current) {
-			rewardGrantedRef.current = true;
-			otorgarPremio(0, 3);
-		}
+	function getBoardPoint(event) {
+		const board = boardRef.current;
+		const point = event?.touches?.[0] ?? event?.changedTouches?.[0] ?? event;
+		const bounds = board.getBoundingClientRect();
+		// La unidad es el alto del tablero (las letras están en celdas cuadradas).
+		return {
+			x: ((point?.clientX ?? 0) - bounds.left - board.clientLeft) / board.clientHeight,
+			y: ((point?.clientY ?? 0) - bounds.top - board.clientTop) / board.clientHeight,
+		};
 	}
 
+	function cambiarAvance(valor) {
+		juego.avance = valor;
+		setAvance(valor);
+	}
+
+	function cambiarTrazo(valor) {
+		juego.indice = valor;
+		setIndice(valor);
+		cambiarAvance(0);
+	}
+
+	// Empieza de cero la opción `texto` (o la misma, después de terminarla).
+	function empezar(texto) {
+		juego.terminada = false;
+		setTerminada(false);
+		setArrastrando(false);
+		setActiva(texto);
+		setTrazos(armarTrazos(texto, ancho, vocales));
+		cambiarTrazo(0);
+	}
+
+	function elegir(texto) {
+		if (!opciones.includes(texto)) return;
+		secuencia.cancelar();
+		stopTalking();
+		empezar(texto);
+	}
+
+	function terminarTrazo() {
+		const siguiente = juego.indice + 1;
+		if (siguiente < trazos.length) {
+			cambiarTrazo(siguiente);
+			correctAudio.currentTime = 0;
+			correctAudio.play().catch(() => {});
+			return;
+		}
+		cambiarAvance(1);
+		juego.indice = siguiente;
+		setIndice(siguiente);
+		terminarOpcion();
+	}
+
+	// Al completar: acierto y el nombre ("¡Muy bien! Dibujaste la letra:" en las vocales). Después
+	// sigue sola la próxima que falte; si ya están todas, se puede volver a trazar la misma.
+	function terminarOpcion() {
+		juego.terminada = true;
+		setTerminada(true);
+		juego.hechas.add(activa);
+		setHechas(new Set(juego.hechas));
+		if (juego.hechas.size === opciones.length && !juego.premiada) {
+			juego.premiada = true;
+			otorgarPremio(0, 3);
+		}
+		const nombre = runtime.audio(sound(audioDeTrazo(activa)));
+		secuencia.reproducir(vocales ? [mudo(aciertoAudio), dibujasteAudio, nombre] : [mudo(aciertoAudio), nombre], () => {
+			const desde = opciones.indexOf(activa);
+			const siguiente = [...opciones.slice(desde + 1), ...opciones.slice(0, desde)].find((texto) => !juego.hechas.has(texto));
+			if (!siguiente) {
+				empezar(activa);
+				return;
+			}
+			empezar(siguiente);
+			// "Ahora dibujá la letra:" solo tiene sentido con las vocales.
+			if (vocales) secuencia.reproducir([dibujarAhoraAudio, runtime.audio(sound(audioDeTrazo(siguiente)))]);
+		});
+	}
+
+	// Si se va antes de terminar todas: 2 comidas con 3 o más hechas, 1 con alguna.
 	function leaveActivity() {
-		if (letterOptions.length > 1 && !rewardGrantedRef.current) {
-			const completedCount = completedVowelsRef.current.size;
-			const cantidad = completedCount >= 3 ? 2 : completedCount > 0 ? 1 : 0;
+		if (!juego.premiada) {
+			const cantidad = juego.hechas.size >= 3 ? 2 : juego.hechas.size > 0 ? 1 : 0;
 			if (cantidad > 0) {
-				rewardGrantedRef.current = true;
+				juego.premiada = true;
 				otorgarPremio(0, cantidad);
 				return;
 			}
@@ -173,211 +169,31 @@ export default function Dibujar() {
 		window.history.back();
 	}
 
-	function resetActivity() {
-		stopCelebration();
-		setPointerPosition(getLetterStart(firstLetter));
-		setIsDragging(false);
-		setCompleted(false);
-		changePhase(1);
-		setDrawnSegments([]);
-		setDraftSegment(null);
-		segmentProgressRef.current = 0;
-		updateCurveProgress(0);
-		setActiveLetter(firstLetter);
-		setShowTargets(true);
-		stopTalking();
-	}
-
-	function switchLetter(nextLetter) {
-		if (!ENABLED_LETTERS.includes(nextLetter) || !letterOptions.includes(nextLetter)) {
-			return;
-		}
-		stopCelebration();
-		stopTalking();
-		setIsDragging(false);
-		setActiveLetter(nextLetter);
-		setShowTargets(true);
-		setDrawnSegments([]);
-		setDraftSegment(null);
-		setCompleted(false);
-		changePhase(1);
-		segmentProgressRef.current = 0;
-		updateCurveProgress(0);
-		setPointerPosition(getLetterStart(nextLetter));
-	}
-
-	function changePhase(nextPhase) {
-		phaseRef.current = nextPhase;
-	}
-
-	function updateCurveProgress(progress) {
-		curveProgressRef.current = progress;
-		setCurveProgress(progress);
-	}
-
-	function restartCurve() {
-		stopTalking();
-		setShowTargets(true);
-		setPointerPosition(curve.start);
-		updateCurveProgress(0);
-		setCompleted(false);
-	}
-
-	function moveCurvePointer(current) {
-		const nextProgress = curve.advance(curveProgressRef.current, current);
-		if (nextProgress === null) return;
-		updateCurveProgress(nextProgress);
-		setPointerPosition(curve.getPoint(nextProgress));
-		// Al llegar al final se completa sin tener que soltar el dedo.
-		if (nextProgress >= CURVE_COMPLETE_PROGRESS && !strokeFinishedRef.current) {
-			strokeFinishedRef.current = true;
-			setIsDragging(false);
-			finishCurveDragging();
-		}
-	}
-
-	function finishCurveDragging() {
-		// Si se suelta antes de terminar, el trazo queda donde está para continuarlo.
-		if (curveProgressRef.current < CURVE_COMPLETE_PROGRESS) return;
-		updateCurveProgress(1);
-		setPointerPosition(curve.start);
-		setCompleted(true);
-		awardCompletedLetter();
-		celebrar(() => {
-			restartCurve();
-		});
-	}
-
-	// Muestra la celebración y, al terminar (o si el audio falla), aplica el reinicio de la letra.
-	function celebrateAndReset(onReset) {
-		setCompleted(true);
-		awardCompletedLetter();
-		celebrar(onReset);
-	}
-
-	function restartL() {
-		setShowTargets(true);
-		setPointerPosition(L_START_POINT);
-		setDrawnSegments([]);
-		setDraftSegment(null);
-		setCompleted(false);
-		changePhase(1);
-	}
-
-	function restartT() {
-		setShowTargets(true);
-		setPointerPosition(T_VERTICAL_START);
-		setDrawnSegments([]);
-		setDraftSegment(null);
-		setCompleted(false);
-		changePhase(1);
-	}
-
-	function restartI() {
-		stopTalking();
-		setShowTargets(true);
-		setPointerPosition(I_START_POINT);
-		setDrawnSegments([]);
-		setDraftSegment(null);
-		setCompleted(false);
-		changePhase(1);
-	}
-
-	function tapIDot(point) {
-		if (!samePoint(point, I_DOT_POINT, 0.12)) return;
-		setCompleted(true);
-		awardCompletedLetter();
-		celebrar(() => {
-			restartI();
-		});
-	}
-
-	function getCurrentSegment() {
-		const phase = phaseRef.current;
-		if (activeLetter === "I") {
-			return { start: I_START_POINT, target: I_END_POINT };
-		}
-		if (activeLetter === "E") {
-			const eSegments = [
-				[E_START_POINT, E_SECOND_POINT],
-				[E_SECOND_POINT, E_THIRD_POINT],
-				[E_FOURTH_POINT, E_FIFTH_POINT],
-				[E_SIXTH_POINT, E_SEVENTH_POINT],
-			];
-			const segment = eSegments[Math.min(Math.max(phase - 1, 0), eSegments.length - 1)];
-			return { start: segment[0], target: segment[1] };
-		}
-		if (activeLetter === "L") {
-			if (phase === 1) {
-				return { start: L_START_POINT, target: L_CORNER_POINT };
-			}
-			return { start: L_CORNER_POINT, target: L_END_POINT };
-		}
-		if (activeLetter === "T") {
-			if (phase === 1) {
-				return { start: T_VERTICAL_START, target: T_VERTICAL_END };
-			}
-			return { start: T_HORIZONTAL_START, target: T_HORIZONTAL_END };
-		}
-
-		if (phase === 1) {
-			return { start: START_POINT, target: MID_POINT };
-		}
-		if (phase === 2) {
-			return { start: MID_POINT, target: END_POINT };
-		}
-		return { start: HORIZONTAL_START_POINT, target: HORIZONTAL_END_POINT };
-	}
-
 	function startDragging(event) {
-		if (completed) return;
+		if (juego.terminada || !trazo) return;
 		const point = getBoardPoint(event);
-		// En la i, después del palo alcanza con tocar el punto.
-		if (activeLetter === "I" && phaseRef.current === 2) {
-			tapIDot(point);
-			event.preventDefault();
+		event.preventDefault();
+		if (trazo.punto) {
+			if (samePoint(point, trazo.punto, TOQUE)) terminarTrazo();
 			return;
 		}
 		// Se retoma desde donde quedó el trazo (al principio, es el punto de inicio).
-		if (!samePoint(point, pointerPosition, 0.12)) return;
-		strokeFinishedRef.current = false;
-		setIsDragging(true);
+		if (!samePoint(point, getPathPoint(trazo.path, juego.avance), TOQUE)) return;
+		setArrastrando(true);
 		if (typeof event?.pointerId !== "undefined") {
 			boardRef.current?.setPointerCapture(event.pointerId);
 		}
-		event.preventDefault();
 	}
 
 	function movePointer(event) {
-		if (!isDragging || completed) return;
-		const current = getBoardPoint(event);
-		if (curve) {
-			moveCurvePointer(current);
-			return;
-		}
-		const { start, target } = getCurrentSegment();
-		const directionX = target.x - start.x;
-		const directionY = target.y - start.y;
-		const projected = (current.x - start.x) * directionX + (current.y - start.y) * directionY;
-		const maxLengthSquared = directionX * directionX + directionY * directionY;
-		if (maxLengthSquared === 0) return;
-		// El trazo nunca retrocede: si el dedo vuelve atrás, se mantiene el avance logrado.
-		const ratio = Math.max(clamp(projected / maxLengthSquared, 0, 1), segmentProgressRef.current);
-		if (ratio === 0) return;
-		segmentProgressRef.current = ratio;
-		const nextPosition = {
-			x: start.x + directionX * ratio,
-			y: start.y + directionY * ratio,
-		};
-		setPointerPosition(nextPosition);
-		setDraftSegment([start, nextPosition]);
-		// L y M se hacen de una sola pasada: al llegar al final del tramo se sigue con el próximo sin soltar.
-		if (CONTINUOUS_LETTERS.includes(activeLetter) && ratio >= SEGMENT_AUTO_ADVANCE && !strokeFinishedRef.current) {
-			if (phaseRef.current === 2) {
-				strokeFinishedRef.current = true;
-				setIsDragging(false);
-			}
-			completeSegment(start, target);
+		if (!arrastrando || juego.terminada || !trazo?.path) return;
+		const siguiente = advancePath(trazo.path, juego.avance, getBoardPoint(event));
+		if (siguiente === null) return;
+		cambiarAvance(siguiente);
+		// Al llegar al final se completa sin tener que soltar el dedo.
+		if (siguiente >= CURVE_COMPLETE_PROGRESS) {
+			setArrastrando(false);
+			terminarTrazo();
 		}
 	}
 
@@ -390,138 +206,43 @@ export default function Dibujar() {
 				// Ignorar si el elemento no tenía capturado el puntero.
 			}
 		}
-
-		if (!isDragging) return;
-		if (curve) {
-			setIsDragging(false);
-			finishCurveDragging();
-			return;
-		}
-		const { start, target } = getCurrentSegment();
-		if (samePoint(pointerPosition, target, 0.1)) {
-			completeSegment(start, target);
-		}
-		setIsDragging(false);
+		// Si se suelta antes de terminar, el trazo queda donde está para continuarlo.
+		setArrastrando(false);
 	}
 
-	// Cierra el tramo actual: lo deja dibujado y pasa al siguiente o celebra la letra.
-	function completeSegment(start, target) {
-		const phase = phaseRef.current;
-		segmentProgressRef.current = 0;
-		setPointerPosition(target);
-		setDrawnSegments((existing) => [...existing, [start, target]]);
-		setDraftSegment(null);
-		if (activeLetter === "I") {
-			changePhase(2);
-			setPointerPosition(I_DOT_POINT);
-			correctAudio.currentTime = 0;
-			correctAudio.play().catch(() => {});
-		} else if (activeLetter === "E") {
-			if (phase === 1) {
-				changePhase(2);
-				correctAudio.currentTime = 0;
-				correctAudio.play().catch(() => {});
-			} else if (phase === 2) {
-				changePhase(3);
-				setPointerPosition(E_FOURTH_POINT);
-				correctAudio.currentTime = 0;
-				correctAudio.play().catch(() => {});
-			} else if (phase === 3) {
-				changePhase(4);
-				setPointerPosition(E_SIXTH_POINT);
-				correctAudio.currentTime = 0;
-				correctAudio.play().catch(() => {});
-			} else if (phase === 4) {
-				setCompleted(true);
-				awardCompletedLetter();
-				celebrar(() => {
-					setShowTargets(true);
-					setPointerPosition(E_START_POINT);
-					setDrawnSegments([]);
-					setDraftSegment(null);
-					setCompleted(false);
-					changePhase(1);
-				});
-			}
-		} else if (activeLetter === "L") {
-			if (phase === 1) {
-				changePhase(2);
-				correctAudio.currentTime = 0;
-				correctAudio.play().catch(() => {});
-			} else {
-				celebrateAndReset(restartL);
-			}
-		} else if (activeLetter === "T") {
-			if (phase === 1) {
-				changePhase(2);
-				setPointerPosition(T_HORIZONTAL_START);
-				correctAudio.currentTime = 0;
-				correctAudio.play().catch(() => {});
-			} else {
-				celebrateAndReset(restartT);
-			}
-		} else if (phase === 1) {
-			changePhase(2);
-			correctAudio.currentTime = 0;
-			correctAudio.play().catch(() => {});
-		} else if (phase === 2) {
-			changePhase(3);
-			setPointerPosition(HORIZONTAL_START_POINT);
-			correctAudio.currentTime = 0;
-			correctAudio.play().catch(() => {});
-		} else {
-			setCompleted(true);
-			awardCompletedLetter();
-			celebrar(() => {
-				setShowTargets(true);
-				setPointerPosition(START_POINT);
-				setDrawnSegments([]);
-				setDraftSegment(null);
-				setCompleted(false);
-				changePhase(1);
-			});
-		}
-	}
-
-	// Dónde apoyar el dedo ahora (y hacia dónde ir); la I termina tocando el punto de arriba.
-	function getGuide() {
-		if (completed || !showTargets) return null;
-		if (curve) return curveProgress > 0 ? null : { start: curve.start, target: null };
-		if (activeLetter === "I" && phaseRef.current === 2) return { start: I_DOT_POINT, target: null };
-		return getCurrentSegment();
-	}
-	const guide = getGuide();
+	// Flecha punteada desde el punto de apoyo hacia donde va el trazo (antes de empezarlo).
+	const mostrarGuia = !terminada && trazo && !arrastrando;
+	const destinoGuia = mostrarGuia && trazo.path && avance === 0
+		? getPathPoint(trazo.path, Math.min(1, 0.3 / trazo.path[trazo.path.length - 1].distance))
+		: null;
+	const xy = (punto) => `${punto.x * 100},${punto.y * 100}`;
 
 	return (
-		<div className="page activity-page page-dibujar">
+		<div className={`page activity-page page-dibujar dibujar-mundo${mundo}`}>
 			<BackButton onClick={leaveActivity} />
 			<FullscreenButton toggle />
-			<button className="dibujar-clear" type="button" onClick={resetActivity} aria-label="Borrar y empezar de nuevo">
+			<button className="dibujar-clear" type="button" onClick={() => elegir(activa)} aria-label="Borrar y empezar de nuevo">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7" /><path d="M3 3v6h6" /></svg>
 			</button>
 			<main className="dibujar-layout">
 				<div className="dibujar-workspace">
-					<div className="dibujar-vowel-picker" aria-label="Selector de letras">
-						{letterOptions.map((letter) => {
-							const enabled = ENABLED_LETTERS.includes(letter);
-							const selected = letter === activeLetter;
-							return (
-								<button
-									key={letter}
-									type="button"
-									className={selected ? "dibujar-vowel-button selected" : "dibujar-vowel-button"}
-									disabled={!enabled}
-									onClick={() => switchLetter(letter)}
-									aria-label={`Seleccionar letra ${letter}`}
-								>
-									{letter}
-								</button>
-							);
-						})}
+					<div className={`dibujar-vowel-picker${vocales ? "" : " dibujar-silabas"}`} aria-label="Qué dibujar">
+						{opciones.map((texto) => (
+							<button
+								key={texto}
+								type="button"
+								className={`dibujar-vowel-button${texto === activa ? " selected" : ""}${hechas.has(texto) ? " hecha" : ""}`}
+								onClick={() => elegir(texto)}
+								aria-label={`Dibujar ${texto}${hechas.has(texto) ? ", ya dibujada" : ""}`}
+							>
+								{texto}
+							</button>
+						))}
 					</div>
 					<section
 						className="dibujar-board"
 						ref={boardRef}
+						style={{ "--dibujar-ancho": ancho }}
 						onPointerDown={startDragging}
 						onPointerMove={movePointer}
 						onPointerUp={finishDragging}
@@ -531,25 +252,28 @@ export default function Dibujar() {
 						onTouchMove={movePointer}
 						onTouchEnd={finishDragging}
 						onTouchCancel={finishDragging}
-						aria-label={`Trazar la vocal ${letter}`}
+						aria-label={`Trazar ${activa}`}
 					>
-						<img className="dibujar-guide-image" src={TRACE_IMAGES[letter]} alt={`Guía para trazar la vocal ${letter}`} draggable={false} />
-						{guide && (
-							<div className="dibujar-point dibujar-point-start dibujar-point-guia" style={{ left: `${guide.start.x * 100}%`, top: `${guide.start.y * 100}%` }} />
+						<GuiaTrazado ancho={ancho} trazos={trazos} />
+						{mostrarGuia && (
+							<div
+								className="dibujar-point dibujar-point-start dibujar-point-guia"
+								style={{ left: `${(apoyo.x / ancho) * 100}%`, top: `${apoyo.y * 100}%` }}
+							/>
 						)}
-						<svg className="dibujar-trace" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+						<svg className="dibujar-trace" viewBox={`0 0 ${ancho * 100} 100`} aria-hidden="true">
 							<defs>
 								<marker id="dibujar-flecha" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
 									<path d="M0 0L10 5L0 10z" fill="#3a2a63" />
 								</marker>
 							</defs>
-							{guide?.target && !isDragging && (
+							{destinoGuia && (
 								<line
 									className="dibujar-guia-linea"
-									x1={guide.start.x * 100}
-									y1={guide.start.y * 100}
-									x2={guide.target.x * 100}
-									y2={guide.target.y * 100}
+									x1={apoyo.x * 100}
+									y1={apoyo.y * 100}
+									x2={destinoGuia.x * 100}
+									y2={destinoGuia.y * 100}
 									stroke="#3a2a63"
 									strokeWidth="2.5"
 									strokeDasharray="4 4"
@@ -557,31 +281,24 @@ export default function Dibujar() {
 									markerEnd="url(#dibujar-flecha)"
 								/>
 							)}
-							{activeLetter === "I" && completed && (
-								<ellipse cx={I_DOT_POINT.x * 100} cy={I_DOT_POINT.y * 100} rx="7" ry="7" fill="#fc2cd2" />
-							)}
-							{curve && curveProgress > 0 && (
-								<polyline
-									points={getCurveArcPoints(curve, curveProgress)}
-									fill="none"
-									stroke="#fc2cd2"
-									strokeWidth="10"
-									strokeLinecap="round"
-									strokeLinejoin="round"
-								/>
-							)}
-							{[...drawnSegments, ...(draftSegment ? [draftSegment] : [])].map((segment, index) => (
-								<line
-									key={`${segment[0].x}-${segment[0].y}-${segment[1].x}-${segment[1].y}-${index}`}
-									x1={segment[0].x * 100}
-									y1={segment[0].y * 100}
-									x2={segment[1].x * 100}
-									y2={segment[1].y * 100}
-									stroke="#fc2cd2"
-									strokeWidth="10"
-									strokeLinecap="round"
-								/>
-							))}
+							{trazos.map((cada, numero) => {
+								if (numero > indice || (numero === indice && avance === 0)) return null;
+								if (cada.punto) {
+									return <circle key={numero} cx={cada.punto.x * 100} cy={cada.punto.y * 100} r="7" fill="#fc2cd2" />;
+								}
+								const hasta = numero < indice ? 1 : avance;
+								return (
+									<polyline
+										key={numero}
+										points={puntosHasta(cada.path, hasta).map(xy).join(" ")}
+										fill="none"
+										stroke="#fc2cd2"
+										strokeWidth="10"
+										strokeLinecap="round"
+										strokeLinejoin="round"
+									/>
+								);
+							})}
 						</svg>
 					</section>
 				</div>

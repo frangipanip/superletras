@@ -12,7 +12,6 @@ Desde la raíz del repositorio, usar Node.js 24 (como el contenedor) y `npm inst
 | `npm run build` | Compila la app en `dist/` y genera `version.json`. |
 | `npm run preview` | Sirve el build local y levanta la API de recompensas. |
 | `npm run api` | Levanta solo la API; dev y preview ya la inician automáticamente. |
-| `npm run trazados` | Ejecuta el generador de trazados de letras. |
 
 En PowerShell, si la política de ejecución bloquea `npm.ps1`, usar `npm.cmd` con los mismos argumentos. Los scripts nuevos deben funcionar en Windows; preferir Node.js y archivos `.mjs` para tareas compartidas. Los scripts de despliegue se ejecutan en el servidor Linux.
 

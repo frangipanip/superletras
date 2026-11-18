@@ -3,7 +3,7 @@ import { useLocation } from "react-router";
 import { COMIDAS, LETRAS_POR_MUNDO } from "../../shared/comidas.js";
 import BackButton from "../components/BackButton";
 import FullscreenButton from "../components/FullscreenButton";
-import Monstruo, { CUADROS_MONSTRUO, imagenesMonstruo, imagenesMonstruoNivel2, imagenMonstruoNivel2 } from "../components/Monstruo";
+import Monstruo, { CUADROS_MONSTRUO, bocaMonstruo, imagenesMonstruo, imagenesMonstruoNivel2, imagenMonstruoNivel2 } from "../components/Monstruo";
 import PufCrema from "../components/PufCrema";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
@@ -25,8 +25,6 @@ const SECUENCIA_COMER = [
 	[CUADROS_MONSTRUO.relame, 650],
 	[CUADROS_MONSTRUO.feliz, 800]
 ];
-// Dónde está la boca dentro de la imagen del monstruo (fracción del ancho y del alto).
-const BOCA = { x: 0.5, y: 0.54 };
 // Botones de evolucionar/desevolucionar: solo se ven con estos códigos (ver server/index.js).
 const CODIGOS_DEBUG = new Set(["QDM7-9YVF", "Y86M-CQ2R", "PQ4E-EXQ4"]);
 // "Darle todo": una comida cada tanto, para que se vea volar cada una.
@@ -188,9 +186,10 @@ export default function MonstruoPage() {
 		const proporcion = imagen.naturalWidth && imagen.naturalHeight ? imagen.naturalWidth / imagen.naturalHeight : 1;
 		const ancho = Math.min(caja.width, caja.height * proporcion);
 		const alto = ancho / proporcion;
+		const boca = bocaMonstruo(letra, lleno);
 		return {
-			x: caja.left + (caja.width - ancho) / 2 + ancho * BOCA.x,
-			y: caja.top + (caja.height - alto) / 2 + alto * BOCA.y
+			x: caja.left + (caja.width - ancho) / 2 + ancho * boca.x,
+			y: caja.top + (caja.height - alto) / 2 + alto * boca.y
 		};
 	}
 

@@ -51,8 +51,8 @@ const PATH_BUTTONS = [
 	[76, 67.25],
 	[83.5, 74.75]
 ];
-const ACTIVITY_ROUTES = ["/inicio", "/mariposas", "/flores", "/peluches", "/tren"];
-const ACTIVITY_NAMES = ["Inicio", "Mariposas", "Flores", "Peluches", "Tren"];
+const ACTIVITY_ROUTES = ["/inicio", "/mariposas", "/flores", "/peluches", "/tren", "/dibujar"];
+const ACTIVITY_NAMES = ["Inicio", "Mariposas", "Flores", "Peluches", "Tren", "Dibujar"];
 
 function readSavedPerches() {
 	try {

@@ -7,6 +7,7 @@
 # Uso: python scripts/cortar-hoja-monstruo.py <hoja.png> <letra> <1|2> [--vista salida.png]
 import sys
 from pathlib import Path
+import numpy as np
 from PIL import Image
 
 ALFA_FONDO_MINIMO = 120   # por debajo: fondo (velo y halo de ChatGPT)
@@ -57,6 +58,16 @@ def main():
 		cuadro.save(destino / f"monstruo-{archivo}-{sufijo}{indice}.webp", "WEBP", quality=88, method=6)
 		cuadros.append(cuadro)
 	print(f"{letra} nivel {nivel}: caja {caja}, cuadros de {cuadros[0].size}")
+	# Boca: lo que cambia entre el cuadro 1 y el 2 (boca abierta) y es rojizo (boca y lengua). Va a
+	# BOCAS en src/components/Monstruo.jsx si no está cerca del centro (0,5; 0,54).
+	normal = np.asarray(cuadros[0]).astype(int)
+	abierta = np.asarray(cuadros[1]).astype(int)
+	opacos = (normal[..., 3] > 200) & (abierta[..., 3] > 200)
+	cambia = np.abs(normal[..., :3] - abierta[..., :3]).sum(-1) > 120
+	rojizo = abierta[..., 0] > abierta[..., 1] + 40
+	ys, xs = np.nonzero(opacos & cambia & rojizo)
+	if len(xs):
+		print(f"boca: {{ x: {xs.mean() / normal.shape[1]:.2f}, y: {ys.mean() / normal.shape[0]:.2f} }}")
 	if vista:
 		lienzo = Image.new("RGBA", (cuadros[0].width * 6, cuadros[0].height), (30, 30, 50, 255))
 		for indice, cuadro in enumerate(cuadros):

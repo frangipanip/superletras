@@ -32,8 +32,8 @@ const LETTER_SOUNDS = {
 	CH: "suenaCH.mp3"
 };
 const CHARACTER_FRAME_DURATION = 375;
-// Inicio, Peces, Caballitos, Peluches y Tren.
-const ACTIVIDADES_ABIERTAS = 5;
+// Inicio, Peces, Caballitos, Peluches, Tren y Dibujar.
+const ACTIVIDADES_ABIERTAS = 6;
 const ACTIVITY_SIGN_IMAGES = [
 	"INICIALESbtn.png",
 	"MARIPOSAbtn.png",
@@ -107,7 +107,7 @@ export const MUNDO4_IMAGES = [
 	...MUNDO4_MOUTH_IMAGES
 ];
 
-const ACTIVIDADES_M4 = ["inicio", "mariposas", "flores", "peluches", "tren"];
+const ACTIVIDADES_M4 = ["inicio", "mariposas", "flores", "peluches", "tren", "dibujar"];
 
 export default function Mundo4() {
 	usePageTitle("Mundo 4");

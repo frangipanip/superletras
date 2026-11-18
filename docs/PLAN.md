@@ -350,9 +350,13 @@ Criterios:
 
 Pedido del 18/11/2026: Dibujar en todos los mundos con el mismo sistema de trazado de Mundo 1, y las consonantes con su vocal: en lugar de trazar la L sola, se trazan LA, LE, LI, LO y LU, como hoy las vocales: lista a la izquierda, al terminar una pasa a la siguiente y la nombra, y al trazarlas todas da 3 galletitas (estrellas en Mundo 6).
 
-- Sílabas de cada letra: las mismas que usan Flores y Mariposas (`MUNDO2_SYLLABLES`, `MUNDO3_SYLLABLES`, `MUNDO4_SYLLABLES`, `MUNDO5_SYLLABLES`): C → CA, CO, CU; CE → CE, CI; Q → QUE, QUI; G → GA, GO, GU; GE → GE, GI; GU → GUE, GUI; GÜ → GÜE, GÜI; AR → ARA, ERE, IRI, ORO, URU; Mundo 6: BA…BU, VA…VU, ÑA…ÑU, KA…KU, XA…XU (a confirmar).
-- La guía de trazado no se pide a ChatGPT: sale de los recorridos de `src/lib/trazados.js` (`npm run trazados` genera los `trazado<Letra>.svg`), que son los mismos que valida el dedo. Hay que escribir los recorridos de las letras nuevas (P, N, D, F, H, R, Y, C, Q, Z, G, J, Ü, B, V, Ñ, K, X) y generalizar el trazado a una lista de trazos por letra para armar sílabas de dos o tres letras (LL, CH, RR, QU, GU, GÜ).
-- Se agrega al camino de cada mundo y a `CAMINOS` (al final, para conservar los índices guardados).
+Hecho en 4.1.0:
+
+- Sílabas de cada letra (`src/lib/dibujar.js`): las mismas que usan Flores y Mariposas: C → CA, CO, CU; CE → CE, CI; Q → QUE, QUI; G → GA, GO, GU; GE → GE, GI; GU → GUE, GUI; GÜ → GÜE, GÜI; AR → ARA, ERE, IRI, ORO, URU; Mundo 6: BA…BU, VA…VU, ÑA…ÑU, KA…KU, XA…XU. En Mundo 1 la A sigue siendo las vocales (con la i minúscula); L, M, S y T pasan a sílabas.
+- `src/lib/trazados.js` define cada letra como una lista de trazos (recorridos por puntos o puntos para tocar, como la i y la Ü); una sílaba pone sus letras una al lado de la otra y el tablero toma el ancho de la más ancha de la lista. Todos los trazos se validan igual (el dedo sigue el camino sin volver atrás, como ya hacían U, S y M).
+- La guía no se pide a ChatGPT ni se guarda en archivos: `GuiaTrazado.jsx` la dibuja con esos mismos trazos (contorno, línea punteada y flechas). Se borraron `trazado<Letra>.svg/.jpg` y `scripts/generar-trazados.mjs`.
+- En las sílabas la I es mayúscula (un palo); al terminar una se dice su nombre (acierto + sílaba) y se pasa sola a la que falta; las hechas quedan en verde. Con todas, 3 galletitas (estrellas en Mundo 6); si se va antes, 2 con 3 o más hechas y 1 con alguna.
+- Se agregó al final del camino de Mundos 2 a 6 y de `CAMINOS`; fondo propio por mundo (`fondoDibujarM2..M6.jpg`, ChatGPT).
 
 ### Fase 20 — Sacar Memotest de todos los mundos
 

@@ -59,7 +59,8 @@ const ACTIVIDADES_M5 = [
 	{ clave: "peluches", ruta: "/peluches", cartel: "PELUCHESbtn.png", nombre: "Iniciar actividad de palabras con peluches" },
 	{ clave: "elegir", ruta: "/elegir", cartel: "JoGbtn.png", nombre: "Iniciar actividad: ¿va con J o con G?" },
 	{ clave: "mariposas", ruta: "/mariposas", cartel: "MARIPOSAbtn.png", nombre: "Iniciar actividad de robots voladores" },
-	{ clave: "flores", ruta: "/flores", cartel: "FLORbtn.png", nombre: "Iniciar actividad del jardín de robots" }
+	{ clave: "flores", ruta: "/flores", cartel: "FLORbtn.png", nombre: "Iniciar actividad del jardín de robots" },
+	{ clave: "dibujar", ruta: "/dibujar", cartel: "DIBUJARbtn.png", nombre: "Iniciar actividad de dibujar sílabas" }
 ];
 const PATH_BUTTONS = [
 	[8, 83], [17, 83], [26, 83], [35, 83], [44, 83],

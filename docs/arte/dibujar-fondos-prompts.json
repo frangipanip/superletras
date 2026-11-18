@@ -1,0 +1,12 @@
+{
+  "fecha": "2026-11-18",
+  "herramienta": "ChatGPT (generación de imágenes) en el Chrome del usuario; guardado con scripts/guardar-imagen-portapapeles.ps1 y pasado a JPG (calidad 84)",
+  "plantilla": "Generá una imagen apaisada de 1536 x 1024: el fondo de la actividad de dibujar letras de un juego infantil, en el mundo de <tema>. Usá la imagen adjunta solo como modelo de estilo y composición (ilustración 3D tierna, colores suaves y luminosos). El centro tiene que quedar despejado y más claro, sin objetos (ahí el juego pone un pizarrón blanco grande); la decoración va en los bordes y abajo: <elementos>. Sin texto, sin letras, sin números y sin personajes.",
+  "fondos": [
+    { "archivo": "public/assets/imagenes/fondoDibujarM2.jpg", "modelo": "fondopeluchesM2.jpg", "tema": "los insectos y el jardín (mariposas, flores, hojas grandes)", "elementos": "flores, hojas y mariquitas, con lápices de colores y crayones gigantes clavados en el pasto como si fueran plantas, y un frasquito con pinceles" },
+    { "archivo": "public/assets/imagenes/fondoDibujarM3.jpg", "modelo": "fondoFloresBloque.png", "tema": "los bloques de juguete de encastre", "elementos": "torres y árboles hechos de bloques de colores, con lápices de colores y crayones gigantes apoyados entre los bloques" },
+    { "archivo": "public/assets/imagenes/fondoDibujarM4.jpg", "modelo": "fondofloresM4.png", "tema": "el fondo del mar", "elementos": "corales, algas, caracoles y burbujas, con lápices de colores y crayones gigantes clavados en la arena como si fueran corales" },
+    { "archivo": "public/assets/imagenes/fondoDibujarM5.jpg", "modelo": "fondoInicioM5.jpg", "tema": "los robots (un taller de robots tierno)", "elementos": "estantes con tuercas y engranajes, brazos mecánicos que sostienen lápices de colores, y crayones y pinceles gigantes sobre la mesa de trabajo" },
+    { "archivo": "public/assets/imagenes/fondoDibujarM6.jpg", "modelo": "fondoInicioM6.jpg", "tema": "los unicornios (nubes, arcoíris, estrellitas, colores pastel)", "elementos": "nubes esponjosas, un arcoíris, estrellitas y flores pastel, con lápices de colores y crayones gigantes apoyados en las nubes y un frasquito con pinceles" }
+  ]
+}

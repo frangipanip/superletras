@@ -22,11 +22,12 @@
 		position: relative;
 		touch-action: none;
 		box-sizing: border-box;
-		/* El alto sale del ancho para mantener siempre la proporción de la guía (322x317): si no, los
-		   puntos y el trazo (en % del tablero) no coinciden con la letra. */
-		--dibujar-board-width: min(58vw, calc((100vh - 7rem) * 322 / 317), 620px);
-		width: var(--dibujar-board-width);
-		height: calc(var(--dibujar-board-width) * 317 / 322);
+		/* --dibujar-ancho (lo pone la pantalla) es el ancho de la sílaba más ancha de la lista medido en
+		   altos: el tablero mantiene esa proporción para que el trazo (en unidades del alto) coincida
+		   con la guía. */
+		--dibujar-alto: min(calc(100vh - 7rem), 560px, calc(62vw / var(--dibujar-ancho)));
+		width: calc(var(--dibujar-alto) * var(--dibujar-ancho));
+		height: var(--dibujar-alto);
 		flex: 0 0 auto;
 		border: clamp(8px, 1.2vmin, 14px) solid #8c4b97;
 		border-radius: clamp(1rem, 3vmin, 2.2rem);
@@ -36,14 +37,12 @@
 		user-select: none;
 	}
 
-	.dibujar-guide-image {
+	.dibujar-guia {
 		position: absolute;
 		inset: 0;
 		display: block;
 		width: 100%;
 		height: 100%;
-		object-fit: contain;
-		user-select: none;
 		pointer-events: none;
 	}
 
@@ -130,7 +129,7 @@
 		}
 
 		.dibujar-board {
-			--dibujar-board-width: min(82vw, calc((100vh - 7rem) * 322 / 317), 520px);
+			--dibujar-alto: min(calc(100vh - 7rem), 520px, calc(78vw / var(--dibujar-ancho)));
 		}
 	}
 
@@ -139,12 +138,12 @@
 	   quedan con vh). */
 	@supports (height: 100dvh) {
 		.dibujar-board {
-			--dibujar-board-width: min(58vw, calc((100dvh - 7rem) * 322 / 317), 620px);
+			--dibujar-alto: min(calc(100dvh - 7rem), 560px, calc(62vw / var(--dibujar-ancho)));
 		}
 
 		@media (max-width: 700px) {
 			.dibujar-board {
-				--dibujar-board-width: min(82vw, calc((100dvh - 7rem) * 322 / 317), 520px);
+				--dibujar-alto: min(calc(100dvh - 7rem), 520px, calc(78vw / var(--dibujar-ancho)));
 			}
 		}
 	}
@@ -169,6 +168,48 @@
 		width: clamp(3rem, 9vmin, 80px);
 		height: clamp(3rem, 9vmin, 80px);
 		font-size: clamp(1.3rem, 4vmin, 2.2rem);
+	}
+
+	/* Sílabas (LA, GÜE, LLA): botones más anchos, en píldora, con la letra un poco más chica. */
+	.dibujar-silabas .dibujar-vowel-button {
+		width: auto;
+		min-width: clamp(3rem, 9vmin, 80px);
+		height: clamp(2.6rem, 8vmin, 70px);
+		padding: 0 0.6em;
+		border-radius: 999px;
+		font-size: clamp(1.1rem, 3.4vmin, 1.9rem);
+	}
+
+	/* Las que ya se dibujaron quedan en verde. */
+	.dibujar-vowel-button.hecha {
+		border-color: #2f8f43;
+		background: #bff0c3;
+		color: #1d5e2a;
+	}
+
+	.dibujar-vowel-button.hecha.selected {
+		background: #ffd95c;
+	}
+
+	/* Fondo propio de cada mundo (Mundo 1 conserva FONDOejerciciosM1). */
+	&.dibujar-mundo2 {
+		background-image: url("/assets/imagenes/fondoDibujarM2.jpg");
+	}
+
+	&.dibujar-mundo3 {
+		background-image: url("/assets/imagenes/fondoDibujarM3.jpg");
+	}
+
+	&.dibujar-mundo4 {
+		background-image: url("/assets/imagenes/fondoDibujarM4.jpg");
+	}
+
+	&.dibujar-mundo5 {
+		background-image: url("/assets/imagenes/fondoDibujarM5.jpg");
+	}
+
+	&.dibujar-mundo6 {
+		background-image: url("/assets/imagenes/fondoDibujarM6.jpg");
 	}
 
 	/* Punto donde apoyar el dedo: uno solo, que titila. */

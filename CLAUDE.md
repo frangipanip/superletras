@@ -49,6 +49,10 @@ Al subir un número, los de la derecha vuelven a 0. `src/components/AppVersion.j
 - **Imágenes nuevas**: se generan con ChatGPT en el Chrome del usuario y se guardan sin diálogos (portapapeles + `scripts/guardar-imagen-portapapeles.ps1`); pasos en `docs/PROCESS.md` y prompts en `docs/arte/`.
 - **CSS**: cada pantalla importa su `.css` con todo anidado bajo su clase raíz (`.page-silabas`, `.page-tren`, ...) para no pisar a otras; `src/pages/actividad.css` es el estilo compartido de actividades y `src/styles/global.css` el global. El target de build apunta a tablets/celulares viejos (chrome87, safari14): evitar CSS nesting nativo y media queries con sintaxis de rango.
 
+## Dibujar en todos los mundos
+
+`Dibujar.jsx` traza lo que lista `src/lib/dibujar.js` para la letra elegida: las vocales en Mundo 1 ("a") y, en el resto, las sílabas de esa letra (LA, LE...; C → CA, CO, CU; Q → QUE, QUI; AR → ARA...). `src/lib/trazados.js` define cada letra (`GLIFOS`) como trazos en orden (recorrido de puntos o punto para tocar); `armarTrazos` ubica las letras de una sílaba una al lado de la otra en un tablero de alto 1 (el ancho, `anchoDeTablero`, es el de la sílaba más ancha de la lista) y `GuiaTrazado.jsx` dibuja la guía con esos mismos recorridos: una letra nueva solo necesita sus trazos en `GLIFOS`. Con todas trazadas da 3 galletitas (estrellas en Mundo 6). Es la última actividad del camino de Mundos 2 a 6.
+
 ## Tren en todos los mundos
 
 `Tren.jsx` conserva las secuencias de Mundo 1 y toma la configuración de Mundos 2 a 6 de `src/lib/tren.js`. Los grupos CH, LL, RR, QU, GU y GÜ ocupan una ficha; R suave usa secuencias de tres letras (ARA, ERE...). `arteTren()` devuelve fondo, locomotora y vagones por mundo. Los caminos y `CAMINOS` incluyen Tren; en Mundos 2, 3, 4 y 6 se agregó al final para conservar los índices guardados. Solo las letras de `LETRAS` (`shared/comidas.js`, Mundos 1 a 5) reciben comida: las de Mundo 6 reciben estrellas y progreso local mediante `otorgarPremio`, sin eventos de comida en la API.

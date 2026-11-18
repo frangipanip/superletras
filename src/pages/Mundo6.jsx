@@ -25,7 +25,8 @@ const ACTIVIDADES_M6 = [
 	{ clave: "inicio", ruta: "/inicio", cartel: "INICIALESbtn.png", nombre: "Iniciar actividad de sílabas" },
 	{ clave: "peluches", ruta: "/peluches", cartel: "PELUCHESbtn.png", nombre: "Iniciar actividad de palabras con peluches" },
 	{ clave: "elegir", ruta: "/elegir", cartel: "BoVbtn.png", nombre: "Iniciar actividad: ¿va con B o con V?" },
-	{ clave: "tren", ruta: "/tren", cartel: "TRENbtn.png", nombre: "Iniciar actividad del tren" }
+	{ clave: "tren", ruta: "/tren", cartel: "TRENbtn.png", nombre: "Iniciar actividad del tren" },
+	{ clave: "dibujar", ruta: "/dibujar", cartel: "DIBUJARbtn.png", nombre: "Iniciar actividad de dibujar sílabas" }
 ];
 const CHARACTER_FRAME_DURATION = 180;
 const CHARACTERS = {
