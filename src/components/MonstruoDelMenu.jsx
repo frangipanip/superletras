@@ -7,10 +7,10 @@ import { img } from "../lib/assets";
 import ContadorComida from "./ContadorComida";
 import Monstruo from "./Monstruo";
 
-// Monstruo de la letra elegida, fijo arriba en los menús de Mundos 2 a 5 (como la nube de Mundo 1):
+// Monstruo de la letra elegida, fijo arriba en los menús de Mundos 2 a 6 (como la nube de Mundo 1):
 // brilla y muestra el total de comidas para darle; al tocarlo lleva a /monstruo.
-// `letra` es la clave del menú (en mayúscula, o null si todavía no se eligió ninguna). En Mundos 2 a 4
-// la columna de letras está en el medio: ahí el monstruo va a su derecha (clase monstruo-menu-derecha).
+// `letra` es la clave del menú (en mayúscula, o null si todavía no se eligió ninguna). En Mundos 2 a 4 y 6
+// la columna de letras está cerca del medio: ahí el monstruo va a su derecha (clase monstruo-menu-derecha).
 export default function MonstruoDelMenu({ mundo, letra, disabled = false }) {
 	const navigate = useNavigate();
 	const { letras } = useSyncExternalStore(subscribeRecompensas, getRecompensas);
@@ -27,7 +27,7 @@ export default function MonstruoDelMenu({ mundo, letra, disabled = false }) {
 
 	return (
 		<button
-			className={`monstruo-menu-boton${mundo <= 4 ? " monstruo-menu-derecha" : ""}${pendientes > 0 ? " monstruo-con-comida" : ""}`}
+			className={`monstruo-menu-boton${mundo !== 5 ? " monstruo-menu-derecha" : ""}${pendientes > 0 ? " monstruo-con-comida" : ""}`}
 			type="button"
 			aria-label={`Ver al monstruo y sus comidas${pendientes > 0 ? `: tiene ${pendientes} ${pendientes === 1 ? "comida" : "comidas"} para darle` : ""}`}
 			onClick={abrir}

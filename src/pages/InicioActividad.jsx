@@ -14,8 +14,6 @@ import { useActivityMenuOption } from "../hooks/useActivityMenuOption";
 import { FORMA_CARRO, FORMA_VOLADOR, useCarPhysics } from "../hooks/useCarPhysics";
 import { useAyudaError } from "../hooks/useAyudaError";
 import { crearSecuencia, mudo } from "../lib/secuenciaAudio";
-import { marcarCompletada } from "../lib/progreso";
-import { premioPorErrores } from "../../shared/comidas.js";
 import "./actividad.css";
 import "./InicioActividad.css";
 
@@ -335,8 +333,8 @@ export default function InicioActividad() {
 		background: isMundo3 ? MUNDO3_BACKGROUND_OBSTACLES : null,
 		forma: isMundo3 ? FORMA_CARRO : isMundo2 ? FORMA_MARIQUITA : isMundo4 ? FORMA_BURBUJA : FORMA_GLOBO
 	});
-	// Mundos 1 a 5 dan cerezas al monstruo de la letra; Mundo 6 no tiene monstruos (solo progreso).
-	const letraPremio = isMundo6 ? null : isMundo2 || isMundo3 || isMundo4 || isMundo5 ? menuOption : MODES[menuOption] ? menuOption : "a";
+	// Todos los mundos dan cerezas al monstruo de la letra elegida.
+	const letraPremio = isMundo2 || isMundo3 || isMundo4 || isMundo5 || isMundo6 ? menuOption : MODES[menuOption] ? menuOption : "a";
 	const [premio, otorgarPremio] = useRecompensa("inicio", letraPremio);
 	const LETTER_IMAGES = {
 		a: "letraA.png",
@@ -491,9 +489,6 @@ export default function InicioActividad() {
 				// La actividad se completa al terminar la fase 3 (carteles en movimiento).
 				if (isPhaseThree && letraPremio) {
 					otorgarPremio(errorCount.current);
-				} else if (isPhaseThree && menuOption) {
-					// Mundo 6: sin comida, pero queda anotada para las marcas del camino.
-					marcarCompletada(menuOption, "inicio", premioPorErrores("inicio", errorCount.current));
 				}
 				audios.celebration.onended = () => {
 					audios.celebration.onended = null;

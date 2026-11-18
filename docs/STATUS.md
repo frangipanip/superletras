@@ -2,7 +2,7 @@
 
 Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se mergea a `develop` para verlo en dev-superletras.leviatas.com; nada pasó a `master`).
 
-Última actualización: 17/11/2026.
+Última actualización: 18/11/2026.
 
 ## Punto de retoma
 
@@ -38,7 +38,7 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 | 5 | Palabras: segunda vuelta sin modelo y cierre | 3.76.0 | ✅ Hecha |
 | 6 | Peluches en Mundo 4 | 3.77.0 | ✅ Hecha |
 | 7 | Mundo 5: G, GE, GUE, J, GÜE | 3.78.0 – 3.83.0 | ✅ Implementado: Inicio con repaso, Tren, Peluches, "¿J o G?", Mariposas y Flores |
-| 8 | Mundo 6: B, V, Ñ, K, X | 3.80.0 | ✅ Hecha: Inicio, Peluches y "¿B o V?" |
+| 8 | Mundo 6: B, V, Ñ, K, X | 3.80.0 | ✅ Hecha: Inicio, Peluches y "¿B o V?"; Mariposas, Flores y monstruos en 4.4.0 |
 | 9 | Tramo de oraciones | 3.85.0 | ✅ Implementado y recorrido hasta el premio con ambas voces |
 | Ampliación | Tren en todos los mundos | 3.82.0 | ✅ Implementado y recorrido en los seis mundos; pendiente recuperar arte elegido anteriormente |
 | 10 | Peluches: consigna primero, sin nombrar, parlante y 6 rondas | 3.86.0 | ✅ Hecha y recorrida en los seis mundos con las dos voces |
@@ -109,6 +109,13 @@ ABEJA para Memotest solo si se elige la alternativa 5.
 
 ## Hecho
 
+### Mundo 6: Mariposas, Flores y monstruos (4.4.0)
+- `RobotsSilabas.jsx` pasa a `CriaturasSilabas.jsx`: cada mundo pone en `MUNDOS` sus sílabas, distractores, consignas y dibujos. Mundo 5 sigue igual (robots).
+- Mundo 6: mariposas unicornio ("B larga suena B" · "Pulsá todas las mariposas que tengan" · …: cinco de la letra y tres de otras) y jardín de flores unicornio ("Pulsá la sílaba" + la sílaba). B y V nunca se usan entre sí como distractor (`src/lib/mundo6.js`). Fondos propios (`fondoMariposasM6.jpg`, `fondoFloresM6.jpg`).
+- Premios como en Mundos 2 a 5: B, V, Ñ, K y X tienen monstruo (`LETRAS_POR_MUNDO[6]`), Inicio da cerezas, Mariposas confites, Flores chocolate, Peluches frutillas, Tren cucuruchos y Dibujar galletitas; "¿B o V?" sigue con estrellas. El menú muestra `MonstruoDelMenu` y `/monstruo` tiene fondo propio (`fondoMonstruoM6.jpg`).
+- Monstruos unicornio tomados de la lámina de `descargas/`: 6 cuadros por nivel (`monstruo-{b,v,enie,k,x}[-nivel2]-N.webp`; la Ñ se guarda como `enie`) y su boca en `BOCAS`. Prompts en `docs/arte/monstruos-prompts.json` y `docs/arte/mundo6-silabas-prompts.json`.
+- Probado en el navegador: menú con el monstruo y los carteles nuevos, Mariposas de B hasta el premio (3 confites), "Siguiente" a Flores, `/monstruo` dando comida y evolucionando, sin errores en consola.
+
 ### Fase 15 (parte 2) — Peluches de Mundos 3 a 6 con hamacas y cofres sueltos (3.91.0)
 - Arte con ChatGPT (primera vez con el método nuevo de `PROCESS.md`, "Imágenes nuevas"): fondos de Mundos 3, 5 y 6 sin hamacas (quedan la viga y el cartel), fondo de Mundo 4 sin viga ni hamacas (el cartel de la consigna sigue en el mismo lugar, colgado de algas), hamacas sueltas en PNG transparente (sogas violetas y asiento de bloques, cadenas y asiento robot, cintas arcoíris y nube dorada) y cofre abierto de nácar para Mundo 4. Prompts en `docs/arte/peluches-soportes-prompts.json`. Los fondos conservan la composición: el cartel de la consigna no se movió.
 - `PeluchesPlataformas` recibe el `soporte` de cada mundo (imagen, proporción, caja del dibujo y del cartel) y pone uno por dibujo según la ronda: dos (41 y 71.5 % del escenario) o tres (37.5, 60 y 82.5 %). El tamaño sale del alto buscado, con un ancho máximo. `CON_TRES = true`: rondas 1 y 2 con dos dibujos y 3 a 6 con tres.
@@ -167,7 +174,7 @@ ABEJA para Memotest solo si se elige la alternativa 5.
 - Comprobadas las dos partes de Q y el toque intermedio con ambas voces en 1138 × 712 y 667 × 375. Build y revisión del diff correctos. Capturas locales en `descargas/pruebas-fase4/`.
 
 ### Fase 7 — Robots voladores, jardín y repaso (3.83.0)
-- Mariposas y Flores de Mundo 5 usan `RobotsSilabas.jsx`, compartiendo consignas, ayuda, audios en secuencia y premio. Robots voladores: cinco sílabas del grupo; jardín: una ronda por sílaba, con botón para escuchar cada opción sin elegirla.
+- Mariposas y Flores de Mundo 5 usan `RobotsSilabas.jsx` (desde 4.4.0 `CriaturasSilabas.jsx`, compartido con Mundo 6), compartiendo consignas, ayuda, audios en secuencia y premio. Robots voladores: cinco sílabas del grupo; jardín: una ronda por sílaba, con botón para escuchar cada opción sin elegirla.
 - Dos fondos propios y cuatro robots transparentes. Prompts y rutas en `docs/arte/robots-prompts.json`.
 - `src/lib/mundo5.js` comparte sílabas y distractores: GE/GI nunca se enfrentan a JE/JI como respuestas equivocadas. Tren usa la misma lista.
 - Inicio generaliza el repaso de Q para GE, GUE y GÜE: muestra el grupo anterior y después mezcla las sílabas en las dos vueltas de pedidos.
@@ -273,5 +280,4 @@ ABEJA para Memotest solo si se elige la alternativa 5.
 
 - **Nuevo alcance (17/11/2026)**: Tren implementado en todos los mundos (ver ampliación en `PLAN.md`).
 
-- Si se pasa a la actividad siguiente con el botón del premio y se vuelve al mundo, el personaje aparece en la actividad anterior; el brillo de "la que sigue" sí marca la correcta.
 - Las marcas de completado viven en el navegador (no viajan con el código de jugador). En Mundo 1 también cuenta como completada toda actividad con comida ganada.

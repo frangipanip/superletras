@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useNavigate } from "react-router";
 import CharacterLocator from "../components/CharacterLocator";
+import MonstruoDelMenu from "../components/MonstruoDelMenu";
 import UserNav from "../components/UserNav";
 import { useCharacterLocator } from "../hooks/useCharacterLocator";
 import { usePageRuntime } from "../hooks/usePageRuntime";
@@ -23,6 +24,8 @@ const LETTER_SOUNDS = {
 // Actividades habilitadas del camino, en orden (tiene que coincidir con CAMINOS[6] de caminos.js).
 const ACTIVIDADES_M6 = [
 	{ clave: "inicio", ruta: "/inicio", cartel: "INICIALESbtn.png", nombre: "Iniciar actividad de sílabas" },
+	{ clave: "mariposas", ruta: "/mariposas", cartel: "MARIPOSAbtn.png", nombre: "Iniciar actividad de mariposas con sílabas" },
+	{ clave: "flores", ruta: "/flores", cartel: "FLORbtn.png", nombre: "Iniciar actividad del jardín de sílabas" },
 	{ clave: "peluches", ruta: "/peluches", cartel: "PELUCHESbtn.png", nombre: "Iniciar actividad de palabras con peluches" },
 	{ clave: "elegir", ruta: "/elegir", cartel: "BoVbtn.png", nombre: "Iniciar actividad: ¿va con B o con V?" },
 	{ clave: "tren", ruta: "/tren", cartel: "TRENbtn.png", nombre: "Iniciar actividad del tren" },
@@ -250,6 +253,7 @@ export default function Mundo6() {
 			onDragStart={(event) => event.preventDefault()}
 		>
 			<UserNav />
+			<MonstruoDelMenu mundo={6} letra={selectedLetter} />
 			{!menuPanelVisible && (
 				<nav ref={compactMenuRef} className="mundo6-compact-menu" aria-label="Elegir letra">
 					<button

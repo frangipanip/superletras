@@ -45,6 +45,7 @@
 .page-monstruo.monstruo-mundo3 { background: url("/assets/imagenes/fondoMonstruoM3.jpg") center / cover no-repeat; }
 .page-monstruo.monstruo-mundo4 { background: url("/assets/imagenes/fondoMonstruoM4.jpg") center / cover no-repeat; }
 .page-monstruo.monstruo-mundo5 { background: url("/assets/imagenes/fondoMonstruoM5.jpg") center / cover no-repeat; }
+.page-monstruo.monstruo-mundo6 { background: url("/assets/imagenes/fondoMonstruoM6.jpg") center / cover no-repeat; }
 
 .page-monstruo {
 	--monstruo-borde: #2f8498;

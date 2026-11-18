@@ -45,14 +45,14 @@ export function repartirPremio(comida, ganadas, puntaje) {
 }
 
 // Letras con monstruo, por mundo: las claves del menú de cada mundo en minúscula (son todas
-// distintas, así que las comidas de una letra nunca se mezclan con las de otra). Mundo 6 no
-// tiene monstruos: sus actividades dan estrellas.
+// distintas, así que las comidas de una letra nunca se mezclan con las de otra).
 export const LETRAS_POR_MUNDO = {
 	1: ["a", "l", "m", "s", "t"],
 	2: ["p", "n", "d", "f", "h"],
 	3: ["r", "rr", "ar", "y", "ll"],
 	4: ["c", "q", "ce", "z", "ch"],
-	5: ["g", "ge", "gu", "j", "gü"]
+	5: ["g", "ge", "gu", "j", "gü"],
+	6: ["b", "v", "ñ", "k", "x"]
 };
 export const LETRAS = Object.values(LETRAS_POR_MUNDO).flat();
 export const MUNDO_DE_LETRA = Object.fromEntries(

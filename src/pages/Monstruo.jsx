@@ -56,14 +56,15 @@ const MENU_OPTION_KEYS = {
 	2: STORAGE_KEYS.mundo2MenuOption,
 	3: STORAGE_KEYS.mundo3MenuOption,
 	4: STORAGE_KEYS.mundo4MenuOption,
-	5: STORAGE_KEYS.mundo5MenuOption
+	5: STORAGE_KEYS.mundo5MenuOption,
+	6: STORAGE_KEYS.mundo6MenuOption
 };
 
 function guardarLetraDelMenu(mundo, letra) {
 	writeStorage(MENU_OPTION_KEYS[mundo], mundo === 1 ? letra : letra.toUpperCase());
 }
 
-// Pantalla de alimentar a los monstruos de un mundo (Mundos 1 a 5, por state.world): el de la
+// Pantalla de alimentar a los monstruos de un mundo (Mundos 1 a 6, por state.world): el de la
 // letra elegida en el centro y los otros cuatro del mismo mundo en el selector.
 export default function MonstruoPage() {
 	const location = useLocation();

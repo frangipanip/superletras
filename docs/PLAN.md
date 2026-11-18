@@ -381,6 +381,14 @@ Pedido del 18/11/2026: la página tarda demasiado en cargar al abrirla. Medido e
 
 Resultado en el build de producción: la portada baja unos 1,6 MB en lugar de 7,2 MB.
 
+## Mundo 6: Mariposas, Flores y monstruos (4.4.0)
+
+Pedido del 18/11/2026: crear Mariposas y Flores para Mundo 6 y habilitar el sistema de premios como en los otros mundos, con los monstruos y sus evoluciones de la lámina de `descargas/`.
+
+- Mariposas y Flores reutilizan la pantalla de los robots de Mundo 5, generalizada como `CriaturasSilabas.jsx`: mariposas y flores unicornio, consignas con los audios que ya existen (`suenaB.mp3`…, `Pulsa.mp3`, `Pulsasilaba.mp3`) y distractores sin mezclar B con V.
+- Camino: Inicio, Mariposas, Flores, Peluches, "¿B o V?", Tren y Dibujar (Mundo 6 no guarda la posición del personaje, así que el orden nuevo no rompe datos).
+- Premios: `LETRAS_POR_MUNDO[6]` con B, V, Ñ, K y X; cada actividad da su comida y "¿B o V?" estrellas. Cuadros de comer de los diez unicornios y fondo propio de `/monstruo`.
+
 ## Cómo produzco audios y dibujos
 
 - **Audios**: Chrome sobre tu sesión de elevenlabs.io. Por cada texto genero con Malena y con Dante, descargo y muevo el mp3 a `public/assets/sonido/supernena|supernene/` con el nombre de la tabla. Uso la configuración del archivo que ya está en el repo (`…Malena…_s50_sim75_v4`). **Consume créditos de tu cuenta**: son unos 45 textos de consigna + ~90 palabras, por dos voces.

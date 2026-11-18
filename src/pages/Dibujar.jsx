@@ -30,7 +30,7 @@ const TOQUE = 0.12;
 
 // Dibujar en todos los mundos: se traza cada opción de la lista de la izquierda (las vocales en
 // Mundo 1, o las sílabas de la letra: LA, LE, LI...). Al terminar una se la nombra y se pasa sola a la
-// siguiente que falte; con todas, 3 comidas (estrellas en Mundo 6, que no tiene monstruos).
+// siguiente que falte; con todas, 3 galletitas para el monstruo de la letra.
 export default function Dibujar() {
 	const location = useLocation();
 	const mundo = DIBUJAR_POR_MUNDO[location.state?.world] ? location.state.world : 1;

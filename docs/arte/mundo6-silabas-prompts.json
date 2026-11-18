@@ -1,0 +1,27 @@
+{
+  "fecha": "2026-11-18",
+  "herramienta": "ChatGPT (generación de imágenes) en el Chrome del usuario; guardado con scripts/guardar-imagen-portapapeles.ps1. Originales en descargas/mundo6/.",
+  "uso": "Mariposas y Flores de Mundo 6 (src/pages/CriaturasSilabas.jsx). Las criaturas salen de una hoja de 2x2 (1536x1024, fondo transparente) recortada en cuatro PNG; los fondos se pasan a JPG (calidad 84).",
+  "imagenes": [
+    {
+      "archivo": "public/assets/imagenes/mariposaUnicornio1.png ... mariposaUnicornio4.png",
+      "adjuntos": "descargas/monstruos/ref/6-v-ini.png (estilo del personaje) y fondoInicioM6.jpg (mundo)",
+      "prompt": "Generá una imagen de 1536 x 1024 con fondo transparente (PNG con canal alfa), grilla de 2 columnas x 2 filas (4 celdas de 768 x 512), con UNA criatura en cada celda, centrada y del mismo tamaño en las cuatro: mariposas tiernas del mundo de los unicornios, para un juego infantil de aprender a leer. Cada mariposa vista de frente, con las alas abiertas, cuerpito redondo con carita sonriente y ojos grandes, un cuernito dorado de unicornio en la frente y antenas con estrellitas. Alas con degradé suave de arcoíris y brillitos; el color principal cambia en cada una: 1) rosa, 2) celeste, 3) lila, 4) amarillo durazno. Usá la PRIMERA imagen como modelo de estilo del personaje (3D tierno, brillante, colores pastel, contornos limpios) y la SEGUNDA como modelo del mundo (no la copies). Formas grandes y simples. Sin texto, sin letras, sin números, sin bordes ni líneas entre las celdas, sin sombras en el piso."
+    },
+    {
+      "archivo": "public/assets/imagenes/florUnicornio1.png ... florUnicornio4.png",
+      "adjuntos": "descargas/monstruos/ref/6-v-ini.png y fondoInicioM6.jpg",
+      "prompt": "Igual que el de las mariposas, con: flores mágicas tiernas del jardín de los unicornios. Cada flor de frente y entera: tallo verde con dos hojas, apoyada sobre un montoncito de pasto con florcitas, y una flor grande y redonda con carita sonriente y ojos grandes en el centro, un cuernito dorado de unicornio arriba y pétalos con brillitos (rosa, celeste, lila, amarillo durazno). Sin macetas."
+    },
+    {
+      "archivo": "public/assets/imagenes/fondoMariposasM6.jpg",
+      "adjuntos": "fondoRobotsVoladores.png (composición) y fondoInicioM6.jpg (mundo y estilo)",
+      "prompt": "Generá una imagen apaisada de 1536 x 1024: el fondo de una actividad de un juego infantil donde vuelan ocho mariposas con sílabas, en dos filas. Usá la PRIMERA imagen como modelo de composición: la decoración solo en las esquinas y los bordes, y un centro muy amplio, despejado y de color suave y parejo, para que las mariposas y sus carteles se lean bien. Usá la SEGUNDA imagen como modelo del mundo y del estilo (no la copies): el cielo del mundo de los unicornios, celeste y lila muy suave, con nubes de algodón rosadas en los bordes, un arcoíris chiquito en una esquina de arriba, estrellitas, y abajo una franja de nubes y flores. Sin texto, sin letras, sin números, sin botones, sin personajes ni mariposas."
+    },
+    {
+      "archivo": "public/assets/imagenes/fondoFloresM6.jpg",
+      "adjuntos": "fondoRobotsJardin.png (composición) y fondoInicioM6.jpg (mundo y estilo)",
+      "prompt": "Generá una imagen apaisada de 1536 x 1024: el fondo de una actividad de un juego infantil donde hay cuatro flores mágicas con sílabas paradas en fila sobre el pasto. Usá la PRIMERA imagen como modelo de composición: decoración solo en los costados y los bordes, fondo de arriba tranquilo y una franja de pasto ancha, lisa y despejada en el tercio de abajo, donde van paradas las cuatro flores. El centro tiene que quedar vacío. Usá la SEGUNDA imagen como modelo del mundo y del estilo (no la copies): el jardín de los unicornios, con cielo celeste suave, nubes de algodón rosadas, un arcoíris chiquito, arbustos redondos con flores pastel y una cerquita blanca a los costados. Sin texto, sin letras, sin números, sin botones, sin personajes ni flores en el centro."
+    }
+  ]
+}

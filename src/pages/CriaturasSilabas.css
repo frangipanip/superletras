@@ -1,0 +1,97 @@
+/* Mariposas (recolectar) y Flores (jardín) de Mundos 5 y 6: fondo propio por mundo y actividad. */
+.page-criaturas-silabas.mundo5.criaturas-recolectar {
+	background: url("/assets/imagenes/fondoRobotsVoladores.png") center / cover no-repeat;
+}
+
+.page-criaturas-silabas.mundo5.criaturas-jardin {
+	background: url("/assets/imagenes/fondoRobotsJardin.png") center / cover no-repeat;
+}
+
+.page-criaturas-silabas.mundo6.criaturas-recolectar {
+	background: url("/assets/imagenes/fondoMariposasM6.jpg") center / cover no-repeat;
+}
+
+.page-criaturas-silabas.mundo6.criaturas-jardin {
+	background: url("/assets/imagenes/fondoFloresM6.jpg") center / cover no-repeat;
+}
+
+.page-criaturas-silabas .criaturas-avance {
+	position: absolute;
+	top: 4%;
+	left: 50%;
+	transform: translateX(-50%);
+	display: flex;
+	gap: 0.4em;
+	color: #a2c8da;
+	font-size: clamp(22px, 5vmin, 38px);
+	text-shadow: 0 2px 2px #fff;
+}
+
+.page-criaturas-silabas .criaturas-avance .hecho { color: #ffca1a; }
+
+.page-criaturas-silabas .criaturas-opciones {
+	position: absolute;
+	inset: 21% 20% 13% 7%;
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	grid-template-rows: repeat(2, minmax(0, 1fr));
+	gap: 5vh 3vw;
+}
+
+.page-criaturas-silabas.criaturas-jardin .criaturas-opciones {
+	inset: 27% 16% 23% 5%;
+	grid-template-rows: minmax(0, 1fr);
+	gap: 3vw;
+}
+
+.page-criaturas-silabas .criatura-opcion { position: relative; min-height: 0; min-width: 0; }
+
+.page-criaturas-silabas .criatura-elegir {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-end;
+	width: 100%;
+	height: 100%;
+	padding: 0;
+	border: 0;
+	background: none;
+	cursor: pointer;
+	touch-action: manipulation;
+	transition: transform 220ms ease, opacity 220ms ease;
+}
+
+.page-criaturas-silabas .criatura-elegir img { min-height: 0; width: 100%; height: calc(100% - 7vmin); object-fit: contain; }
+
+.page-criaturas-silabas .criatura-silaba {
+	display: block;
+	padding: 0.08em 0.32em;
+	border: 3px solid #69cee5;
+	border-radius: 0.3em;
+	background: #fff8db;
+	box-shadow: 0 3px 0 #437eac;
+	color: #5b288b;
+	font: 900 clamp(25px, 6vmin, 48px) / 1.05 "Arial Rounded MT Bold", Arial, sans-serif;
+}
+
+.page-criaturas-silabas .criatura-opcion.error { animation: criatura-error 350ms ease; opacity: 0.45; }
+/* En el jardín (Flores) la criatura equivocada solo se sacude y vuelve a quedar disponible. */
+.page-criaturas-silabas.criaturas-jardin .criatura-opcion.error { opacity: 1; }
+.page-criaturas-silabas .criatura-opcion.acierto { transform: scale(0.8); opacity: 0.35; }
+.page-criaturas-silabas .criatura-opcion.acierto .criatura-silaba { background: #beffbd; }
+.page-criaturas-silabas .criatura-elegir:focus-visible { outline: 3px solid #ffae00; border-radius: 16px; }
+/* Personaje chico abajo a la derecha: se achica la variable (la usa `left` en actividad.css), no solo el ancho. */
+.page-criaturas-silabas .selected-character:not(.celebrating) { --selected-character-width: clamp(90px, 21vmin, 160px); top: auto; bottom: 3%; transform: none; }
+.page-criaturas-silabas .selected-character:not(.celebrating) > img:first-child { max-height: 33vh; object-fit: contain; }
+
+@keyframes criatura-error { 25%, 75% { transform: translateX(-8px); } 50% { transform: translateX(8px); } }
+
+@media (max-height: 420px) {
+	.page-criaturas-silabas .criaturas-opciones { inset: 25% 17% 8% 5%; gap: 3vh 3vw; }
+	.page-criaturas-silabas.criaturas-jardin .criaturas-opciones { inset: 25% 17% 25% 4%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.page-criaturas-silabas .criatura-opcion.error { animation: none; }
+	.page-criaturas-silabas .criatura-elegir { transition: none; }
+}

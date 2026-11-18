@@ -15,14 +15,16 @@ const BOCAS = {
 		h: { x: 0.5, y: 0.68 }, r: { x: 0.55, y: 0.75 }, rr: { x: 0.55, y: 0.74 }, ar: { x: 0.58, y: 0.76 },
 		y: { x: 0.6, y: 0.79 }, ll: { x: 0.58, y: 0.81 },
 		c: { x: 0.56, y: 0.62 }, q: { x: 0.53, y: 0.67 }, ce: { x: 0.54, y: 0.66 }, z: { x: 0.56, y: 0.6 }, ch: { x: 0.61, y: 0.66 },
-		g: { x: 0.6, y: 0.79 }, ge: { x: 0.61, y: 0.72 }, gu: { x: 0.6, y: 0.73 }, j: { x: 0.56, y: 0.74 }, "gü": { x: 0.59, y: 0.78 }
+		g: { x: 0.6, y: 0.79 }, ge: { x: 0.61, y: 0.72 }, gu: { x: 0.6, y: 0.73 }, j: { x: 0.56, y: 0.74 }, "gü": { x: 0.59, y: 0.78 },
+		b: { x: 0.64, y: 0.68 }, v: { x: 0.64, y: 0.7 }, "ñ": { x: 0.7, y: 0.72 }, k: { x: 0.66, y: 0.65 }, x: { x: 0.67, y: 0.78 }
 	},
 	2: {
 		m: { x: 0.5, y: 0.6 }, p: { x: 0.58, y: 0.56 }, n: { x: 0.62, y: 0.54 }, d: { x: 0.65, y: 0.54 },
 		f: { x: 0.64, y: 0.52 }, h: { x: 0.68, y: 0.55 }, r: { x: 0.53, y: 0.46 }, rr: { x: 0.75, y: 0.52 },
 		ar: { x: 0.53, y: 0.53 }, y: { x: 0.69, y: 0.64 }, ll: { x: 0.56, y: 0.68 },
 		c: { x: 0.58, y: 0.6 }, q: { x: 0.64, y: 0.6 }, ce: { x: 0.66, y: 0.55 }, z: { x: 0.55, y: 0.62 }, ch: { x: 0.7, y: 0.6 },
-		g: { x: 0.59, y: 0.51 }, ge: { x: 0.58, y: 0.63 }, gu: { x: 0.57, y: 0.52 }, j: { x: 0.53, y: 0.54 }, "gü": { x: 0.52, y: 0.62 }
+		g: { x: 0.59, y: 0.51 }, ge: { x: 0.58, y: 0.63 }, gu: { x: 0.57, y: 0.52 }, j: { x: 0.53, y: 0.54 }, "gü": { x: 0.52, y: 0.62 },
+		b: { x: 0.73, y: 0.53 }, v: { x: 0.68, y: 0.54 }, "ñ": { x: 0.73, y: 0.55 }, k: { x: 0.69, y: 0.53 }, x: { x: 0.7, y: 0.53 }
 	}
 };
 
@@ -30,9 +32,10 @@ export function bocaMonstruo(letra, evolucionado = false) {
 	return BOCAS[evolucionado ? 2 : 1][letra] ?? BOCA_CENTRO;
 }
 
-// Nombre de la letra en el archivo: sin diéresis, para el servidor Linux y las URLs.
+// Nombre de la letra en el archivo: sin diéresis ni eñe, para el servidor Linux y las URLs.
+const ARCHIVOS = { "gü": "gdieresis", "ñ": "enie" };
 function archivo(letra) {
-	return letra === "gü" ? "gdieresis" : letra;
+	return ARCHIVOS[letra] || letra;
 }
 
 export function imagenMonstruo(letra, cuadro = CUADROS_MONSTRUO.normal) {

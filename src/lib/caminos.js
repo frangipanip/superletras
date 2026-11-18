@@ -10,7 +10,7 @@ export const CAMINOS = {
 	3: ["inicio", "mariposas", "flores", "peluches", "tren", "dibujar"],
 	4: ["inicio", "mariposas", "flores", "peluches", "tren", "dibujar"],
 	5: ["inicio", "tren", "peluches", "elegir", "mariposas", "flores", "dibujar"],
-	6: ["inicio", "peluches", "elegir", "tren", "dibujar"]
+	6: ["inicio", "mariposas", "flores", "peluches", "elegir", "tren", "dibujar"]
 };
 
 function palabrasDesbloqueadas(letra) {

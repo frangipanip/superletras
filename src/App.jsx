@@ -17,7 +17,7 @@ const Silabas = pantalla(() => import("./pages/Silabas"));
 const Mariposas = pantalla(() => import("./pages/Mariposas"));
 const Tren = pantalla(() => import("./pages/Tren"));
 const Flores = pantalla(() => import("./pages/Flores"));
-const RobotsSilabas = pantalla(() => import("./pages/RobotsSilabas"));
+const CriaturasSilabas = pantalla(() => import("./pages/CriaturasSilabas"));
 const Oraciones = pantalla(() => import("./pages/Oraciones"));
 const Peluche = pantalla(() => import("./pages/Iniciales"));
 const PeluchesMundo2 = pantalla(() => import("./pages/PeluchesMundo2"));
@@ -62,9 +62,11 @@ function PeluchesRuta() {
 	return <Peluche />;
 }
 
+// /mariposas y /flores: Mundos 5 y 6 usan CriaturasSilabas (robots, mariposas y flores unicornio).
 function ActividadSilabasRuta({ actividad }) {
 	const location = useLocation();
-	if (location.state?.world === 5) return <RobotsSilabas key={actividad} actividad={actividad} />;
+	const world = location.state?.world;
+	if (world === 5 || world === 6) return <CriaturasSilabas key={`${world}-${actividad}`} actividad={actividad} mundo={world} />;
 	return actividad === "mariposas" ? <Mariposas /> : <Flores />;
 }
 
