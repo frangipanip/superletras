@@ -293,13 +293,18 @@ img {
 	pointer-events: none;
 }
 
-/* Contador de estrellas de la letra (ContadorEstrellas): cartelito a la izquierda del monstruo del
-   camino, a la altura de su cara. */
+/* Contador de estrellas del mundo (ContadorEstrellas): botón propio a la izquierda del monstruo del
+   camino, a la altura de su cara; abre el Laboratorio de Luces. Fijo como el botón del monstruo:
+   --monstruo-x es el centro del monstruo y el ancho es el mismo clamp que el de ese botón. */
 .monstruo-estrellas {
-	position: absolute;
-	top: 30%;
-	right: calc(100% + 0.3em);
-	z-index: 2;
+	--monstruo-ancho: clamp(64px, 14vmin, 120px);
+	position: fixed;
+	top: calc(clamp(0.4rem, 1.5vmin, 1rem) + var(--monstruo-ancho) * 0.3);
+	right: calc(100% - var(--monstruo-x, 50%) + var(--monstruo-ancho) / 2 + 0.3em);
+	z-index: 6;
+	margin: 0;
+	cursor: pointer;
+	transition: transform 160ms ease;
 	display: flex;
 	align-items: center;
 	gap: 0.2em;
@@ -311,6 +316,14 @@ img {
 	color: #ffffff;
 	font: 900 clamp(0.8rem, 2.8vmin, 1.15rem) / 1.1 Arial, Helvetica, sans-serif;
 	white-space: nowrap;
+}
+
+.monstruo-estrellas:hover,
+.monstruo-estrellas:focus-visible {
+	transform: scale(1.1);
+}
+
+.monstruo-estrellas[aria-disabled="true"] {
 	pointer-events: none;
 }
 

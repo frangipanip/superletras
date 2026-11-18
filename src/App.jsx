@@ -28,6 +28,7 @@ const PeluchesMundo6 = pantalla(() => import("./pages/PeluchesMundo6"));
 const ElegirLetra = pantalla(() => import("./pages/ElegirLetra"));
 const Dibujar = pantalla(() => import("./pages/Dibujar"));
 const Monstruo = pantalla(() => import("./pages/Monstruo"));
+const Laboratorio = pantalla(() => import("./pages/Laboratorio"));
 const Barcos = pantalla(() => import("./pages/Barcos"));
 const Decora = pantalla(() => import("./pages/Decora"));
 const Pastel = pantalla(() => import("./pages/Pastel"));
@@ -99,6 +100,7 @@ export default function App() {
 					<Route path="/flores" element={<ActividadSilabasRuta actividad="flores" />} />
 					<Route path="/dibujar" element={<Dibujar />} />
 					<Route path="/monstruo" element={<Monstruo />} />
+					<Route path="/laboratorio" element={<Laboratorio />} />
 					<Route path="/barcos" element={<Barcos />} />
 					<Route path="/decora" element={<Decora />} />
 					<Route path="/pastel" element={<Pastel />} />

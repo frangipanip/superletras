@@ -12,7 +12,7 @@ import { img, MUNDO1_CHARACTERS, MUNDO1_MOUTH_IMAGES, sound } from "../lib/asset
 import { STORAGE_KEYS, readStorage, writeStorage } from "../lib/storage";
 import { ACTIVIDADES, TIPOS_ACTIVIDAD } from "../../shared/actividades.js";
 import { COMIDA_POR_ACTIVIDAD, COMIDAS } from "../../shared/comidas.js";
-import { cantidadComida, comidaParaDar, estrellasDe, getRecompensas, subscribeRecompensas } from "../lib/recompensas";
+import { cantidadComida, comidaParaDar, getRecompensas, subscribeRecompensas } from "../lib/recompensas";
 import ContadorEstrellas from "../components/ContadorEstrellas";
 import ContadorComida from "../components/ContadorComida";
 import MarcaCamino from "../components/MarcaCamino";
@@ -635,8 +635,8 @@ export default function Mundo1() {
 				<img className="mundo1-monster-cloud" src={img("nube.png")} alt="" aria-hidden="true" draggable={false} />
 				<Monstruo letra={selectedOption || "a"} evolucionado={selectedMonsterEvolved} />
 				<ContadorComida cantidad={monsterFood} />
-				<ContadorEstrellas cantidad={estrellasDe(recompensasPorLetra, selectedOption || "a")} />
 			</button>
+			<ContadorEstrellas mundo={1} disabled={Boolean(teleport)} />
 			{characterOffscreen && character && (
 				<button className={`mundo1-character-locator direction-${characterDirection}`} type="button" aria-label="Ir hasta mi personaje" onClick={scrollToCharacter}>
 					<img src={img(character === "supernena" ? "cabezasupernena.png" : "cabezasupernene.png")} alt="" draggable={false} />

@@ -389,6 +389,76 @@ Pedido del 18/11/2026: crear Mariposas y Flores para Mundo 6 y habilitar el sist
 - Camino: Inicio, Mariposas, Flores, Peluches, "¿B o V?", Tren y Dibujar (Mundo 6 no guarda la posición del personaje, así que el orden nuevo no rompe datos).
 - Premios: `LETRAS_POR_MUNDO[6]` con B, V, Ñ, K y X; cada actividad da su comida y "¿B o V?" estrellas. Cuadros de comer de los diez unicornios y fondo propio de `/monstruo`.
 
+## Laboratorio de Luces en los seis mundos (4.6.0)
+
+**Hecho en la 4.6.0.** Pedido del 18/11/2026: una pantalla opcional donde se gastan las estrellas del mundo en efectos de luz sobre un paisaje. Pedido completo en `descargas/prompt-para-claude.md`; arte y mapa en `descargas/laboratorio-de-luces.zip` (`descargas/` no se versiona: al implementar, las imágenes pasan a `public/assets/imagenes/laboratorio/`). No es una app aparte: usa el stack y las convenciones del proyecto.
+
+### Lo que ya hay y cómo se adapta
+
+- **Mundos**: los IDs reales son los números 1 a 6 (`state.world`, `LETRAS_POR_MUNDO`). Laboratorio N = Mundo N: 1 Dulces, 2 Insectos, 3 Bloques, 4 Sirenas, 5 Robots, 6 Unicornios.
+- **Saldo**: las estrellas se guardan **por letra** (`letras[letra].estrellas = { ganadas, dadas }`, `CLAVE_ESTRELLAS`, en localStorage y en la tabla `comidas` de la API); `dadas` hoy vale siempre 0. El saldo del laboratorio es el **del mundo**: suma de `ganadas − dadas` de las letras de `LETRAS_POR_MUNDO[mundo]` (función nueva `estrellasDelMundo(letras, mundo)` en `src/lib/recompensas.js`). Gastar usa ese `dadas` (= estrellas gastadas): no hay clave ni formato nuevo, no rompe datos guardados → versión menor. No se toca cómo se ganan estrellas (`repartirPremio`), ni las comidas, ni la evolución, ni el camino.
+- **Contador**: hoy `ContadorEstrellas` muestra las estrellas de la letra, se oculta con 0 y va dentro del botón del monstruo (`Mundo1.jsx` y `MonstruoDelMenu.jsx`, Mundos 2 a 6). Cambia a: muestra el saldo del mundo (el mismo en todas sus letras), se ve también con 0 y es un **botón propio** al lado del monstruo (no un botón dentro de otro), con nombre accesible "Laboratorio de luces: N estrellas". Tocar el monstruo sigue llevando a `/monstruo`.
+- **Destino desacoplado**: el contador llama `abrirLaboratorio(navigate, mundo)` (`src/lib/laboratorio.js`), que navega a `/laboratorio` con `state: { world: mundo }`. Mover la entrada después es cambiar quién llama a esa función.
+- **Vuelta**: los menús ya recuperan solos la letra (`mundoNMenuOption`) y la posición del personaje (`mundoNPerches`) desde localStorage, como al volver de `/monstruo`. "Volver" navega a `/mundoN`. Comprobar en Mundo 1 que el scroll vuelve al personaje.
+- **Opciones de la app**: no hay ajustes de sonido ni de movimiento reducido; se respeta `prefers-reduced-motion` (menos partículas, transiciones más suaves). No hay audios nuevos en esta versión.
+
+### Gastar estrellas (app y API)
+
+- Reparto compartido en `shared/comidas.js`: `repartirGasto(saldosPorLetra, cantidad)` descuenta en el orden de `LETRAS_POR_MUNDO[mundo]`, de cada letra hasta su saldo; devuelve `null` si el total no alcanza. Lo usan la app y la API, así las dos cuentas coinciden.
+- `gastarEstrellas(mundo, cantidad, efecto)` en `src/lib/recompensas.js`: valida con el estado actual (síncrono), aplica el reparto sumando `dadas` a la clave `estrellas` de cada letra, encola el evento `{ id, tipo: "gastar", mundo, cantidad, efecto, codigo }` y devuelve `true`; sin saldo devuelve `false` sin tocar nada.
+- `server/index.js`: acepta `tipo: "gastar"` en la misma transacción idempotente por `id` que `premio` y `dar`, valida saldo del mundo y aplica el mismo reparto; si no alcanza, lo ignora sin dejar saldos negativos. Revisar si `eventos.letra` admite nulo (si no, guardar una fila por letra tocada o la primera letra del mundo) y que `sincronizar` no pise lo gastado localmente con una copia vieja de la API.
+- **Una sola cobranza por toque**, en este orden: candado síncrono en el componente (`useRef`, se libera en el próximo cuadro) → ¿el efecto tiene lugar (`puedeAgregar`) y sus imágenes ya cargaron? → `gastarEstrellas` → disparar el efecto. Si no hay lugar o recursos, no se cobra; si falta saldo, aparece junto al botón "Te faltan N ⭐" (con `aria-live`), sin navegar ni tocar el paisaje.
+
+### Configuración en un solo lugar (`src/lib/laboratorio.js`)
+
+- `PRECIOS`: flores 2, estrellas 2, burbujas 2, aurora 3, constelacion 3, fuegos 5.
+- `LIMITES` (iniciales, ajustables): 2 colonias por toque y pocas ramas por colonia, 15 flores abiertas en escena, estrellas fugaces 3 a 5 por toque, tandas y tope de burbujas vivas, cintas de aurora 2 a 3, fuegos 2 a 3 por toque, y un tope de instancias simultáneas por efecto. Con `prefers-reduced-motion`, la mitad de partículas.
+- El mapa de `mapa-activos.json`, pasado a constantes:
+  - Escenario 16:9, lienzo lógico 1920×1080. Cielo: x 0,25–0,95, y 0,09–0,55. Zona de vides: x 0,43–0,92, y 0,73–0,95 (fracciones del escenario).
+  - Máquina: caja de ancho 0,46 del escenario, izquierda −0,032, abajo 0,025; coordenadas del arte en la rejilla original **1381×1139** (convertir con `x/1381`, `y/1139` dentro de la caja, no con los píxeles del PNG optimizado). Diámetro visual de botón 111.
+  - Centros de botones: flores [329, 773], estrellas [461, 774], burbujas [593, 770], aurora [725, 765], constelacion [857, 757], fuegos [989, 746].
+  - Instrumentos: globoBurbuja centro [669, 453] radios de máscara [137, 107]; globoAurora [789, 211] radios [86, 57]; lenteConstelacion [974, 392] radios [61, 59]; prisma [550, 221]; bandejaSemillas [878, 642]; anteojo [1124, 511]; bocaTubo [1216, 744]; tramo del tubo de salida `M 1105 646 C 1161 640 1210 656 1216 724`.
+  - Pivotes de las piezas botánicas (fracción del PNG): semilla [0,5, 0,89], brote [0,52, 0,92], pimpollo [0,50, 0,96], flor rosa [0,51, 0,97], dorada [0,51, 0,97], violeta [0,49, 0,98].
+
+### Pantalla `/laboratorio` (`src/pages/Laboratorio.jsx` + `Laboratorio.css`)
+
+- Un solo componente para los seis laboratorios, cargado con `pantalla(() => import(...))` en `App.jsx`; lee `state.world` (sin mundo válido, redirige a `/mundos`) y se monta con `key={mundo}` para que cambiar de mundo arranque limpio. Seis instancias, cada una con el saldo de su mundo; los seis se ven y funcionan igual.
+- **Imágenes de ejecución** (únicas): `fondos/comun.webp`, `maquina.png`, `botones/{flores,estrellas,burbujas,aurora,constelacion,fuegos}.png`, `flores/{semilla,brote,pimpollo,flor-rosa,flor-dorada,flor-violeta}.png`. `referencia-visual.webp` (muestra Flores activado) es solo para comparar: no va al juego. `variantes-futuras/` no se copia, importa ni precarga. `maquina.png` pesa 1,3 MB: probar pasarla a webp con transparencia. Se precargan al montar la pantalla (nunca a nivel de módulo); `PageLoader` cubre las `<img>`.
+- **Escenario**: caja 1920×1080 escalada entera con `transform: scale()` para entrar en la pantalla (sin recortes distintos para fondo y efectos). Capas: fondo → canvas del paisaje (cielo, plantas, partículas) → máquina → canvas de luces dentro de los instrumentos (recortadas con las elipses; algunas burbujas pueden pasar sobre el borde de la máquina, nunca sobre los controles) → botones → saldo y "Volver". Cielo y zona de crecimiento quedan despejados.
+- **Botones**: seis `<button>` reales sobre la madera (centros del mapa), con la imagen, nombre accesible ("Flores, 2 estrellas") y precio visible al lado o al enfocarlo. Encendido con brillo/escala por CSS, sin otro PNG. Si la fila queda chica (celular), un botón abre los mismos seis en una cuadrícula táctil compacta (mismos handlers, sin duplicar cargos).
+- **Motor**: un solo ciclo de render con `runtime.requestAnimationFrame` (`usePageRuntime`); un registro de instancias por efecto, cada una con su estado y tiempos (`activas.flores`, `activas.burbujas`…), nunca un único `activeEffect`. Cada efecto se suma a lo que hay; los breves terminan solos; las plantas quedan con un vaivén sutil hasta salir. Pausa con `document.hidden`; al desmontar se cancela todo y se liberan los canvas. Nada del estado visual se guarda.
+- Solo Canvas 2D y SVG (o Canvas) por código: sin PNG de auroras, burbujas, estelas ni brillos, sin sprites, GIF, video ni librerías nuevas, sin pedidos de red por toque.
+
+### Los seis efectos
+
+1. **Flores (2)**: se ilumina la bandeja de semillas y un pulso cálido recorre el tubo de salida (la curva anotada); una ola suave cruza el césped y deja semillas luminosas en lugares libres de la zona de vides. De cada una crece una **enredadera por código**: tallo de segmentos Bézier revelado de la raíz a la punta a velocidad progresiva, más fino en el extremo; sube, se curva a un lado, vuelve al otro y a veces se enrolla como zarcillo. Ramas laterales que salen de nudos ya alcanzados; puntas que buscan arriba o el espacio libre; una rama larga cede apenas o se hamaca. En nudos y puntas aparecen brotes y pimpollos (PNG anclados por la base a la curva, inclinados según la tangente, tamaños, giros y tiempos mezclados) y algunos se abren en flor rosa, dorada o violeta (brote → pimpollo → flor por escala y transición corta; algunas ramitas se quedan en brote). La semilla desaparece cuando sale el tallo. Resultado: plantas a distintas alturas y direcciones, no una pared verde, sin invadir el cielo ni la máquina. Un toque nuevo agrega en espacios libres sin borrar las anteriores.
+2. **Estrellas fugaces (2)**: destello breve del anteojo o el prisma; 3 a 5 estrellas aparecen en puntos distintos del cielo y caen en diagonal con pequeños intervalos; punto luminoso con estela que se afina con degradados.
+3. **Burbujas arcoíris (2)**: burbujitas dentro del globo central (recortadas a su elipse) que suben, crecen y se juntan; después varias tandas de burbujas iridiscentes desde la máquina y unos pocos puntos del paisaje que **llenan la pantalla** unos segundos: suben lento, se desvían y revientan en aros suaves. Muchas chicas y pocas grandes, con gradientes y contornos por código, para que se siga viendo lo de atrás.
+4. **Aurora (3)**: un reflejo ondula dentro del globo de aurora o el prisma; luego arriba se despliegan 2 o 3 cintas translúcidas menta, celeste y lila (bandas con degradado, ondulación lenta, fundido). Dura un poco más que las estrellas fugaces y las otras luces se ven por delante.
+5. **Constelación sorpresa (3)**: puntitos en la lente violeta; después aparecen puntos en el cielo que se unen uno a uno en una silueta simple. Figuras como arrays de vértices y segmentos (para empezar, una estrella y una mariposa, las mismas en los seis); legible unos segundos y se funde. Sin catálogo ni colección guardada.
+6. **Fuegos de luz (5)**: una chispa sale del anteojo hacia arriba y se abren 2 o 3 flores de luz suaves, separadas en tiempo y altura: radios curvos, puntitos que caen y un rastro que se apaga de a poco. Sin parpadeos bruscos ni ruido fuerte.
+
+### Archivos
+
+Nuevos: `src/lib/laboratorio.js`, `src/pages/Laboratorio.jsx`, `src/pages/Laboratorio.css`, `public/assets/imagenes/laboratorio/…`. Tocados: `src/App.jsx` (ruta), `src/components/ContadorEstrellas.jsx`, `MonstruoDelMenu.jsx`, `Mundo1.jsx`, `src/styles/global.css`, `src/lib/recompensas.js`, `shared/comidas.js`, `server/index.js`, `CLAUDE.md` y `package.json` (4.6.0).
+
+### Verificación
+
+- Entrar desde el contador de cada uno de los seis mundos (también con saldo 0) y volver al mismo mundo, letra y posición del camino.
+- Saldos distintos por mundo: el mismo laboratorio muestra el saldo que corresponde; las estrellas de dos letras de un mundo se suman; gastar desde una letra cambia el contador de la otra y no el de otro mundo.
+- Saldo cero e insuficiente (mensaje con lo que falta, sin cobrar ni cambiar el paisaje), compra exacta, toques dobles rápidos (una sola cobranza, nunca negativo), efecto sin lugar o sin imágenes cargadas (no cobra), persistencia al recargar y con `npm run api` (evento `gastar` idempotente, mismo saldo en app y API).
+- Flores → Burbujas → Fuegos con los tres a la vista juntos; Aurora durante Fuegos; plantas nuevas sin borrar las anteriores; salir y volver: saldo actualizado y escena vacía, sin sonidos ni animaciones colgadas.
+- Tablero en pantalla chica (cuadrícula compacta) y con `prefers-reduced-motion`.
+- Actividades, estrellas de repaso, comidas y evolución funcionan como antes; `npm run build` sin errores.
+
+## Pendiente — Panel de trazado más a la izquierda y personaje más chico
+
+Pedido del 18/11/2026, para después del Laboratorio de Luces. En todas las actividades de escribir/trazar (Dibujar en los seis mundos y Escribir de Mundo 1) el personaje tapa el trazo.
+
+- Correr a la izquierda el panel para dibujar (tablero de `GuiaTrazado`) y las opciones (letras/sílabas a elegir, botones), dejando libre la zona del personaje.
+- Achicar un poco el personaje en esas pantallas para que no se superponga al tablero en ningún tamaño (celular apaisado, tablet 4:3, escritorio 16:9).
+- Verificar con las dos voces y en cada mundo (fondos distintos) que ningún trazo queda debajo del personaje ni de su boca. Cambio de estilos: versión parche.
+
 ## Cómo produzco audios y dibujos
 
 - **Audios**: Chrome sobre tu sesión de elevenlabs.io. Por cada texto genero con Malena y con Dante, descargo y muevo el mp3 a `public/assets/sonido/supernena|supernene/` con el nombre de la tabla. Uso la configuración del archivo que ya está en el repo (`…Malena…_s50_sim75_v4`). **Consume créditos de tu cuenta**: son unos 45 textos de consigna + ~90 palabras, por dos voces.

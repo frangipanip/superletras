@@ -1,0 +1,290 @@
+/* Laboratorio de Luces. El escenario (1920×1080 lógicos) se escala entero con transform desde
+   Laboratorio.jsx; los tamaños de adentro están en píxeles lógicos. Los bordes que sobran según la
+   proporción de la pantalla toman el color del cielo (arriba) y del pasto (abajo). */
+.page-laboratorio {
+	position: fixed;
+	inset: 0;
+	overflow: hidden;
+	background: linear-gradient(180deg, #4740d4 0%, #4b44d8 30%, #6fb043 70%, #5c9e36 100%);
+	touch-action: manipulation;
+	user-select: none;
+	-webkit-user-select: none;
+}
+
+/* Pantallas más anchas que 16:9: a los costados se repite el mismo fondo a la misma altura, así el
+   horizonte y el cielo siguen de largo (no es una capa del juego: queda fuera del escenario). */
+@media (min-aspect-ratio: 16/9) {
+	.page-laboratorio {
+		background: #4b44d8 url("/assets/imagenes/laboratorio/fondo.webp") center / auto 100% repeat-x;
+	}
+}
+
+.page-laboratorio .lab-escenario {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform-origin: 50% 50%;
+	overflow: hidden;
+}
+
+.page-laboratorio .lab-fondo,
+.page-laboratorio .lab-lienzo {
+	position: absolute;
+	inset: 0;
+	display: block;
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
+}
+
+.page-laboratorio .lab-maquina {
+	position: absolute;
+	display: block;
+	pointer-events: none;
+}
+
+.page-laboratorio .lab-botones {
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+}
+
+/* Botones de la máquina: imagen redonda sobre la madera, precio debajo. Encendido: brillo y escala
+   por código (no hay otra imagen). */
+.page-laboratorio .lab-boton {
+	position: relative;
+	padding: 0;
+	border: 0;
+	border-radius: 50%;
+	background: transparent;
+	cursor: pointer;
+	pointer-events: auto;
+	transition: transform 140ms ease, filter 200ms ease;
+	-webkit-tap-highlight-color: transparent;
+}
+
+.page-laboratorio .lab-botones .lab-boton {
+	position: absolute;
+	transform: translate(-50%, -50%);
+}
+
+.page-laboratorio .lab-boton img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
+}
+
+.page-laboratorio .lab-boton:hover,
+.page-laboratorio .lab-boton:focus-visible {
+	filter: brightness(1.12) drop-shadow(0 0 10px rgba(255, 240, 180, 0.9));
+}
+
+.page-laboratorio .lab-botones .lab-boton:hover,
+.page-laboratorio .lab-botones .lab-boton:focus-visible {
+	transform: translate(-50%, -50%) scale(1.08);
+}
+
+.page-laboratorio .lab-botones .lab-boton:active {
+	transform: translate(-50%, -50%) scale(0.94);
+}
+
+.page-laboratorio .lab-boton:focus-visible {
+	outline: 4px solid #fff3a8;
+	outline-offset: 3px;
+}
+
+.page-laboratorio .lab-boton-encendido {
+	animation: lab-encendido 700ms ease-out;
+}
+
+.page-laboratorio .lab-botones .lab-boton-encendido {
+	animation-name: lab-encendido-maquina;
+}
+
+@keyframes lab-encendido {
+	0% {
+		filter: brightness(1.6) drop-shadow(0 0 22px rgba(255, 245, 190, 1));
+		transform: scale(1.15);
+	}
+	100% {
+		filter: brightness(1) drop-shadow(0 0 0 rgba(255, 245, 190, 0));
+		transform: scale(1);
+	}
+}
+
+@keyframes lab-encendido-maquina {
+	0% {
+		filter: brightness(1.6) drop-shadow(0 0 22px rgba(255, 245, 190, 1));
+		transform: translate(-50%, -50%) scale(1.15);
+	}
+	100% {
+		filter: brightness(1) drop-shadow(0 0 0 rgba(255, 245, 190, 0));
+		transform: translate(-50%, -50%) scale(1);
+	}
+}
+
+.page-laboratorio .lab-boton-sin-saldo img {
+	filter: saturate(0.55) brightness(0.88);
+}
+
+.page-laboratorio .lab-boton-sacudido {
+	animation: lab-sacudido 450ms ease;
+}
+
+.page-laboratorio .lab-botones .lab-boton-sacudido {
+	animation-name: lab-sacudido-maquina;
+}
+
+@keyframes lab-sacudido {
+	0%,
+	100% {
+		transform: translateX(0);
+	}
+	25% {
+		transform: translateX(-8%);
+	}
+	75% {
+		transform: translateX(8%);
+	}
+}
+
+@keyframes lab-sacudido-maquina {
+	0%,
+	100% {
+		transform: translate(-50%, -50%);
+	}
+	25% {
+		transform: translate(-58%, -50%);
+	}
+	75% {
+		transform: translate(-42%, -50%);
+	}
+}
+
+.page-laboratorio .lab-precio {
+	position: absolute;
+	top: 88%;
+	left: 50%;
+	display: flex;
+	align-items: center;
+	gap: 2px;
+	padding: 1px 9px 1px 8px;
+	border: 2px solid #ffffff;
+	border-radius: 999px;
+	background: #3f6fc4;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+	color: #ffffff;
+	font: 900 22px / 1.15 Arial, Helvetica, sans-serif;
+	white-space: nowrap;
+	transform: translateX(-50%);
+	pointer-events: none;
+}
+
+.page-laboratorio .lab-precio span {
+	font-size: 0.8em;
+}
+
+/* Saldo del mundo, arriba a la derecha (fuera del escenario escalado, siempre legible). */
+.page-laboratorio .lab-saldo {
+	position: fixed;
+	top: clamp(0.75rem, 2vw, 1.5rem);
+	right: clamp(0.75rem, 2vw, 1.5rem);
+	z-index: 4;
+	display: flex;
+	align-items: center;
+	gap: 0.25em;
+	padding: 0.25em 0.75em 0.25em 0.55em;
+	border: 3px solid #ffffff;
+	border-radius: 999px;
+	background: #3f6fc4;
+	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+	color: #ffffff;
+	font: 900 clamp(1.1rem, 4vmin, 2rem) / 1.1 Arial, Helvetica, sans-serif;
+}
+
+.page-laboratorio .lab-mensaje {
+	position: fixed;
+	top: clamp(4rem, 14vmin, 8rem);
+	left: 50%;
+	z-index: 6;
+	transform: translateX(-50%);
+	pointer-events: none;
+}
+
+.page-laboratorio .lab-mensaje span {
+	display: block;
+	padding: 0.4em 1em;
+	border: 3px solid #ffffff;
+	border-radius: 18px;
+	background: rgba(63, 46, 140, 0.92);
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+	color: #ffffff;
+	font: 900 clamp(1rem, 3.6vmin, 1.7rem) / 1.2 Arial, Helvetica, sans-serif;
+	white-space: nowrap;
+	animation: lab-mensaje 260ms ease-out;
+}
+
+@keyframes lab-mensaje {
+	from {
+		opacity: 0;
+		transform: translateY(-10px) scale(0.92);
+	}
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+/* Pantallas chicas: los mismos seis controles en una cuadrícula táctil. */
+.page-laboratorio .lab-abrir-panel {
+	position: fixed;
+	right: clamp(0.75rem, 2vw, 1.5rem);
+	bottom: clamp(0.75rem, 2vw, 1.5rem);
+	z-index: 5;
+	padding: 0.45em 0.9em;
+	border: 3px solid #ffffff;
+	border-radius: 999px;
+	background: #7a4fd6;
+	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+	color: #ffffff;
+	font: 900 clamp(1rem, 4vmin, 1.4rem) / 1.1 Arial, Helvetica, sans-serif;
+	cursor: pointer;
+}
+
+.page-laboratorio .lab-panel {
+	position: fixed;
+	right: clamp(0.75rem, 2vw, 1.5rem);
+	bottom: calc(clamp(0.75rem, 2vw, 1.5rem) + 3.4rem);
+	z-index: 5;
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 0.6rem 0.8rem;
+	padding: 0.7rem 0.8rem 1.4rem;
+	border: 3px solid #ffffff;
+	border-radius: 20px;
+	background: rgba(60, 44, 130, 0.9);
+	box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
+}
+
+.page-laboratorio .lab-panel .lab-boton {
+	width: clamp(54px, 15vmin, 76px);
+	height: clamp(54px, 15vmin, 76px);
+}
+
+.page-laboratorio .lab-panel .lab-boton:active {
+	transform: scale(0.94);
+}
+
+.page-laboratorio .lab-panel .lab-precio {
+	top: 82%;
+	font-size: clamp(0.8rem, 3vmin, 1rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.page-laboratorio .lab-boton-encendido,
+	.page-laboratorio .lab-boton-sacudido,
+	.page-laboratorio .lab-mensaje span {
+		animation-duration: 1ms;
+	}
+}

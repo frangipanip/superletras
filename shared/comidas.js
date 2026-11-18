@@ -59,6 +59,34 @@ export const MUNDO_DE_LETRA = Object.fromEntries(
 	Object.entries(LETRAS_POR_MUNDO).flatMap(([mundo, letras]) => letras.map((letra) => [letra, Number(mundo)]))
 );
 
+// Estrellas que se pueden gastar en un solo toque del Laboratorio de Luces (validación de la API).
+export const MAXIMO_GASTO_ESTRELLAS = 50;
+
+// Gastar estrellas en el Laboratorio de Luces: el saldo es el del mundo (todas sus letras juntas) y
+// lo gastado se anota como `dadas` en la clave de estrellas de cada letra. Se descuenta en el orden
+// de LETRAS_POR_MUNDO, de cada letra hasta lo que le queda. `cantidad(letra)` devuelve las estrellas
+// { ganadas, dadas } de la letra. Devuelve [[letra, a descontar], ...] o null si no alcanza. Lo usan
+// la app y la API, así las dos cuentas coinciden.
+export function repartirGasto(mundo, gasto, cantidad) {
+	const letras = LETRAS_POR_MUNDO[mundo];
+	if (!letras || !Number.isInteger(gasto) || gasto <= 0) {
+		return null;
+	}
+	let falta = gasto;
+	const reparto = [];
+	for (const letra of letras) {
+		if (falta === 0) break;
+		const { ganadas, dadas } = cantidad(letra);
+		const saldo = Math.max(0, ganadas - dadas);
+		const descuento = Math.min(saldo, falta);
+		if (descuento > 0) {
+			reparto.push([letra, descuento]);
+			falta -= descuento;
+		}
+	}
+	return falta === 0 ? reparto : null;
+}
+
 // Letras cuyo monstruo evolucionado sigue comiendo (las de palabras, por ahora solo Mundo 1).
 export const LETRAS_CON_PALABRAS = LETRAS_POR_MUNDO[1];
 

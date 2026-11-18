@@ -6,7 +6,7 @@ import { createServer } from "node:http";
 import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { DatabaseSync } from "node:sqlite";
-import { ACTIVIDADES_SOLO_ESTRELLAS, CLAVE_ESTRELLAS, COMIDA_POR_ACTIVIDAD, COMIDA_POR_CLAVE, COMIDAS, COMIDAS_PALABRAS, comidasDelMonstruo, LETRAS, premioPorErrores, repartirPremio } from "../shared/comidas.js";
+import { ACTIVIDADES_SOLO_ESTRELLAS, CLAVE_ESTRELLAS, COMIDA_POR_ACTIVIDAD, COMIDA_POR_CLAVE, COMIDAS, COMIDAS_PALABRAS, comidasDelMonstruo, LETRAS, MAXIMO_GASTO_ESTRELLAS, MUNDO_DE_LETRA, premioPorErrores, repartirGasto, repartirPremio } from "../shared/comidas.js";
 
 const PORT = Number(process.env.PORT) || 3001;
 const DB_PATH = process.env.DB_PATH || fileURLToPath(new URL("../datos/superletras.db", import.meta.url));
@@ -125,6 +125,38 @@ function leerComidas(codigo) {
 	return letras;
 }
 
+// Estrellas gastadas en el Laboratorio de Luces: { tipo: "gastar", letra (cualquiera del mundo),
+// cantidad }. Misma cuenta que la app (repartirGasto): saldo del mundo, descontado letra por letra
+// como `dadas` de la clave de estrellas. Si no alcanza (por ejemplo, el saldo se gastó desde otro
+// dispositivo) se anota el evento con cantidad 0 y no se descuenta nada: nunca queda negativo.
+function gastarEstrellas(codigo, evento) {
+	const mundo = MUNDO_DE_LETRA[evento.letra];
+	const gasto = Number(evento.cantidad);
+	if (!Number.isInteger(gasto) || gasto <= 0 || gasto > MAXIMO_GASTO_ESTRELLAS) {
+		return false;
+	}
+	db.exec("BEGIN IMMEDIATE");
+	try {
+		if (!sql.existeEvento.get(evento.id)) {
+			if (!sql.existeJugador.get(codigo)) {
+				sql.crearJugador.run(codigo, null);
+			}
+			const leer = (letra) => sql.comida.get(codigo, letra, CLAVE_ESTRELLAS) || { ganadas: 0, dadas: 0 };
+			const reparto = repartirGasto(mundo, gasto, leer);
+			for (const [letra, descuento] of reparto || []) {
+				const actual = leer(letra);
+				sql.guardarComida.run(codigo, letra, CLAVE_ESTRELLAS, actual.ganadas, actual.dadas + descuento);
+			}
+			sql.guardarEvento.run(evento.id, codigo, "gastar", evento.letra, CLAVE_ESTRELLAS, null, null, reparto ? gasto : 0);
+		}
+		db.exec("COMMIT");
+	} catch (error) {
+		db.exec("ROLLBACK");
+		throw error;
+	}
+	return true;
+}
+
 function aplicarEvento(codigo, evento) {
 	const { id, tipo, letra } = evento;
 	if (typeof id !== "string" || id.length < 8 || id.length > 64 || !LETRAS.includes(letra)) {
@@ -144,6 +176,8 @@ function aplicarEvento(codigo, evento) {
 		if (!comida) {
 			return false;
 		}
+	} else if (tipo === "gastar") {
+		return gastarEstrellas(codigo, evento);
 	} else {
 		return false;
 	}

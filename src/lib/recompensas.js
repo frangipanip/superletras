@@ -1,4 +1,4 @@
-import { ACTIVIDADES_SOLO_ESTRELLAS, CLAVE_ESTRELLAS, COMIDA_POR_ACTIVIDAD, COMIDA_POR_CLAVE, comidasDelMonstruo, LETRAS, premioPorErrores, repartirPremio } from "../../shared/comidas.js";
+import { ACTIVIDADES_SOLO_ESTRELLAS, CLAVE_ESTRELLAS, COMIDA_POR_ACTIVIDAD, COMIDA_POR_CLAVE, comidasDelMonstruo, LETRAS, LETRAS_POR_MUNDO, premioPorErrores, repartirGasto, repartirPremio } from "../../shared/comidas.js";
 import { marcarCompletada } from "./progreso";
 import { STORAGE_KEYS, readStorage, writeStorage } from "./storage";
 
@@ -61,9 +61,13 @@ export function comidasPedidas(letras, letra) {
 	return comidasDelMonstruo(letra, (clave) => cantidadComida(letras, letra, clave));
 }
 
-// Estrellas juntadas en la letra (actividades ya completas y "¿J o G?").
-export function estrellasDe(letras, letra) {
-	return cantidadComida(letras, letra, CLAVE_ESTRELLAS).ganadas;
+// Saldo de estrellas del mundo (Laboratorio de Luces): lo ganado menos lo gastado en todas sus letras.
+// Es el mismo para cualquier letra del mundo y nunca mezcla mundos.
+export function estrellasDelMundo(letras, mundo) {
+	return (LETRAS_POR_MUNDO[mundo] || []).reduce((total, letra) => {
+		const { ganadas, dadas } = cantidadComida(letras, letra, CLAVE_ESTRELLAS);
+		return total + Math.max(0, ganadas - dadas);
+	}, 0);
 }
 
 // Total de comidas ganadas que todavía no se le dieron al monstruo de la letra (todas las comidas
@@ -92,6 +96,20 @@ function sumarALetra(letra, clave, cambios) {
 // actividad o, si ya las tiene todas, estrellas (repartirPremio); solo se le puede dar al monstruo
 // lo que se ganó. Devuelve { comida, estrellas } (lo que se sumó).
 function aplicarLocal(evento) {
+	if (evento.tipo === "gastar") {
+		const reparto = repartirGasto(evento.mundo, evento.cantidad, (letra) => cantidadComida(state.letras, letra, CLAVE_ESTRELLAS));
+		if (!reparto) {
+			return null;
+		}
+		// Todo en un solo cambio de estado: nadie ve el saldo a medio descontar.
+		const letras = { ...state.letras };
+		for (const [letra, descuento] of reparto) {
+			const actual = cantidadComida(letras, letra, CLAVE_ESTRELLAS);
+			letras[letra] = { ...letras[letra], [CLAVE_ESTRELLAS]: { ganadas: actual.ganadas, dadas: actual.dadas + descuento } };
+		}
+		setState({ letras });
+		return reparto;
+	}
 	if (evento.tipo === "premio") {
 		const comida = COMIDA_POR_ACTIVIDAD[evento.actividad];
 		const ganadas = comida ? cantidadComida(state.letras, evento.letra, comida.clave).ganadas : 0;
@@ -154,6 +172,23 @@ export function otorgarPremio(letra, actividad, errores = 0, cantidadSolicitada)
 export function darComida(letra, clave) {
 	const evento = { id: nuevoId(), tipo: "dar", letra, comida: clave, codigo: state.codigo };
 	if (aplicarLocal(evento).comida === 0) {
+		return false;
+	}
+	encolar(evento);
+	return true;
+}
+
+// Gasta estrellas del mundo en el Laboratorio de Luces. Valida contra el saldo actual (todo es
+// síncrono, así dos toques seguidos no pueden gastar la misma estrella) y devuelve false sin tocar
+// nada si no alcanza. `efecto` queda en el evento solo como referencia.
+export function gastarEstrellas(mundo, cantidad, efecto) {
+	const letras = LETRAS_POR_MUNDO[mundo];
+	if (!letras) {
+		return false;
+	}
+	// La API valida la letra: va la primera del mundo, que alcanza para saber de qué mundo es.
+	const evento = { id: nuevoId(), tipo: "gastar", mundo, letra: letras[0], cantidad, efecto, codigo: state.codigo };
+	if (!aplicarLocal(evento)) {
 		return false;
 	}
 	encolar(evento);
