@@ -194,24 +194,28 @@ function createButterflies(mode, targetValue, generation, syllableModes = SYLLAB
 		);
 	} else if (mode !== "a") {
 		const targetSyllables = syllableModes[mode];
-		for (let index = 0; index < TOTAL_CORRECT; index += 1) {
-			addItem(targetSyllables[index % targetSyllables.length], true, index);
-		}
+		const correctSyllables = Array.from({ length: TOTAL_CORRECT }, (_, index) =>
+			targetSyllables[index % targetSyllables.length]
+		);
 		const allOtherSyllables = Object.keys(syllableModes)
 			.filter(k => k !== mode)
 			.flatMap(k => syllableModes[k]);
-		const incorrectSyllables = shuffle(allOtherSyllables);
-		for (let index = TOTAL_CORRECT; index < TOTAL_BUTTERFLIES; index += 1) {
-			addItem(incorrectSyllables[index - TOTAL_CORRECT], false, index);
-		}
+		const incorrectSyllables = shuffle(allOtherSyllables).slice(0, TOTAL_BUTTERFLIES - TOTAL_CORRECT);
+		// Cada osito tiene una imagen y posición propias: primero se mezclan las respuestas y después
+		// se asignan a esos ocho lugares para que las correctas no queden juntas ni en orden.
+		shuffle([
+			...correctSyllables.map((value) => ({ value, correct: true })),
+			...incorrectSyllables.map((value) => ({ value, correct: false }))
+		]).forEach(({ value, correct }, index) => addItem(value, correct, index));
 	} else {
-		for (let index = 0; index < TOTAL_CORRECT; index += 1) {
-			addItem(targetValue, true, index);
-		}
-		for (let index = TOTAL_CORRECT; index < TOTAL_BUTTERFLIES; index += 1) {
-			const otherVowel = shuffle(VOWELS.filter((vowel) => vowel !== targetValue))[0];
-			addItem(otherVowel, false, index);
-		}
+		const correctVowels = Array.from({ length: TOTAL_CORRECT }, () => ({ value: targetValue, correct: true }));
+		const incorrectVowels = Array.from({ length: TOTAL_BUTTERFLIES - TOTAL_CORRECT }, () => ({
+			value: shuffle(VOWELS.filter((vowel) => vowel !== targetValue))[0],
+			correct: false
+		}));
+		shuffle([...correctVowels, ...incorrectVowels]).forEach(({ value, correct }, index) =>
+			addItem(value, correct, index)
+		);
 	}
 
 	return shuffle(items).map((item, index) => {
