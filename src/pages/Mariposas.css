@@ -658,3 +658,21 @@
 .page-mariposas:not(.world-mundo2):not(.world-mundo3):not(.world-mundo4) .butterfly-button .badge {
 	transform: translate(-50%, -50%) scale(1.5);
 }
+
+/* En tablet y compu el círculo agrandado tapaba la cara del osito: la misma letra (1,5 veces la
+   de base, sin escalar la caja) en una pastilla ajustada a la sílaba, sobre la panza. */
+@media (min-width: 769px) and (min-height: 561px) {
+	.page-mariposas:not(.world-mundo2):not(.world-mundo3):not(.world-mundo4) .butterfly-button .badge {
+		top: 78%;
+		width: auto;
+		min-width: 1.3em;
+		height: 1.3em;
+		aspect-ratio: auto;
+		padding: 0 0.2em;
+		border-width: 2px;
+		border-radius: 999px;
+		font-size: clamp(2.025rem, 4.5vmin, 2.925rem);
+		line-height: 1;
+		transform: translate(-50%, -50%);
+	}
+}
