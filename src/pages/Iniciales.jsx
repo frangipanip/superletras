@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import BackButton from "../components/BackButton";
 import Character from "../components/Character";
 import FullscreenButton from "../components/FullscreenButton";
-import IconoParlante from "../components/IconoParlante";
 import PremioComida from "../components/PremioComida";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
@@ -53,7 +52,7 @@ export default function Peluche() {
 	const [letra] = useState(() => (["a", "l", "m", "s", "t"].includes(readMenuOption()) ? readMenuOption() : "a"));
 	const [rondas] = useState(() => crearRondas(letra));
 	const largoResaltado = letra === "a" ? 1 : 2;
-	const { activity, activityIndex, acertada, vibrating, premio, pista, esperandoConsigna, elegir, escucharPalabra, repetirConsigna } = usePeluchesJuego({
+	const { activity, activityIndex, acertada, vibrating, premio, pista, elegir, escucharPalabra, repetirConsigna } = usePeluchesJuego({
 		runtime,
 		letra,
 		rondas,
@@ -71,7 +70,7 @@ export default function Peluche() {
 	}, [rondas]);
 
 	return (
-		<div className={`page activity-page page-peluche${esperandoConsigna ? " peluches-esperando" : ""}`}>
+		<div className="page activity-page page-peluche">
 			<BackButton />
 			<FullscreenButton toggle />
 			<main className="initials-activity">
@@ -117,8 +116,7 @@ export default function Peluche() {
 										onClick={() => escucharPalabra(option.id)}
 										aria-label={`Escuchar ${option.id}`}
 									>
-										<span className="palabra-parlante"><IconoParlante /></span>
-										<span className="requested-sound">{option.id.slice(0, largoResaltado)}</span>
+											<span className="requested-sound">{option.id.slice(0, largoResaltado)}</span>
 										{option.id.slice(largoResaltado)}
 									</button>
 								</div>

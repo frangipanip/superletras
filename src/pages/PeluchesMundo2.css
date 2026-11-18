@@ -768,12 +768,3 @@
 .page-peluches-m2 .pm2-tres .pm2-name-texto {
 	padding: 0.32em 0.62em 0.26em;
 }
-
-/* El parlante va en la esquina de arriba del cartel: al costado se metía en el cartel vecino. */
-.page-peluches-m2 .pm2-tres .palabra-parlante {
-	top: 0;
-	width: clamp(22px, 4.6vmin, 34px);
-	height: clamp(22px, 4.6vmin, 34px);
-	padding: 4px;
-	transform: translate(-55%, -50%);
-}

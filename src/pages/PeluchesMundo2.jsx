@@ -12,7 +12,6 @@ import { useTalkingMouth } from "../hooks/useTalkingMouth";
 import { img, MUNDO2_CHARACTER_FRAMES, MUNDO2_MOUTH_IMAGES, preloadImages } from "../lib/assets";
 import { whenPageReady } from "../lib/pageGate";
 import { elegirSinRepetir, opcionesDeRonda, ordenDeConsignas, ubicarOpciones } from "../lib/peluchesRondas";
-import IconoParlante from "../components/IconoParlante";
 import "./actividad.css";
 import { preferirCortas } from "../lib/palabrasCortas";
 import "./PeluchesMundo2.css";
@@ -116,7 +115,7 @@ export default function PeluchesMundo2() {
 	const [rondas] = useState(() => crearRondas(letra, CON_TRES));
 	// Ronda cuyas opciones ya se ven: la consigna espera a que aparezcan (ver usePeluchesJuego).
 	const [rondaVisible, setRondaVisible] = useState(-1);
-	const { activityIndex, acertada, vibrating, premio, pista, esperandoConsigna, elegir, escucharPalabra, repetirConsigna } = usePeluchesJuego({
+	const { activityIndex, acertada, vibrating, premio, pista, elegir, escucharPalabra, repetirConsigna } = usePeluchesJuego({
 		runtime,
 		letra,
 		rondas,
@@ -209,7 +208,6 @@ export default function PeluchesMundo2() {
 	if (escena !== "espera") pageClassNames.push("pm2-volando");
 	if (escena === "posadas" || escena === "proyectando") pageClassNames.push("pm2-posadas");
 	if (escena === "proyectando") pageClassNames.push("pm2-proyectando");
-	if (esperandoConsigna) pageClassNames.push("peluches-esperando");
 
 	return (
 		<div className={pageClassNames.join(" ")}>
@@ -302,8 +300,7 @@ export default function PeluchesMundo2() {
 									onClick={() => interactivo && escucharPalabra(option.id)}
 									aria-label={`Escuchar ${texto}`}
 								>
-									<span className="palabra-parlante"><IconoParlante /></span>
-									<span className="pm2-name-texto">
+										<span className="pm2-name-texto">
 										<span className="requested-sound">{texto.slice(0, 2)}</span>
 										{texto.slice(2)}
 									</span>

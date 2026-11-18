@@ -1,5 +1,4 @@
-// Parlante chico: los chicos no leen "escuchar". Lo usan Flores (sobre cada opción) y Peluches
-// (junto a cada palabra).
+// Parlante chico: los chicos no leen "escuchar". Lo usa Flores de Mundo 3 (sobre cada opción).
 export default function IconoParlante() {
 	return (
 		<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">

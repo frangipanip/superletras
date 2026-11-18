@@ -9,7 +9,6 @@ import { usePageTitle } from "../hooks/usePageTitle";
 import { usePeluchesJuego } from "../hooks/usePeluchesJuego";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
-import IconoParlante from "../components/IconoParlante";
 import { img, MUNDO3_MOUTH_IMAGES, preloadImages } from "../lib/assets";
 import { elegirSinRepetir, opcionesDeRonda, ordenDeConsignas, ubicarOpciones } from "../lib/peluchesRondas";
 import "./actividad.css";
@@ -169,7 +168,7 @@ export function PeluchesPlataformas({ titulo, grupos, acentos = {}, pares = {}, 
 	const imagenDe = (id) => img(`peluches/${carpeta}/${id}.png`);
 	const FONDO = img(`peluches/${carpeta}/fondo.jpg`);
 	const IMAGEN_SOPORTE = img(`peluches/${carpeta}/${soporte.imagen}`);
-	const { activity, activityIndex, acertada, vibrating, premio, pista, esperandoConsigna, elegir, escucharPalabra, repetirConsigna } = usePeluchesJuego({
+	const { activity, activityIndex, acertada, vibrating, premio, pista, elegir, escucharPalabra, repetirConsigna } = usePeluchesJuego({
 		runtime,
 		letra,
 		rondas,
@@ -204,7 +203,7 @@ export function PeluchesPlataformas({ titulo, grupos, acentos = {}, pares = {}, 
 	};
 
 	return (
-		<div className={`page activity-page page-peluches-m3 ${className}${esperandoConsigna ? " peluches-esperando" : ""}`.trim()}>
+		<div className={`page activity-page page-peluches-m3 ${className}`.trim()}>
 			<BackButton />
 			<FullscreenButton toggle />
 			{/* Escenario con las proporciones del fondo (1600x883): todo se ubica en % sobre él. */}
@@ -253,8 +252,7 @@ export function PeluchesPlataformas({ titulo, grupos, acentos = {}, pares = {}, 
 									onClick={() => escucharPalabra(option.id)}
 									aria-label={`Escuchar ${texto}`}
 								>
-									<span className="palabra-parlante"><IconoParlante /></span>
-									<PalabraResaltada grupo={grupo} id={option.id} texto={texto} />
+										<PalabraResaltada grupo={grupo} id={option.id} texto={texto} />
 								</button>
 							</div>
 						</div>

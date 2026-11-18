@@ -165,8 +165,8 @@
 	position: relative;
 }
 
-/* La hamaca se balancea desde el enganche con un vaivén que se va frenando; el dibujo, la palabra y el
-   parlante van adentro, así se mueven juntos y se pueden tocar mientras se mueve. */
+/* La hamaca se balancea desde el enganche con un vaivén que se va frenando; el dibujo y la palabra
+   van adentro, así se mueven juntos y se pueden tocar mientras se mueve. */
 .page-peluches-m3 .pm3-soporte-hamaca .pm3-vaiven {
 	transform-origin: 50% 0;
 	animation: pm3-vaiven 2.4s ease-in-out both;
