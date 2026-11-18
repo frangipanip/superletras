@@ -3,7 +3,6 @@ import { useLocation } from "react-router";
 import BackButton from "../components/BackButton";
 import Character from "../components/Character";
 import FullscreenButton from "../components/FullscreenButton";
-import IconoParlante from "../components/IconoParlante";
 import PremioComida, { useRecompensa } from "../components/PremioComida";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
@@ -284,29 +283,6 @@ export default function Flores() {
 		}
 	}
 
-	// Parlante chico de cada opción (solo Mundo 3): la escucha sin elegirla (no cuenta como respuesta).
-	function oirOpcion(flower, event) {
-		event.stopPropagation();
-		event.preventDefault();
-		if (game.current.transitionPending || game.current.celebrationActive) return;
-		secuencia.reproducir([labelAudio(flower.label)]);
-	}
-
-	function parlante(flower) {
-		if (flower.result) return null;
-		return (
-			<span
-				className="opcion-parlante"
-				role="button"
-				aria-label={`Escuchar ${flower.label}`}
-				onClick={(event) => oirOpcion(flower, event)}
-				onPointerDown={(event) => event.stopPropagation()}
-			>
-				<IconoParlante />
-			</span>
-		);
-	}
-
 	function handleFlowerClick(index, event) {
 		const currentRound = roundRef.current;
 		const flower = currentRound.flowers[index];
@@ -456,7 +432,6 @@ export default function Flores() {
 										</span>
 									</span>
 								)}
-								{isMundo3 && parlante(flower)}
 							</button>
 						)
 					))}
