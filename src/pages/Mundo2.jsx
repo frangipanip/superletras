@@ -111,7 +111,9 @@ export default function Mundo2() {
 	const routePerch = location.state?.menuOption === selectedLetter && PATH_BUTTONS[location.state?.activityIndex]
 		? location.state.activityIndex
 		: null;
-	const perchIndex = routePerch ?? (PATH_BUTTONS[savedPerches[selectedLetter]] ? savedPerches[selectedLetter] : null);
+	// Primero la guardada: "siguiente" en el premio la mueve a la última actividad jugada, mientras
+	// que la del historial sigue en la primera de la tanda.
+	const perchIndex = (PATH_BUTTONS[savedPerches[selectedLetter]] ? savedPerches[selectedLetter] : null) ?? routePerch;
 	const characterIndex = teleport ? teleport.position : perchIndex;
 	const [menuPanelVisible, setMenuPanelVisible] = useState(true);
 	const [compactMenuOpen, setCompactMenuOpen] = useState(false);

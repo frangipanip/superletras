@@ -672,6 +672,12 @@
 	pointer-events: none;
 }
 
+/* Fase 3: lo que se mueve va por encima de todo (letra grande, personaje, botones de las
+   esquinas) para que siempre se pueda tocar. Debajo solo del cartel de premio. */
+.page-inicio-actividad .inicio-vowels.en-movimiento {
+	z-index: 6;
+}
+
 .inicio-vowel-button {
 	position: absolute;
 	width: clamp(6.5rem, 12vw, 15rem);

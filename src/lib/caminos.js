@@ -1,5 +1,5 @@
 import { ACTIVIDADES, esActividadDePalabras } from "../../shared/actividades.js";
-import { STORAGE_KEYS, readStorage } from "./storage";
+import { STORAGE_KEYS, readStorage, writeStorage } from "./storage";
 
 // Actividades del camino de cada mundo, en orden (la ruta es /<clave>). Mundo 1 sale de
 // shared/actividades.js; los otros mundos tienen su camino armado en su pantalla y tienen que
@@ -34,4 +34,33 @@ export function siguienteActividad(mundo, clave, letra) {
 		return null;
 	}
 	return siguiente;
+}
+
+// Dónde guarda cada menú la actividad junto a la que se para el personaje, por letra (el índice
+// es el de CAMINOS). Mundo 1 usa la letra en minúscula; los otros, en mayúscula. Mundo 6 no
+// mueve al personaje.
+const POSICIONES_EN_CAMINO = {
+	1: STORAGE_KEYS.mundo1Perches,
+	2: STORAGE_KEYS.mundo2Perches,
+	3: STORAGE_KEYS.mundo3Perches,
+	4: STORAGE_KEYS.mundo4Perches,
+	5: STORAGE_KEYS.mundo5Perches
+};
+
+// Anota `clave` como la última actividad jugada de la letra: al volver al menú (por ejemplo,
+// después de encadenar actividades con "siguiente") el personaje aparece junto a ella.
+export function anotarPosicionEnCamino(mundo, letra, clave) {
+	const storageKey = POSICIONES_EN_CAMINO[mundo];
+	const indice = CAMINOS[mundo]?.indexOf(clave) ?? -1;
+	if (!storageKey || !letra || indice < 0) {
+		return;
+	}
+	let posiciones = {};
+	try {
+		posiciones = JSON.parse(readStorage(storageKey) || "{}") || {};
+	} catch {
+		posiciones = {};
+	}
+	const clavePorLetra = mundo === 1 ? letra.toLowerCase() : letra.toUpperCase();
+	writeStorage(storageKey, JSON.stringify({ ...posiciones, [clavePorLetra]: indice }));
 }

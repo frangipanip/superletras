@@ -929,7 +929,7 @@ export default function InicioActividad() {
 					</button>
 				</div>
 			)}
-			<div className="inicio-vowels inicio-syllables" aria-label={mode.listName}>
+			<div className={`inicio-vowels inicio-syllables${isPhaseThree ? " en-movimiento" : ""}`} aria-label={mode.listName}>
 					{itemOrder.map((item) => {
 						const isHidden = !visibleItems.has(item);
 						const isRevealing = revealingItem === item;

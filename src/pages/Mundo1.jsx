@@ -185,7 +185,9 @@ export default function Mundo1() {
 	const routePerch = location.state?.menuOption === selectedOption && PATH_BUTTONS[location.state?.activityIndex]
 		? location.state.activityIndex
 		: null;
-	const perchIndex = routePerch ?? (PATH_BUTTONS[savedPerches[selectedOption]] ? savedPerches[selectedOption] : null);
+	// Primero la guardada: "siguiente" en el premio la mueve a la última actividad jugada, mientras
+	// que la del historial sigue en la primera de la tanda.
+	const perchIndex = (PATH_BUTTONS[savedPerches[selectedOption]] ? savedPerches[selectedOption] : null) ?? routePerch;
 	const characterIndex = teleport ? teleport.position : perchIndex;
 	const [introAudio] = useState(() => runtime.audio(sound("InicioMundos.mp3"), { preload: true }));
 	const [wordsAudio] = useState(() => runtime.audio("/assets/sonido/logropalabras.mp3", { preload: true }));
