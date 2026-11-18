@@ -11,7 +11,7 @@ import { CHARACTERS, img, MUNDO1_CHARACTERS, MUNDO2_CHARACTER_FRAMES, MUNDO2_CHA
 import { whenPageReady } from "../lib/pageGate";
 import { shuffle } from "../lib/shuffle";
 import { useActivityMenuOption } from "../hooks/useActivityMenuOption";
-import { useCarPhysics } from "../hooks/useCarPhysics";
+import { FORMA_CARRO, FORMA_VOLADOR, useCarPhysics } from "../hooks/useCarPhysics";
 import { useAyudaError } from "../hooks/useAyudaError";
 import { crearSecuencia, mudo } from "../lib/secuenciaAudio";
 import { marcarCompletada } from "../lib/progreso";
@@ -215,6 +215,11 @@ const MUNDO3_BACKGROUND_OBSTACLES = {
 		[1490, 700, 1672, 941]
 	]
 };
+// Caja de choque de cada dibujo en la fase 3 (fracciones del botón). El globo (Mundos 1, 5 y 6)
+// choca con el cuerpo, no con el hilo.
+const FORMA_GLOBO = { ...FORMA_VOLADOR, caja: { ancho: 0.64, alto: 0.54, cx: 0.45, cy: 0.39 } };
+const FORMA_MARIQUITA = { ...FORMA_VOLADOR, caja: { ancho: 0.75, alto: 0.75, cx: 0.5, cy: 0.5 } };
+const FORMA_BURBUJA = { ...FORMA_VOLADOR, caja: { ancho: 0.82, alto: 0.82, cx: 0.5, cy: 0.5 } };
 const MUNDO2_LETTER_LABELS = {
 	p: "Letra P",
 	n: "Letra N",
@@ -315,13 +320,21 @@ export default function InicioActividad() {
 	const requestOrder = useRef(mode.items);
 	// Carteles equivocados tocados al pedirlos (fases 2 y 3): definen cuántas comidas se ganan.
 	const errorCount = useRef(0);
-	// Mundo 3: en la fase 3 los carros manejan con física (chocan y rebotan sin pisarse).
+	// Fase 3 en todos los mundos: los carros, globos, mariquitas y burbujas se mueven con física
+	// (chocan y rebotan sin pisarse).
 	const carRefs = useRef(new Map());
 	const characterRef = useRef(null);
 	const leftCars = useRef(activitySelectedItems);
 	leftCars.current = activitySelectedItems;
-	const isDriving = isMundo3 && isPhaseThree && !isShuffling;
-	useCarPhysics(runtime, { active: isDriving, itemRefs: carRefs, stoppedRef: leftCars, obstacleRefs: [characterRef], background: MUNDO3_BACKGROUND_OBSTACLES });
+	const isDriving = isPhaseThree && !isShuffling;
+	useCarPhysics(runtime, {
+		active: isDriving,
+		itemRefs: carRefs,
+		stoppedRef: leftCars,
+		obstacleRefs: [characterRef],
+		background: isMundo3 ? MUNDO3_BACKGROUND_OBSTACLES : null,
+		forma: isMundo3 ? FORMA_CARRO : isMundo2 ? FORMA_MARIQUITA : isMundo4 ? FORMA_BURBUJA : FORMA_GLOBO
+	});
 	// Mundos 1 a 5 dan cerezas al monstruo de la letra; Mundo 6 no tiene monstruos (solo progreso).
 	const letraPremio = isMundo6 ? null : isMundo2 || isMundo3 || isMundo4 || isMundo5 ? menuOption : MODES[menuOption] ? menuOption : "a";
 	const [premio, otorgarPremio] = useRecompensa("inicio", letraPremio);
@@ -922,7 +935,7 @@ export default function InicioActividad() {
 						return (
 							<div
 								key={item}
-								className={`inicio-vowel-button inicio-vowel-${item.toLowerCase()}${isExploded ? " selected" : ""}${activeItem === item ? " active" : ""}${incorrectItem === item ? " incorrect" : ""}${ayuda.pista && requestedItem === item ? " pista-correcta" : ""}${isShuffling ? " shuffling" : ""}${isHidden ? " hidden-balloon" : ""}${isRevealing ? " reveal-balloon" : ""}${isPhaseThree && !isShuffling && !activitySelectedItems.has(item) ? (isMundo3 ? " driving" : " flying") : ""}`}
+								className={`inicio-vowel-button inicio-vowel-${item.toLowerCase()}${isExploded ? " selected" : ""}${activeItem === item ? " active" : ""}${incorrectItem === item ? " incorrect" : ""}${ayuda.pista && requestedItem === item ? " pista-correcta" : ""}${isShuffling ? " shuffling" : ""}${isHidden ? " hidden-balloon" : ""}${isRevealing ? " reveal-balloon" : ""}${isDriving && !activitySelectedItems.has(item) ? " driving" : ""}`}
 								style={isMundo4 ? {
 									"--mundo4-syllable-color": MUNDO4_SYLLABLE_COLORS[(isMundo4Q ? MUNDO4_Q_ROUND_ITEMS : mode.items).indexOf(item)],
 									...(itemOrder.length < 5 ? {

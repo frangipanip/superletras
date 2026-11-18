@@ -1,25 +1,39 @@
 import { useEffect } from "react";
 
-// Física de los carros de Mundo 3 (fase 3, "ahora con movimiento"): cada carro maneja solo,
-// dobla de a poco, choca contra los otros, contra los bordes del piso y contra los obstáculos
-// (personaje, bloques del fondo) y rebota, como autitos de verdad. La imagen no gira. Entre carros
-// choca solo la "huella" sobre el piso (la mitad de abajo), así el que está más atrás puede
-// quedar tapado hasta la mitad por el de adelante (se dibuja adelante el de más abajo).
+// Física de la fase 3 de Inicio ("ahora con movimiento") en todos los mundos: cada carro (o globo,
+// mariquita, burbuja) anda solo, dobla de a poco, choca contra los otros, contra los bordes y
+// contra los obstáculos (personaje, bloques del fondo) y rebota, sin pisarse. La imagen no gira.
+// Con `forma` se ajusta a cada dibujo (ver FORMA_CARRO y FORMA_VOLADOR). En los carros choca solo
+// la "huella" sobre el piso (la mitad de abajo), así el que está más atrás puede quedar tapado
+// hasta la mitad por el de adelante (se dibuja adelante el de más abajo).
 // Las posiciones se escriben directo en el DOM (left/top) para no re-renderizar 60 veces por
 // segundo; transform queda libre para las animaciones de CSS (sacudida al equivocarse, salida
 // al acertar).
 
-// Caja de choque relativa al botón (cuadrado): el carro ocupa casi todo el ancho y ~84% del alto.
-const BOX_WIDTH = 0.88;
-const BOX_HEIGHT = 0.74;
-// El piso del fondo empieza más o menos al 22% del alto; arriba está el cielo.
-const FLOOR_TOP = 0.22;
+// Forma de los carros de Mundo 3. La caja de choque es relativa al botón (ancho, alto y centro en
+// fracciones): el carro ocupa casi todo el ancho y ~84% del alto. El piso del fondo empieza más o
+// menos al 22% del alto (arriba está el cielo) y, en el piso en perspectiva, ir "hacia el fondo"
+// se ve más lento que ir de costado.
+export const FORMA_CARRO = {
+	caja: { ancho: 0.88, alto: 0.74, cx: 0.5, cy: 0.54 },
+	piso: 0.22,
+	escalaVertical: 0.7,
+	huella: true,
+	profundidad: true
+};
+// Lo que vuela o nada (globos, mariquitas, burbujas): usa toda la pantalla, sin perspectiva, y
+// choca con toda la caja.
+export const FORMA_VOLADOR = {
+	caja: { ancho: 0.8, alto: 0.8, cx: 0.5, cy: 0.5 },
+	piso: 0,
+	escalaVertical: 1,
+	huella: false,
+	profundidad: false
+};
 // Rebote: 1 = choque perfecto, menos = se frenan un poco al chocar.
 const RESTITUTION = 0.75;
 // Qué tan rápido el motor vuelve a la velocidad de crucero después de un choque (1/s).
 const ACCELERATION = 1.4;
-// En el piso en perspectiva, ir "hacia el fondo" se ve más lento que ir de costado.
-const VERTICAL_SCALE = 0.7;
 const MAX_TURN_RATE = 0.9;
 
 function randomBetween(min, max) {
@@ -27,18 +41,23 @@ function randomBetween(min, max) {
 }
 
 function boxOf(car) {
+	const { caja } = car.forma;
 	return {
-		cx: car.x + car.w / 2,
-		cy: car.y + car.h / 2 + car.h * 0.04,
-		hw: (car.w * BOX_WIDTH) / 2,
-		hh: (car.h * BOX_HEIGHT) / 2
+		cx: car.x + car.w * caja.cx,
+		cy: car.y + car.h * caja.cy,
+		hw: (car.w * caja.ancho) / 2,
+		hh: (car.h * caja.alto) / 2
 	};
 }
 
 // Huella sobre el piso: la mitad de abajo de la caja. Dos carros chocan recién cuando se pisan
-// las huellas, o sea que de frente/atrás se pueden solapar hasta media caja.
+// las huellas, o sea que de frente/atrás se pueden solapar hasta media caja. Lo que vuela choca
+// con toda la caja.
 function footprintOf(car) {
 	const box = boxOf(car);
+	if (!car.forma.huella) {
+		return box;
+	}
 	return { cx: box.cx, cy: box.cy + box.hh / 2, hw: box.hw, hh: box.hh / 2 };
 }
 
@@ -57,7 +76,7 @@ function pointInward(car, axis, sign) {
 
 function headingFromVelocity(car) {
 	if (Math.hypot(car.vx, car.vy) > 8) {
-		car.angle = Math.atan2(car.vy / VERTICAL_SCALE, car.vx);
+		car.angle = Math.atan2(car.vy / car.forma.escalaVertical, car.vx);
 	}
 }
 
@@ -122,7 +141,7 @@ function collideObstacle(car, obstacle) {
 
 function keepInside(car, bounds) {
 	const box = boxOf(car);
-	const minY = bounds.height * FLOOR_TOP;
+	const minY = bounds.height * car.forma.piso;
 	if (box.cx - box.hw < 0) {
 		car.x += box.hw - box.cx;
 		car.vx = Math.abs(car.vx) * RESTITUTION;
@@ -165,8 +184,9 @@ function obstacleFrom(element, containerRect, inset) {
  * @param background     cosas dibujadas en el fondo que están "adelante" y no se pueden pisar:
  *                       { width, height, rects: [[x1, y1, x2, y2], ...] } en píxeles de la imagen,
  *                       que se pinta centrada con background-size: cover sobre el contenedor.
+ * @param forma          FORMA_CARRO (por defecto) o FORMA_VOLADOR.
  */
-export function useCarPhysics(runtime, { active, itemRefs, stoppedRef, obstacleRefs = [], background = null }) {
+export function useCarPhysics(runtime, { active, itemRefs, stoppedRef, obstacleRefs = [], background = null, forma = FORMA_CARRO }) {
 	useEffect(() => {
 		if (!active) {
 			return undefined;
@@ -182,6 +202,9 @@ export function useCarPhysics(runtime, { active, itemRefs, stoppedRef, obstacleR
 		const cars = elements.map(([item, element]) => ({
 			item,
 			element,
+			forma,
+			// Posición que tenía antes (Mundo 4 ubica las burbujas en línea): se devuelve al terminar.
+			original: { left: element.style.left, top: element.style.top },
 			x: element.offsetLeft,
 			y: element.offsetTop,
 			w: element.offsetWidth,
@@ -245,7 +268,7 @@ export function useCarPhysics(runtime, { active, itemRefs, stoppedRef, obstacleR
 				// Motor: la velocidad se acerca a la de crucero en la dirección del rumbo.
 				const cruise = car.cruise * cruiseBase;
 				const targetX = Math.cos(car.angle) * cruise;
-				const targetY = Math.sin(car.angle) * cruise * VERTICAL_SCALE;
+				const targetY = Math.sin(car.angle) * cruise * forma.escalaVertical;
 				const pull = Math.min(1, ACCELERATION * dt);
 				car.vx += (targetX - car.vx) * pull;
 				car.vy += (targetY - car.vy) * pull;
@@ -269,8 +292,10 @@ export function useCarPhysics(runtime, { active, itemRefs, stoppedRef, obstacleR
 			moving.forEach((car) => {
 				car.element.style.left = `${car.x}px`;
 				car.element.style.top = `${car.y}px`;
-				// El de más abajo queda adelante (está más cerca en el piso en perspectiva).
-				car.element.style.zIndex = String(Math.round(car.y));
+				if (forma.profundidad) {
+					// El de más abajo queda adelante (está más cerca en el piso en perspectiva).
+					car.element.style.zIndex = String(Math.round(car.y));
+				}
 			});
 			runtime.requestAnimationFrame(step);
 		}
@@ -280,9 +305,9 @@ export function useCarPhysics(runtime, { active, itemRefs, stoppedRef, obstacleR
 			running = false;
 			runtime.clearTimeout(measureTimer);
 			window.removeEventListener("resize", measure);
-			cars.forEach(({ element }) => {
-				element.style.left = "";
-				element.style.top = "";
+			cars.forEach(({ element, original }) => {
+				element.style.left = original.left;
+				element.style.top = original.top;
 				element.style.zIndex = "";
 			});
 		};

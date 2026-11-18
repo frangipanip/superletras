@@ -852,61 +852,8 @@
 	animation: inicio-confetti-fall 1700ms ease-in var(--confetti-delay) forwards;
 }
 
-@keyframes balloon-fly-1 {
-	0%, 100% { translate: 0 0; }
-	20% { translate: 25vw 20vh; }
-	40% { translate: 45vw -10vh; }
-	60% { translate: 10vw 30vh; }
-	80% { translate: -5vw 10vh; }
-}
-
-@keyframes balloon-fly-2 {
-	0%, 100% { translate: 0 0; }
-	20% { translate: -20vw 25vh; }
-	40% { translate: 20vw -15vh; }
-	60% { translate: -15vw 15vh; }
-	80% { translate: 10vw 20vh; }
-}
-
-@keyframes balloon-fly-3 {
-	0%, 100% { translate: 0 0; }
-	20% { translate: -30vw 10vh; }
-	40% { translate: -10vw 25vh; }
-	60% { translate: -45vw -10vh; }
-	80% { translate: -20vw 15vh; }
-}
-
-@keyframes balloon-fly-4 {
-	0%, 100% { translate: 0 0; }
-	20% { translate: 20vw -25vh; }
-	40% { translate: -10vw -15vh; }
-	60% { translate: 30vw -30vh; }
-	80% { translate: -25vw -10vh; }
-}
-
-@keyframes balloon-fly-5 {
-	0%, 100% { translate: 0 0; }
-	20% { translate: -25vw -20vh; }
-	40% { translate: -40vw 5vh; }
-	60% { translate: 10vw -25vh; }
-	80% { translate: -15vw -5vh; }
-}
-
-.inicio-vowel-button.flying:nth-child(1) {
-	animation: balloon-fly-1 15s linear infinite;
-}
-.inicio-vowel-button.flying:nth-child(2) {
-	animation: balloon-fly-2 18s linear infinite;
-}
-.inicio-vowel-button.flying:nth-child(3) {
-	animation: balloon-fly-3 16s linear infinite;
-}
-.inicio-vowel-button.flying:nth-child(4) {
-	animation: balloon-fly-4 20s linear infinite;
-}
-.inicio-vowel-button.flying:nth-child(5) {
-	animation: balloon-fly-5 17s linear infinite;
-}
+/* Fase 3: los globos, mariquitas y burbujas se mueven con física (useCarPhysics escribe
+   left/top), así que se chocan en lugar de pisarse; siguen flotando con balloon-float. */
 
 @keyframes inicio-personaje-mariposa-volar {
 	0%, 100% { transform: translateY(0); }
@@ -1088,7 +1035,7 @@
 	transform: none;
 }
 
-/* Fase 3: los carros manejan con física (useCarPhysics escribe left/top) */
+/* Fase 3: los carros manejan con física (useCarPhysics escribe left/top) y no flotan */
 .page-inicio-actividad.world-bloques .inicio-vowel-button.driving:not(.incorrect) {
 	animation: none;
 }
