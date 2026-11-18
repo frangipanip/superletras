@@ -56,6 +56,11 @@ export const LIMITES = {
 };
 export const MOVIMIENTO_REDUCIDO = 0.5;
 
+// Cuánto duran los efectos respecto de su diseño original (2 = el doble): estrellas fugaces, burbujas,
+// aurora, constelación y fuegos, y lo que tardan en crecer y florecer las plantas (que después quedan
+// hasta salir).
+export const DURACION_EFECTOS = 2;
+
 // Ignora un segundo toque al mismo botón dentro de este tiempo (toques dobles accidentales).
 export const ESPERA_ENTRE_TOQUES = 450;
 

@@ -1,4 +1,4 @@
-import { ALTO, ANCHO, CIELO, FLORES, INSTRUMENTOS, LIMITES, MOVIMIENTO_REDUCIDO, PIEZAS_PLANTA, ZONA_VIDES } from "./laboratorio";
+import { ALTO, ANCHO, CIELO, DURACION_EFECTOS, FLORES, INSTRUMENTOS, LIMITES, MOVIMIENTO_REDUCIDO, PIEZAS_PLANTA, ZONA_VIDES } from "./laboratorio";
 
 // Motor de efectos del Laboratorio de Luces. Todo se dibuja por código en dos lienzos (Canvas 2D)
 // con las coordenadas lógicas del escenario (1920×1080):
@@ -274,14 +274,14 @@ function crearPlanta(escena, { x, y, lugar }, tSemilla) {
 
 	const principal = agregarTallo(
 		{ angulo: -Math.PI / 2 + azar(-0.12, 0.12), largo: azar(150, 240) * escala, lado: ladoInicial, ondas: azar(1.2, 1.8), amplitud: azar(0.35, 0.6), zarcillo: Math.random() < 0.45 },
-		{ ancho: 8.5 * escala, inicio, duracion: azar(2.4, 3.2) }
+		{ ancho: 8.5 * escala, inicio, duracion: azar(2.4, 3.2) * DURACION_EFECTOS }
 	);
 	const troncos = [principal];
 	if (Math.random() < 0.5) {
 		troncos.push(
 			agregarTallo(
 				{ angulo: -Math.PI / 2 - ladoInicial * azar(0.15, 0.3), largo: tallos[principal].largo * azar(0.5, 0.7), lado: -ladoInicial, ondas: azar(1, 1.5), amplitud: azar(0.3, 0.5), zarcillo: Math.random() < 0.3 },
-				{ ancho: 6.5 * escala, inicio: inicio + 0.45, duracion: azar(1.8, 2.4), base: { x: -ladoInicial * 10 * escala, y: 2 } }
+				{ ancho: 6.5 * escala, inicio: inicio + 0.45 * DURACION_EFECTOS, duracion: azar(1.8, 2.4) * DURACION_EFECTOS, base: { x: -ladoInicial * 10 * escala, y: 2 } }
 			)
 		);
 	}
@@ -299,7 +299,7 @@ function crearPlanta(escena, { x, y, lugar }, tSemilla) {
 			const largo = azar(50, 110) * escala;
 			agregarTallo(
 				{ angulo: angulo(puntos, nodo) + ladoRama * azar(0.7, 1.1), largo, lado: ladoRama, rama: true, zarcillo: Math.random() < 0.25, peso: largo > 80 ? largo * 0.18 : 0 },
-				{ ancho: 4.6 * escala, padre: tronco, nodo, duracion: azar(1.3, 1.9), hamaca: largo > 80 ? 0.05 : 0.025 }
+				{ ancho: 4.6 * escala, padre: tronco, nodo, duracion: azar(1.3, 1.9) * DURACION_EFECTOS, hamaca: largo > 80 ? 0.05 : 0.025 }
 			);
 			lado = -lado;
 		}
@@ -352,17 +352,17 @@ function crearPlanta(escena, { x, y, lugar }, tSemilla) {
 		}
 		const etapas = [["brote", 0]];
 		if (final !== "brote") {
-			etapas.push(["pimpollo", azar(0.6, 1)]);
+			etapas.push(["pimpollo", azar(0.6, 1) * DURACION_EFECTOS]);
 		}
 		if (final !== "brote" && final !== "pimpollo") {
-			etapas.push([final, etapas[1][1] + azar(0.7, 1.3)]);
+			etapas.push([final, etapas[1][1] + azar(0.7, 1.3) * DURACION_EFECTOS]);
 		}
 		return {
 			...lugarPieza,
 			lado: elegir([-1, 1]),
 			tamaño: lugarPieza.punta ? azar(0.9, 1.15) : azar(0.65, 0.85),
 			etapas,
-			demora: azar(0, 0.35),
+			demora: azar(0, 0.35) * DURACION_EFECTOS,
 			aparece: null,
 			fase: azar(0, TAU)
 		};
@@ -629,8 +629,8 @@ const estrellas = {
 			const y = azar(CIELO.y[0], CIELO.y[0] + 200);
 			// Que termine dentro del cielo, sin bajar a las colinas ni pasar sobre la máquina.
 			const largo = Math.min(azar(380, 560), (x - CIELO.x[0]) / -dx, (CIELO.y[1] - 60 - y) / dy);
-			lista.push({ x, y, dx, dy, largo, inicio, duracion: azar(0.9, 1.3) * (escena.reducido ? 1.4 : 1) });
-			inicio += azar(0.25, 0.45);
+			lista.push({ x, y, dx, dy, largo, inicio, duracion: azar(0.9, 1.3) * DURACION_EFECTOS * (escena.reducido ? 1.4 : 1) });
+			inicio += azar(0.25, 0.45) * DURACION_EFECTOS;
 		}
 		const fin = Math.max(...lista.map((estrella) => estrella.inicio + estrella.duracion)) + 0.1;
 		escena.instancias.push({
@@ -717,9 +717,9 @@ function soltarTanda(escena, puntosDelPasto) {
 			y: fuente.y + azar(-12, 12),
 			radio,
 			vx: azar(fuente.vx[0], fuente.vx[1]),
-			vy: -azar(45, 95) * (radio > 30 ? 0.6 : 1) * (escena.reducido ? 0.7 : 1),
+			vy: (-azar(45, 95) * (radio > 30 ? 0.6 : 1) * (escena.reducido ? 0.7 : 1)) / Math.sqrt(DURACION_EFECTOS),
 			edad: -azar(0, 0.5),
-			vida: azar(4.5, 8),
+			vida: azar(4.5, 8) * DURACION_EFECTOS,
 			fase: azar(0, TAU),
 			sprite: elegir(escena.sprites),
 			capa: fuente.capa,
@@ -767,7 +767,7 @@ const burbujas = {
 					if (internas[i].y < globo.y - globo.ry * 0.6) internas.splice(i, 1);
 				}
 				// Después, tandas de burbujas desde la máquina y desde el pasto.
-				while (tandas < totalTandas && t >= 1.1 + tandas * 0.75) {
+				while (tandas < totalTandas && t >= 1.1 + tandas * 0.75 * DURACION_EFECTOS) {
 					soltarTanda(escena, puntosDelPasto);
 					tandas += 1;
 				}
@@ -815,7 +815,7 @@ const aurora = {
 			hasta: CIELO.x[1] - azar(0, 120)
 		}));
 		const inicioCintas = 1.2;
-		const duracionCintas = 9.8;
+		const duracionCintas = 9.8 * DURACION_EFECTOS;
 		escena.instancias.push({
 			tipo: "aurora",
 			actualizar: () => escena.reloj - t0 < inicioCintas + duracionCintas,
@@ -843,7 +843,7 @@ const aurora = {
 			},
 			paisaje(ctx) {
 				const t = escena.reloj - t0 - inicioCintas;
-				const general = envolvente(t, duracionCintas, 1.8, 2.4);
+				const general = envolvente(t, duracionCintas, 1.8 * 1.5, 2.4 * 1.5);
 				if (general <= 0) return;
 				const { k } = escena;
 				const reloj = escena.reloj;
@@ -926,7 +926,7 @@ const constelacion = {
 			centro[1] + (x * Math.sin(giro) + y * Math.cos(giro)) * tamaño
 		]);
 		const inicio = 1;
-		const porSegmento = 0.42;
+		const porSegmento = 0.42 * 1.5;
 		// Cada vértice aparece la primera vez que lo usa un segmento.
 		const aparece = new Array(vertices.length).fill(Infinity);
 		figura.segmentos.forEach(([a, b], j) => {
@@ -935,7 +935,9 @@ const constelacion = {
 			aparece[b] = Math.min(aparece[b], desde + porSegmento * 0.85);
 		});
 		const completa = inicio + figura.segmentos.length * porSegmento;
-		const total = completa + 3.5 + 1.6;
+		// Se mantiene legible el tiempo que haga falta para durar DURACION_EFECTOS veces el diseño original.
+		const apagado = 1.6 * 1.5;
+		const total = Math.max(completa + 3.5 + apagado, DURACION_EFECTOS * (inicio + figura.segmentos.length * 0.42 + 3.5 + 1.6));
 		const chispitas = Array.from({ length: 7 }, () => {
 			const a = azar(0, TAU);
 			const r = Math.sqrt(Math.random()) * 0.8;
@@ -959,7 +961,7 @@ const constelacion = {
 			},
 			paisaje(ctx) {
 				const t = escena.reloj - t0;
-				const general = Math.min(1, (total - t) / 1.6);
+				const general = Math.min(1, (total - t) / apagado);
 				if (t < inicio || general <= 0) return;
 				ctx.lineCap = "round";
 				figura.segmentos.forEach(([a, b], j) => {
@@ -993,31 +995,42 @@ const constelacion = {
 // ---------------------------------------------------------------------------------------------
 // Fuegos de luz: chispa desde el anteojo y flores de luz suaves (sin parpadeos bruscos).
 
-const COLORES_FUEGOS = [
-	["255,185,225", "255,240,180"],
-	["170,255,225", "200,220,255"],
-	["225,195,255", "255,215,170"]
-];
+// Colores vivos de los fuegos. Cada flor de luz es de un estilo: arcoíris (el color sigue el ángulo),
+// doble (afuera un color y adentro otro) o confeti (cada chispa de un color).
+const ARCOIRIS = ["255,70,110", "255,150,40", "255,225,50", "90,235,110", "50,205,255", "120,120,255", "215,90,255"];
+const ESTILOS_FUEGOS = ["arcoiris", "doble", "confeti"];
+
+function colorDeChispa(fuego, indice, total, capa) {
+	if (fuego.estilo === "arcoiris") return ARCOIRIS[Math.floor((indice / total) * ARCOIRIS.length) % ARCOIRIS.length];
+	if (fuego.estilo === "doble") return capa === 0 ? fuego.colores[0] : fuego.colores[1];
+	return elegir(ARCOIRIS);
+}
 
 const fuegos = {
 	puedeAgregar: (escena) => (activas(escena, "fuegos") < LIMITES.fuegosActivos ? "ok" : "lleno"),
 	agregar(escena) {
 		const t0 = escena.reloj;
+		const D = DURACION_EFECTOS;
 		const [lenteX, lenteY] = INSTRUMENTOS.anteojo;
 		const cantidad = entero(LIMITES.fuegosPorToque[0], LIMITES.fuegosPorToque[1]);
 		const franjas = mezclar([0, 1, 2]);
-		const colores = mezclar(COLORES_FUEGOS);
-		const lista = Array.from({ length: cantidad }, (_, i) => ({
-			salida: i * 0.85,
-			x: azar(900, 1750),
-			y: CIELO.y[0] + 70 + franjas[i] * 95 + azar(-25, 25),
-			colores: colores[i % colores.length],
-			curva: elegir([-1, 1]) * azar(0.3, 0.8),
-			chispas: null,
-			puntitos: []
-		}));
+		const estilos = mezclar(ESTILOS_FUEGOS);
+		const lista = Array.from({ length: cantidad }, (_, i) => {
+			const [primero, segundo] = mezclar(ARCOIRIS);
+			return {
+				salida: i * 0.85 * D,
+				x: azar(900, 1750),
+				y: CIELO.y[0] + 70 + franjas[i] * 95 + azar(-25, 25),
+				estilo: estilos[i % estilos.length],
+				colores: [primero, segundo],
+				curva: elegir([-1, 1]) * azar(0.3, 0.8),
+				chispas: null,
+				puntitos: []
+			};
+		});
 		const vuelo = 1;
-		const fin = lista[lista.length - 1].salida + vuelo + 2.8;
+		const vidaChispa = [1.8 * D, 2.4 * D];
+		const fin = lista[lista.length - 1].salida + vuelo + 2.8 * D;
 		escena.instancias.push({
 			tipo: "fuegos",
 			actualizar(dt) {
@@ -1026,11 +1039,15 @@ const fuegos = {
 					const desde = t - fuego.salida - vuelo;
 					if (desde < 0) continue;
 					if (!fuego.chispas) {
+						// Dos capas: la de afuera más rápida y una de adentro más chica.
 						const total = Math.round(LIMITES.chispasPorFuego * escena.factor);
-						fuego.chispas = Array.from({ length: total }, (_, i) => {
-							const a = (i / total) * TAU + azar(-0.06, 0.06);
-							const velocidad = azar(230, 320);
-							return { x: fuego.x, y: fuego.y, vx: Math.cos(a) * velocidad, vy: Math.sin(a) * velocidad, rastro: [], vida: azar(1.8, 2.4), color: i % 2 ? fuego.colores[0] : fuego.colores[1] };
+						fuego.chispas = [];
+						[[total, [230, 320]], [Math.round(total * 0.6), [120, 170]]].forEach(([cuantas, [minima, maxima]], capa) => {
+							for (let i = 0; i < cuantas; i += 1) {
+								const a = (i / cuantas) * TAU + azar(-0.06, 0.06) + capa * 0.2;
+								const velocidad = azar(minima, maxima);
+								fuego.chispas.push({ x: fuego.x, y: fuego.y, vx: Math.cos(a) * velocidad, vy: Math.sin(a) * velocidad, rastro: [], vida: azar(vidaChispa[0], vidaChispa[1]) * (capa ? 0.8 : 1), color: colorDeChispa(fuego, i, cuantas, capa) });
+							}
 						});
 					}
 					const giroCos = Math.cos(fuego.curva * dt);
@@ -1047,10 +1064,10 @@ const fuegos = {
 						chispa.rastro.push([chispa.x, chispa.y]);
 						if (chispa.rastro.length > 12) chispa.rastro.shift();
 					}
-					if (desde > 0.6 && fuego.puntitos.length === 0) {
+					if (desde > 0.6 * D && fuego.puntitos.length === 0) {
 						fuego.puntitos = fuego.chispas
 							.filter((_, i) => i % 2 === 0)
-							.map((chispa) => ({ x: chispa.x, y: chispa.y, vy: azar(18, 40), edad: 0, vida: azar(1.4, 2.1), fase: azar(0, TAU), color: chispa.color }));
+							.map((chispa) => ({ x: chispa.x, y: chispa.y, vy: azar(18, 40), edad: 0, vida: azar(1.4, 2.1) * D, fase: azar(0, TAU), color: chispa.color }));
 					}
 					for (const puntito of fuego.puntitos) {
 						puntito.edad += dt;
@@ -1062,7 +1079,7 @@ const fuegos = {
 			luces(ctx) {
 				const t = escena.reloj - t0;
 				for (const fuego of lista) {
-					brillo(ctx, lenteX, lenteY, 46, "255,240,200", 0.8 * envolvente(t - fuego.salida, 0.6, 0.12, 0.45));
+					brillo(ctx, lenteX, lenteY, 46, fuego.colores[0], 0.8 * envolvente(t - fuego.salida, 0.6, 0.12, 0.45));
 				}
 			},
 			paisaje(ctx) {
@@ -1071,37 +1088,38 @@ const fuegos = {
 				for (const fuego of lista) {
 					const u = (t - fuego.salida) / vuelo;
 					if (u > 0 && u < 1) {
-						// Chispa que sube desde el anteojo, con rastro.
+						// Chispa que sube desde el anteojo, con rastro del color del fuego.
 						for (let j = 0; j < 9; j += 1) {
 							const uj = salida(u - j * 0.03);
 							if (u - j * 0.03 < 0) break;
 							const v = 1 - uj;
 							const x = v * v * lenteX + 2 * v * uj * (lenteX + 60) + uj * uj * fuego.x;
 							const y = v * v * lenteY + 2 * v * uj * fuego.y + uj * uj * fuego.y;
-							brillo(ctx, x, y, 14 - j, "255,240,200", 0.8 * (1 - j / 9));
+							brillo(ctx, x, y, 14 - j, j === 0 ? "255,250,230" : fuego.colores[0], 0.85 * (1 - j / 9));
 						}
 					}
 					const desde = t - fuego.salida - vuelo;
 					if (desde < 0 || !fuego.chispas) continue;
 					// Brillo suave del centro (sin destello brusco).
-					brillo(ctx, fuego.x, fuego.y, 70 + desde * 80, `${fuego.colores[1]}`, 0.28 * Math.max(0, 1 - desde / 0.9));
+					brillo(ctx, fuego.x, fuego.y, 70 + desde * 80, fuego.colores[0], 0.3 * Math.max(0, 1 - desde / 0.9));
 					for (const chispa of fuego.chispas) {
 						const vida = 1 - desde / chispa.vida;
 						if (vida <= 0 || chispa.rastro.length < 2) continue;
-						ctx.strokeStyle = `rgba(${chispa.color},${0.75 * vida})`;
-						ctx.lineWidth = 3.2;
+						const alfa = Math.min(1, vida * 1.6);
+						ctx.strokeStyle = `rgba(${chispa.color},${0.85 * alfa})`;
+						ctx.lineWidth = 3.4;
 						ctx.beginPath();
 						chispa.rastro.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
 						ctx.stroke();
 						const [x, y] = chispa.rastro[chispa.rastro.length - 1];
-						brillo(ctx, x, y, 12, chispa.color, 0.55 * vida);
-						punto(ctx, x, y, 3, `rgba(255,255,245,${0.95 * vida})`);
+						brillo(ctx, x, y, 13, chispa.color, 0.7 * alfa);
+						punto(ctx, x, y, 2.8, `rgba(255,255,245,${0.9 * alfa})`);
 					}
 					for (const puntito of fuego.puntitos) {
 						const vida = 1 - puntito.edad / puntito.vida;
 						if (vida <= 0) continue;
 						const titila = 0.6 + 0.4 * Math.sin(puntito.edad * 7 + puntito.fase);
-						brillo(ctx, puntito.x, puntito.y, 9, puntito.color, 0.9 * vida * titila);
+						brillo(ctx, puntito.x, puntito.y, 10, puntito.color, 0.95 * vida * titila);
 					}
 				}
 			}
