@@ -1,0 +1,13 @@
+{
+  "fecha": "2026-11-18",
+  "herramienta": "ChatGPT (generación de imágenes) en el Chrome del usuario; guardado con scripts/guardar-imagen-portapapeles.ps1 y pasado a JPG (calidad 84)",
+  "uso": "Fondo de /monstruo (pantalla de alimentar) de Mundos 2 a 5, clases .monstruo-mundoN en src/pages/Monstruo.css. Mundo 1 usa FONDOejerciciosM1.jpg.",
+  "adjuntos": "1) FONDOejerciciosM1.jpg como modelo de composición; 2) el fondo del menú del mundo (FONDOM2.jpg, FONDOM3.png, FONDOM4.jpg, FONDOM5.jpg) como modelo del mundo y del estilo",
+  "plantilla": "Generá una imagen apaisada de 1536 x 1024: el fondo de la pantalla donde el chico le da de comer a su monstruito, en un juego infantil. Usá la PRIMERA imagen como modelo de composición: cielo arriba con algunas nubes, una loma de pasto suave en el centro abajo (ahí se sienta el monstruo, tiene que quedar despejada y luminosa) y la decoración solo en los costados y en los bordes. Usá la SEGUNDA imagen como modelo del mundo y del estilo (ilustración 3D tierna, colores suaves): <mundo>. Sin texto, sin letras, sin números y sin personajes.",
+  "fondos": [
+    { "archivo": "public/assets/imagenes/fondoMonstruoM2.jpg", "mundo": "el mundo de los insectos y el jardín, con flores gigantes, hongos, hojas grandes, mariquitas y casitas de insectos a los costados" },
+    { "archivo": "public/assets/imagenes/fondoMonstruoM3.jpg", "mundo": "el mundo de los bloques de juguete de encastre, con torres, casitas y árboles hechos de bloques de colores a los costados" },
+    { "archivo": "public/assets/imagenes/fondoMonstruoM4.jpg", "mundo": "el fondo del mar, con corales, algas, caracoles, burbujas y casitas de caracol a los costados", "cambio": "en lugar de cielo y pasto: arriba la luz del agua y una loma de arena" },
+    { "archivo": "public/assets/imagenes/fondoMonstruoM5.jpg", "mundo": "la ciudad de los robots, con torres redondas, antenas con luces, engranajes, cables y árboles de bloques a los costados" }
+  ]
+}

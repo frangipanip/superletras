@@ -39,12 +39,12 @@
 	}
 }
 
-/* Fondo de cada mundo (Mundo 1 usa el de .activity-page). Provisorio: el del menú del mundo,
-   hasta tener los fondos propios de la pantalla de alimentar (fase 18). */
-.page-monstruo.monstruo-mundo2 { background: url("/assets/imagenes/FONDOM2.jpg") center / cover no-repeat; }
-.page-monstruo.monstruo-mundo3 { background: url("/assets/imagenes/FONDOM3.png") center / cover no-repeat; }
-.page-monstruo.monstruo-mundo4 { background: url("/assets/imagenes/FONDOM4.jpg") center / cover no-repeat; }
-.page-monstruo.monstruo-mundo5 { background: url("/assets/imagenes/FONDOM5.jpg") center / cover no-repeat; }
+/* Fondo de cada mundo (Mundo 1 usa el de .activity-page): loma despejada en el centro para el
+   monstruo y la decoración del mundo a los costados (prompts en docs/arte/monstruo-fondos-prompts.json). */
+.page-monstruo.monstruo-mundo2 { background: url("/assets/imagenes/fondoMonstruoM2.jpg") center / cover no-repeat; }
+.page-monstruo.monstruo-mundo3 { background: url("/assets/imagenes/fondoMonstruoM3.jpg") center / cover no-repeat; }
+.page-monstruo.monstruo-mundo4 { background: url("/assets/imagenes/fondoMonstruoM4.jpg") center / cover no-repeat; }
+.page-monstruo.monstruo-mundo5 { background: url("/assets/imagenes/fondoMonstruoM5.jpg") center / cover no-repeat; }
 
 .page-monstruo {
 	--monstruo-borde: #2f8498;

@@ -348,6 +348,8 @@ Criterios:
 
 - Cuatro fondos (insectos, bloques, mar, robots) con la composición del fondo actual de `/monstruo`.
 
+Hecha en 4.1.4: `fondoMonstruoM2.jpg` a `fondoMonstruoM5.jpg` (loma despejada en el centro para el monstruo, decoración del mundo a los costados; en Mundo 4, arena bajo el agua), en `.monstruo-mundoN` de `src/pages/Monstruo.css`. Prompts en `docs/arte/monstruo-fondos-prompts.json`.
+
 ### Fase 19 — Dibujar con sílabas en los seis mundos
 
 Pedido del 18/11/2026: Dibujar en todos los mundos con el mismo sistema de trazado de Mundo 1, y las consonantes con su vocal: en lugar de trazar la L sola, se trazan LA, LE, LI, LO y LU, como hoy las vocales: lista a la izquierda, al terminar una pasa a la siguiente y la nombra, y al trazarlas todas da 3 galletitas (estrellas en Mundo 6).
