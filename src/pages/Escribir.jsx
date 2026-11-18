@@ -48,15 +48,18 @@ function audioDeLetra(letra) {
 const FILAS_TECLADO = [["L", "M"], ["S", "T"], ["A", "E", "I"], ["O", "U"]];
 const LETRAS_VOCAL = new Set(["A", "E", "I", "O", "U"]);
 
-preloadImages([
+// Cuadros de la máquina y de los vasos: se piden al abrir Escribir (no al cargar el código, que
+// antes los bajaba en la portada: unos 5 MB).
+const IMAGENES_PRECARGA = [
 	...MAQUINA_FRAMES,
 	...OPCIONES.map((opcion) => opcion.imagen),
 	...RONDAS.map((ronda) => ronda.imagen),
 	...RONDAS.flatMap((ronda) => ronda.entrega.map((frame) => img(`vaso${frame}.png`)))
-]);
+];
 
 export default function Escribir() {
 	usePageTitle("Escribir");
+	useState(() => preloadImages(IMAGENES_PRECARGA));
 	const runtime = usePageRuntime();
 	const [character] = useSelectedCharacter();
 	const { mouth, startTalking, stopTalking } = useTalkingMouth(runtime);

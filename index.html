@@ -12,6 +12,11 @@
 	<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 	<!-- Fondo de la pantalla de carga: se pide antes que el resto para que esté listo cuando haga falta. -->
 	<link rel="preload" as="image" href="/assets/imagenes/cargando.jpg">
+	<!-- Fuentes del cartel de premio: se cargan sin frenar el primer dibujo de la página
+	     (antes era un @import dentro del CSS, que lo bloqueaba). -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Comic+Neue:wght@700&display=swap" media="print" onload="this.media='all'">
 </head>
 <body>
 	<div id="root"></div>

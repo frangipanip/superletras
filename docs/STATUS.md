@@ -52,6 +52,7 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 | 18 | Fondo de alimentar por mundo (ChatGPT) | 4.1.4 | Hecha |
 | 19 | Dibujar con sílabas en los seis mundos | 4.1.0 | ✅ Hecha |
 | 20 | Sacar Memotest de todos los mundos | 4.0.0 | ✅ Hecha |
+| 21 | Carga inicial rápida | 4.1.6 | ✅ Hecha |
 
 ## Pedidos del 17/11/2026
 

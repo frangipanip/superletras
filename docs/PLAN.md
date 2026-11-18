@@ -369,6 +369,18 @@ Hecho en 4.1.0:
 - Los caramelos guardados (localStorage y API) quedan en la base pero ya no cuentan. Un monstruo al que solo le faltaban caramelos queda evolucionado.
 - Cambio incompatible (se saca una ruta y cambia el índice del camino de Mundo 1 donde se guarda la posición del personaje): versión mayor.
 
+## Fase 21 — Carga inicial rápida (4.1.6)
+
+Pedido del 18/11/2026: la página tarda demasiado en cargar al abrirla. Medido en dev: la portada pedía unos 7,2 MB.
+
+- `Escribir.jsx` precargaba sus imágenes al cargar el código (máquina de helados y vasos, unos 5 MB) y, como todo iba en un solo archivo, se bajaban en la portada. Ahora se piden al abrir Escribir.
+- Cada pantalla, salvo la portada, va en un archivo aparte (`src/lib/pantallas.js`, `React.lazy`): el JS inicial pasa de 540 KB (164 KB comprimido) a 277 KB (88 KB). Cuando la portada ya se ve, el resto se baja de a uno en segundo plano, así entrar después a cualquier pantalla sigue siendo inmediato. Si el archivo de una pantalla ya no existe (deploy con la app abierta), la página se recarga una vez.
+- `PageLoader` espera a que llegue el código de la pantalla (marca `data-ruta-cargando` del `Suspense` de `App.jsx`) y, si tarda más de 250 ms, muestra el cartel de carga.
+- Un solo CSS para todo (`cssCodeSplit: false`), así el orden entre los estilos de las pantallas no cambia. `global.css` y los componentes de `main.jsx` ahora quedan antes que el CSS de las pantallas: se revisaron los choques y solo el aro amarillo del selector de `/monstruo` dependía del orden; ahora gana por especificidad.
+- La fuente de Google del cartel de premio se pide desde `index.html` sin frenar el primer dibujo (antes era un `@import` dentro del CSS).
+
+Resultado en el build de producción: la portada baja unos 1,6 MB en lugar de 7,2 MB.
+
 ## Cómo produzco audios y dibujos
 
 - **Audios**: Chrome sobre tu sesión de elevenlabs.io. Por cada texto genero con Malena y con Dante, descargo y muevo el mp3 a `public/assets/sonido/supernena|supernene/` con el nombre de la tabla. Uso la configuración del archivo que ya está en el repo (`…Malena…_s50_sim75_v4`). **Consume créditos de tu cuenta**: son unos 45 textos de consigna + ~90 palabras, por dos voces.

@@ -81,6 +81,9 @@ export default defineConfig({
 	build: {
 		// "assets" ya lo usa public/assets (imagenes y sonidos).
 		assetsDir: "bundle",
+		// Un solo CSS aunque las pantallas se bajen aparte (src/lib/pantallas.js): el orden entre los
+		// estilos de las pantallas queda fijo, como antes, y no depende de por dónde se navegó.
+		cssCodeSplit: false,
 		// Tablets/celulares viejos: CSS sin anidado ni media queries con rangos.
 		target: ["es2020", "chrome87", "safari14", "firefox78", "edge88"]
 	}

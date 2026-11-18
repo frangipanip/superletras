@@ -361,8 +361,10 @@ img {
 	pointer-events: none;
 }
 
-/* En el selector de /monstruo el dibujo llena un círculo blanco: el que late es el aro del botón. */
-.monstruo-selector__boton.monstruo-con-comida {
+/* En el selector de /monstruo el dibujo llena un círculo blanco: el que late es el aro del botón.
+   Con .monstruo-selector delante le gana al borde blanco de Monstruo.css sin depender del orden
+   en que se cargan los CSS (cada pantalla se baja aparte, ver src/lib/pantallas.js). */
+.monstruo-selector .monstruo-selector__boton.monstruo-con-comida {
 	border-color: #ffd23f;
 	animation: monstruo-con-comida-aro 1.6s ease-in-out infinite;
 }
@@ -388,7 +390,7 @@ img {
 		filter: drop-shadow(0 0 6px rgba(255, 250, 200, 1)) drop-shadow(0 0 16px rgba(255, 186, 20, 0.95));
 	}
 
-	.monstruo-selector__boton.monstruo-con-comida {
+	.monstruo-selector .monstruo-selector__boton.monstruo-con-comida {
 		animation: none;
 		box-shadow: 0 0 0 3px rgba(255, 220, 90, 1), 0 0 14px 4px rgba(255, 186, 20, 0.9);
 	}

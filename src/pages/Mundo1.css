@@ -1,5 +1,5 @@
-/* global.css se carga después y su ".page { overflow: hidden }" pisaba el scroll:
-   el selector doble le gana por especificidad. */
+/* El ".page { overflow: hidden }" de global.css pisaba el scroll: el selector doble le gana por
+   especificidad, cargue antes o después. */
 
 @keyframes menu-panel-glow {
 	0%,

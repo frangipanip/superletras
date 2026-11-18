@@ -6,6 +6,8 @@ import "./PageLoader.css";
 
 // Si una imagen no termina nunca, no se deja la pantalla tapada para siempre.
 const MAX_WAIT_MS = 30000;
+// Si el archivo de la pantalla tarda más que esto en llegar, se muestra el cartel mientras tanto.
+const ROUTE_WAIT_MS = 250;
 const FADE_MS = 300;
 const CSS_URL = /url\(\s*(['"]?)(.*?)\1\s*\)/g;
 
@@ -86,6 +88,10 @@ export default function PageLoader() {
 		let finished = false;
 		const timers = [];
 		const frames = [];
+		const start = performance.now();
+		// Pantallas en archivo aparte (src/lib/pantallas.js): mientras llega su código, App muestra
+		// la marca data-ruta-cargando y todavía no hay imágenes que mirar.
+		const waitingRoute = () => Boolean(root?.querySelector("[data-ruta-cargando]"));
 
 		const update = () => {
 			if (scan !== scanRef.current || finished) {
@@ -149,6 +155,14 @@ export default function PageLoader() {
 					return;
 				}
 				addImages();
+				if (waitingRoute()) {
+					if (total === 0 && performance.now() - start > ROUTE_WAIT_MS) {
+						setHiding(false);
+						setProgress({ loaded: 0, total: 1 });
+					}
+					rescan(remaining);
+					return;
+				}
 				if (remaining > 0) {
 					rescan(remaining - 1);
 				} else if (total === 0) {
