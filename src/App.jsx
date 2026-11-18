@@ -24,7 +24,6 @@ import PeluchesMundo5 from "./pages/PeluchesMundo5";
 import PeluchesMundo6 from "./pages/PeluchesMundo6";
 import ElegirLetra from "./pages/ElegirLetra";
 import Dibujar from "./pages/Dibujar";
-import Memotest from "./pages/Memotest";
 import Monstruo from "./pages/Monstruo";
 import Barcos from "./pages/Barcos";
 import Decora from "./pages/Decora";
@@ -88,7 +87,6 @@ export default function App() {
 				<Route path="/tren" element={<Tren />} />
 				<Route path="/flores" element={<ActividadSilabasRuta actividad="flores" />} />
 				<Route path="/dibujar" element={<Dibujar />} />
-				<Route path="/memotest" element={<Memotest />} />
 				<Route path="/monstruo" element={<Monstruo />} />
 				<Route path="/barcos" element={<Barcos />} />
 				<Route path="/decora" element={<Decora />} />

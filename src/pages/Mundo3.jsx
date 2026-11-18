@@ -52,7 +52,6 @@ const ACTIVITY_SIGN_IMAGES = [
 	"PELUCHESbtn.png",
 	"TRENbtn.png",
 	"DIBUJARbtn.png",
-	"MEMOTESTbtn.png",
 	"BARCOSbtn.png",
 	"PASTELbtn.png",
 	"PUZZLEbtn.png",

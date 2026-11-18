@@ -303,7 +303,7 @@ Criterios:
 
 ## Monstruos en Mundos 2 a 5 (fases 16 a 20)
 
-Pedido del 18/11/2026: cada letra de los Mundos 2 a 5 tiene su monstruo, con su forma inicial y su primera evolución tomadas de la lámina `descargas/Superletras_inicial_y_primera_evolucion_transparente.png`. Los monstruos de Mundo 1 (A, L, M, S, T) y sus evoluciones ya están y no se tocan. El sistema es el mismo que en Mundo 1: cada actividad da la misma comida y en la misma cantidad, cada monstruo pide 3 de cada una (21) y, al terminar de comer, evoluciona con la nube. Las comidas de cada letra no se mezclan con las de otra (P, C fuerte y C suave son monstruos distintos). Mundo 6 queda como está, con estrellas.
+Pedido del 18/11/2026: cada letra de los Mundos 2 a 5 tiene su monstruo, con su forma inicial y su primera evolución tomadas de la lámina `descargas/Superletras_inicial_y_primera_evolucion_transparente.png`. Los monstruos de Mundo 1 (A, L, M, S, T) y sus evoluciones ya están y no se tocan. El sistema es el mismo que en Mundo 1: cada actividad da la misma comida y en la misma cantidad, cada monstruo pide 3 de cada una (18 desde que no está Memotest) y, al terminar de comer, evoluciona con la nube. Las comidas de cada letra no se mezclan con las de otra (P, C fuerte y C suave son monstruos distintos). Mundo 6 queda como está, con estrellas.
 
 | Mundo | Letras (clave del menú → monstruo de la lámina) |
 |---|---|
@@ -312,13 +312,13 @@ Pedido del 18/11/2026: cada letra de los Mundos 2 a 5 tiene su monstruo, con su 
 | 4 · Sirenas | ce, c, z, q, ch |
 | 5 · Robots | g, ge, gu (GUE), gü (GÜE), j |
 
-Decisiones del 18/11/2026: los monstruos van hasta Mundo 5; Dibujar y Memotest se agregan a los Mundos 2 a 5 para que se puedan ganar las 7 comidas; "¿J o G?" da galletitas (comparte el tope de 3 con Dibujar); la pantalla de alimentar lleva un fondo propio por mundo.
+Decisiones del 18/11/2026: los monstruos van hasta Mundo 5; la pantalla de alimentar lleva un fondo propio por mundo. Más tarde, el mismo día: **Memotest se saca de todos los mundos** (página, botón, cartel y comida: los caramelos), así el tramo de sílabas tiene 6 actividades (Inicio, Mariposas, Flores, Peluches, Tren y Dibujar) y cada monstruo pide 18 comidas; **Dibujar se agrega a los seis mundos** y pasa a trazar sílabas (fase 19); "¿J o G?" y "¿B o V?" quedan en el camino pero dan estrellas.
 
-Orden: primero el sistema (con la imagen de la lámina quieta en los seis cuadros), después el arte. Hasta la fase 19 y 20 los monstruos de Mundos 2 a 5 no pueden llegar a 21 (faltan Dibujar y Memotest).
+Orden: primero el sistema (con la imagen de la lámina quieta en los seis cuadros), después el arte. Hasta la fase 19 los monstruos de Mundos 2 a 5 no pueden llegar a 18 (falta Dibujar).
 
 ### Fase 16 — Monstruos y comida en Mundos 2 a 5 (3.93.0)
 
-- `shared/comidas.js`: `LETRAS_POR_MUNDO` (1 a 5) y `LETRAS` con todas; `MUNDO_DE_LETRA`. "¿J o G?" (`elegir`) da galletitas. La API acepta las claves de varias letras (`rr`, `gü`).
+- `shared/comidas.js`: `LETRAS_POR_MUNDO` (1 a 5) y `LETRAS` con todas; `MUNDO_DE_LETRA`. La API acepta las claves de varias letras (`rr`, `gü`). (En 3.93.0 "¿J o G?" daba galletitas; desde la fase 20 da estrellas.)
 - `otorgarPremio`: las letras de Mundos 2 a 5 reciben comida como Mundo 1.
 - Imágenes: los 40 recortes de la lámina en `imagenes/monstruos/` (`monstruo-<letra>-1.webp` y `monstruo-<letra>-nivel2-1.webp`; `gü` se guarda como `gdieresis`). Mientras no estén los cuadros de comer, el monstruo usa el cuadro 1 en todos los estados.
 - `/monstruo` sirve a los cinco mundos: letras, título, fondo y letra guardada del mundo de `state.world`; el selector muestra los monstruos de ese mundo con su contador.
@@ -346,13 +346,20 @@ Criterios:
 
 - Cuatro fondos (insectos, bloques, mar, robots) con la composición del fondo actual de `/monstruo`.
 
-### Fase 19 — Dibujar en Mundos 2 a 5
+### Fase 19 — Dibujar con sílabas en los seis mundos
 
-- Trazado de las letras de cada mundo, con consigna y premio de galletitas; se agrega al camino de cada mundo y a `CAMINOS` (al final, para conservar los índices guardados).
+Pedido del 18/11/2026: Dibujar en todos los mundos con el mismo sistema de trazado de Mundo 1, y las consonantes con su vocal: en lugar de trazar la L sola, se trazan LA, LE, LI, LO y LU, como hoy las vocales: lista a la izquierda, al terminar una pasa a la siguiente y la nombra, y al trazarlas todas da 3 galletitas (estrellas en Mundo 6).
 
-### Fase 20 — Memotest en Mundos 2 a 5
+- Sílabas de cada letra: las mismas que usan Flores y Mariposas (`MUNDO2_SYLLABLES`, `MUNDO3_SYLLABLES`, `MUNDO4_SYLLABLES`, `MUNDO5_SYLLABLES`): C → CA, CO, CU; CE → CE, CI; Q → QUE, QUI; G → GA, GO, GU; GE → GE, GI; GU → GUE, GUI; GÜ → GÜE, GÜI; AR → ARA, ERE, IRI, ORO, URU; Mundo 6: BA…BU, VA…VU, ÑA…ÑU, KA…KU, XA…XU (a confirmar).
+- La guía de trazado no se pide a ChatGPT: sale de los recorridos de `src/lib/trazados.js` (`npm run trazados` genera los `trazado<Letra>.svg`), que son los mismos que valida el dedo. Hay que escribir los recorridos de las letras nuevas (P, N, D, F, H, R, Y, C, Q, Z, G, J, Ü, B, V, Ñ, K, X) y generalizar el trazado a una lista de trazos por letra para armar sílabas de dos o tres letras (LL, CH, RR, QU, GU, GÜ).
+- Se agrega al camino de cada mundo y a `CAMINOS` (al final, para conservar los índices guardados).
 
-- Parejas de sílaba escrita y dibujo de los bancos de Peluches de cada mundo; premio de caramelos; se agrega al camino y a `CAMINOS`.
+### Fase 20 — Sacar Memotest de todos los mundos
+
+- Se borran la página (`Memotest.jsx` y su CSS), la ruta `/memotest` (cae en la redirección general a `/`), el cartel `MEMOTESTbtn.png` de los menús, sus audios (`memotest.mp3`, `memotestDibujos.mp3`, `PLmemo.mp3`) y la comida que daba (caramelos) en `shared/comidas.js`, que usan app y API.
+- Mundo 1: el camino pierde el lugar 7 (antes del cartel de PALABRAS), así el tramo de palabras sigue arrancando después del cartel.
+- Los caramelos guardados (localStorage y API) quedan en la base pero ya no cuentan. Un monstruo al que solo le faltaban caramelos queda evolucionado.
+- Cambio incompatible (se saca una ruta y cambia el índice del camino de Mundo 1 donde se guarda la posición del personaje): versión mayor.
 
 ## Cómo produzco audios y dibujos
 

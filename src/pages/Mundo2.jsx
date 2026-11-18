@@ -28,8 +28,7 @@ const ACTIVITY_SIGN_IMAGES = [
 	"FLORbtn.png",
 	"PELUCHESbtn.png",
 	"TRENbtn.png",
-	"DIBUJARbtn.png",
-	"MEMOTESTbtn.png"
+	"DIBUJARbtn.png"
 ];
 const PATH_BUTTONS = [
 	[23, 65],

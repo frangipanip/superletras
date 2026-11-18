@@ -11,7 +11,6 @@ export const ACTIVIDADES = [
 	{ clave: "peluches", tipo: TIPOS_ACTIVIDAD.silabas },
 	{ clave: "tren", tipo: TIPOS_ACTIVIDAD.silabas },
 	{ clave: "dibujar", tipo: TIPOS_ACTIVIDAD.silabas },
-	{ clave: "memotest", tipo: TIPOS_ACTIVIDAD.silabas },
 	{ clave: "barcos", tipo: TIPOS_ACTIVIDAD.palabras },
 	{ clave: "pastel", tipo: TIPOS_ACTIVIDAD.palabras },
 	{ clave: "puzzle", tipo: TIPOS_ACTIVIDAD.palabras },

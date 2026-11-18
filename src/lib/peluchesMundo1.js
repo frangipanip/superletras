@@ -1,6 +1,6 @@
 import { img } from "./assets";
 
-// Dibujos de Peluches de Mundo 1 (imagenes/peluches/<palabra>.png) que también usa Memotest.
+// Dibujos de Peluches de Mundo 1 (imagenes/peluches/<palabra>.png).
 // El nombre del archivo es la palabra sin tildes.
 export const BANCO_PELUCHES = [
 	"anillo", "arbol", "auto", "avion", "bebe", "cartuchera", "colectivo",

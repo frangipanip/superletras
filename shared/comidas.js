@@ -8,16 +8,12 @@ export const COMIDAS = [
 	{ clave: "chocolate", emoji: "🍫", nombre: "Chocolate", actividad: "flores", necesarias: 3 },
 	{ clave: "frutillas", emoji: "🍓", nombre: "Frutillas", actividad: "peluches", necesarias: 3 },
 	{ clave: "cucuruchos", emoji: "🍦", nombre: "Cucuruchos", actividad: "tren", necesarias: 3 },
-	{ clave: "galletitas", emoji: "🍪", nombre: "Galletitas", actividad: "dibujar", necesarias: 3 },
-	{ clave: "caramelos", emoji: "🍬", nombre: "Caramelos", actividad: "memotest", necesarias: 3 }
+	{ clave: "galletitas", emoji: "🍪", nombre: "Galletitas", actividad: "dibujar", necesarias: 3 }
 ];
 
 export const COMIDA_POR_CLAVE = Object.fromEntries(COMIDAS.map((comida) => [comida.clave, comida]));
-export const COMIDA_POR_ACTIVIDAD = {
-	...Object.fromEntries(COMIDAS.map((comida) => [comida.actividad, comida])),
-	// "¿J o G?" no existe en Mundo 1: da galletitas, como Dibujar (comparten el tope de 3).
-	elegir: COMIDA_POR_CLAVE.galletitas
-};
+// "¿J o G?" y "¿B o V?" (elegir) no dan comida: premian con estrellas aunque la letra tenga monstruo.
+export const COMIDA_POR_ACTIVIDAD = Object.fromEntries(COMIDAS.map((comida) => [comida.actividad, comida]));
 
 // Letras con monstruo, por mundo: las claves del menú de cada mundo en minúscula (son todas
 // distintas, así que las comidas de una letra nunca se mezclan con las de otra). Mundo 6 no
@@ -37,9 +33,6 @@ export const MUNDO_DE_LETRA = Object.fromEntries(
 // Premio al completar una actividad: 3 sin errores, 2 con 1 o 2, 1 con 3 o más.
 // Dibujar acepta una cantidad explícita para agrupar el premio de sus letras.
 export function premioPorErrores(actividad, errores, cantidadSolicitada) {
-	if (actividad === "memotest" && cantidadSolicitada !== undefined) {
-		return Math.max(0, Math.min(3, Math.floor(Number(cantidadSolicitada) || 0)));
-	}
 	if (actividad === "dibujar") {
 		if (cantidadSolicitada !== undefined) {
 			return Math.max(0, Math.floor(Number(cantidadSolicitada) || 0));

@@ -6,25 +6,30 @@ import "./Monstruo.css";
 // 6: normal en el nivel 1; brazos arriba con la boca abierta en el nivel 2 (evolucionado).
 export const CUADROS_MONSTRUO = { normal: 1, abre: 2, mastica: 3, relame: 4, feliz: 5 };
 
-// Monstruos que ya tienen los 6 cuadros de comer. Los de Mundos 2 a 5 salieron de la lámina con
-// una sola imagen por nivel: hasta tener sus cuadros (fase 17) usan el cuadro 1 en todos los estados.
-const CON_CUADROS = new Set(["a", "l", "m", "s", "t"]);
+// Monstruos que ya tienen los 6 cuadros de comer, por nivel. Los de Mundos 2 a 5 salieron de la
+// lámina con una sola imagen por nivel: hasta tener sus cuadros (fase 17, hechos con ChatGPT y
+// scripts/cortar-hoja-monstruo.py) usan el cuadro 1 en todos los estados.
+const MUNDO1 = ["a", "l", "m", "s", "t"];
+const CON_CUADROS = {
+	1: new Set([...MUNDO1, "p", "n", "d"]),
+	2: new Set([...MUNDO1, "p", "n"])
+};
 
 // Nombre de la letra en el archivo: sin diéresis, para el servidor Linux y las URLs.
 function archivo(letra) {
 	return letra === "gü" ? "gdieresis" : letra;
 }
 
-function cuadroDe(letra, cuadro) {
-	return CON_CUADROS.has(letra) ? cuadro : CUADROS_MONSTRUO.normal;
+function cuadroDe(letra, cuadro, nivel) {
+	return CON_CUADROS[nivel].has(letra) ? cuadro : CUADROS_MONSTRUO.normal;
 }
 
 export function imagenMonstruo(letra, cuadro = CUADROS_MONSTRUO.normal) {
-	return img(`monstruos/monstruo-${archivo(letra)}-${cuadroDe(letra, cuadro)}.webp`);
+	return img(`monstruos/monstruo-${archivo(letra)}-${cuadroDe(letra, cuadro, 1)}.webp`);
 }
 
 export function imagenMonstruoNivel2(letra, cuadro = CUADROS_MONSTRUO.normal) {
-	return img(`monstruos/monstruo-${archivo(letra)}-nivel2-${cuadroDe(letra, cuadro)}.webp`);
+	return img(`monstruos/monstruo-${archivo(letra)}-nivel2-${cuadroDe(letra, cuadro, 2)}.webp`);
 }
 
 export function imagenesMonstruo(letra) {

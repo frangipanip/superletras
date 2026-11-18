@@ -73,7 +73,9 @@ export default defineConfig({
 	plugins: [react(), versionFile(), rewardsApi()],
 	server: {
 		proxy: apiProxy,
-		watch: { ignored: ["**/*.lnk"] }
+		// descargas/ (originales de arte y pruebas, no versionado) no es parte de la app: vigilarla
+		// hacía caer el servidor (EBUSY) al guardar ahí una imagen mientras corre.
+		watch: { ignored: ["**/*.lnk", "**/descargas/**"] }
 	},
 	preview: { proxy: apiProxy },
 	build: {
