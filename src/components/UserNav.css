@@ -95,85 +95,275 @@
 	}
 }
 
+/*
+ * Modal de perfil armado con HTML (antes era la imagen ventanauser.png). Copia el dibujo original de
+ * 700 x 511: todas las medidas salen de --u (1/700 del ancho de la ventana), así en el celular se ve
+ * igual pero más chico. Los botones y las letras tienen mínimo para que se puedan tocar y leer.
+ * Reglas sin anidar (el build apunta a navegadores viejos).
+ */
 .profile-modal {
+	--w: min(92vw, 700px, 122vh);
+	--u: calc(var(--w) / 700);
 	position: fixed;
 	inset: 0;
-	z-index: 5;
+	/* Por encima del cartel de instalar (z-index 20), que tapaba los botones en el celular. */
+	z-index: 30;
 	display: grid;
 	place-items: center;
+	box-sizing: border-box;
+	padding: 2vh 0;
+	overflow-y: auto;
 	background: rgba(0, 0, 0, 0.35);
+}
 
-	&[hidden] {
-		display: none;
+@supports (height: 1dvh) {
+	.profile-modal {
+		--w: min(92vw, 700px, 122dvh);
 	}
+}
 
-	.profile-window {
-		position: relative;
-		width: min(92vw, 700px, 126dvh);
-		max-height: 90dvh;
-		aspect-ratio: 700 / 500;
-		background: url("/assets/imagenes/ventanauser.png") center / 100% 100% no-repeat;
-	}
+.profile-modal[hidden] {
+	display: none;
+}
 
-	.profile-input {
-		position: absolute;
-		top: 54%;
-		left: 8%;
-		width: 81%;
-		box-sizing: border-box;
-		padding: 0.6rem 1rem;
-		border: 0;
-		outline: 0;
-		background: transparent;
-		color: #4b3529;
-		font: 700 clamp(1rem, 3.5vmin, 2rem) Arial, Helvetica, sans-serif;
-		text-align: left;
-		text-transform: uppercase;
-	}
+/* Marco: bloques de colores pastel, con un filo marrón claro y sombra. */
+.profile-modal .profile-window {
+	box-sizing: border-box;
+	width: var(--w);
+	padding: calc(var(--u) * 14);
+	border-radius: calc(var(--u) * 36);
+	background:
+		linear-gradient(180deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0) 30%, rgba(0, 0, 0, 0) 75%, rgba(120, 80, 60, 0.12)),
+		linear-gradient(90deg, #f7a0a4 0 13%, #f9b27a 14% 27%, #fbd77a 28% 41%, #c4e48a 42% 56%, #8fd8cf 57% 70%, #88bde8 71% 84%, #bfa9e2 85% 100%);
+	box-shadow:
+		0 0 0 calc(var(--u) * 2.5) rgba(150, 118, 104, 0.7),
+		inset 0 calc(var(--u) * 2) calc(var(--u) * 2) rgba(255, 255, 255, 0.55),
+		0 calc(var(--u) * 8) calc(var(--u) * 22) rgba(0, 0, 0, 0.35);
+}
 
-	.profile-input::placeholder {
-		color: #888;
-		opacity: 1;
-		text-transform: none;
-	}
+/* Interior: cielo celeste con nubes arriba y el resto blanco. */
+.profile-modal .profile-panel {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	box-sizing: border-box;
+	padding: calc(var(--u) * 36) calc(var(--u) * 36) calc(var(--u) * 30);
+	border-radius: calc(var(--u) * 24);
+	background:
+		radial-gradient(circle calc(var(--u) * 46) at 4% calc(var(--u) * 128), #fff 98%, rgba(255, 255, 255, 0) 100%),
+		radial-gradient(circle calc(var(--u) * 40) at 16% calc(var(--u) * 136), #fff 98%, rgba(255, 255, 255, 0) 100%),
+		radial-gradient(circle calc(var(--u) * 52) at 30% calc(var(--u) * 132), #fff 98%, rgba(255, 255, 255, 0) 100%),
+		radial-gradient(circle calc(var(--u) * 44) at 46% calc(var(--u) * 140), #fff 98%, rgba(255, 255, 255, 0) 100%),
+		radial-gradient(circle calc(var(--u) * 54) at 62% calc(var(--u) * 134), #fff 98%, rgba(255, 255, 255, 0) 100%),
+		radial-gradient(circle calc(var(--u) * 42) at 78% calc(var(--u) * 138), #fff 98%, rgba(255, 255, 255, 0) 100%),
+		radial-gradient(circle calc(var(--u) * 48) at 95% calc(var(--u) * 128), #fff 98%, rgba(255, 255, 255, 0) 100%),
+		linear-gradient(180deg, #c3edf8 0, #cdf0f9 calc(var(--u) * 110), #fff calc(var(--u) * 111));
+	box-shadow: inset 0 0 calc(var(--u) * 4) rgba(110, 90, 80, 0.25);
+}
 
-	.profile-counter {
-		position: absolute;
-		top: 65%;
-		right: 10%;
-		color: #4b3529;
-		font: 700 clamp(0.75rem, 2vmin, 1.1rem) Arial, Helvetica, sans-serif;
-	}
+/* Título: letras gorditas de colores con brillo arriba, borde blanco y sombra suave. */
+.profile-modal .profile-title {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 0 0.28em;
+	margin: 0;
+	font: 400 max(26px, calc(var(--u) * 60)) / 1.1 "Lilita One", "Arial Rounded MT Bold", Arial, sans-serif;
+	letter-spacing: 0.01em;
+	filter:
+		drop-shadow(calc(var(--u) * 3.5) 0 0 #fff)
+		drop-shadow(calc(var(--u) * -3.5) 0 0 #fff)
+		drop-shadow(0 calc(var(--u) * 3.5) 0 #fff)
+		drop-shadow(0 calc(var(--u) * -3.5) 0 #fff)
+		drop-shadow(0 calc(var(--u) * 2.5) calc(var(--u) * 2) rgba(70, 90, 110, 0.35));
+}
 
-	.codigo-usuario {
-		position: absolute;
-		top: 71%;
-		left: 8%;
-		right: 8%;
-		flex-wrap: wrap;
-		color: #4b3529;
-		font-size: clamp(0.6rem, 2.3vmin, 1rem);
-		text-shadow: none;
-	}
+.profile-modal .profile-title-palabra {
+	white-space: nowrap;
+}
 
-	.profile-actions {
-		position: absolute;
-		right: 7%;
-		bottom: 7%;
-		display: flex;
-		gap: 0.5rem;
-	}
+.profile-modal .profile-title-letra {
+	color: var(--letra-color);
+	background:
+		linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.1) 42%, rgba(255, 255, 255, 0) 55%, rgba(0, 0, 0, 0.14) 100%),
+		var(--letra-color);
+	-webkit-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
 
-	.profile-actions button {
-		padding: 0;
-		border: 0;
-		background: transparent;
-		cursor: pointer;
-	}
+.profile-modal .profile-question {
+	margin-top: calc(var(--u) * 26);
+	color: #4f3f33;
+	font: 600 max(15px, calc(var(--u) * 29)) / 1.32 Roboto, "Segoe UI", Arial, sans-serif;
+	text-align: center;
+}
 
-	.profile-actions img {
-		display: block;
-		width: min(18vw, 18vmin, 125px);
-		height: auto;
-	}
+/* Campo del nombre: borde arcoíris redondeado con el interior blanco. */
+.profile-modal .profile-input-frame {
+	box-sizing: border-box;
+	width: 100%;
+	margin-top: calc(var(--u) * 30);
+	padding: calc(var(--u) * 4);
+	border-radius: calc(var(--u) * 20);
+	background: linear-gradient(90deg, #ee9aa0 0%, #f6c9a6 20%, #ece3a3 40%, #bfe1b2 58%, #b8e0e7 76%, #c5b6e4 100%);
+	box-shadow: 0 calc(var(--u) * 1.5) calc(var(--u) * 3) rgba(120, 90, 80, 0.25);
+}
+
+.profile-modal .profile-input {
+	display: block;
+	box-sizing: border-box;
+	width: 100%;
+	min-height: 44px;
+	padding: calc(var(--u) * 14) calc(var(--u) * 26);
+	border: 0;
+	border-radius: calc(var(--u) * 16);
+	outline: 0;
+	background: #fff;
+	box-shadow: inset 0 calc(var(--u) * 2) calc(var(--u) * 4) rgba(90, 70, 60, 0.12);
+	color: #4b3529;
+	font: 700 max(16px, calc(var(--u) * 38)) / 1.2 Arial, Helvetica, sans-serif;
+	text-align: left;
+	text-transform: uppercase;
+}
+
+.profile-modal .profile-input::placeholder {
+	color: #8a8a8a;
+	opacity: 1;
+	text-transform: none;
+}
+
+.profile-modal .profile-counter {
+	align-self: flex-end;
+	margin: calc(var(--u) * 5) calc(var(--u) * 24) 0 0;
+	color: #4b3529;
+	font: 700 max(12px, calc(var(--u) * 17)) Arial, Helvetica, sans-serif;
+}
+
+/* Fila del código (componente CodigoUsuario), en el lugar y los colores del dibujo original. */
+.profile-modal .codigo-usuario {
+	align-self: flex-start;
+	flex-wrap: wrap;
+	margin: calc(var(--u) * 8) 0 0 calc(var(--u) * 10);
+	color: #4b3529;
+	font-size: max(12px, calc(var(--u) * 17));
+	text-shadow: none;
+}
+
+.profile-modal .codigo-usuario > span {
+	text-transform: uppercase;
+}
+
+.profile-modal .codigo-usuario button {
+	min-height: 32px;
+}
+
+.profile-modal .profile-actions {
+	display: flex;
+	align-self: flex-end;
+	gap: calc(var(--u) * 14);
+	margin-top: calc(var(--u) * 26);
+}
+
+/* Botones con relieve: brillo arriba, borde oscuro y sombra abajo, como las imágenes de antes. */
+.profile-modal .profile-boton {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.3em;
+	box-sizing: border-box;
+	min-height: max(44px, calc(var(--u) * 52));
+	padding: calc(var(--u) * 8) calc(var(--u) * 13);
+	border: max(2px, calc(var(--u) * 3)) solid;
+	border-radius: max(12px, calc(var(--u) * 17));
+	font: 700 max(15px, calc(var(--u) * 21)) / 1 Arial, Helvetica, sans-serif;
+	cursor: pointer;
+	transition: transform 180ms ease, filter 180ms ease;
+	-webkit-tap-highlight-color: transparent;
+}
+
+.profile-modal .profile-boton::before {
+	position: absolute;
+	top: 7%;
+	left: 6%;
+	right: 6%;
+	height: 38%;
+	border-radius: max(9px, calc(var(--u) * 14)) max(9px, calc(var(--u) * 14)) 40% 40%;
+	background: linear-gradient(180deg, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.15));
+	content: "";
+	pointer-events: none;
+}
+
+.profile-modal .profile-boton > * {
+	position: relative;
+}
+
+.profile-modal .profile-boton:hover,
+.profile-modal .profile-boton:focus-visible {
+	transform: translateY(-2px) scale(1.03);
+	filter: brightness(1.05);
+}
+
+.profile-modal .profile-boton:active {
+	transform: translateY(1px);
+}
+
+.profile-modal .profile-boton svg {
+	width: 1.15em;
+	height: 1.15em;
+	fill: none;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+.profile-modal .profile-icono-borde {
+	stroke-width: 5.5;
+}
+
+.profile-modal .profile-icono-relleno {
+	stroke-width: 3;
+}
+
+.profile-modal .profile-aceptar {
+	border-color: #1f5c8f;
+	background: linear-gradient(180deg, #8ccdf8 0%, #63b1ec 38%, #4d9bdd 62%, #3f88cc 84%, #2f72b2 100%);
+	box-shadow:
+		inset 0 calc(var(--u) * -4) 0 rgba(20, 70, 120, 0.35),
+		0 calc(var(--u) * 3) 0 #1b4f7c,
+		0 calc(var(--u) * 5) calc(var(--u) * 7) rgba(0, 0, 0, 0.3);
+	color: #fff;
+	text-shadow:
+		0 1px 0 #1d5a8c,
+		1px 0 0 #1d5a8c,
+		-1px 0 0 #1d5a8c,
+		0 -1px 0 #1d5a8c,
+		0 2px 2px rgba(0, 0, 0, 0.3);
+}
+
+.profile-modal .profile-aceptar .profile-icono-borde {
+	stroke: #0b3f66;
+}
+
+.profile-modal .profile-aceptar .profile-icono-relleno {
+	stroke: #c6f9ff;
+}
+
+.profile-modal .profile-cancelar {
+	border-color: #4f8d9e;
+	background: linear-gradient(180deg, #f2fdff 0%, #d4f6fc 38%, #bdeffa 62%, #9fdcec 84%, #86c6d9 100%);
+	box-shadow:
+		inset 0 calc(var(--u) * -4) 0 rgba(60, 130, 150, 0.3),
+		0 calc(var(--u) * 3) 0 #4a8292,
+		0 calc(var(--u) * 5) calc(var(--u) * 7) rgba(0, 0, 0, 0.3);
+	color: #2e2622;
+	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.profile-modal .profile-cancelar .profile-icono-borde {
+	stroke: #3d3530;
+}
+
+.profile-modal .profile-cancelar .profile-icono-relleno {
+	stroke: #e2a6b6;
 }
