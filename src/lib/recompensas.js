@@ -1,4 +1,4 @@
-import { COMIDA_POR_ACTIVIDAD, COMIDA_POR_CLAVE, COMIDAS, LETRAS, premioPorErrores } from "../../shared/comidas.js";
+import { ACTIVIDADES_SOLO_ESTRELLAS, CLAVE_ESTRELLAS, COMIDA_POR_ACTIVIDAD, COMIDA_POR_CLAVE, comidasDelMonstruo, LETRAS, premioPorErrores, repartirPremio } from "../../shared/comidas.js";
 import { marcarCompletada } from "./progreso";
 import { STORAGE_KEYS, readStorage, writeStorage } from "./storage";
 
@@ -56,11 +56,21 @@ export function cantidadComida(letras, letra, clave) {
 	return letras[letra]?.[clave] || { ganadas: 0, dadas: 0 };
 }
 
+// Comidas que el monstruo de la letra pide ahora (sílabas o, ya evolucionado en Mundo 1, palabras).
+export function comidasPedidas(letras, letra) {
+	return comidasDelMonstruo(letra, (clave) => cantidadComida(letras, letra, clave));
+}
+
+// Estrellas juntadas en la letra (actividades ya completas y "¿J o G?").
+export function estrellasDe(letras, letra) {
+	return cantidadComida(letras, letra, CLAVE_ESTRELLAS).ganadas;
+}
+
 // Total de comidas ganadas que todavía no se le dieron al monstruo de la letra (todas las comidas
-// sumadas). Si hay alguna, el monstruo brilla y muestra este número en un contador rojo, en el
-// menú de Mundo 1 y en el selector de /monstruo, para que se note que lo están esperando.
+// que pide ahora, sumadas). Si hay alguna, el monstruo brilla y muestra este número en un contador
+// rojo, en el menú de Mundo 1 y en el selector de /monstruo, para que se note que lo están esperando.
 export function comidaParaDar(letras, letra) {
-	return COMIDAS.reduce((total, { clave }) => {
+	return comidasPedidas(letras, letra).reduce((total, { clave }) => {
 		const { ganadas, dadas } = cantidadComida(letras, letra, clave);
 		return total + Math.max(0, ganadas - dadas);
 	}, 0);
@@ -70,26 +80,37 @@ function nuevoId() {
 	return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
 }
 
-// Misma cuenta que hace la API (server/index.js): el premio no pasa de lo que necesita
-// el monstruo y solo se le puede dar lo que se ganó.
+function sumarALetra(letra, clave, cambios) {
+	const actual = cantidadComida(state.letras, letra, clave);
+	const siguiente = { ganadas: actual.ganadas + (cambios.ganadas || 0), dadas: actual.dadas + (cambios.dadas || 0) };
+	setState({
+		letras: { ...state.letras, [letra]: { ...state.letras[letra], [clave]: siguiente } }
+	});
+}
+
+// Misma cuenta que hace la API (server/index.js): el premio da la comida que le falta a la
+// actividad o, si ya las tiene todas, estrellas (repartirPremio); solo se le puede dar al monstruo
+// lo que se ganó. Devuelve { comida, estrellas } (lo que se sumó).
 function aplicarLocal(evento) {
-	const comida = evento.tipo === "premio" ? COMIDA_POR_ACTIVIDAD[evento.actividad] : COMIDA_POR_CLAVE[evento.comida];
-	const actual = cantidadComida(state.letras, evento.letra, comida.clave);
-	let cantidad;
-	let siguiente;
 	if (evento.tipo === "premio") {
-		cantidad = Math.max(0, Math.min(premioPorErrores(evento.actividad, evento.errores, evento.cantidad), comida.necesarias - actual.ganadas));
-		siguiente = { ...actual, ganadas: actual.ganadas + cantidad };
-	} else {
-		cantidad = actual.dadas < actual.ganadas ? 1 : 0;
-		siguiente = { ...actual, dadas: actual.dadas + cantidad };
+		const comida = COMIDA_POR_ACTIVIDAD[evento.actividad];
+		const ganadas = comida ? cantidadComida(state.letras, evento.letra, comida.clave).ganadas : 0;
+		const premio = repartirPremio(comida, ganadas, premioPorErrores(evento.actividad, evento.errores, evento.cantidad));
+		if (premio.comida > 0) {
+			sumarALetra(evento.letra, comida.clave, { ganadas: premio.comida });
+		}
+		if (premio.estrellas > 0) {
+			sumarALetra(evento.letra, CLAVE_ESTRELLAS, { ganadas: premio.estrellas });
+		}
+		return premio;
 	}
+	const comida = COMIDA_POR_CLAVE[evento.comida];
+	const actual = cantidadComida(state.letras, evento.letra, comida.clave);
+	const cantidad = actual.dadas < actual.ganadas ? 1 : 0;
 	if (cantidad > 0) {
-		setState({
-			letras: { ...state.letras, [evento.letra]: { ...state.letras[evento.letra], [comida.clave]: siguiente } }
-		});
+		sumarALetra(evento.letra, comida.clave, { dadas: 1 });
 	}
-	return cantidad;
+	return { comida: cantidad, estrellas: 0 };
 }
 
 function encolar(evento) {
@@ -98,36 +119,41 @@ function encolar(evento) {
 	sincronizar();
 }
 
-// Al completar una actividad. Devuelve { comida, cantidad, score } (cantidad 0 si ya llegó al tope).
-const PREMIO_ESTRELLAS = { clave: "estrellas", nombre: "Estrellas", emoji: "⭐" };
+// Al completar una actividad. Devuelve { comida, cantidad, score }: la comida que se ganó o, si la
+// actividad ya tenía todas (o no da comida), PREMIO_ESTRELLAS con las estrellas ganadas.
+const PREMIO_ESTRELLAS = { clave: CLAVE_ESTRELLAS, nombre: "Estrellas", emoji: "⭐" };
 
 export function otorgarPremio(letra, actividad, errores = 0, cantidadSolicitada) {
 	if (!letra) {
 		return null;
 	}
+	const score = premioPorErrores(actividad, errores, cantidadSolicitada);
 	// Completar la actividad se anota aunque el monstruo ya no necesite esa comida.
-	marcarCompletada(letra, actividad, premioPorErrores(actividad, errores, cantidadSolicitada));
-	const comida = LETRAS.includes(letra) ? COMIDA_POR_ACTIVIDAD[actividad] : null;
-	if (!comida) {
-		// Solo las letras de Mundos 1 a 5 tienen monstruo (LETRAS); Mundo 6 premia con estrellas.
-		return { id: nuevoId(), comida: PREMIO_ESTRELLAS, cantidad: 0, score: premioPorErrores(actividad, errores, cantidadSolicitada) };
+	marcarCompletada(letra, actividad, score);
+	const comida = COMIDA_POR_ACTIVIDAD[actividad];
+	if (!LETRAS.includes(letra) || (!comida && !ACTIVIDADES_SOLO_ESTRELLAS.includes(actividad))) {
+		// Solo las letras de Mundos 1 a 5 tienen monstruo (LETRAS); Mundo 6 premia con estrellas
+		// que no se guardan en la API.
+		return { id: nuevoId(), comida: PREMIO_ESTRELLAS, cantidad: 0, score };
 	}
 	const evento = { id: nuevoId(), tipo: "premio", letra, actividad, errores, codigo: state.codigo };
 	if (cantidadSolicitada !== undefined) {
 		evento.cantidad = cantidadSolicitada;
 	}
-	const cantidad = aplicarLocal(evento);
-	if (cantidad > 0) {
+	const premio = aplicarLocal(evento);
+	if (premio.comida > 0 || premio.estrellas > 0) {
 		encolar(evento);
 	}
-	const score = premioPorErrores(actividad, errores, cantidadSolicitada);
-	return { id: evento.id, comida, cantidad, score };
+	if (premio.estrellas > 0 || !comida) {
+		return { id: evento.id, comida: PREMIO_ESTRELLAS, cantidad: premio.estrellas, score };
+	}
+	return { id: evento.id, comida, cantidad: premio.comida, score };
 }
 
 // Le da una unidad de comida al monstruo de la letra. Devuelve false si no quedaba.
 export function darComida(letra, clave) {
 	const evento = { id: nuevoId(), tipo: "dar", letra, comida: clave, codigo: state.codigo };
-	if (aplicarLocal(evento) === 0) {
+	if (aplicarLocal(evento).comida === 0) {
 		return false;
 	}
 	encolar(evento);

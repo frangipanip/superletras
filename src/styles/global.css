@@ -285,6 +285,27 @@ img {
 	pointer-events: none;
 }
 
+/* Contador de estrellas de la letra (ContadorEstrellas): cartelito a la izquierda del monstruo del
+   camino, a la altura de su cara. */
+.monstruo-estrellas {
+	position: absolute;
+	top: 30%;
+	right: calc(100% + 0.3em);
+	z-index: 2;
+	display: flex;
+	align-items: center;
+	gap: 0.2em;
+	padding: 0.2em 0.55em 0.2em 0.4em;
+	border: 2px solid #ffffff;
+	border-radius: 999px;
+	background: #3f6fc4;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+	color: #ffffff;
+	font: 900 clamp(0.8rem, 2.8vmin, 1.15rem) / 1.1 Arial, Helvetica, sans-serif;
+	white-space: nowrap;
+	pointer-events: none;
+}
+
 .monstruo-selector__boton {
 	position: relative;
 }

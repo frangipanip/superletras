@@ -6,7 +6,7 @@ import { createServer } from "node:http";
 import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { DatabaseSync } from "node:sqlite";
-import { COMIDA_POR_ACTIVIDAD, COMIDA_POR_CLAVE, COMIDAS, LETRAS, premioPorErrores } from "../shared/comidas.js";
+import { ACTIVIDADES_SOLO_ESTRELLAS, CLAVE_ESTRELLAS, COMIDA_POR_ACTIVIDAD, COMIDA_POR_CLAVE, COMIDAS, COMIDAS_PALABRAS, comidasDelMonstruo, LETRAS, premioPorErrores, repartirPremio } from "../shared/comidas.js";
 
 const PORT = Number(process.env.PORT) || 3001;
 const DB_PATH = process.env.DB_PATH || fileURLToPath(new URL("../datos/superletras.db", import.meta.url));
@@ -135,10 +135,16 @@ function aplicarEvento(codigo, evento) {
 	if (tipo === "premio") {
 		comida = COMIDA_POR_ACTIVIDAD[evento.actividad];
 		errores = Math.max(0, Math.floor(Number(evento.errores) || 0));
+		// "¿J o G?" no da comida: solo estrellas.
+		if (!comida && !ACTIVIDADES_SOLO_ESTRELLAS.includes(evento.actividad)) {
+			return false;
+		}
 	} else if (tipo === "dar") {
 		comida = COMIDA_POR_CLAVE[evento.comida];
-	}
-	if (!comida) {
+		if (!comida) {
+			return false;
+		}
+	} else {
 		return false;
 	}
 
@@ -149,22 +155,26 @@ function aplicarEvento(codigo, evento) {
 			if (!sql.existeJugador.get(codigo)) {
 				sql.crearJugador.run(codigo, null);
 			}
-			const actual = sql.comida.get(codigo, letra, comida.clave) || { ganadas: 0, dadas: 0 };
-			let cantidad = 0;
+			const leer = (clave) => sql.comida.get(codigo, letra, clave) || { ganadas: 0, dadas: 0 };
+			// Lo que se suma: comida (premio o dada al monstruo) o estrellas, nunca las dos.
+			let clave = comida?.clave;
+			let ganadas = 0;
+			let dadas = 0;
 			if (tipo === "premio") {
-				cantidad = Math.min(premioPorErrores(evento.actividad, errores, evento.cantidad), comida.necesarias - actual.ganadas);
-			} else if (actual.dadas < actual.ganadas) {
-				cantidad = 1;
+				// Misma cuenta que la app: la comida que falta o, si ya están todas, estrellas.
+				const premio = repartirPremio(comida, comida ? leer(comida.clave).ganadas : 0, premioPorErrores(evento.actividad, errores, evento.cantidad));
+				if (premio.estrellas > 0) {
+					clave = CLAVE_ESTRELLAS;
+					ganadas = premio.estrellas;
+				} else {
+					ganadas = premio.comida;
+				}
+			} else if (leer(comida.clave).dadas < leer(comida.clave).ganadas) {
+				dadas = 1;
 			}
-			cantidad = Math.max(0, cantidad);
-			sql.guardarComida.run(
-				codigo,
-				letra,
-				comida.clave,
-				actual.ganadas + (tipo === "premio" ? cantidad : 0),
-				actual.dadas + (tipo === "dar" ? cantidad : 0)
-			);
-			sql.guardarEvento.run(id, codigo, tipo, letra, comida.clave, evento.actividad ?? null, errores, cantidad);
+			const actual = leer(clave);
+			sql.guardarComida.run(codigo, letra, clave, actual.ganadas + ganadas, actual.dadas + dadas);
+			sql.guardarEvento.run(id, codigo, tipo, letra, clave, evento.actividad ?? null, errores, ganadas + dadas);
 		}
 		db.exec("COMMIT");
 	} catch (error) {
@@ -232,11 +242,18 @@ const server = createServer(async (req, res) => {
 				const cantidad = tope ? comida.necesarias : 0;
 				sql.guardarComida.run(codigoDebug, letraDebug, comida.clave, cantidad, cantidad);
 			}
+			// Desevolucionar también vacía lo que comió el evolucionado (comidas de palabras).
+			if (!tope) {
+				for (const comida of COMIDAS_PALABRAS) {
+					sql.guardarComida.run(codigoDebug, letraDebug, comida.clave, 0, 0);
+				}
+			}
 			return responder(res, 200, { codigo: codigoDebug, letras: leerComidas(codigoDebug) });
 		}
 
-		// POST /api/jugadores/:codigo/comida-prueba → debug: suma COMIDA_PRUEBA de cada comida para
-		// darle a cada monstruo (pasa el tope a propósito, para ver comer también al evolucionado).
+		// POST /api/jugadores/:codigo/comida-prueba → debug: suma COMIDA_PRUEBA de cada comida que pide
+		// cada monstruo (las de palabras si ya evolucionó en Mundo 1). Pasa el tope a propósito, para ver
+		// comer también al evolucionado de Mundos 2 a 5.
 		const rutaPrueba = pathname.match(/^\/api\/jugadores\/([^/]+)\/comida-prueba$/);
 		if (rutaPrueba && req.method === "POST") {
 			const codigoDebug = normalizarCodigo(decodeURIComponent(rutaPrueba[1]));
@@ -247,7 +264,8 @@ const server = createServer(async (req, res) => {
 				sql.crearJugador.run(codigoDebug, null);
 			}
 			for (const letra of LETRAS) {
-				for (const comida of COMIDAS) {
+				const pedidas = comidasDelMonstruo(letra, (clave) => sql.comida.get(codigoDebug, letra, clave) || { ganadas: 0, dadas: 0 });
+				for (const comida of pedidas) {
 					const actual = sql.comida.get(codigoDebug, letra, comida.clave) || { ganadas: 0, dadas: 0 };
 					sql.guardarComida.run(codigoDebug, letra, comida.clave, actual.dadas + COMIDA_PRUEBA, actual.dadas);
 				}

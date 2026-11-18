@@ -12,7 +12,8 @@ import { img, MUNDO1_CHARACTERS, MUNDO1_MOUTH_IMAGES, sound } from "../lib/asset
 import { STORAGE_KEYS, readStorage, writeStorage } from "../lib/storage";
 import { ACTIVIDADES, TIPOS_ACTIVIDAD } from "../../shared/actividades.js";
 import { COMIDA_POR_ACTIVIDAD, COMIDAS } from "../../shared/comidas.js";
-import { cantidadComida, comidaParaDar, getRecompensas, subscribeRecompensas } from "../lib/recompensas";
+import { cantidadComida, comidaParaDar, estrellasDe, getRecompensas, subscribeRecompensas } from "../lib/recompensas";
+import ContadorEstrellas from "../components/ContadorEstrellas";
 import ContadorComida from "../components/ContadorComida";
 import { actividadCompleta, getProgreso, subscribeProgreso } from "../lib/progreso";
 import "./Mundo1.css";
@@ -321,8 +322,8 @@ export default function Mundo1() {
 		return Boolean(availableActivities && availableActivities.indexOf(index) !== -1);
 	}
 
-	// Completada (tilde): se juntaron las 3 comidas de la actividad (dadas al monstruo o no) o, en las
-	// de palabras y oraciones, las 3 estrellas, aunque sea en varias partidas.
+	// Completada (tilde): se juntaron las 3 comidas de la actividad (dadas al monstruo o no; las de
+	// palabras y oraciones dan la segunda tanda de comidas) o las 3 estrellas, aunque sea en varias partidas.
 	function isActivityDone(index) {
 		const clave = ACTIVIDADES[index]?.clave;
 		if (!clave || !selectedOption) return false;
@@ -631,6 +632,7 @@ export default function Mundo1() {
 				<img className="mundo1-monster-cloud" src={img("nube.png")} alt="" aria-hidden="true" draggable={false} />
 				<Monstruo letra={selectedOption || "a"} evolucionado={selectedMonsterEvolved} />
 				<ContadorComida cantidad={monsterFood} />
+				<ContadorEstrellas cantidad={estrellasDe(recompensasPorLetra, selectedOption || "a")} />
 			</button>
 			{characterOffscreen && character && (
 				<button className={`mundo1-character-locator direction-${characterDirection}`} type="button" aria-label="Ir hasta mi personaje" onClick={scrollToCharacter}>

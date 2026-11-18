@@ -8,7 +8,7 @@ import PufCrema from "../components/PufCrema";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { preloadImages, sound } from "../lib/assets";
-import { cantidadComida, darComida, forzarMonstruo, comidaParaDar, getRecompensas, sincronizar, subscribeRecompensas, sumarComidaPrueba } from "../lib/recompensas";
+import { cantidadComida, comidaParaDar, comidasPedidas, darComida, forzarMonstruo, getRecompensas, sincronizar, subscribeRecompensas, sumarComidaPrueba } from "../lib/recompensas";
 import ContadorComida from "../components/ContadorComida";
 import { readStorage, STORAGE_KEYS, writeStorage } from "../lib/storage";
 import "./actividad.css";
@@ -30,15 +30,23 @@ const CODIGOS_DEBUG = new Set(["QDM7-9YVF", "Y86M-CQ2R", "PQ4E-EXQ4"]);
 // "Darle todo": una comida cada tanto, para que se vea volar cada una.
 const DAR_TODO_PAUSA_MS = 260;
 
-// Estado de las comidas de la letra leído en el momento (no el del último render): "darle todo"
-// da varias seguidas y cada una tiene que ver lo que dejó la anterior.
-function comidasDe(letra) {
-	const { letras } = getRecompensas();
-	return COMIDAS.map((comida) => {
+// Comidas que pide el monstruo (las de sílabas o, ya evolucionado en Mundo 1, las de palabras) con
+// lo ganado y lo dado de cada una.
+function comidasConCantidades(letras, letra) {
+	return comidasPedidas(letras, letra).map((comida) => {
 		const { ganadas, dadas } = cantidadComida(letras, letra, comida.clave);
 		return { ...comida, ganadas, dadas, guardadas: ganadas - dadas };
 	});
 }
+
+// Estado de las comidas de la letra leído en el momento (no el del último render): "darle todo"
+// da varias seguidas y cada una tiene que ver lo que dejó la anterior.
+function comidasDe(letra) {
+	return comidasConCantidades(getRecompensas().letras, letra);
+}
+
+// La tanda de sílabas: al completarla el monstruo evoluciona.
+const esPrimeraTanda = (comidas) => comidas[0]?.clave === COMIDAS[0].clave;
 
 const estaLleno = (comidas) => comidas.every(({ dadas, necesarias }) => dadas >= necesarias);
 
@@ -86,15 +94,14 @@ export default function MonstruoPage() {
 	const darTodoTimers = useRef([]);
 	const [dandoTodo, setDandoTodo] = useState(false);
 
-	const comidas = COMIDAS.map((comida) => {
-		const { ganadas, dadas } = cantidadComida(letras, letra, comida.clave);
-		return { ...comida, ganadas, dadas, guardadas: ganadas - dadas };
-	});
-	const lleno = comidas.every(({ dadas, necesarias }) => dadas >= necesarias);
+	const comidas = comidasConCantidades(letras, letra);
+	// Lleno: comió todo lo que pide ahora (en Mundo 1, ya evolucionado, también las de palabras).
+	const lleno = estaLleno(comidas);
 	const monstruosEvolucionados = Object.fromEntries(letrasMundo.map((otraLetra) => [
 		otraLetra,
 		COMIDAS.every(({ clave, necesarias }) => cantidadComida(letras, otraLetra, clave).dadas >= necesarias)
 	]));
+	const evolucionado = monstruosEvolucionados[letra];
 
 	useEffect(() => {
 		sincronizar();
@@ -186,7 +193,7 @@ export default function MonstruoPage() {
 		const proporcion = imagen.naturalWidth && imagen.naturalHeight ? imagen.naturalWidth / imagen.naturalHeight : 1;
 		const ancho = Math.min(caja.width, caja.height * proporcion);
 		const alto = ancho / proporcion;
-		const boca = bocaMonstruo(letra, lleno);
+		const boca = bocaMonstruo(letra, evolucionado);
 		return {
 			x: caja.left + (caja.width - ancho) / 2 + ancho * boca.x,
 			y: caja.top + (caja.height - alto) / 2 + alto * boca.y
@@ -195,8 +202,10 @@ export default function MonstruoPage() {
 
 	function darAlMonstruo(boton, comida) {
 		const actuales = comidasDe(letra);
-		// Si ya estaba evolucionado (comida de prueba) solo come: no vuelve a evolucionar.
-		const quedaLleno = !estaLleno(actuales) && actuales.every(({ clave, dadas, necesarias }) => (clave === comida.clave ? dadas + 1 : dadas) >= necesarias);
+		// Completa la tanda con esta comida. Solo la de sílabas lo hace evolucionar; si ya estaba
+		// evolucionado (palabras en Mundo 1, o comida de prueba) solo come y festeja.
+		const completaTanda = !estaLleno(actuales) && actuales.every(({ clave, dadas, necesarias }) => (clave === comida.clave ? dadas + 1 : dadas) >= necesarias);
+		const quedaLleno = completaTanda && esPrimeraTanda(actuales);
 		if (quedaLleno) {
 			setEvolucionPendiente(true);
 		}
@@ -235,7 +244,7 @@ export default function MonstruoPage() {
 			} else {
 				comer();
 			}
-			const audio = quedaLleno ? audios.lleno : audios.comer;
+			const audio = completaTanda ? audios.lleno : audios.comer;
 			audio.currentTime = 0;
 			audio.play().catch(() => { });
 		}, VUELO_MS);
@@ -382,7 +391,7 @@ export default function MonstruoPage() {
 							<Monstruo
 								letra={letra}
 								cuadro={evolucionPendiente && cuadro === CUADROS_MONSTRUO.normal ? CUADROS_MONSTRUO.feliz : cuadro}
-								evolucionado={lleno && !evolucionPendiente}
+								evolucionado={evolucionado && !evolucionPendiente}
 							/>
 						)}
 					</div>

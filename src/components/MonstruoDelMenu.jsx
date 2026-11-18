@@ -1,7 +1,8 @@
 import { useSyncExternalStore } from "react";
 import { useNavigate } from "react-router";
 import { COMIDAS, LETRAS_POR_MUNDO } from "../../shared/comidas.js";
-import { cantidadComida, comidaParaDar, getRecompensas, subscribeRecompensas } from "../lib/recompensas";
+import { cantidadComida, comidaParaDar, estrellasDe, getRecompensas, subscribeRecompensas } from "../lib/recompensas";
+import ContadorEstrellas from "./ContadorEstrellas";
 import { img } from "../lib/assets";
 import ContadorComida from "./ContadorComida";
 import Monstruo from "./Monstruo";
@@ -34,6 +35,7 @@ export default function MonstruoDelMenu({ mundo, letra, disabled = false }) {
 			<img className="monstruo-menu-nube" src={img("nube.png")} alt="" aria-hidden="true" draggable={false} />
 			<Monstruo letra={actual} evolucionado={evolucionado} />
 			<ContadorComida cantidad={pendientes} />
+			<ContadorEstrellas cantidad={estrellasDe(letras, actual)} />
 		</button>
 	);
 }
