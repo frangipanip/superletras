@@ -150,36 +150,8 @@
 		top: 26%;
 	}
 
-	.selected-character.dulce-character .character-mouth {
-		top: 0;
-		left: 0;
-		width: 100%;
-		transform: none;
-	}
-
-	.selected-character.mundo2-character .character-mouth {
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		object-fit: contain;
-		transform: none;
-	}
-
-	.selected-character.mundo3-character .character-mouth {
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		object-fit: contain;
-		transform: none;
-	}
-
-	.selected-character.mundo3-character .character-mouth.mundo3-mouth {
-		filter: none;
-	}
-
-	.selected-character.mundo4-character .character-mouth.mundo4-mouth {
+	/* Bocas de los mundos: imagen del mismo tamaño que el personaje, encima y ocupando todo. */
+	.selected-character .character-mouth.mouth-overlay {
 		top: 0;
 		left: 0;
 		width: 100%;

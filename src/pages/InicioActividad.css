@@ -619,24 +619,8 @@
 	left: 52%;
 }
 
-.inicio-activity-character.dulce-character .inicio-activity-mouth {
-	top: 0;
-	left: 0;
-	width: 100%;
-	transform: none;
-}
-
-.inicio-activity-character .inicio-activity-mouth.mundo3-mouth-frame {
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	object-fit: contain;
-	filter: none;
-	transform: none;
-}
-
-.inicio-activity-character .inicio-activity-mouth.mundo4-mouth-frame {
+/* Bocas de los mundos: imagen del mismo tamaño que el personaje, encima y ocupando todo. */
+.inicio-activity-character .inicio-activity-mouth.mouth-overlay {
 	top: 0;
 	left: 0;
 	width: 100%;
@@ -670,16 +654,6 @@
 .inicio-activity-character .inicio-mundo2-character-frame-2 { animation-name: inicio-mundo2-character-frame-2; }
 .inicio-activity-character .inicio-mundo2-character-frame-3 { animation-name: inicio-mundo2-character-frame-3; }
 .inicio-activity-character .inicio-mundo2-character-frame-4 { animation-name: inicio-mundo2-character-frame-4; }
-
-.inicio-activity-character .inicio-activity-mouth.mundo2-mouth-frame {
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	object-fit: contain;
-	filter: none;
-	transform: none;
-}
 
 .inicio-activity-mouth[hidden] {
 	display: none;

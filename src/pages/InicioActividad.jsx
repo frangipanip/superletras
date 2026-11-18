@@ -1043,7 +1043,7 @@ export default function InicioActividad() {
 						/>
 					)) : <img src={activityCharacters[character].image} alt={activityCharacters[character].alt} />}
 					<img
-						className={`inicio-activity-mouth${isMundo2 ? " mundo2-mouth-frame" : isMundo3 ? " mundo3-mouth-frame" : isMundo4 ? " mundo4-mouth-frame" : !isMundo1 && mouth.shifted ? " shifted-mouth" : ""}`}
+						className={`inicio-activity-mouth${mouthImages || isMundo1 ? " mouth-overlay" : mouth.shifted ? " shifted-mouth" : ""}`}
 						src={mouth.src}
 						alt=""
 						hidden={!mouth.visible}
