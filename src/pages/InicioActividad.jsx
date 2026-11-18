@@ -451,7 +451,9 @@ export default function InicioActividad() {
 			playItem(item);
 			return;
 		}
-		if (isPhaseThree && !requestedItem) {
+		// En las fases 2 y 3, entre un pedido y el siguiente (acierto, mezcla, consignas) no se toca:
+		// si cayera en playItem el cartel quedaría explotado y, cuando lo pidieran, no se podría tocar.
+		if ((isPhaseTwo || isPhaseThree) && !requestedItem) {
 			return;
 		}
 		if (visibleItems.size < mode.items.length) {
