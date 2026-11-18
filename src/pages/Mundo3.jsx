@@ -13,6 +13,7 @@ import { img, MUNDO3_CHARACTERS, MUNDO3_MOUTH_IMAGES, sound } from "../lib/asset
 import { STORAGE_KEYS, readStorage, writeStorage } from "../lib/storage";
 import { CAMINOS } from "../lib/caminos";
 import { actividadCompleta, getProgreso, subscribeProgreso } from "../lib/progreso";
+import MonstruoDelMenu from "../components/MonstruoDelMenu";
 import "./Mundo3.css";
 
 const LETTERS = ["R", "RR", "AR", "Y", "LL"];
@@ -295,6 +296,7 @@ export default function Mundo3() {
 			onDragStart={(event) => event.preventDefault()}
 		>
 			<UserNav />
+			<MonstruoDelMenu mundo={3} letra={selectedLetter} disabled={Boolean(teleport)} />
 			{characterOffscreen && (
 				<CharacterLocator character={character} direction={characterDirection} onClick={scrollToCharacter} />
 			)}

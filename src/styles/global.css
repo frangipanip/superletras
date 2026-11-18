@@ -313,6 +313,54 @@ img {
 	position: relative;
 }
 
+/* Monstruo de la letra elegida en los menús de Mundos 2 a 5 (MonstruoDelMenu), como la nube de Mundo 1. */
+.monstruo-menu-boton {
+	position: fixed;
+	top: clamp(0.4rem, 1.5vmin, 1rem);
+	left: 50%;
+	z-index: 5;
+	width: clamp(64px, 14vmin, 120px);
+	padding: 0;
+	border: 0;
+	background: transparent;
+	cursor: pointer;
+	transform: translateX(-50%);
+	transition: transform 180ms ease;
+}
+
+.monstruo-menu-boton.monstruo-menu-derecha {
+	left: 66%;
+}
+
+.monstruo-menu-boton:hover,
+.monstruo-menu-boton:focus-visible {
+	transform: translateX(-50%) scale(1.1);
+}
+
+.monstruo-menu-nube {
+	position: absolute;
+	bottom: -28%;
+	left: 50%;
+	z-index: 0;
+	display: block;
+	width: 145%;
+	height: auto;
+	transform: translateX(-50%);
+	pointer-events: none;
+}
+
+.monstruo-menu-boton .monstruo {
+	position: relative;
+	z-index: 1;
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+.traveling .monstruo-menu-boton {
+	pointer-events: none;
+}
+
 /* En el selector de /monstruo el dibujo llena un círculo blanco: el que late es el aro del botón. */
 .monstruo-selector__boton.monstruo-con-comida {
 	border-color: #ffd23f;

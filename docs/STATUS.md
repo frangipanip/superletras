@@ -6,6 +6,7 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 
 ## Punto de retoma
 
+- **Monstruos en Mundos 2 a 5 (18/11/2026)**: pedido planificado como fases 16 a 20 en [PLAN.md](PLAN.md#monstruos-en-mundos-2-a-5-fases-16-a-20). Fase 16 (sistema, imagen quieta de la lámina) hecha en 3.93.0. Sigue la fase 17: cuadros de comer con ChatGPT, de a un mundo.
 - **Pedidos nuevos (17/11/2026)**: diez mensajes del usuario después de probar 3.85.1 en dev, más tres sobre las escenas de Peluches. Están planificados como fases 10 a 15 en [PLAN.md](PLAN.md#ajustes-de-la-prueba-del-17112026-fases-10-a-15). Plan registrado en 3.85.2 (solo documentación); implementadas en 3.86.0 a 3.91.0.
 - **Avance**: cada fase cerrada se mergea a `develop` y se sube para verla en dev (pedido del 17/11/2026). Fases 10 (3.86.0), 11 (3.87.0), 12 (3.87.1), 13 (3.88.0), 14 (3.89.0) y 15 (Mundo 2 en 3.90.0; Mundos 3 a 6 en 3.91.0) hechas. Los tres audios nuevos de las fases 10, 12 y 14 ya están en las dos voces.
 - **Próximo paso**: las fases 10 a 15 están hechas y en dev. Falta la prueba del usuario en dispositivos reales y confirmar las decisiones 2 a 6 (siguen la propuesta mientras no se diga otra cosa).
@@ -46,6 +47,11 @@ Plan completo: [PLAN.md](PLAN.md). Rama de trabajo: `auditoria-pedagogica` (se m
 | 13 | Monstruo que brilla con comida para dar | 3.88.0 | ✅ Hecha |
 | 14 | Memotest de letra y dibujo | 3.89.0 | ✅ Hecha |
 | 15 | Peluches de Mundos 2 a 6 con tres dibujos: soportes separados del fondo | 3.90.0 y 3.91.0 | ✅ Hecha: Mundo 2 (3.90.0), hamacas de Mundos 3, 5 y 6 y cofres de Mundo 4 (3.91.0) |
+| 16 | Monstruos y comida en Mundos 2 a 5 | 3.93.0 | ✅ Hecha (con la imagen quieta de la lámina) |
+| 17 | Cuadros de comer de los 40 monstruos (ChatGPT) | — | Pendiente |
+| 18 | Fondo de alimentar por mundo (ChatGPT) | — | Pendiente |
+| 19 | Dibujar en Mundos 2 a 5 | — | Pendiente |
+| 20 | Memotest en Mundos 2 a 5 | — | Pendiente |
 
 ## Pedidos del 17/11/2026
 

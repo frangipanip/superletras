@@ -39,6 +39,13 @@
 	}
 }
 
+/* Fondo de cada mundo (Mundo 1 usa el de .activity-page). Provisorio: el del menú del mundo,
+   hasta tener los fondos propios de la pantalla de alimentar (fase 18). */
+.page-monstruo.monstruo-mundo2 { background: url("/assets/imagenes/FONDOM2.jpg") center / cover no-repeat; }
+.page-monstruo.monstruo-mundo3 { background: url("/assets/imagenes/FONDOM3.png") center / cover no-repeat; }
+.page-monstruo.monstruo-mundo4 { background: url("/assets/imagenes/FONDOM4.jpg") center / cover no-repeat; }
+.page-monstruo.monstruo-mundo5 { background: url("/assets/imagenes/FONDOM5.jpg") center / cover no-repeat; }
+
 .page-monstruo {
 	--monstruo-borde: #2f8498;
 	--monstruo-texto: #6b3f24;

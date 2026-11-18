@@ -11,6 +11,7 @@ import { img, MUNDO2_CHARACTER_FRAMES, MUNDO2_CHARACTERS, MUNDO2_MOUTH_IMAGES, s
 import { STORAGE_KEYS, readStorage, writeStorage } from "../lib/storage";
 import { CAMINOS } from "../lib/caminos";
 import { actividadCompleta, getProgreso, subscribeProgreso } from "../lib/progreso";
+import MonstruoDelMenu from "../components/MonstruoDelMenu";
 import "./Mundo2.css";
 
 const LETTERS = ["P", "N", "D", "F", "H"];
@@ -337,6 +338,7 @@ export default function Mundo2() {
 			onDragStart={(event) => event.preventDefault()}
 		>
 			<UserNav />
+			<MonstruoDelMenu mundo={2} letra={selectedLetter} disabled={Boolean(teleport)} />
 			{!menuPanelVisible && (
 				<nav ref={compactMenuRef} className="mundo2-compact-menu" aria-label="Elegir letra">
 					<button

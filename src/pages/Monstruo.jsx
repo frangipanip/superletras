@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useLocation } from "react-router";
-import { COMIDAS, LETRAS } from "../../shared/comidas.js";
+import { COMIDAS, LETRAS_POR_MUNDO } from "../../shared/comidas.js";
 import BackButton from "../components/BackButton";
 import FullscreenButton from "../components/FullscreenButton";
 import Monstruo, { CUADROS_MONSTRUO, imagenesMonstruo, imagenesMonstruoNivel2, imagenMonstruoNivel2 } from "../components/Monstruo";
@@ -10,7 +10,7 @@ import { usePageTitle } from "../hooks/usePageTitle";
 import { preloadImages, sound } from "../lib/assets";
 import { cantidadComida, darComida, forzarMonstruo, comidaParaDar, getRecompensas, sincronizar, subscribeRecompensas, sumarComidaPrueba } from "../lib/recompensas";
 import ContadorComida from "../components/ContadorComida";
-import { readMenuOption, STORAGE_KEYS, writeStorage } from "../lib/storage";
+import { readStorage, STORAGE_KEYS, writeStorage } from "../lib/storage";
 import "./actividad.css";
 import "./Monstruo.css";
 
@@ -44,14 +44,31 @@ function comidasDe(letra) {
 
 const estaLleno = (comidas) => comidas.every(({ dadas, necesarias }) => dadas >= necesarias);
 
+// Letra elegida en el menú de cada mundo: Mundo 1 la guarda en minúscula y los otros en mayúscula.
+const MENU_OPTION_KEYS = {
+	1: STORAGE_KEYS.mundo1MenuOption,
+	2: STORAGE_KEYS.mundo2MenuOption,
+	3: STORAGE_KEYS.mundo3MenuOption,
+	4: STORAGE_KEYS.mundo4MenuOption,
+	5: STORAGE_KEYS.mundo5MenuOption
+};
+
+function guardarLetraDelMenu(mundo, letra) {
+	writeStorage(MENU_OPTION_KEYS[mundo], mundo === 1 ? letra : letra.toUpperCase());
+}
+
+// Pantalla de alimentar a los monstruos de un mundo (Mundos 1 a 5, por state.world): el de la
+// letra elegida en el centro y los otros cuatro del mismo mundo en el selector.
 export default function MonstruoPage() {
 	const location = useLocation();
 	const runtime = usePageRuntime();
+	const mundo = LETRAS_POR_MUNDO[location.state?.world] ? location.state.world : 1;
+	const letrasMundo = LETRAS_POR_MUNDO[mundo];
 	const [letra, setLetra] = useState(() => {
-		const elegida = (location.state?.letra || readMenuOption() || "a").toLowerCase();
-		return LETRAS.includes(elegida) ? elegida : "a";
+		const elegida = (location.state?.letra || readStorage(MENU_OPTION_KEYS[mundo]) || "").toLowerCase();
+		return letrasMundo.includes(elegida) ? elegida : letrasMundo[0];
 	});
-	usePageTitle(`Monstruo ${letra.toUpperCase()} - Mundo 1`);
+	usePageTitle(`Monstruo ${letra.toUpperCase()} - Mundo ${mundo}`);
 	const { letras, codigo } = useSyncExternalStore(subscribeRecompensas, getRecompensas);
 	const [vuelos, setVuelos] = useState([]);
 	const [cuadro, setCuadro] = useState(CUADROS_MONSTRUO.normal);
@@ -76,7 +93,7 @@ export default function MonstruoPage() {
 		return { ...comida, ganadas, dadas, guardadas: ganadas - dadas };
 	});
 	const lleno = comidas.every(({ dadas, necesarias }) => dadas >= necesarias);
-	const monstruosEvolucionados = Object.fromEntries(LETRAS.map((otraLetra) => [
+	const monstruosEvolucionados = Object.fromEntries(letrasMundo.map((otraLetra) => [
 		otraLetra,
 		COMIDAS.every(({ clave, necesarias }) => cantidadComida(letras, otraLetra, clave).dadas >= necesarias)
 	]));
@@ -122,7 +139,7 @@ export default function MonstruoPage() {
 		preloadImages([
 			...imagenesMonstruo(letra),
 			...imagenesMonstruoNivel2(letra),
-			...LETRAS.map((otraLetra) => imagenMonstruoNivel2(otraLetra))
+			...letrasMundo.map((otraLetra) => imagenMonstruoNivel2(otraLetra))
 		]);
 	}, [letra]);
 
@@ -151,7 +168,7 @@ export default function MonstruoPage() {
 		});
 		setCuadro(CUADROS_MONSTRUO.normal);
 		setLetra(otraLetra);
-		writeStorage(STORAGE_KEYS.mundo1MenuOption, otraLetra);
+		guardarLetraDelMenu(mundo, otraLetra);
 	}
 
 	function comer() {
@@ -287,11 +304,11 @@ export default function MonstruoPage() {
 	}
 
 	return (
-		<div className="page activity-page page-monstruo">
+		<div className={`page activity-page page-monstruo monstruo-mundo${mundo}`}>
 			<BackButton />
 			<FullscreenButton toggle />
 			<nav className="monstruo-selector" aria-label="Elegir monstruo">
-				{LETRAS.filter((otraLetra) => otraLetra !== letra).map((otraLetra) => {
+				{letrasMundo.filter((otraLetra) => otraLetra !== letra).map((otraLetra) => {
 					// Cada monstruo con su propio contador de comidas sin dar (pedido del 18/11/2026).
 					const pendientes = comidaParaDar(letras, otraLetra);
 					return (

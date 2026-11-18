@@ -109,7 +109,7 @@ export function otorgarPremio(letra, actividad, errores = 0, cantidadSolicitada)
 	marcarCompletada(letra, actividad, premioPorErrores(actividad, errores, cantidadSolicitada));
 	const comida = LETRAS.includes(letra) ? COMIDA_POR_ACTIVIDAD[actividad] : null;
 	if (!comida) {
-		// Solo las letras de Mundo 1 tienen monstruo; los otros caminos premian con estrellas.
+		// Solo las letras de Mundos 1 a 5 tienen monstruo (LETRAS); Mundo 6 premia con estrellas.
 		return { id: nuevoId(), comida: PREMIO_ESTRELLAS, cantidad: 0, score: premioPorErrores(actividad, errores, cantidadSolicitada) };
 	}
 	const evento = { id: nuevoId(), tipo: "premio", letra, actividad, errores, codigo: state.codigo };

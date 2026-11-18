@@ -12,6 +12,7 @@ import { useTeleport } from "../hooks/useTeleport";
 import { img, MUNDO4_CHARACTER_FRAMES, MUNDO4_CHARACTERS, MUNDO4_MOUTH_IMAGES, sound } from "../lib/assets";
 import { STORAGE_KEYS, readStorage, writeStorage } from "../lib/storage";
 import { actividadCompleta, getProgreso, subscribeProgreso } from "../lib/progreso";
+import MonstruoDelMenu from "../components/MonstruoDelMenu";
 import SeaLifeEffects from "../components/SeaLifeEffects";
 import "./Mundo4.css";
 
@@ -352,6 +353,7 @@ export default function Mundo4() {
 			onDragStart={(event) => event.preventDefault()}
 		>
 			<UserNav />
+			<MonstruoDelMenu mundo={4} letra={selectedLetter} disabled={Boolean(teleport)} />
 			{characterOffscreen && (
 				<CharacterLocator character={character} direction={characterDirection} onClick={scrollToCharacter} />
 			)}

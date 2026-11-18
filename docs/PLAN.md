@@ -301,6 +301,59 @@ Criterios:
 - [ ] Ningún grupo se queda sin distractores y ninguna ronda repite un dibujo.
 - [ ] Las dos voces sin recursos faltantes; encuadres en 1138 × 712, 844 × 390 y 667 × 375 con tres soportes, sin tapar al personaje.
 
+## Monstruos en Mundos 2 a 5 (fases 16 a 20)
+
+Pedido del 18/11/2026: cada letra de los Mundos 2 a 5 tiene su monstruo, con su forma inicial y su primera evolución tomadas de la lámina `descargas/Superletras_inicial_y_primera_evolucion_transparente.png`. Los monstruos de Mundo 1 (A, L, M, S, T) y sus evoluciones ya están y no se tocan. El sistema es el mismo que en Mundo 1: cada actividad da la misma comida y en la misma cantidad, cada monstruo pide 3 de cada una (21) y, al terminar de comer, evoluciona con la nube. Las comidas de cada letra no se mezclan con las de otra (P, C fuerte y C suave son monstruos distintos). Mundo 6 queda como está, con estrellas.
+
+| Mundo | Letras (clave del menú → monstruo de la lámina) |
+|---|---|
+| 2 · Insectos | p, n, d, f, h |
+| 3 · Bloques | r, rr, ar, y, ll |
+| 4 · Sirenas | ce, c, z, q, ch |
+| 5 · Robots | g, ge, gu (GUE), gü (GÜE), j |
+
+Decisiones del 18/11/2026: los monstruos van hasta Mundo 5; Dibujar y Memotest se agregan a los Mundos 2 a 5 para que se puedan ganar las 7 comidas; "¿J o G?" da galletitas (comparte el tope de 3 con Dibujar); la pantalla de alimentar lleva un fondo propio por mundo.
+
+Orden: primero el sistema (con la imagen de la lámina quieta en los seis cuadros), después el arte. Hasta la fase 19 y 20 los monstruos de Mundos 2 a 5 no pueden llegar a 21 (faltan Dibujar y Memotest).
+
+### Fase 16 — Monstruos y comida en Mundos 2 a 5 (3.93.0)
+
+- `shared/comidas.js`: `LETRAS_POR_MUNDO` (1 a 5) y `LETRAS` con todas; `MUNDO_DE_LETRA`. "¿J o G?" (`elegir`) da galletitas. La API acepta las claves de varias letras (`rr`, `gü`).
+- `otorgarPremio`: las letras de Mundos 2 a 5 reciben comida como Mundo 1.
+- Imágenes: los 40 recortes de la lámina en `imagenes/monstruos/` (`monstruo-<letra>-1.webp` y `monstruo-<letra>-nivel2-1.webp`; `gü` se guarda como `gdieresis`). Mientras no estén los cuadros de comer, el monstruo usa el cuadro 1 en todos los estados.
+- `/monstruo` sirve a los cinco mundos: letras, título, fondo y letra guardada del mundo de `state.world`; el selector muestra los monstruos de ese mundo con su contador.
+- Menús de Mundos 2 a 5: monstruo de la letra elegida arriba (`MonstruoDelMenu`, con la nube de Mundo 1), con brillo y contador; lleva a `/monstruo`. En Mundos 2 a 4 va a la derecha de la columna de letras (al centro la tapaba); en Mundo 5, al centro.
+- Inicio de Mundos 2 a 5 da cerezas y muestra el cartel de premio (antes solo anotaba el progreso). Fondo provisorio de `/monstruo` en Mundos 2 a 5: el del menú de cada mundo.
+
+Criterios:
+
+- [x] Ganar una actividad en una letra de Mundos 2 a 5 da la comida de esa actividad y aparece en su monstruo, no en el de otra letra (P/flores → chocolate, GÜ/elegir → galletitas, CH/tren → cucuruchos; B de Mundo 6 → estrellas).
+- [x] La API guarda y devuelve las comidas de `rr`, `p`, `gü` y rechaza `b`; app y API comparten el tope (probado con una base temporal).
+- [x] `/monstruo` de cada mundo: selector con los otros cuatro, contador, darle comida y evolucionar con la nube (D de Mundo 2).
+- [x] Mundo 1 sigue igual (monstruos, selector y contador).
+
+### Fase 17 — Cuadros de comer de los 40 monstruos (ChatGPT)
+
+- Por monstruo y nivel, una hoja de 6 cuadros como los de Mundo 1 (normal, boca abierta, masticando, se relame, feliz, sexto cuadro), generada con ChatGPT a partir del recorte de la lámina y de los cuadros de un monstruo de Mundo 1 como guía. Se corta en 6 archivos `.webp`.
+- Prompts en `docs/arte/monstruos-prompts.json`. Se integra de a un mundo.
+
+Criterios:
+
+- [ ] Cada monstruo se reconoce igual al de la lámina en los 6 cuadros, sin cambiar de tamaño ni de lugar entre cuadros.
+- [ ] La comida vuela hasta la boca de cada monstruo.
+
+### Fase 18 — Fondo de la pantalla de alimentar por mundo (ChatGPT)
+
+- Cuatro fondos (insectos, bloques, mar, robots) con la composición del fondo actual de `/monstruo`.
+
+### Fase 19 — Dibujar en Mundos 2 a 5
+
+- Trazado de las letras de cada mundo, con consigna y premio de galletitas; se agrega al camino de cada mundo y a `CAMINOS` (al final, para conservar los índices guardados).
+
+### Fase 20 — Memotest en Mundos 2 a 5
+
+- Parejas de sílaba escrita y dibujo de los bancos de Peluches de cada mundo; premio de caramelos; se agrega al camino y a `CAMINOS`.
+
 ## Cómo produzco audios y dibujos
 
 - **Audios**: Chrome sobre tu sesión de elevenlabs.io. Por cada texto genero con Malena y con Dante, descargo y muevo el mp3 a `public/assets/sonido/supernena|supernene/` con el nombre de la tabla. Uso la configuración del archivo que ya está en el repo (`…Malena…_s50_sim75_v4`). **Consume créditos de tu cuenta**: son unos 45 textos de consigna + ~90 palabras, por dos voces.

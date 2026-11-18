@@ -9,6 +9,7 @@ import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
 import { img, MUNDO5_CHARACTERS, MUNDO5_MOUTH_IMAGES, sound } from "../lib/assets";
 import { actividadCompleta, getProgreso, subscribeProgreso } from "../lib/progreso";
+import MonstruoDelMenu from "../components/MonstruoDelMenu";
 import { readStorage, STORAGE_KEYS, writeStorage } from "../lib/storage";
 import "./Mundo5.css";
 
@@ -277,6 +278,7 @@ export default function Mundo5() {
 			onDragStart={(event) => event.preventDefault()}
 		>
 			<UserNav />
+			<MonstruoDelMenu mundo={5} letra={selectedLetter} />
 			{characterOffscreen && (
 				<CharacterLocator character={character} direction={characterDirection} onClick={scrollToCharacter} />
 			)}

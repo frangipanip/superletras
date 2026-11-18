@@ -322,7 +322,9 @@ export default function InicioActividad() {
 	leftCars.current = activitySelectedItems;
 	const isDriving = isMundo3 && isPhaseThree && !isShuffling;
 	useCarPhysics(runtime, { active: isDriving, itemRefs: carRefs, stoppedRef: leftCars, obstacleRefs: [characterRef], background: MUNDO3_BACKGROUND_OBSTACLES });
-	const [premio, otorgarPremio] = useRecompensa("inicio", isMundo2 || isMundo3 || isMundo4 || isMundo5 || isMundo6 ? null : MODES[menuOption] ? menuOption : "a");
+	// Mundos 1 a 5 dan cerezas al monstruo de la letra; Mundo 6 no tiene monstruos (solo progreso).
+	const letraPremio = isMundo6 ? null : isMundo2 || isMundo3 || isMundo4 || isMundo5 ? menuOption : MODES[menuOption] ? menuOption : "a";
+	const [premio, otorgarPremio] = useRecompensa("inicio", letraPremio);
 	const LETTER_IMAGES = {
 		a: "letraA.png",
 		l: "letraL.png",
@@ -472,10 +474,10 @@ export default function InicioActividad() {
 				}
 				setShowConfetti(true);
 				// La actividad se completa al terminar la fase 3 (carteles en movimiento).
-				if (isPhaseThree && !isMundo2 && !isMundo3 && !isMundo4 && !isMundo5 && !isMundo6) {
+				if (isPhaseThree && letraPremio) {
 					otorgarPremio(errorCount.current);
 				} else if (isPhaseThree && menuOption) {
-					// Mundos 2 a 6: sin comida, pero queda anotada para las marcas del camino.
+					// Mundo 6: sin comida, pero queda anotada para las marcas del camino.
 					marcarCompletada(menuOption, "inicio", premioPorErrores("inicio", errorCount.current));
 				}
 				audios.celebration.onended = () => {

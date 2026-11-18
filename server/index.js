@@ -127,7 +127,7 @@ function leerComidas(codigo) {
 
 function aplicarEvento(codigo, evento) {
 	const { id, tipo, letra } = evento;
-	if (typeof id !== "string" || id.length < 8 || id.length > 64 || !/^[a-zñ]$/.test(letra)) {
+	if (typeof id !== "string" || id.length < 8 || id.length > 64 || !LETRAS.includes(letra)) {
 		return false;
 	}
 	let comida;
@@ -221,7 +221,7 @@ const server = createServer(async (req, res) => {
 			if (!CODIGOS_DEBUG.has(codigoDebug)) {
 				return responder(res, 403, { error: "No autorizado" });
 			}
-			if (!/^[a-zñ]$/.test(letraDebug)) {
+			if (!LETRAS.includes(letraDebug)) {
 				return responder(res, 400, { error: "Letra inválida" });
 			}
 			if (!sql.existeJugador.get(codigoDebug)) {
