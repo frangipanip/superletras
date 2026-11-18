@@ -9,6 +9,7 @@ import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
 import { img, MUNDO5_CHARACTERS, MUNDO5_MOUTH_IMAGES, sound } from "../lib/assets";
 import { actividadCompleta, getProgreso, subscribeProgreso } from "../lib/progreso";
+import MarcaCamino from "../components/MarcaCamino";
 import MonstruoDelMenu from "../components/MonstruoDelMenu";
 import { readStorage, STORAGE_KEYS, writeStorage } from "../lib/storage";
 import "./Mundo5.css";
@@ -327,7 +328,7 @@ export default function Mundo5() {
 							style={{ left: `${left}%`, top: `${top}%` }}
 						>
 							{index === nextActivityIndex && <span className="camino-siguiente-brillo" aria-hidden="true" />}
-							{isActivityDone(index) && <span className="camino-hecho" aria-hidden="true">✓</span>}
+							<MarcaCamino letra={pathLetter} actividad={ACTIVIDADES_M5[index]?.clave} hecha={isActivityDone(index)} />
 							<img className="mundo5-path-sign" src={img(ACTIVIDADES_M5[index]?.cartel || ACTIVITY_SIGN_IMAGES[index] || "GLOBOSbtn.png")} alt="" draggable={false} />
 							<button
 								className={`mundo5-path-button${ACTIVIDADES_M5[index] ? " is-available" : ""}`}

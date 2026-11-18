@@ -13,6 +13,7 @@ import { img, MUNDO3_CHARACTERS, MUNDO3_MOUTH_IMAGES, sound } from "../lib/asset
 import { STORAGE_KEYS, readStorage, writeStorage } from "../lib/storage";
 import { CAMINOS } from "../lib/caminos";
 import { actividadCompleta, getProgreso, subscribeProgreso } from "../lib/progreso";
+import MarcaCamino from "../components/MarcaCamino";
 import MonstruoDelMenu from "../components/MonstruoDelMenu";
 import "./Mundo3.css";
 
@@ -366,7 +367,7 @@ export default function Mundo3() {
 								style={{ left: `${left}%`, top: `${top}%` }}
 							>
 								{visible && index === nextActivityIndex && index !== characterIndex && <span className="camino-siguiente-brillo" aria-hidden="true" />}
-								{visible && isDone(pathLetter, index) && <span className="camino-hecho" aria-hidden="true">✓</span>}
+								{visible && <MarcaCamino letra={pathLetter.toLowerCase()} actividad={CAMINOS[3][index]} hecha={isDone(pathLetter, index)} />}
 								<img
 									className="mundo3-path-sign"
 									src={img(VISIBLE_ACTIVITY_SIGNS[index] || ACTIVITY_SIGN_IMAGES[index] || "GLOBOSbtn.png")}

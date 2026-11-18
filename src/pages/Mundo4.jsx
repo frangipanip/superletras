@@ -12,6 +12,7 @@ import { useTeleport } from "../hooks/useTeleport";
 import { img, MUNDO4_CHARACTER_FRAMES, MUNDO4_CHARACTERS, MUNDO4_MOUTH_IMAGES, sound } from "../lib/assets";
 import { STORAGE_KEYS, readStorage, writeStorage } from "../lib/storage";
 import { actividadCompleta, getProgreso, subscribeProgreso } from "../lib/progreso";
+import MarcaCamino from "../components/MarcaCamino";
 import MonstruoDelMenu from "../components/MonstruoDelMenu";
 import SeaLifeEffects from "../components/SeaLifeEffects";
 import "./Mundo4.css";
@@ -399,7 +400,7 @@ export default function Mundo4() {
 							style={{ left: `${left}%`, top: `${top}%` }}
 						>
 							{index === nextActivityIndex && index !== characterIndex && <span className="camino-siguiente-brillo" aria-hidden="true" />}
-							{isActivityDone(index) && <span className="camino-hecho" aria-hidden="true">✓</span>}
+							<MarcaCamino letra={pathLetter} actividad={ACTIVIDADES_M4[index]} hecha={isActivityDone(index)} />
 							<img className="mundo4-path-sign" src={img(ACTIVITY_SIGN_IMAGES[index] || "GLOBOSbtn.png")} alt="" draggable={false} />
 							<button
 								className={`mundo4-path-button path-letter-${(selectedLetter || LETTERS[0]).toLowerCase()}${index < ACTIVIDADES_ABIERTAS ? " is-available" : ""}`}

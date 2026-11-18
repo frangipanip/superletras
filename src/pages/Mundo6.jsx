@@ -9,6 +9,7 @@ import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { img, MUNDO6_CHARACTER_FRAMES, sound } from "../lib/assets";
 import { actividadCompleta, getProgreso, subscribeProgreso } from "../lib/progreso";
+import MarcaCamino from "../components/MarcaCamino";
 import { readStorage, STORAGE_KEYS, writeStorage } from "../lib/storage";
 import "./Mundo6.css";
 
@@ -301,7 +302,7 @@ export default function Mundo6() {
 							style={{ left: `${left}%`, top: `${top}%` }}
 						>
 							{index === nextActivityIndex && <span className="camino-siguiente-brillo" aria-hidden="true" />}
-							{isActivityDone(index) && <span className="camino-hecho" aria-hidden="true">✓</span>}
+							<MarcaCamino letra={pathLetter} actividad={ACTIVIDADES_M6[index]?.clave} hecha={isActivityDone(index)} />
 							<img className="mundo6-path-sign" src={img(ACTIVIDADES_M6[index]?.cartel || ACTIVITY_SIGN_IMAGES[index] || "GLOBOSbtn.png")} alt="" draggable={false} />
 							<button
 								className={`mundo6-path-button${ACTIVIDADES_M6[index] ? " is-available" : ""}`}

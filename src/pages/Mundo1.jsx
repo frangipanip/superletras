@@ -15,6 +15,7 @@ import { COMIDA_POR_ACTIVIDAD, COMIDAS } from "../../shared/comidas.js";
 import { cantidadComida, comidaParaDar, estrellasDe, getRecompensas, subscribeRecompensas } from "../lib/recompensas";
 import ContadorEstrellas from "../components/ContadorEstrellas";
 import ContadorComida from "../components/ContadorComida";
+import MarcaCamino from "../components/MarcaCamino";
 import { actividadCompleta, getProgreso, subscribeProgreso } from "../lib/progreso";
 import "./Mundo1.css";
 
@@ -653,7 +654,7 @@ export default function Mundo1() {
 						>
 							{index === characterIndex && <span className="path-activity-glow" aria-hidden="true" />}
 							{index === nextActivityIndex && index !== characterIndex && <span className="camino-siguiente-brillo" aria-hidden="true" />}
-							{isActivityVisible(index) && isActivityDone(index) && <span className="camino-hecho" aria-hidden="true">✓</span>}
+							{isActivityVisible(index) && <MarcaCamino letra={selectedOption} actividad={ACTIVIDADES[index]?.clave} hecha={isActivityDone(index)} />}
 							<img
 								className="path-activity-sign"
 								src={img(ACTIVITY_SIGN_IMAGES[index] || "GLOBOSbtn.png")}

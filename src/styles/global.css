@@ -164,7 +164,7 @@ img {
 	}
 }
 
-/* Caminos de los mundos (Mundo1..4): marca de actividad completada, brillo en la que sigue y
+/* Caminos de los mundos (Mundos 1 a 6): marca de actividad completada (o el premio que da, MarcaCamino), brillo en la que sigue y
    letra del menú que conviene elegir. Las pantallas las ponen dentro de su botón o cartel, que
    tiene que tener position: relative o absolute. */
 .camino-hecho {
@@ -183,6 +183,14 @@ img {
 	color: #fff;
 	font: 900 clamp(0.8rem, 2.6vmin, 1.5rem) / 1 Arial, Helvetica, sans-serif;
 	pointer-events: none;
+}
+
+/* Sin completar, en el mismo lugar va el premio que da la actividad (comida o estrella). */
+.camino-hecho.camino-premio {
+	border-color: #ffd34d;
+	background: #fff8e1;
+	font-size: clamp(0.9rem, 3vmin, 1.7rem);
+	line-height: 1;
 }
 
 .camino-siguiente-brillo {

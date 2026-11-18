@@ -11,6 +11,7 @@ import { img, MUNDO2_CHARACTER_FRAMES, MUNDO2_CHARACTERS, MUNDO2_MOUTH_IMAGES, s
 import { STORAGE_KEYS, readStorage, writeStorage } from "../lib/storage";
 import { CAMINOS } from "../lib/caminos";
 import { actividadCompleta, getProgreso, subscribeProgreso } from "../lib/progreso";
+import MarcaCamino from "../components/MarcaCamino";
 import MonstruoDelMenu from "../components/MonstruoDelMenu";
 import "./Mundo2.css";
 
@@ -381,7 +382,7 @@ export default function Mundo2() {
 					{PATH_BUTTONS.slice(0, ACTIVITY_ROUTES.length).map(([left, top], index) => (
 						<div className="mundo2-path-activity" key={`${left}-${top}`} style={{ left: `${left}%`, top: `${top}%` }}>
 							{index === nextActivityIndex && index !== characterIndex && <span className="camino-siguiente-brillo" aria-hidden="true" />}
-							{isDone(pathLetter, index) && <span className="camino-hecho" aria-hidden="true">✓</span>}
+							<MarcaCamino letra={pathLetter.toLowerCase()} actividad={CAMINOS[2][index]} hecha={isDone(pathLetter, index)} />
 							<img className="mundo2-path-sign available" src={img(ACTIVITY_SIGN_IMAGES[index])} alt="" draggable={false} />
 							<button
 								className={`mundo2-path-button${selectedLetter ? ` path-letter-${selectedLetter.toLowerCase()}` : index === 0 ? " path-letter-p" : ""}`}
