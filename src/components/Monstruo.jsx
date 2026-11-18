@@ -11,8 +11,8 @@ export const CUADROS_MONSTRUO = { normal: 1, abre: 2, mastica: 3, relame: 4, fel
 // scripts/cortar-hoja-monstruo.py) usan el cuadro 1 en todos los estados.
 const MUNDO1 = ["a", "l", "m", "s", "t"];
 const CON_CUADROS = {
-	1: new Set([...MUNDO1, "p", "n", "d", "f", "h", "r", "rr"]),
-	2: new Set([...MUNDO1, "p", "n", "d", "f", "h", "r"])
+	1: new Set([...MUNDO1, "p", "n", "d", "f", "h", "r", "rr", "ar", "y", "ll"]),
+	2: new Set([...MUNDO1, "p", "n", "d", "f", "h", "r", "rr", "ar", "y", "ll"])
 };
 
 // Dónde está la boca (fracción de la imagen) de los monstruos que no la tienen en el centro, para
@@ -20,12 +20,14 @@ const CON_CUADROS = {
 const BOCA_CENTRO = { x: 0.5, y: 0.54 };
 const BOCAS = {
 	1: {
-		p: { x: 0.5, y: 0.66 }, n: { x: 0.5, y: 0.66 }, d: { x: 0.53, y: 0.7 }, f: { x: 0.52, y: 0.59 },
-		h: { x: 0.5, y: 0.68 }, r: { x: 0.55, y: 0.74 }, rr: { x: 0.55, y: 0.74 }
+		p: { x: 0.5, y: 0.71 }, n: { x: 0.5, y: 0.68 }, d: { x: 0.53, y: 0.7 }, f: { x: 0.52, y: 0.69 },
+		h: { x: 0.5, y: 0.68 }, r: { x: 0.55, y: 0.75 }, rr: { x: 0.55, y: 0.74 }, ar: { x: 0.58, y: 0.76 },
+		y: { x: 0.6, y: 0.79 }, ll: { x: 0.58, y: 0.81 }
 	},
 	2: {
 		m: { x: 0.5, y: 0.6 }, p: { x: 0.58, y: 0.56 }, n: { x: 0.62, y: 0.54 }, d: { x: 0.65, y: 0.54 },
-		f: { x: 0.64, y: 0.52 }, h: { x: 0.68, y: 0.55 }, r: { x: 0.51, y: 0.55 }
+		f: { x: 0.64, y: 0.52 }, h: { x: 0.68, y: 0.55 }, r: { x: 0.53, y: 0.46 }, rr: { x: 0.75, y: 0.52 },
+		ar: { x: 0.53, y: 0.53 }, y: { x: 0.69, y: 0.64 }, ll: { x: 0.56, y: 0.68 }
 	}
 };
 
