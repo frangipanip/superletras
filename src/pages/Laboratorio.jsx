@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { Navigate, useLocation, useNavigate } from "react-router";
+import { Navigate, useLocation } from "react-router";
 import { LETRAS_POR_MUNDO } from "../../shared/comidas.js";
 import BackButton from "../components/BackButton";
 import { usePageRuntime } from "../hooks/usePageRuntime";
@@ -30,7 +30,6 @@ function escalaPara(ancho, alto) {
 }
 
 function LaboratorioDelMundo({ mundo }) {
-	const navigate = useNavigate();
 	const runtime = usePageRuntime();
 	const { letras } = useSyncExternalStore(subscribeRecompensas, getRecompensas);
 	const saldo = estrellasDelMundo(letras, mundo);
@@ -222,7 +221,7 @@ function LaboratorioDelMundo({ mundo }) {
 			</div>
 
 			<nav className="top-nav" aria-label="Navegación">
-				<BackButton className="corner-button back-button" onClick={() => navigate(`/mundo${mundo}`)} />
+				<BackButton className="corner-button back-button" />
 			</nav>
 			<div className="lab-saldo" aria-label={`Laboratorio ${NOMBRES_LABORATORIO[mundo]}: ${saldo} ${saldo === 1 ? "estrella" : "estrellas"}`}>
 				<span aria-hidden="true">⭐</span>

@@ -15,7 +15,27 @@ export const NECESARIAS_POR_ACTIVIDAD = 3;
 function leer() {
 	try {
 		const guardado = JSON.parse(readStorage(STORAGE_KEYS.actividadesCompletadas) || "{}");
-		return guardado && typeof guardado === "object" ? guardado : {};
+		if (!guardado || typeof guardado !== "object" || Array.isArray(guardado)) {
+			return {};
+		}
+		const normalizado = {};
+		Object.entries(guardado).forEach(([letra, actividades]) => {
+			if (!letra || !actividades || typeof actividades !== "object" || Array.isArray(actividades)) {
+				return;
+			}
+			const claveLetra = letra.toLowerCase();
+			normalizado[claveLetra] = normalizado[claveLetra] || {};
+			Object.entries(actividades).forEach(([actividad, puntaje]) => {
+				if (!actividad) return;
+				const claveActividad = actividad.toLowerCase();
+				const cantidad = Number(puntaje);
+				normalizado[claveLetra][claveActividad] = Math.max(
+					normalizado[claveLetra][claveActividad] || 0,
+					Number.isFinite(cantidad) ? Math.min(NECESARIAS_POR_ACTIVIDAD, cantidad) : 0
+				);
+			});
+		});
+		return normalizado;
 	} catch {
 		return {};
 	}
@@ -35,23 +55,28 @@ export function getProgreso() {
 
 // Suma lo obtenido en una partida terminada (1 a 3), sin pasar de NECESARIAS_POR_ACTIVIDAD.
 export function marcarCompletada(letra, actividad, puntaje = 1) {
-	if (!letra || !actividad) {
+	if (typeof letra !== "string" || typeof actividad !== "string" || !letra || !actividad) {
 		return;
 	}
-	const anterior = progreso[letra]?.[actividad] || 0;
+	const claveLetra = letra.toLowerCase();
+	const claveActividad = actividad.toLowerCase();
+	const anterior = progreso[claveLetra]?.[claveActividad] || 0;
 	const sumado = Math.max(1, Math.min(3, Number(puntaje) || 1));
 	const nuevo = Math.min(NECESARIAS_POR_ACTIVIDAD, anterior + sumado);
 	if (nuevo <= anterior) {
 		return;
 	}
-	progreso = { ...progreso, [letra]: { ...progreso[letra], [actividad]: nuevo } };
+	progreso = { ...progreso, [claveLetra]: { ...progreso[claveLetra], [claveActividad]: nuevo } };
 	writeStorage(STORAGE_KEYS.actividadesCompletadas, JSON.stringify(progreso));
 	listeners.forEach((listener) => listener());
 }
 
 // Lo juntado en la actividad (0 si nunca se terminó).
 export function puntajeDe(progresoActual, letra, actividad) {
-	return progresoActual[letra]?.[actividad] || 0;
+	const claveLetra = typeof letra === "string" ? letra.toLowerCase() : "";
+	const claveActividad = typeof actividad === "string" ? actividad.toLowerCase() : "";
+	if (!claveLetra || !claveActividad) return 0;
+	return progresoActual[claveLetra]?.[claveActividad] || 0;
 }
 
 // Completa: se juntaron las 3 estrellas o, en Mundo 1, las 3 comidas (`ganadas`, estén dadas al
