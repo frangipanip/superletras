@@ -47,6 +47,33 @@
 		filter: drop-shadow(0 0 3px rgba(255, 195, 32, 0.85));
 	}
 
+	.world-laboratory-button {
+		position: absolute;
+		top: 50%;
+		right: clamp(8px, 2vw, 24px);
+		z-index: 4;
+		width: min(14vw, 20vh, 160px);
+		min-width: 56px;
+		padding: 0;
+		border: 0;
+		background: transparent;
+		cursor: pointer;
+		transform: translateY(-50%);
+		transition: transform 180ms ease, filter 180ms ease;
+	}
+
+	.world-laboratory-button:hover,
+	.world-laboratory-button:focus-visible {
+		transform: translateY(-50%) scale(1.06);
+		filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.4));
+	}
+
+	.world-laboratory-button img {
+		display: block;
+		width: 100%;
+		height: auto;
+	}
+
 	.world-button {
 		position: absolute;
 		z-index: 1;

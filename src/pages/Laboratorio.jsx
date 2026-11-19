@@ -5,22 +5,22 @@ import BackButton from "../components/BackButton";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { ALTO, ANCHO, BOTONES, ESPERA_ENTRE_TOQUES, IMAGENES, MAQUINA, NOMBRES_LABORATORIO } from "../lib/laboratorio";
 import { actualizar, cargarImagenes, crearEscena, dibujar, EFECTOS, hayMovimiento } from "../lib/laboratorioEfectos";
-import { estrellasDelMundo, gastarEstrellas, getRecompensas, subscribeRecompensas } from "../lib/recompensas";
+import { estrellasTotales, gastarEstrellas, getRecompensas, subscribeRecompensas } from "../lib/recompensas";
 import "./Laboratorio.css";
 
-// Laboratorio de Luces (/laboratorio, con state.world del mundo de origen). Se entra tocando el
-// contador de estrellas de un mundo. Un solo componente para los seis laboratorios: cada uno muestra
-// y gasta el saldo de su mundo. Arriba el paisaje (escenario 1920×1080 escalado) y abajo, aparte, la
+// Laboratorio de Luces (/laboratorio, con acceso desde Mundos o los menús de mundo). Usa el saldo
+// compartido de estrellas. Arriba el paisaje (escenario 1920×1080 escalado) y abajo, aparte, la
 // franja con los seis controles. Precios, tiempos, límites y el mapa del arte: src/lib/laboratorio.js;
 // los efectos: src/lib/laboratorioEfectos.js. La escena es efímera: al salir se borra todo.
 export default function Laboratorio() {
 	const location = useLocation();
-	const mundo = Number(location.state?.world);
-	if (!LETRAS_POR_MUNDO[mundo]) {
+	const global = location.state?.global === true;
+	const mundo = global || location.state?.world == null ? null : Number(location.state.world);
+	if (!global && !LETRAS_POR_MUNDO[mundo]) {
 		return <Navigate to="/mundos" replace />;
 	}
-	// key: cambiar de mundo arranca una escena limpia.
-	return <LaboratorioDelMundo key={mundo} mundo={mundo} />;
+	// key: abrir desde otro mundo arranca una escena limpia.
+	return <LaboratorioDelMundo key={mundo ?? "global"} mundo={mundo} />;
 }
 
 // Escala del escenario 1920×1080 para que entre entero en el área del paisaje (lo que queda arriba
@@ -32,7 +32,7 @@ function escalaPara(ancho, alto) {
 function LaboratorioDelMundo({ mundo }) {
 	const runtime = usePageRuntime();
 	const { letras } = useSyncExternalStore(subscribeRecompensas, getRecompensas);
-	const saldo = estrellasDelMundo(letras, mundo);
+	const saldo = estrellasTotales(letras);
 	const areaRef = useRef(null);
 	const paisajeRef = useRef(null);
 	const lucesRef = useRef(null);
@@ -157,8 +157,8 @@ function LaboratorioDelMundo({ mundo }) {
 			avisar(estado === "cargando" ? "Un momentito, se está preparando…" : "¡Ya hay un montón! Probá con otro.", boton.id);
 			return;
 		}
-		const disponible = estrellasDelMundo(getRecompensas().letras, mundo);
-		if (disponible < boton.precio || !gastarEstrellas(mundo, boton.precio, boton.id)) {
+		const disponible = estrellasTotales(getRecompensas().letras);
+		if (disponible < boton.precio || !gastarEstrellas(null, boton.precio, boton.id)) {
 			const falta = Math.max(1, boton.precio - disponible);
 			avisar(`Te ${falta === 1 ? "falta 1 estrella" : `faltan ${falta} estrellas`}`, boton.id, true);
 			return;
@@ -199,7 +199,11 @@ function LaboratorioDelMundo({ mundo }) {
 				</div>
 			</div>
 
-			<div className="luces-franja" role="group" aria-label={`Efectos de luz del laboratorio ${NOMBRES_LABORATORIO[mundo]}`}>
+			<div
+				className="luces-franja"
+				role="group"
+				aria-label={mundo ? `Efectos de luz del laboratorio ${NOMBRES_LABORATORIO[mundo]}` : "Efectos del laboratorio compartido"}
+			>
 				<div className="luces-franja__grilla">
 					{BOTONES.map((boton) => (
 						<button
@@ -223,7 +227,7 @@ function LaboratorioDelMundo({ mundo }) {
 			<nav className="top-nav" aria-label="Navegación">
 				<BackButton className="corner-button back-button" />
 			</nav>
-			<div className="lab-saldo" aria-label={`Laboratorio ${NOMBRES_LABORATORIO[mundo]}: ${saldo} ${saldo === 1 ? "estrella" : "estrellas"}`}>
+			<div className="lab-saldo" aria-label={`Laboratorio compartido: ${saldo} ${saldo === 1 ? "estrella" : "estrellas"}`}>
 				<span aria-hidden="true">⭐</span>
 				<span aria-hidden="true">{saldo}</span>
 			</div>

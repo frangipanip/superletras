@@ -61,10 +61,18 @@ export function comidasPedidas(letras, letra) {
 	return comidasDelMonstruo(letra, (clave) => cantidadComida(letras, letra, clave));
 }
 
-// Saldo de estrellas del mundo (Laboratorio de Luces): lo ganado menos lo gastado en todas sus letras.
-// Es el mismo para cualquier letra del mundo y nunca mezcla mundos.
+// Saldo de estrellas de un mundo, conservado para consultas por menú. El Laboratorio usa
+// estrellasTotales para compartir el saldo entre todas las letras de todos los mundos.
 export function estrellasDelMundo(letras, mundo) {
 	return (LETRAS_POR_MUNDO[mundo] || []).reduce((total, letra) => {
+		const { ganadas, dadas } = cantidadComida(letras, letra, CLAVE_ESTRELLAS);
+		return total + Math.max(0, ganadas - dadas);
+	}, 0);
+}
+
+// Saldo compartido del Laboratorio: estrellas disponibles de las letras de todos los mundos.
+export function estrellasTotales(letras) {
+	return LETRAS.reduce((total, letra) => {
 		const { ganadas, dadas } = cantidadComida(letras, letra, CLAVE_ESTRELLAS);
 		return total + Math.max(0, ganadas - dadas);
 	}, 0);
@@ -182,11 +190,11 @@ export function darComida(letra, clave) {
 // síncrono, así dos toques seguidos no pueden gastar la misma estrella) y devuelve false sin tocar
 // nada si no alcanza. `efecto` queda en el evento solo como referencia.
 export function gastarEstrellas(mundo, cantidad, efecto) {
-	const letras = LETRAS_POR_MUNDO[mundo];
+	const letras = mundo === null ? LETRAS : LETRAS_POR_MUNDO[mundo];
 	if (!letras) {
 		return false;
 	}
-	// La API valida la letra: va la primera del mundo, que alcanza para saber de qué mundo es.
+	// La letra identifica un saldo existente; mundo null indica que el gasto se comparte globalmente.
 	const evento = { id: nuevoId(), tipo: "gastar", mundo, letra: letras[0], cantidad, efecto, codigo: state.codigo };
 	if (!aplicarLocal(evento)) {
 		return false;

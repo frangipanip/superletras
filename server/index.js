@@ -125,12 +125,12 @@ function leerComidas(codigo) {
 	return letras;
 }
 
-// Estrellas gastadas en el Laboratorio de Luces: { tipo: "gastar", letra (cualquiera del mundo),
-// cantidad }. Misma cuenta que la app (repartirGasto): saldo del mundo, descontado letra por letra
-// como `dadas` de la clave de estrellas. Si no alcanza (por ejemplo, el saldo se gastó desde otro
-// dispositivo) se anota el evento con cantidad 0 y no se descuenta nada: nunca queda negativo.
+// Estrellas gastadas en el Laboratorio de Luces: { tipo: "gastar", letra, mundo, cantidad }. Si
+// mundo es null el saldo es compartido; en otro caso se usa el mundo indicado por la letra. Misma
+// cuenta que la app (repartirGasto), descontado letra por letra como `dadas`. Si no alcanza (por
+// ejemplo, se gastó desde otro dispositivo), se anota el evento con cantidad 0.
 function gastarEstrellas(codigo, evento) {
-	const mundo = MUNDO_DE_LETRA[evento.letra];
+	const mundo = evento.mundo === null ? null : MUNDO_DE_LETRA[evento.letra];
 	const gasto = Number(evento.cantidad);
 	if (!Number.isInteger(gasto) || gasto <= 0 || gasto > MAXIMO_GASTO_ESTRELLAS) {
 		return false;

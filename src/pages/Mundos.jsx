@@ -4,6 +4,7 @@ import UserNav from "../components/UserNav";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { CHARACTERS, img, preloadImages } from "../lib/assets";
+import { abrirLaboratorio } from "../lib/laboratorio";
 import { writeStorage, STORAGE_KEYS } from "../lib/storage";
 import { MUNDO1_IMAGES } from "./Mundo1";
 import { MUNDO2_IMAGES } from "./Mundo2";
@@ -25,6 +26,7 @@ export default function Mundos() {
 		preloadImages([
 			...WORLDS.map((world) => img(`mundo${world}.png`)),
 			...Object.values(CHARACTERS).map(({ image }) => image),
+			img("islaLaboratorio.png"),
 			...MUNDO1_IMAGES,
 			...MUNDO2_IMAGES,
 			...MUNDO3_IMAGES,
@@ -44,10 +46,19 @@ export default function Mundos() {
 					<path className="journey-path-line" d="M164 152 H450 H735 C875 183 880 335 735 416 H450 H164" />
 					<path className="journey-arrow" d="M-8 -8 L8 0 L-8 8 Z" transform="translate(307 152)" />
 					<path className="journey-arrow" d="M-8 -8 L8 0 L-8 8 Z" transform="translate(593 152)" />
-					<path className="journey-arrow" d="M-8 -8 L8 0 L-8 8 Z" transform="translate(868 286) rotate(90)" />
+					<path className="journey-arrow" d="M-8 -8 L8 0 L-8 8 Z" transform="translate(842 266) rotate(90)" />
 					<path className="journey-arrow" d="M-8 -8 L8 0 L-8 8 Z" transform="translate(593 416) rotate(180)" />
 					<path className="journey-arrow" d="M-8 -8 L8 0 L-8 8 Z" transform="translate(307 416) rotate(180)" />
 				</svg>
+
+				<button
+					className="world-laboratory-button"
+					type="button"
+					aria-label="Abrir Laboratorio de Estrellas"
+					onClick={() => abrirLaboratorio(navigate)}
+				>
+					<img src={img("islaLaboratorio.png")} alt="" draggable={false} />
+				</button>
 
 				{WORLDS.map((world) => (
 					<button

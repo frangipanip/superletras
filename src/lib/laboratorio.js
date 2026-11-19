@@ -1,14 +1,13 @@
 import { img } from "./assets";
 
-// Laboratorio de Luces: pantalla opcional donde se gastan las estrellas del mundo en efectos de luz.
-// Por ahora los seis laboratorios (uno por mundo) se ven y funcionan igual; cada uno usa el saldo de
-// su mundo (estrellasDelMundo / gastarEstrellas en recompensas.js). Acá está todo lo ajustable:
-// precios, límites visuales y el mapa del arte (pasado de mapa-activos.json).
+// Laboratorio de Luces: pantalla opcional donde se gastan las estrellas compartidas de todos los
+// mundos en efectos de luz. Acá está todo lo ajustable: precios, límites visuales y el mapa del arte
+// (pasado de mapa-activos.json).
 
 // Entrada al laboratorio. Hoy la llama el contador de estrellas de los menús; para mover la entrada
 // alcanza con llamar esta función desde otro lado.
-export function abrirLaboratorio(navigate, mundo) {
-	navigate("/laboratorio", { state: { world: mundo } });
+export function abrirLaboratorio(navigate, mundo = null) {
+	navigate("/laboratorio", { state: mundo === null ? { global: true } : { world: mundo } });
 }
 
 export const NOMBRES_LABORATORIO = {
