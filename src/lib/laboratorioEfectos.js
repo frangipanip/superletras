@@ -4,10 +4,13 @@ import { ALTO, ANCHO, CIELO, DURACION_EFECTOS, FLORES, INSTRUMENTOS, LIMITES, MO
 // con las coordenadas lógicas del escenario (1920×1080):
 // - paisaje: detrás de la máquina (aurora, constelaciones, estrellas fugaces, fuegos, plantas y
 //   burbujas del pasto);
-// - luces: delante de la máquina y debajo de los botones (brillos recortados dentro de los
-//   instrumentos y las burbujas que salen de la máquina).
-// Cada toque agrega instancias a la escena (nunca reemplaza un efecto por otro). Las breves se
-// terminan solas; las plantas quedan hasta salir de la pantalla. Nada de esto se guarda.
+// - luces: encima de la imagen de la máquina (lo que pasa dentro de los instrumentos, recortado con
+//   sus elipses, y las burbujas que salen de la máquina). El vidrio está pintado en la imagen: lo
+//   dibujado detrás no se vería.
+// Cada activación tiene dos fases: PREPARAR (los primeros `prep` segundos solo cambia el instrumento,
+// en la capa luces) → EMITIR (el efecto sale al paisaje). Cada toque agrega instancias a la escena
+// (nunca reemplaza un efecto por otro). Las breves se terminan solas; las plantas quedan hasta salir
+// de la pantalla. Nada de esto se guarda.
 
 const TAU = Math.PI * 2;
 const azar = (a, b) => a + Math.random() * (b - a);
@@ -537,7 +540,7 @@ const flores = {
 		if (escena.floresComprometidas >= LIMITES.floresAbiertas || !escena.lugares.includes(false)) return "lleno";
 		return "ok";
 	},
-	agregar(escena) {
+	agregar(escena, prep) {
 		const libres = mezclar(escena.lugares.map((ocupado, lugar) => (ocupado ? null : lugar)).filter((lugar) => lugar !== null));
 		const semillas = libres.slice(0, LIMITES.coloniasPorToque).map((lugar) => {
 			escena.lugares[lugar] = true;
@@ -550,27 +553,61 @@ const flores = {
 		const [origenX, origenY] = INSTRUMENTOS.bocaTubo;
 		const finOla = Math.max(...semillas.map(({ x }) => x)) + 90;
 		const t0 = escena.reloj;
-		const inicioOla = t0 + 1.3;
+		// PREPARAR: se enciende la bandeja y un pulso cálido baja por el tubo. EMITIR (en `prep`): la ola
+		// sale por la boca del tubo y va dejando las semillas.
+		const inicioOla = t0 + prep;
 		const duracionOla = 1.7;
 		for (const semilla of semillas) {
 			const llegada = inicioOla + ((semilla.x - origenX) / (finOla - origenX)) * duracionOla;
 			escena.plantas.push(crearPlanta(escena, semilla, llegada));
 		}
 		const [bandejaX, bandejaY] = INSTRUMENTOS.bandejaSemillas;
+		const inicioPulso = prep * 0.2;
 		escena.instancias.push({
 			tipo: "flores",
-			actualizar: () => escena.reloj - t0 < inicioOla - t0 + duracionOla + 0.8,
+			actualizar: () => escena.reloj - t0 < prep + duracionOla + 0.8,
 			luces(ctx) {
 				const t = escena.reloj - t0;
-				brillo(ctx, bandejaX, bandejaY, 75, "255,214,120", 0.8 * envolvente(t, 1.3, 0.25, 0.7));
-				// Pulso cálido por el tubo de salida.
-				const u = (t - 0.45) / 0.9;
-				for (let j = 0; j < 6; j += 1) {
-					const uj = u - j * 0.045;
-					if (uj < 0 || uj > 1) continue;
-					const [x, y] = bezier(INSTRUMENTOS.tuboSalida, uj);
-					brillo(ctx, x, y, 24 - j * 2.5, "255,222,140", 0.9 * (1 - j / 6));
+				const bandeja = envolvente(t, prep + 0.6, 0.12, 0.5);
+				brillo(ctx, bandejaX, bandejaY, 90, "255,190,70", bandeja);
+				// Las semillas de la bandeja se encienden de a una.
+				[[-16, 2], [0, -6], [15, 1], [-6, 8], [9, 9]].forEach(([dx, dy], i) => {
+					const encendida = bandeja * limitar((t - i * 0.06) / 0.12, 0, 1);
+					brillo(ctx, bandejaX + dx, bandejaY + dy, 14, "255,240,170", encendida * (0.75 + 0.25 * Math.sin(t * 14 + i)));
+					punto(ctx, bandejaX + dx, bandejaY + dy, 3, `rgba(255,255,230,${encendida})`);
+				});
+				// Pulso cálido que recorre el tubo de salida por dentro (con su estela) y llega a la boca
+				// justo al emitir.
+				const u = (t - inicioPulso) / (prep - inicioPulso);
+				const desde = limitar(u - 0.4, 0, 1);
+				const hasta = limitar(u, 0, 1);
+				const estelaTubo = envolvente(t - inicioPulso, prep - inicioPulso + 0.35, 0.05, 0.35);
+				if (hasta > desde && estelaTubo > 0) {
+					ctx.lineCap = "round";
+					for (const [ancho, color] of [[11, "255,200,90"], [4, "255,250,220"]]) {
+						const [x0, y0] = bezier(INSTRUMENTOS.tuboSalida, desde);
+						const [x1, y1] = bezier(INSTRUMENTOS.tuboSalida, hasta);
+						const gradiente = ctx.createLinearGradient(x0, y0, x1, y1);
+						gradiente.addColorStop(0, `rgba(${color},0)`);
+						gradiente.addColorStop(1, `rgba(${color},${0.9 * estelaTubo})`);
+						ctx.strokeStyle = gradiente;
+						ctx.lineWidth = ancho;
+						ctx.beginPath();
+						for (let s = 0; s <= 12; s += 1) {
+							const [x, y] = bezier(INSTRUMENTOS.tuboSalida, desde + ((hasta - desde) * s) / 12);
+							if (s === 0) ctx.moveTo(x, y);
+							else ctx.lineTo(x, y);
+						}
+						ctx.stroke();
+					}
 				}
+				if (u >= 0 && u <= 1) {
+					const [x, y] = bezier(INSTRUMENTOS.tuboSalida, u);
+					brillo(ctx, x, y, 34, "255,205,110", 1);
+					punto(ctx, x, y, 6, "rgba(255,252,225,1)");
+				}
+				// La boca del tubo queda encendida un instante mientras sale la ola.
+				brillo(ctx, origenX, origenY, 36, "255,225,140", 0.85 * envolvente(t - prep + 0.1, 0.9, 0.1, 0.6));
 			},
 			paisaje(ctx) {
 				// Ola suave por el césped: un frente de luz que va dejando las semillas.
@@ -614,13 +651,14 @@ let usarAnteojo = true;
 
 const estrellas = {
 	puedeAgregar: (escena) => (activas(escena, "estrellas") < LIMITES.estrellasActivas ? "ok" : "lleno"),
-	agregar(escena) {
+	agregar(escena, prep) {
 		const t0 = escena.reloj;
 		usarAnteojo = !usarAnteojo;
 		const [origenX, origenY] = usarAnteojo ? INSTRUMENTOS.anteojo : INSTRUMENTOS.prisma;
 		const cantidad = Math.max(2, Math.round(entero(LIMITES.estrellasPorToque[0], LIMITES.estrellasPorToque[1]) * (escena.reducido ? 0.7 : 1)));
 		const lista = [];
-		let inicio = 0.45;
+		// PREPARAR: destello en el anteojo o el prisma. EMITIR: la primera estrella cae en `prep`.
+		let inicio = prep;
 		for (let i = 0; i < cantidad; i += 1) {
 			const direccion = azar(2.62, 2.85);
 			const dx = Math.cos(direccion);
@@ -637,7 +675,20 @@ const estrellas = {
 			tipo: "estrellas",
 			actualizar: () => escena.reloj - t0 < fin,
 			luces(ctx) {
-				brillo(ctx, origenX, origenY, 60, "255,250,215", 0.85 * envolvente(escena.reloj - t0, 0.7, 0.15, 0.5));
+				const t = escena.reloj - t0;
+				const alfa = envolvente(t, prep + 0.5, prep * 0.5, 0.45);
+				if (alfa <= 0) return;
+				brillo(ctx, origenX, origenY, 80, "190,205,255", alfa);
+				// Destello en cruz que gira despacio.
+				const largo = 46 * alfa * (0.85 + 0.15 * Math.sin(t * 20));
+				ctx.save();
+				ctx.translate(origenX, origenY);
+				ctx.rotate(t * 1.5);
+				for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+					estela(ctx, 0, 0, dx, dy, largo, 3.5, "255,255,240", 0.95 * alfa);
+				}
+				ctx.restore();
+				punto(ctx, origenX, origenY, 5, `rgba(255,255,250,${alfa})`);
 			},
 			paisaje(ctx) {
 				const t = escena.reloj - t0;
@@ -698,6 +749,35 @@ function dibujarBurbujas(ctx, escena, capa) {
 	ctx.globalAlpha = 1;
 }
 
+// Burbujita de la preparación, dentro del globo: más marcada que las del paisaje para que se vea
+// sobre el vidrio claro (relleno de color, borde arcoíris grueso que gira y reflejo).
+function burbujaInterna(ctx, x, y, radio, giro, alfa) {
+	const relleno = ctx.createRadialGradient(x - radio * 0.3, y - radio * 0.3, 0, x, y, radio);
+	relleno.addColorStop(0, `rgba(255,255,255,${0.15 * alfa})`);
+	relleno.addColorStop(0.7, `rgba(150,170,255,${0.3 * alfa})`);
+	relleno.addColorStop(1, `rgba(120,90,220,${0.45 * alfa})`);
+	ctx.fillStyle = relleno;
+	ctx.beginPath();
+	ctx.arc(x, y, radio, 0, TAU);
+	ctx.fill();
+	const dx = Math.cos(giro) * radio;
+	const dy = Math.sin(giro) * radio;
+	const borde = ctx.createLinearGradient(x - dx, y - dy, x + dx, y + dy);
+	borde.addColorStop(0, `rgba(255,70,180,${alfa})`);
+	borde.addColorStop(0.33, `rgba(255,205,60,${alfa})`);
+	borde.addColorStop(0.66, `rgba(40,215,180,${alfa})`);
+	borde.addColorStop(1, `rgba(90,110,255,${alfa})`);
+	ctx.strokeStyle = borde;
+	ctx.lineWidth = Math.max(1.8, radio * 0.2);
+	ctx.beginPath();
+	ctx.arc(x, y, radio, 0, TAU);
+	ctx.stroke();
+	ctx.fillStyle = `rgba(255,255,255,${0.9 * alfa})`;
+	ctx.beginPath();
+	ctx.ellipse(x - radio * 0.35, y - radio * 0.4, radio * 0.28, radio * 0.14, -0.7, 0, TAU);
+	ctx.fill();
+}
+
 function soltarTanda(escena, puntosDelPasto) {
 	const globo = INSTRUMENTOS.globoBurbuja;
 	const [tuboX, tuboY] = INSTRUMENTOS.bocaTubo;
@@ -731,7 +811,7 @@ function soltarTanda(escena, puntosDelPasto) {
 const burbujas = {
 	puedeAgregar: (escena) =>
 		activas(escena, "burbujas") < LIMITES.burbujasActivas && escena.burbujas.length < LIMITES.burbujasVivas * 0.7 ? "ok" : "lleno",
-	agregar(escena) {
+	agregar(escena, prep) {
 		const t0 = escena.reloj;
 		const globo = INSTRUMENTOS.globoBurbuja;
 		const internas = [];
@@ -739,19 +819,29 @@ const burbujas = {
 		let tandas = 0;
 		const totalTandas = LIMITES.tandasDeBurbujas;
 		const puntosDelPasto = [0, 1, 2].map(() => ({ x: azar(950, 1780), y: azar(880, 1010) }));
+		// PREPARAR: burbujitas iridiscentes nacen abajo del globo grande, suben, crecen y se juntan.
+		// EMITIR (en `prep`): salen las tandas a la máquina y al pasto; adentro siguen un ratito más.
+		const totalInternas = 16;
+		const finInternas = prep + 0.5;
+		const finLuz = prep + 1.6;
 		escena.instancias.push({
 			tipo: "burbujas",
 			actualizar(dt) {
 				const t = escena.reloj - t0;
-				// Primero, burbujitas dentro del globo que suben, crecen y se juntan.
-				while (nacidas < 14 && t > nacidas * 0.08) {
-					internas.push({ x: globo.x + azar(-0.5, 0.5) * globo.rx, y: globo.y + globo.ry * 0.65, radio: azar(3, 6), vy: azar(28, 55), fase: azar(0, TAU), sprite: elegir(escena.sprites) });
+				while (nacidas < totalInternas && t > (nacidas * finInternas) / totalInternas) {
+					internas.push({
+						x: globo.x + azar(-0.45, 0.45) * globo.rx,
+						y: globo.y + globo.ry * azar(0.55, 0.75),
+						radio: azar(6, 10),
+						vy: azar(50, 80),
+						fase: azar(0, TAU)
+					});
 					nacidas += 1;
 				}
 				for (const burbuja of internas) {
 					burbuja.y -= burbuja.vy * dt;
-					burbuja.radio += 4 * dt;
-					burbuja.x += Math.sin(t * 3 + burbuja.fase) * 12 * dt;
+					burbuja.radio += 9 * dt;
+					burbuja.x += Math.sin(t * 3 + burbuja.fase) * 14 * dt;
 				}
 				for (let i = 0; i < internas.length; i += 1) {
 					for (let j = internas.length - 1; j > i; j -= 1) {
@@ -764,25 +854,32 @@ const burbujas = {
 					}
 				}
 				for (let i = internas.length - 1; i >= 0; i -= 1) {
-					if (internas[i].y < globo.y - globo.ry * 0.6) internas.splice(i, 1);
+					// Al llegar arriba revientan contra el vidrio.
+					if (internas[i].y + internas[i].radio * 0.3 < globo.y - globo.ry * 0.7) internas.splice(i, 1);
 				}
 				// Después, tandas de burbujas desde la máquina y desde el pasto.
-				while (tandas < totalTandas && t >= 1.1 + tandas * 0.75 * DURACION_EFECTOS) {
+				while (tandas < totalTandas && t >= prep + tandas * 0.75 * DURACION_EFECTOS) {
 					soltarTanda(escena, puntosDelPasto);
 					tandas += 1;
 				}
-				return t < 2.6 || tandas < totalTandas;
+				return t < finLuz || tandas < totalTandas;
 			},
 			luces(ctx) {
 				const t = escena.reloj - t0;
-				const alfa = envolvente(t, 2.6, 0.3, 0.8);
+				const alfa = envolvente(t, finLuz, 0.12, 0.7);
+				if (alfa <= 0) return;
 				dentroDe(ctx, globo, () => {
-					brillo(ctx, globo.x, globo.y + globo.ry * 0.3, globo.rx, "255,240,205", 0.4 * alfa);
-					ctx.globalAlpha = alfa;
+					// Tinte iridiscente que se distingue del vidrio en reposo.
+					const tinte = ctx.createLinearGradient(globo.x - globo.rx, globo.y + globo.ry, globo.x + globo.rx, globo.y - globo.ry);
+					tinte.addColorStop(0, `rgba(255,120,205,${0.42 * alfa})`);
+					tinte.addColorStop(0.5, `rgba(90,195,255,${0.4 * alfa})`);
+					tinte.addColorStop(1, `rgba(170,120,255,${0.45 * alfa})`);
+					ctx.fillStyle = tinte;
+					ctx.fillRect(globo.x - globo.rx, globo.y - globo.ry, globo.rx * 2, globo.ry * 2);
+					brillo(ctx, globo.x, globo.y + globo.ry * 0.55, globo.rx * 0.8, "255,225,150", 0.7 * alfa);
 					for (const burbuja of internas) {
-						ctx.drawImage(burbuja.sprite, burbuja.x - burbuja.radio, burbuja.y - burbuja.radio, burbuja.radio * 2, burbuja.radio * 2);
+						burbujaInterna(ctx, burbuja.x, burbuja.y, burbuja.radio, burbuja.fase + t * 2, alfa);
 					}
-					ctx.globalAlpha = 1;
 				});
 			}
 		});
@@ -796,7 +893,7 @@ const COLORES_AURORA = ["130,255,205", "130,205,255", "205,155,255"];
 
 const aurora = {
 	puedeAgregar: (escena) => (activas(escena, "aurora") < LIMITES.auroraActivas ? "ok" : "lleno"),
-	agregar(escena) {
+	agregar(escena, prep) {
 		const t0 = escena.reloj;
 		const globo = INSTRUMENTOS.globoAurora;
 		const [prismaX, prismaY] = INSTRUMENTOS.prisma;
@@ -814,36 +911,59 @@ const aurora = {
 			desde: CIELO.x[0] + azar(20, 140),
 			hasta: CIELO.x[1] - azar(0, 120)
 		}));
-		const inicioCintas = 1.2;
+		// PREPARAR: una cinta menta y lila ondula dentro del globo de arriba (y el prisma brilla).
+		// EMITIR (en `prep`): se despliegan las cintas del cielo.
+		const inicioCintas = prep;
 		const duracionCintas = 9.8 * DURACION_EFECTOS;
+		const finLuz = prep + 1.8;
 		escena.instancias.push({
 			tipo: "aurora",
 			actualizar: () => escena.reloj - t0 < inicioCintas + duracionCintas,
 			luces(ctx) {
 				const t = escena.reloj - t0;
-				const alfa = envolvente(t, 2.6, 0.4, 1);
+				const alfa = envolvente(t, finLuz, 0.15, 0.9);
 				if (alfa <= 0) return;
-				brillo(ctx, prismaX, prismaY, 50, "235,220,255", 0.5 * alfa);
+				brillo(ctx, prismaX, prismaY, 54, "215,190,255", 0.6 * alfa);
 				dentroDe(ctx, globo, () => {
-					brillo(ctx, globo.x, globo.y, globo.rx * 1.2, "150,255,220", 0.35 * alfa);
-					ctx.lineWidth = 7;
-					ctx.lineCap = "round";
-					COLORES_AURORA.forEach((color, j) => {
-						ctx.strokeStyle = `rgba(${color},${0.6 * alfa})`;
+					// Fondo de noche dentro del vidrio, para que la cinta se distinga del globo en reposo.
+					const noche = ctx.createRadialGradient(globo.x, globo.y, 0, globo.x, globo.y, globo.rx);
+					noche.addColorStop(0, `rgba(60,40,140,${0.45 * alfa})`);
+					noche.addColorStop(1, `rgba(40,30,110,${0.6 * alfa})`);
+					ctx.fillStyle = noche;
+					ctx.fillRect(globo.x - globo.rx, globo.y - globo.ry, globo.rx * 2, globo.ry * 2);
+					// Dos cintas rellenas con degradado menta → celeste → lila, que ondulan.
+					const izquierda = globo.x - globo.rx;
+					const derecha = globo.x + globo.rx;
+					[[-0.2, 0.42, 0], [0.28, 0.3, 2.1]].forEach(([desplazamiento, grosor, fase]) => {
+						const color = ctx.createLinearGradient(izquierda, 0, derecha, 0);
+						color.addColorStop(0, `rgba(110,255,200,${0.95 * alfa})`);
+						color.addColorStop(0.5, `rgba(130,210,255,${0.9 * alfa})`);
+						color.addColorStop(1, `rgba(205,150,255,${0.95 * alfa})`);
+						ctx.fillStyle = color;
+						const centro = (s) => {
+							const x = izquierda + (s / 16) * globo.rx * 2;
+							return [x, globo.y + desplazamiento * globo.ry + Math.sin(s * 0.55 + t * 4 + fase) * globo.ry * 0.22];
+						};
+						const alto = (s) => globo.ry * grosor * (0.7 + 0.3 * Math.sin(s * 0.8 - t * 3 + fase));
 						ctx.beginPath();
-						for (let s = 0; s <= 20; s += 1) {
-							const x = globo.x - globo.rx + (s * 2 * globo.rx) / 20;
-							const y = globo.y + (j - 1) * globo.ry * 0.38 + Math.sin(s * 0.6 + t * 3 + j) * globo.ry * 0.18;
-							if (s === 0) ctx.moveTo(x, y);
-							else ctx.lineTo(x, y);
+						for (let s = 0; s <= 16; s += 1) {
+							const [x, y] = centro(s);
+							if (s === 0) ctx.moveTo(x, y - alto(s) / 2);
+							else ctx.lineTo(x, y - alto(s) / 2);
 						}
-						ctx.stroke();
+						for (let s = 16; s >= 0; s -= 1) {
+							const [x, y] = centro(s);
+							ctx.lineTo(x, y + alto(s) / 2);
+						}
+						ctx.closePath();
+						ctx.fill();
 					});
+					brillo(ctx, globo.x, globo.y, globo.rx * 0.9, "170,255,225", 0.3 * alfa);
 				});
 			},
 			paisaje(ctx) {
 				const t = escena.reloj - t0 - inicioCintas;
-				const general = envolvente(t, duracionCintas, 1.8 * 1.5, 2.4 * 1.5);
+				const general = envolvente(t, duracionCintas, 1.4, 2.4 * 1.5);
 				if (general <= 0) return;
 				const { k } = escena;
 				const reloj = escena.reloj;
@@ -902,7 +1022,7 @@ const FIGURAS = [
 
 const constelacion = {
 	puedeAgregar: (escena) => (activas(escena, "constelacion") < LIMITES.constelacionActivas ? "ok" : "lleno"),
-	agregar(escena) {
+	agregar(escena, prep) {
 		const t0 = escena.reloj;
 		const lente = INSTRUMENTOS.lenteConstelacion;
 		const figura = FIGURAS[escena.figura % FIGURAS.length];
@@ -925,7 +1045,8 @@ const constelacion = {
 			centro[0] + (x * Math.cos(giro) - y * Math.sin(giro)) * tamaño,
 			centro[1] + (x * Math.sin(giro) + y * Math.cos(giro)) * tamaño
 		]);
-		const inicio = 1;
+		// PREPARAR: puntitos que titilan en la lente violeta. EMITIR (en `prep`): la figura en el cielo.
+		const inicio = prep;
 		const porSegmento = 0.42 * 1.5;
 		// Cada vértice aparece la primera vez que lo usa un segmento.
 		const aparece = new Array(vertices.length).fill(Infinity);
@@ -937,25 +1058,34 @@ const constelacion = {
 		const completa = inicio + figura.segmentos.length * porSegmento;
 		// Se mantiene legible el tiempo que haga falta para durar DURACION_EFECTOS veces el diseño original.
 		const apagado = 1.6 * 1.5;
-		const total = Math.max(completa + 3.5 + apagado, DURACION_EFECTOS * (inicio + figura.segmentos.length * 0.42 + 3.5 + 1.6));
-		const chispitas = Array.from({ length: 7 }, () => {
-			const a = azar(0, TAU);
-			const r = Math.sqrt(Math.random()) * 0.8;
-			return { x: lente.x + Math.cos(a) * lente.rx * r, y: lente.y + Math.sin(a) * lente.ry * r, fase: azar(0, TAU) };
-		});
+		const total = Math.max(completa + 3.5 + apagado, inicio + DURACION_EFECTOS * (figura.segmentos.length * 0.42 + 3.5 + 1.6));
+		// Los puntitos de la lente forman la misma figura en miniatura y se encienden de a uno.
+		const chispitas = figura.vertices.map(([x, y], i) => ({
+			x: lente.x + x * lente.rx * 0.55,
+			y: lente.y + y * lente.ry * 0.55,
+			aparece: (i / figura.vertices.length) * prep * 0.8,
+			fase: azar(0, TAU)
+		}));
 		escena.instancias.push({
 			tipo: "constelacion",
 			centro,
 			actualizar: () => escena.reloj - t0 < total,
 			luces(ctx) {
 				const t = escena.reloj - t0;
-				const alfa = envolvente(t, 1.8, 0.3, 0.6);
+				const alfa = envolvente(t, prep + 1.2, 0.12, 0.7);
 				if (alfa <= 0) return;
 				dentroDe(ctx, lente, () => {
-					brillo(ctx, lente.x, lente.y, lente.rx * 1.3, "190,150,255", 0.4 * alfa);
+					const noche = ctx.createRadialGradient(lente.x, lente.y, 0, lente.x, lente.y, lente.rx);
+					noche.addColorStop(0, `rgba(90,50,170,${0.5 * alfa})`);
+					noche.addColorStop(1, `rgba(60,30,130,${0.65 * alfa})`);
+					ctx.fillStyle = noche;
+					ctx.fillRect(lente.x - lente.rx, lente.y - lente.ry, lente.rx * 2, lente.ry * 2);
 					for (const chispa of chispitas) {
-						const titila = 0.5 + 0.5 * Math.sin(t * 9 + chispa.fase);
-						brillo(ctx, chispa.x, chispa.y, 9, "255,245,255", alfa * titila);
+						const u = limitar((t - chispa.aparece) / 0.15, 0, 1);
+						if (u <= 0) continue;
+						const titila = 0.75 + 0.25 * Math.sin(t * 9 + chispa.fase);
+						brillo(ctx, chispa.x, chispa.y, 11, "255,235,255", alfa * titila * u);
+						punto(ctx, chispa.x, chispa.y, 2.2, `rgba(255,255,255,${alfa * u})`);
 					}
 				});
 			},
@@ -1008,7 +1138,7 @@ function colorDeChispa(fuego, indice, total, capa) {
 
 const fuegos = {
 	puedeAgregar: (escena) => (activas(escena, "fuegos") < LIMITES.fuegosActivos ? "ok" : "lleno"),
-	agregar(escena) {
+	agregar(escena, prep) {
 		const t0 = escena.reloj;
 		const D = DURACION_EFECTOS;
 		const [lenteX, lenteY] = INSTRUMENTOS.anteojo;
@@ -1017,8 +1147,9 @@ const fuegos = {
 		const estilos = mezclar(ESTILOS_FUEGOS);
 		const lista = Array.from({ length: cantidad }, (_, i) => {
 			const [primero, segundo] = mezclar(ARCOIRIS);
+			// PREPARAR: el anteojo se va cargando de luz. EMITIR (en `prep`): sale la primera chispa.
 			return {
-				salida: i * 0.85 * D,
+				salida: prep + i * 0.85 * D,
 				x: azar(900, 1750),
 				y: CIELO.y[0] + 70 + franjas[i] * 95 + azar(-25, 25),
 				estilo: estilos[i % estilos.length],
@@ -1078,6 +1209,17 @@ const fuegos = {
 			},
 			luces(ctx) {
 				const t = escena.reloj - t0;
+				// Carga: un brillo que crece en la lente del anteojo, con chispitas que van hacia el centro.
+				const carga = t < prep ? suave(t / prep) : Math.max(0, 1 - (t - prep) / 0.3);
+				if (carga > 0) {
+					brillo(ctx, lenteX, lenteY, 40 + 40 * carga, lista[0].colores[0], carga);
+					brillo(ctx, lenteX, lenteY, 22, "255,250,230", carga);
+					for (let i = 0; i < 8; i += 1) {
+						const a = (i / 8) * TAU + t * 2;
+						const r = 60 * (1 - ((t * 2.2 + i / 8) % 1));
+						punto(ctx, lenteX + Math.cos(a) * r, lenteY + Math.sin(a) * r, 3.4, `rgba(255,250,225,${carga})`);
+					}
+				}
 				for (const fuego of lista) {
 					brillo(ctx, lenteX, lenteY, 46, fuego.colores[0], 0.8 * envolvente(t - fuego.salida, 0.6, 0.12, 0.45));
 				}
@@ -1127,5 +1269,6 @@ const fuegos = {
 	}
 };
 
-// Cada botón: puedeAgregar(escena) → "ok" | "lleno" | "cargando" (antes de cobrar) y agregar(escena).
+// Cada botón: puedeAgregar(escena) → "ok" | "lleno" | "cargando" (antes de cobrar) y
+// agregar(escena, prep), con prep = segundos de preparación dentro de la máquina (PREPARACION_MS).
 export const EFECTOS = { flores, estrellas, burbujas, aurora, constelacion, fuegos };

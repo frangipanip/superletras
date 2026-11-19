@@ -1,29 +1,35 @@
-/* Laboratorio de Luces. El escenario (1920×1080 lógicos) se escala entero con transform desde
-   Laboratorio.jsx; los tamaños de adentro están en píxeles lógicos. Los bordes que sobran según la
-   proporción de la pantalla toman el color del cielo (arriba) y del pasto (abajo). */
+/* Laboratorio de Luces. Dos zonas en columna: arriba el paisaje (escenario de 1920×1080 lógicos,
+   escalado entero con transform desde Laboratorio.jsx y apoyado abajo) y abajo la franja con los seis
+   controles, en HTML y fuera de la escala del paisaje. Sin nesting nativo ni container queries
+   (target chrome87 / safari14). */
 .page-laboratorio {
 	position: fixed;
 	inset: 0;
+	display: flex;
+	flex-direction: column;
 	overflow: hidden;
-	background: linear-gradient(180deg, #4740d4 0%, #4b44d8 30%, #6fb043 70%, #5c9e36 100%);
+	background: #4b1f47;
 	touch-action: manipulation;
 	user-select: none;
 	-webkit-user-select: none;
 }
 
-/* Pantallas más anchas que 16:9: a los costados se repite el mismo fondo a la misma altura, así el
-   horizonte y el cielo siguen de largo (no es una capa del juego: queda fuera del escenario). */
-@media (min-aspect-ratio: 16/9) {
-	.page-laboratorio {
-		background: #4b44d8 url("/assets/imagenes/laboratorio/fondo.webp") center / auto 100% repeat-x;
-	}
+/* Área del paisaje. Lo que sobra a los costados (pantallas más anchas que 16:9) repite el mismo
+   fondo a la misma altura, así el horizonte sigue de largo; lo que sobra arriba (pantallas más
+   altas) toma el color del cielo. El alto del fondo lo pone el componente con la escala. */
+.page-laboratorio .lab-paisaje {
+	position: relative;
+	flex: 1 1 auto;
+	min-height: 0;
+	overflow: hidden;
+	background: #4740d4 url("/assets/imagenes/laboratorio/fondo.webp") center bottom / auto 100% repeat-x;
 }
 
 .page-laboratorio .lab-escenario {
 	position: absolute;
-	top: 50%;
+	bottom: 0;
 	left: 50%;
-	transform-origin: 50% 50%;
+	transform-origin: 50% 100%;
 	overflow: hidden;
 }
 
@@ -43,149 +49,217 @@
 	pointer-events: none;
 }
 
-.page-laboratorio .lab-botones {
-	position: absolute;
-	inset: 0;
-	pointer-events: none;
+/* ---------------------------------------------------------------------------------------------
+   Franja de controles: ciruela con borde dorado, una fila de seis tarjetas crema. Cada tarjeta es
+   un botón entero: arriba el icono y el precio, abajo el rótulo. */
+.page-laboratorio .luces-franja {
+	position: relative;
+	z-index: 3;
+	flex: none;
+	padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
+	border-top: 4px solid #e9b949;
+	background: linear-gradient(180deg, #74316a 0%, #5a2453 55%, #4b1f47 100%);
+	box-shadow: 0 -4px 14px rgba(30, 8, 30, 0.35);
 }
 
-/* Botones de la máquina: imagen redonda sobre la madera, precio debajo. Encendido: brillo y escala
-   por código (no hay otra imagen). */
-.page-laboratorio .lab-boton {
+.page-laboratorio .luces-franja__grilla {
+	display: grid;
+	grid-template-columns: repeat(6, minmax(0, 1fr));
+	gap: 10px;
+	max-width: 1180px;
+	margin: 0 auto;
+}
+
+.page-laboratorio .luces-tarjeta {
 	position: relative;
-	padding: 0;
-	border: 0;
-	border-radius: 50%;
-	background: transparent;
+	display: grid;
+	grid-template-columns: auto auto;
+	grid-template-areas:
+		"icono precio"
+		"texto texto";
+	justify-content: center;
+	align-items: center;
+	gap: 2px 6px;
+	min-width: 48px;
+	min-height: 48px;
+	margin: 0;
+	padding: 6px 6px 7px;
+	border: 3px solid #d9a63a;
+	border-radius: 16px;
+	background: linear-gradient(180deg, #fff9ea 0%, #fbecc9 100%);
+	box-shadow: 0 3px 0 #a8762a, 0 5px 10px rgba(30, 8, 30, 0.35);
+	color: #4a2142;
+	font: 400 18px / 1.1 "Lilita One", "Arial Rounded MT Bold", Arial, sans-serif;
 	cursor: pointer;
-	pointer-events: auto;
-	transition: transform 140ms ease, filter 200ms ease;
+	transition: transform 120ms ease, box-shadow 120ms ease, filter 200ms ease;
 	-webkit-tap-highlight-color: transparent;
 }
 
-.page-laboratorio .lab-botones .lab-boton {
-	position: absolute;
-	transform: translate(-50%, -50%);
-}
-
-.page-laboratorio .lab-boton img {
+.page-laboratorio .luces-tarjeta__icono {
+	grid-area: icono;
 	display: block;
-	width: 100%;
-	height: 100%;
+	width: 52px;
+	height: 52px;
 	pointer-events: none;
 }
 
-.page-laboratorio .lab-boton:hover,
-.page-laboratorio .lab-boton:focus-visible {
-	filter: brightness(1.12) drop-shadow(0 0 10px rgba(255, 240, 180, 0.9));
+.page-laboratorio .luces-tarjeta__texto {
+	grid-area: texto;
+	text-align: center;
+	white-space: nowrap;
 }
 
-.page-laboratorio .lab-botones .lab-boton:hover,
-.page-laboratorio .lab-botones .lab-boton:focus-visible {
-	transform: translate(-50%, -50%) scale(1.08);
+.page-laboratorio .luces-tarjeta__precio {
+	grid-area: precio;
+	display: flex;
+	align-items: center;
+	gap: 1px;
+	padding: 2px 8px 2px 5px;
+	border: 2px solid #ffffff;
+	border-radius: 999px;
+	background: #3f6fc4;
+	color: #ffffff;
+	font: 900 18px / 1.1 Arial, Helvetica, sans-serif;
+	white-space: nowrap;
 }
 
-.page-laboratorio .lab-botones .lab-boton:active {
-	transform: translate(-50%, -50%) scale(0.94);
+.page-laboratorio .luces-tarjeta__estrella {
+	font-size: 0.82em;
 }
 
-.page-laboratorio .lab-boton:focus-visible {
+.page-laboratorio .luces-tarjeta:hover {
+	filter: brightness(1.04);
+}
+
+.page-laboratorio .luces-tarjeta:focus-visible {
 	outline: 4px solid #fff3a8;
 	outline-offset: 3px;
 }
 
-.page-laboratorio .lab-boton-encendido {
-	animation: lab-encendido 700ms ease-out;
+/* Pulsado: se hunde. */
+.page-laboratorio .luces-tarjeta:active {
+	transform: translateY(3px);
+	box-shadow: 0 0 0 #a8762a, 0 2px 5px rgba(30, 8, 30, 0.35);
 }
 
-.page-laboratorio .lab-botones .lab-boton-encendido {
-	animation-name: lab-encendido-maquina;
+/* Preparando: mientras el instrumento se carga dentro de la máquina, la tarjeta brilla en dorado. */
+.page-laboratorio .luces-tarjeta--preparando {
+	border-color: #ffe27a;
+	animation: luces-preparando 700ms ease-in-out infinite alternate;
 }
 
-@keyframes lab-encendido {
-	0% {
-		filter: brightness(1.6) drop-shadow(0 0 22px rgba(255, 245, 190, 1));
-		transform: scale(1.15);
+@keyframes luces-preparando {
+	from {
+		box-shadow: 0 3px 0 #a8762a, 0 0 6px 2px rgba(255, 226, 122, 0.6);
 	}
-	100% {
-		filter: brightness(1) drop-shadow(0 0 0 rgba(255, 245, 190, 0));
-		transform: scale(1);
-	}
-}
-
-@keyframes lab-encendido-maquina {
-	0% {
-		filter: brightness(1.6) drop-shadow(0 0 22px rgba(255, 245, 190, 1));
-		transform: translate(-50%, -50%) scale(1.15);
-	}
-	100% {
-		filter: brightness(1) drop-shadow(0 0 0 rgba(255, 245, 190, 0));
-		transform: translate(-50%, -50%) scale(1);
+	to {
+		box-shadow: 0 3px 0 #a8762a, 0 0 18px 7px rgba(255, 236, 160, 0.95);
 	}
 }
 
-.page-laboratorio .lab-boton-sin-saldo img {
-	filter: saturate(0.55) brightness(0.88);
+/* Sin saldo: sigue legible (nombre y precio a la vista), solo más apagada. */
+.page-laboratorio .luces-tarjeta--sin-saldo .luces-tarjeta__icono {
+	filter: saturate(0.5) brightness(0.9);
 }
 
-.page-laboratorio .lab-boton-sacudido {
-	animation: lab-sacudido 450ms ease;
+.page-laboratorio .luces-tarjeta--sin-saldo .luces-tarjeta__precio {
+	background: #8a7a9a;
 }
 
-.page-laboratorio .lab-botones .lab-boton-sacudido {
-	animation-name: lab-sacudido-maquina;
+.page-laboratorio .luces-tarjeta--sacudida {
+	animation: luces-sacudida 450ms ease;
 }
 
-@keyframes lab-sacudido {
+@keyframes luces-sacudida {
 	0%,
 	100% {
 		transform: translateX(0);
 	}
 	25% {
-		transform: translateX(-8%);
+		transform: translateX(-6px);
 	}
 	75% {
-		transform: translateX(8%);
+		transform: translateX(6px);
 	}
 }
 
-@keyframes lab-sacudido-maquina {
-	0%,
-	100% {
-		transform: translate(-50%, -50%);
+/* Pantallas bajas (celu apaisado): icono más chico y menos relleno; el texto queda en 17 px. */
+@media (max-height: 560px) {
+	.page-laboratorio .luces-franja {
+		padding-top: 6px;
+		padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px));
 	}
-	25% {
-		transform: translate(-58%, -50%);
+
+	.page-laboratorio .luces-franja__grilla {
+		gap: 8px;
 	}
-	75% {
-		transform: translate(-42%, -50%);
+
+	.page-laboratorio .luces-tarjeta {
+		padding: 4px 5px 5px;
+		font-size: 17px;
+	}
+
+	.page-laboratorio .luces-tarjeta__icono {
+		width: 36px;
+		height: 36px;
+	}
+
+	.page-laboratorio .luces-tarjeta__precio {
+		font-size: 16px;
 	}
 }
 
-.page-laboratorio .lab-precio {
-	position: absolute;
-	top: 88%;
-	left: 50%;
-	display: flex;
-	align-items: center;
-	gap: 2px;
-	padding: 1px 9px 1px 8px;
-	border: 2px solid #ffffff;
-	border-radius: 999px;
-	background: #3f6fc4;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-	color: #ffffff;
-	font: 900 22px / 1.15 Arial, Helvetica, sans-serif;
-	white-space: nowrap;
-	transform: translateX(-50%);
-	pointer-events: none;
+/* Una fila angosta (celu chico apaisado): icono y pastilla más compactos para que entren en la
+   tarjeta; el rótulo no se achica. */
+@media (max-width: 680px) {
+	.page-laboratorio .luces-franja {
+		padding-left: 8px;
+		padding-right: 8px;
+	}
+
+	.page-laboratorio .luces-franja__grilla {
+		gap: 6px;
+	}
+
+	.page-laboratorio .luces-tarjeta {
+		column-gap: 3px;
+		padding-left: 3px;
+		padding-right: 3px;
+		border-width: 2px;
+	}
+
+	.page-laboratorio .luces-tarjeta__icono {
+		width: 30px;
+		height: 30px;
+	}
+
+	.page-laboratorio .luces-tarjeta__precio {
+		padding: 1px 5px 1px 3px;
+		border-width: 1.5px;
+		font-size: 16px;
+	}
 }
 
-.page-laboratorio .lab-precio span {
-	font-size: 0.8em;
+/* Ancho chico: dos filas de tres, sin achicar el texto. */
+@media (max-width: 540px) {
+	.page-laboratorio .luces-franja {
+		padding-left: 10px;
+		padding-right: 10px;
+	}
+
+	.page-laboratorio .luces-franja__grilla {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 8px;
+	}
+
+	.page-laboratorio .luces-tarjeta__icono {
+		width: 40px;
+		height: 40px;
+	}
 }
 
-/* Saldo del mundo, arriba a la derecha (fuera del escenario escalado, siempre legible). */
+/* ---------------------------------------------------------------------------------------------
+   Saldo del mundo, arriba a la derecha (fuera del escenario escalado, siempre legible). */
 .page-laboratorio .lab-saldo {
 	position: fixed;
 	top: clamp(0.75rem, 2vw, 1.5rem);
@@ -208,6 +282,7 @@
 	top: clamp(4rem, 14vmin, 8rem);
 	left: 50%;
 	z-index: 6;
+	max-width: calc(100% - 32px);
 	transform: translateX(-50%);
 	pointer-events: none;
 }
@@ -221,7 +296,7 @@
 	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 	color: #ffffff;
 	font: 900 clamp(1rem, 3.6vmin, 1.7rem) / 1.2 Arial, Helvetica, sans-serif;
-	white-space: nowrap;
+	text-align: center;
 	animation: lab-mensaje 260ms ease-out;
 }
 
@@ -236,54 +311,9 @@
 	}
 }
 
-/* Pantallas chicas: los mismos seis controles en una cuadrícula táctil. */
-.page-laboratorio .lab-abrir-panel {
-	position: fixed;
-	right: clamp(0.75rem, 2vw, 1.5rem);
-	bottom: clamp(0.75rem, 2vw, 1.5rem);
-	z-index: 5;
-	padding: 0.45em 0.9em;
-	border: 3px solid #ffffff;
-	border-radius: 999px;
-	background: #7a4fd6;
-	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
-	color: #ffffff;
-	font: 900 clamp(1rem, 4vmin, 1.4rem) / 1.1 Arial, Helvetica, sans-serif;
-	cursor: pointer;
-}
-
-.page-laboratorio .lab-panel {
-	position: fixed;
-	right: clamp(0.75rem, 2vw, 1.5rem);
-	bottom: calc(clamp(0.75rem, 2vw, 1.5rem) + 3.4rem);
-	z-index: 5;
-	display: grid;
-	grid-template-columns: repeat(3, 1fr);
-	gap: 0.6rem 0.8rem;
-	padding: 0.7rem 0.8rem 1.4rem;
-	border: 3px solid #ffffff;
-	border-radius: 20px;
-	background: rgba(60, 44, 130, 0.9);
-	box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
-}
-
-.page-laboratorio .lab-panel .lab-boton {
-	width: clamp(54px, 15vmin, 76px);
-	height: clamp(54px, 15vmin, 76px);
-}
-
-.page-laboratorio .lab-panel .lab-boton:active {
-	transform: scale(0.94);
-}
-
-.page-laboratorio .lab-panel .lab-precio {
-	top: 82%;
-	font-size: clamp(0.8rem, 3vmin, 1rem);
-}
-
 @media (prefers-reduced-motion: reduce) {
-	.page-laboratorio .lab-boton-encendido,
-	.page-laboratorio .lab-boton-sacudido,
+	.page-laboratorio .luces-tarjeta--preparando,
+	.page-laboratorio .luces-tarjeta--sacudida,
 	.page-laboratorio .lab-mensaje span {
 		animation-duration: 1ms;
 	}

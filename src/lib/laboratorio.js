@@ -61,6 +61,17 @@ export const MOVIMIENTO_REDUCIDO = 0.5;
 // hasta salir).
 export const DURACION_EFECTOS = 2;
 
+// Cada activación tiene dos fases: PREPARAR (el instrumento de la máquina se enciende por dentro)
+// → EMITIR (el efecto sale al paisaje). Esto es lo que dura la preparación de cada botón.
+export const PREPARACION_MS = {
+	flores: 650,
+	estrellas: 450,
+	burbujas: 700,
+	aurora: 700,
+	constelacion: 550,
+	fuegos: 600
+};
+
 // Ignora un segundo toque al mismo botón dentro de este tiempo (toques dobles accidentales).
 export const ESPERA_ENTRE_TOQUES = 450;
 
@@ -89,16 +100,21 @@ export function enMaquina([x, y]) {
 }
 const medida = (valor) => valor * ESCALA_MAQUINA;
 
-export const DIAMETRO_BOTON = medida(111);
-
+// Los seis controles de la franja de abajo, en este orden. `rotulo` es el texto visible de la
+// tarjeta y `nombre` el accesible (se lee junto con el precio).
 export const BOTONES = [
-	{ id: "flores", nombre: "Flores", centro: [329, 773] },
-	{ id: "estrellas", nombre: "Estrellas fugaces", centro: [461, 774] },
-	{ id: "burbujas", nombre: "Burbujas arcoíris", centro: [593, 770] },
-	{ id: "aurora", nombre: "Aurora de colores", centro: [725, 765] },
-	{ id: "constelacion", nombre: "Constelación sorpresa", centro: [857, 757] },
-	{ id: "fuegos", nombre: "Fuegos de luz", centro: [989, 746] }
-].map((boton) => ({ ...boton, centro: enMaquina(boton.centro), imagen: img(`laboratorio/botones/${boton.id}.png`), precio: PRECIOS[boton.id] }));
+	{ id: "flores", rotulo: "Flores", nombre: "Flores" },
+	{ id: "estrellas", rotulo: "Estrellas", nombre: "Estrellas fugaces" },
+	{ id: "burbujas", rotulo: "Burbujas", nombre: "Burbujas arcoíris" },
+	{ id: "aurora", rotulo: "Aurora", nombre: "Aurora de colores" },
+	{ id: "constelacion", rotulo: "Figuras", nombre: "Constelación sorpresa" },
+	{ id: "fuegos", rotulo: "Fuegos", nombre: "Fuegos de luz" }
+].map((boton) => ({
+	...boton,
+	icono: img(`laboratorio/botones/${boton.id}.png`),
+	precio: PRECIOS[boton.id],
+	preparacionMs: PREPARACION_MS[boton.id]
+}));
 
 function elipse(centro, radios) {
 	const [x, y] = enMaquina(centro);

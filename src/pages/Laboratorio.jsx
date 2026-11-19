@@ -3,15 +3,16 @@ import { Navigate, useLocation, useNavigate } from "react-router";
 import { LETRAS_POR_MUNDO } from "../../shared/comidas.js";
 import BackButton from "../components/BackButton";
 import { usePageRuntime } from "../hooks/usePageRuntime";
-import { ALTO, ANCHO, BOTONES, DIAMETRO_BOTON, ESPERA_ENTRE_TOQUES, IMAGENES, MAQUINA, NOMBRES_LABORATORIO } from "../lib/laboratorio";
+import { ALTO, ANCHO, BOTONES, ESPERA_ENTRE_TOQUES, IMAGENES, MAQUINA, NOMBRES_LABORATORIO } from "../lib/laboratorio";
 import { actualizar, cargarImagenes, crearEscena, dibujar, EFECTOS, hayMovimiento } from "../lib/laboratorioEfectos";
 import { estrellasDelMundo, gastarEstrellas, getRecompensas, subscribeRecompensas } from "../lib/recompensas";
 import "./Laboratorio.css";
 
 // Laboratorio de Luces (/laboratorio, con state.world del mundo de origen). Se entra tocando el
 // contador de estrellas de un mundo. Un solo componente para los seis laboratorios: cada uno muestra
-// y gasta el saldo de su mundo. Precios, límites y el mapa del arte: src/lib/laboratorio.js; los
-// efectos: src/lib/laboratorioEfectos.js. La escena es efímera: al salir se borra todo.
+// y gasta el saldo de su mundo. Arriba el paisaje (escenario 1920×1080 escalado) y abajo, aparte, la
+// franja con los seis controles. Precios, tiempos, límites y el mapa del arte: src/lib/laboratorio.js;
+// los efectos: src/lib/laboratorioEfectos.js. La escena es efímera: al salir se borra todo.
 export default function Laboratorio() {
 	const location = useLocation();
 	const mundo = Number(location.state?.world);
@@ -22,31 +23,34 @@ export default function Laboratorio() {
 	return <LaboratorioDelMundo key={mundo} mundo={mundo} />;
 }
 
-// Debajo de este tamaño en pantalla los botones de la máquina quedan chicos para un dedo: se ofrece
-// además la cuadrícula táctil con los mismos seis controles.
-const BOTON_MINIMO = 46;
+// Escala del escenario 1920×1080 para que entre entero en el área del paisaje (lo que queda arriba
+// de la franja de controles).
+function escalaPara(ancho, alto) {
+	return Math.max(0.05, Math.min(ancho / ANCHO, alto / ALTO));
+}
 
 function LaboratorioDelMundo({ mundo }) {
 	const navigate = useNavigate();
 	const runtime = usePageRuntime();
 	const { letras } = useSyncExternalStore(subscribeRecompensas, getRecompensas);
 	const saldo = estrellasDelMundo(letras, mundo);
+	const areaRef = useRef(null);
 	const paisajeRef = useRef(null);
 	const lucesRef = useRef(null);
 	const motor = useRef(null);
 	const ultimoToque = useRef({});
 	const temporizadores = useRef({});
-	const [escala, setEscala] = useState(() => Math.min(window.innerWidth / ANCHO, window.innerHeight / ALTO));
+	// Hasta medir el área, una estimación (la franja ocupa unos 120 px).
+	const [escala, setEscala] = useState(() => escalaPara(window.innerWidth, window.innerHeight - 120));
 	const [mensaje, setMensaje] = useState(null);
-	const [encendidos, setEncendidos] = useState({});
+	const [preparando, setPreparando] = useState({});
 	const [sacudido, setSacudido] = useState(null);
-	const [panelAbierto, setPanelAbierto] = useState(false);
-	const compacto = escala * DIAMETRO_BOTON < BOTON_MINIMO;
 
 	useEffect(() => {
 		const reducido = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
 		const escena = crearEscena({ reducido });
 		cargarImagenes(escena);
+		const area = areaRef.current;
 		const lienzos = [paisajeRef.current, lucesRef.current];
 		const [paisaje, luces] = lienzos.map((lienzo) => lienzo.getContext("2d"));
 		let vivo = true;
@@ -81,29 +85,40 @@ function LaboratorioDelMundo({ mundo }) {
 			}
 		}
 
-		// El escenario lógico (1920×1080) entra entero en la pantalla; los lienzos tienen la resolución
-		// que se ve (como mucho 1920×1080) y dibujan con escena.k.
+		// El escenario lógico entra entero en el área del paisaje; los lienzos tienen la resolución que
+		// se ve (como mucho 1920×1080) y dibujan con escena.k. Los dos lienzos y la imagen de la máquina
+		// están dentro del mismo escenario escalado, así la capa de los instrumentos sigue calzada sobre
+		// la máquina en cualquier tamaño.
 		function ajustar() {
-			const nuevaEscala = Math.min(window.innerWidth / ANCHO, window.innerHeight / ALTO);
+			if (!vivo) return;
+			const nuevaEscala = escalaPara(area.clientWidth, area.clientHeight);
 			const k = Math.min(1, nuevaEscala * (window.devicePixelRatio || 1));
-			for (const lienzo of lienzos) {
-				lienzo.width = Math.round(ANCHO * k);
-				lienzo.height = Math.round(ALTO * k);
+			const ancho = Math.round(ANCHO * k);
+			const alto = Math.round(ALTO * k);
+			if (lienzos[0].width !== ancho || lienzos[0].height !== alto) {
+				for (const lienzo of lienzos) {
+					lienzo.width = ancho;
+					lienzo.height = alto;
+				}
+				escena.k = k;
+				if (!corriendo) dibujar(escena, paisaje, luces);
 			}
-			escena.k = k;
 			setEscala(nuevaEscala);
-			if (!corriendo) dibujar(escena, paisaje, luces);
 		}
 
 		ajustar();
+		const observador = typeof ResizeObserver === "function" ? new ResizeObserver(ajustar) : null;
+		observador?.observe(area);
 		window.addEventListener("resize", ajustar);
 		document.addEventListener("visibilitychange", despertar);
 		motor.current = { escena, despertar };
 		return () => {
 			vivo = false;
 			motor.current = null;
+			observador?.disconnect();
 			window.removeEventListener("resize", ajustar);
 			document.removeEventListener("visibilitychange", despertar);
+			// Se descartan también las preparaciones y emisiones pendientes (viven en las instancias).
 			escena.instancias = [];
 			escena.plantas = [];
 			escena.burbujas = [];
@@ -129,8 +144,9 @@ function LaboratorioDelMundo({ mundo }) {
 		}
 	}
 
-	// Orden: ¿hay lugar y está listo el efecto? → ¿alcanza el saldo? → cobrar una vez → disparar.
-	// Todo es síncrono: un segundo toque ya ve el saldo descontado y nunca queda negativo.
+	// Orden: ¿hay lugar y está listo el efecto? → ¿alcanza el saldo? → cobrar una vez → preparar en la
+	// máquina y emitir. Todo es síncrono: un segundo toque ya ve el saldo descontado y nunca queda
+	// negativo. La preparación y la emisión son la misma activación (un solo cobro).
 	function activar(boton) {
 		const actual = motor.current;
 		if (!actual) return;
@@ -149,55 +165,53 @@ function LaboratorioDelMundo({ mundo }) {
 			return;
 		}
 		ultimoToque.current[boton.id] = ahora;
-		efecto.agregar(actual.escena);
+		efecto.agregar(actual.escena, boton.preparacionMs / 1000);
 		actual.despertar();
-		setPanelAbierto(false);
-		setEncendidos((previos) => ({ ...previos, [boton.id]: true }));
-		esperar(`encendido-${boton.id}`, 700, () => setEncendidos((previos) => ({ ...previos, [boton.id]: false })));
+		setPreparando((previos) => ({ ...previos, [boton.id]: true }));
+		esperar(`preparando-${boton.id}`, boton.preparacionMs, () => setPreparando((previos) => ({ ...previos, [boton.id]: false })));
 	}
 
-	function claseBoton(boton) {
-		return `lab-boton${encendidos[boton.id] ? " lab-boton-encendido" : ""}${saldo < boton.precio ? " lab-boton-sin-saldo" : ""}${sacudido === boton.id ? " lab-boton-sacudido" : ""}`;
+	function claseTarjeta(boton) {
+		let clase = "luces-tarjeta";
+		if (preparando[boton.id]) clase += " luces-tarjeta--preparando";
+		if (saldo < boton.precio) clase += " luces-tarjeta--sin-saldo";
+		if (sacudido === boton.id) clase += " luces-tarjeta--sacudida";
+		return clase;
 	}
-
-	function contenidoBoton(boton) {
-		return (
-			<>
-				<img src={boton.imagen} alt="" draggable={false} />
-				<span className="lab-precio" aria-hidden="true">
-					{boton.precio}
-					<span>⭐</span>
-				</span>
-			</>
-		);
-	}
-
-	const etiqueta = (boton) => `${boton.nombre}, ${boton.precio} estrellas`;
 
 	return (
 		<div className="page-laboratorio">
-			<div className="lab-escenario" style={{ width: ANCHO, height: ALTO, transform: `translate(-50%, -50%) scale(${escala})` }}>
-				<img className="lab-fondo" src={IMAGENES.fondo} alt="" draggable={false} />
-				<canvas ref={paisajeRef} className="lab-lienzo" aria-hidden="true" />
-				<img
-					className="lab-maquina"
-					src={IMAGENES.maquina}
-					alt=""
-					draggable={false}
-					style={{ left: MAQUINA.x, top: MAQUINA.y, width: MAQUINA.ancho, height: MAQUINA.alto }}
-				/>
-				<canvas ref={lucesRef} className="lab-lienzo" aria-hidden="true" />
-				<div className="lab-botones" role="group" aria-label="Efectos de luz" aria-hidden={compacto && panelAbierto ? true : undefined}>
+			<div className="lab-paisaje" ref={areaRef} style={{ backgroundSize: `auto ${Math.round(ALTO * escala)}px` }}>
+				<div className="lab-escenario" style={{ width: ANCHO, height: ALTO, transform: `translateX(-50%) scale(${escala})` }}>
+					<img className="lab-fondo" src={IMAGENES.fondo} alt="" draggable={false} />
+					<canvas ref={paisajeRef} className="lab-lienzo" aria-hidden="true" />
+					<img
+						className="lab-maquina"
+						src={IMAGENES.maquina}
+						alt=""
+						draggable={false}
+						style={{ left: MAQUINA.x, top: MAQUINA.y, width: MAQUINA.ancho, height: MAQUINA.alto }}
+					/>
+					<canvas ref={lucesRef} className="lab-lienzo" aria-hidden="true" />
+				</div>
+			</div>
+
+			<div className="luces-franja" role="group" aria-label={`Efectos de luz del laboratorio ${NOMBRES_LABORATORIO[mundo]}`}>
+				<div className="luces-franja__grilla">
 					{BOTONES.map((boton) => (
 						<button
 							key={boton.id}
-							className={claseBoton(boton)}
+							className={claseTarjeta(boton)}
 							type="button"
-							aria-label={etiqueta(boton)}
-							style={{ left: boton.centro[0], top: boton.centro[1], width: DIAMETRO_BOTON, height: DIAMETRO_BOTON }}
+							aria-label={`${boton.nombre}, ${boton.precio} estrellas`}
 							onClick={() => activar(boton)}
 						>
-							{contenidoBoton(boton)}
+							<img className="luces-tarjeta__icono" src={boton.icono} alt="" draggable={false} />
+							<span className="luces-tarjeta__texto">{boton.rotulo}</span>
+							<span className="luces-tarjeta__precio" aria-hidden="true">
+								<span className="luces-tarjeta__estrella">⭐</span>
+								{boton.precio}
+							</span>
 						</button>
 					))}
 				</div>
@@ -213,21 +227,6 @@ function LaboratorioDelMundo({ mundo }) {
 			<div className="lab-mensaje" aria-live="polite">
 				{mensaje && <span key={mensaje.id}>{mensaje.texto}</span>}
 			</div>
-
-			{compacto && (
-				<button className="lab-abrir-panel" type="button" aria-expanded={panelAbierto} onClick={() => setPanelAbierto((abierto) => !abierto)}>
-					{panelAbierto ? "Cerrar" : "✨ Botones"}
-				</button>
-			)}
-			{compacto && panelAbierto && (
-				<div className="lab-panel" role="group" aria-label="Efectos de luz">
-					{BOTONES.map((boton) => (
-						<button key={boton.id} className={claseBoton(boton)} type="button" aria-label={etiqueta(boton)} onClick={() => activar(boton)}>
-							{contenidoBoton(boton)}
-						</button>
-					))}
-				</div>
-			)}
 		</div>
 	);
 }
