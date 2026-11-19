@@ -372,7 +372,8 @@
 	z-index: 4;
 	width: clamp(108px, 27vmin, 198px);
 	--mundo3-path-button-radius: clamp(54px, 9vmin, 78px);
-	transform: translate(calc(-100% - var(--mundo3-path-button-radius)), calc(-100% + var(--mundo3-path-button-radius)));
+	--mundo3-path-button-bottom: clamp(25px, 4.1vmin, 35px);
+	transform: translate(calc(-100% - var(--mundo3-path-button-radius)), calc(-100% + var(--mundo3-path-button-bottom) + 9px));
 }
 
 .mundo3-puf {
@@ -442,6 +443,7 @@
 @media (max-width: 800px), (max-height: 600px) {
 	.mundo3-character-spot.perched {
 		--mundo3-path-button-radius: clamp(40px, 7.5vmin, 62.5px);
+		--mundo3-path-button-bottom: clamp(19px, 3.6vmin, 29px);
 	}
 }
 
