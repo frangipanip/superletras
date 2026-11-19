@@ -155,7 +155,7 @@ function LaboratorioDelMundo({ mundo }) {
 		const efecto = EFECTOS[boton.id];
 		const estado = efecto.puedeAgregar(actual.escena);
 		if (estado !== "ok") {
-			avisar(estado === "cargando" ? "Un momentito, se está preparando…" : "¡Ya hay muchas! Esperá un poquito.", boton.id);
+			avisar(estado === "cargando" ? "Un momentito, se está preparando…" : "¡Ya hay un montón! Probá con otro.", boton.id);
 			return;
 		}
 		const disponible = estrellasDelMundo(getRecompensas().letras, mundo);
@@ -181,8 +181,12 @@ function LaboratorioDelMundo({ mundo }) {
 
 	return (
 		<div className="page-laboratorio">
-			<div className="lab-paisaje" ref={areaRef} style={{ backgroundSize: `auto ${Math.round(ALTO * escala)}px` }}>
+			<div className="lab-paisaje" ref={areaRef}>
 				<div className="lab-escenario" style={{ width: ANCHO, height: ALTO, transform: `translateX(-50%) scale(${escala})` }}>
+					{/* Pantallas más anchas que 16:9: a cada costado, el mismo fondo espejado (el borde
+					    coincide píxel a píxel, así el horizonte y el pasto siguen sin corte). */}
+					<img className="lab-fondo lab-fondo-izquierda" src={IMAGENES.fondo} alt="" draggable={false} />
+					<img className="lab-fondo lab-fondo-derecha" src={IMAGENES.fondo} alt="" draggable={false} />
 					<img className="lab-fondo" src={IMAGENES.fondo} alt="" draggable={false} />
 					<canvas ref={paisajeRef} className="lab-lienzo" aria-hidden="true" />
 					<img

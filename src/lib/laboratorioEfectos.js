@@ -1,4 +1,4 @@
-import { ALTO, ANCHO, CIELO, DURACION_EFECTOS, FLORES, INSTRUMENTOS, LIMITES, MOVIMIENTO_REDUCIDO, PIEZAS_PLANTA, ZONA_VIDES } from "./laboratorio";
+import { ALTO, ANCHO, CIELO, DURACION_EFECTOS, FLORES, INSTRUMENTOS, LIMITES, MOVIMIENTO_REDUCIDO, PAUSAS, PIEZAS_PLANTA, ZONA_VIDES } from "./laboratorio";
 
 // Motor de efectos del Laboratorio de Luces. Todo se dibuja por código en dos lienzos (Canvas 2D)
 // con las coordenadas lógicas del escenario (1920×1080):
@@ -9,8 +9,9 @@ import { ALTO, ANCHO, CIELO, DURACION_EFECTOS, FLORES, INSTRUMENTOS, LIMITES, MO
 //   dibujado detrás no se vería.
 // Cada activación tiene dos fases: PREPARAR (los primeros `prep` segundos solo cambia el instrumento,
 // en la capa luces) → EMITIR (el efecto sale al paisaje). Cada toque agrega instancias a la escena
-// (nunca reemplaza un efecto por otro). Las breves se terminan solas; las plantas quedan hasta salir
-// de la pantalla. Nada de esto se guarda.
+// (nunca reemplaza un efecto por otro) y todas quedan hasta salir de la pantalla: las plantas y la
+// aurora y las figuras siguen a la vista, y las estrellas fugaces, las burbujas y los fuegos se
+// repiten cada tanto (PAUSAS). Solo se apaga la luz de la preparación. Nada de esto se guarda.
 
 const TAU = Math.PI * 2;
 const azar = (a, b) => a + Math.random() * (b - a);
@@ -656,10 +657,8 @@ const estrellas = {
 		usarAnteojo = !usarAnteojo;
 		const [origenX, origenY] = usarAnteojo ? INSTRUMENTOS.anteojo : INSTRUMENTOS.prisma;
 		const cantidad = Math.max(2, Math.round(entero(LIMITES.estrellasPorToque[0], LIMITES.estrellasPorToque[1]) * (escena.reducido ? 0.7 : 1)));
-		const lista = [];
-		// PREPARAR: destello en el anteojo o el prisma. EMITIR: la primera estrella cae en `prep`.
-		let inicio = prep;
-		for (let i = 0; i < cantidad; i += 1) {
+		// Una estrella fugaz con lugar y dirección al azar, que empieza a caer en `inicio`.
+		function nuevaEstrella(inicio) {
 			const direccion = azar(2.62, 2.85);
 			const dx = Math.cos(direccion);
 			const dy = Math.sin(direccion);
@@ -667,13 +666,28 @@ const estrellas = {
 			const y = azar(CIELO.y[0], CIELO.y[0] + 200);
 			// Que termine dentro del cielo, sin bajar a las colinas ni pasar sobre la máquina.
 			const largo = Math.min(azar(380, 560), (x - CIELO.x[0]) / -dx, (CIELO.y[1] - 60 - y) / dy);
-			lista.push({ x, y, dx, dy, largo, inicio, duracion: azar(0.9, 1.3) * DURACION_EFECTOS * (escena.reducido ? 1.4 : 1) });
+			return { x, y, dx, dy, largo, inicio, duracion: azar(0.9, 1.3) * DURACION_EFECTOS * (escena.reducido ? 1.4 : 1) };
+		}
+		// PREPARAR: destello en el anteojo o el prisma. EMITIR: la primera estrella cae en `prep`.
+		const lista = [];
+		let inicio = prep;
+		for (let i = 0; i < cantidad; i += 1) {
+			lista.push(nuevaEstrella(inicio));
 			inicio += azar(0.25, 0.45) * DURACION_EFECTOS;
 		}
-		const fin = Math.max(...lista.map((estrella) => estrella.inicio + estrella.duracion)) + 0.1;
+		// Quedan hasta salir de la pantalla: cada estrella que termina vuelve a cruzar el cielo por otro
+		// lado después de una pausa.
 		escena.instancias.push({
 			tipo: "estrellas",
-			actualizar: () => escena.reloj - t0 < fin,
+			actualizar() {
+				const t = escena.reloj - t0;
+				lista.forEach((estrella, i) => {
+					if (t > estrella.inicio + estrella.duracion) {
+						lista[i] = nuevaEstrella(t + azar(PAUSAS.estrellas[0], PAUSAS.estrellas[1]));
+					}
+				});
+				return true;
+			},
 			luces(ctx) {
 				const t = escena.reloj - t0;
 				const alfa = envolvente(t, prep + 0.5, prep * 0.5, 0.45);
@@ -778,7 +792,7 @@ function burbujaInterna(ctx, x, y, radio, giro, alfa) {
 	ctx.fill();
 }
 
-function soltarTanda(escena, puntosDelPasto) {
+function soltarTanda(escena, puntosDelPasto, proporcion = 1) {
 	const globo = INSTRUMENTOS.globoBurbuja;
 	const [tuboX, tuboY] = INSTRUMENTOS.bocaTubo;
 	const fuentes = [
@@ -786,7 +800,7 @@ function soltarTanda(escena, puntosDelPasto) {
 		{ x: tuboX, y: tuboY - 10, capa: "luces", vx: [0, 90] },
 		...puntosDelPasto.map(({ x, y }) => ({ x, y, capa: "paisaje", vx: [-60, 60] }))
 	];
-	const cantidad = Math.round(LIMITES.burbujasPorTanda * escena.factor);
+	const cantidad = Math.round(LIMITES.burbujasPorTanda * escena.factor * proporcion);
 	for (let i = 0; i < cantidad && escena.burbujas.length < LIMITES.burbujasVivas; i += 1) {
 		const fuente = fuentes[i % fuentes.length];
 		const tamaño = Math.random();
@@ -817,6 +831,7 @@ const burbujas = {
 		const internas = [];
 		let nacidas = 0;
 		let tandas = 0;
+		let proxima = Infinity;
 		const totalTandas = LIMITES.tandasDeBurbujas;
 		const puntosDelPasto = [0, 1, 2].map(() => ({ x: azar(950, 1780), y: azar(880, 1010) }));
 		// PREPARAR: burbujitas iridiscentes nacen abajo del globo grande, suben, crecen y se juntan.
@@ -857,12 +872,18 @@ const burbujas = {
 					// Al llegar arriba revientan contra el vidrio.
 					if (internas[i].y + internas[i].radio * 0.3 < globo.y - globo.ry * 0.7) internas.splice(i, 1);
 				}
-				// Después, tandas de burbujas desde la máquina y desde el pasto.
+				// Después, tandas de burbujas desde la máquina y desde el pasto: primero las que llenan la
+				// pantalla y, hasta salir, tandas más chicas cada tanto para que nunca se terminen.
 				while (tandas < totalTandas && t >= prep + tandas * 0.75 * DURACION_EFECTOS) {
 					soltarTanda(escena, puntosDelPasto);
 					tandas += 1;
+					proxima = t + azar(PAUSAS.burbujas[0], PAUSAS.burbujas[1]);
 				}
-				return t < finLuz || tandas < totalTandas;
+				if (tandas >= totalTandas && t >= proxima) {
+					soltarTanda(escena, puntosDelPasto, LIMITES.burbujasSostenidas);
+					proxima = t + azar(PAUSAS.burbujas[0], PAUSAS.burbujas[1]);
+				}
+				return true;
 			},
 			luces(ctx) {
 				const t = escena.reloj - t0;
@@ -913,12 +934,12 @@ const aurora = {
 		}));
 		// PREPARAR: una cinta menta y lila ondula dentro del globo de arriba (y el prisma brilla).
 		// EMITIR (en `prep`): se despliegan las cintas del cielo.
+		// Las cintas quedan ondulando hasta salir de la pantalla.
 		const inicioCintas = prep;
-		const duracionCintas = 9.8 * DURACION_EFECTOS;
 		const finLuz = prep + 1.8;
 		escena.instancias.push({
 			tipo: "aurora",
-			actualizar: () => escena.reloj - t0 < inicioCintas + duracionCintas,
+			actualizar: () => true,
 			luces(ctx) {
 				const t = escena.reloj - t0;
 				const alfa = envolvente(t, finLuz, 0.15, 0.9);
@@ -963,7 +984,7 @@ const aurora = {
 			},
 			paisaje(ctx) {
 				const t = escena.reloj - t0 - inicioCintas;
-				const general = envolvente(t, duracionCintas, 1.4, 2.4 * 1.5);
+				const general = limitar(t / 1.4, 0, 1);
 				if (general <= 0) return;
 				const { k } = escena;
 				const reloj = escena.reloj;
@@ -1055,10 +1076,6 @@ const constelacion = {
 			aparece[a] = Math.min(aparece[a], desde);
 			aparece[b] = Math.min(aparece[b], desde + porSegmento * 0.85);
 		});
-		const completa = inicio + figura.segmentos.length * porSegmento;
-		// Se mantiene legible el tiempo que haga falta para durar DURACION_EFECTOS veces el diseño original.
-		const apagado = 1.6 * 1.5;
-		const total = Math.max(completa + 3.5 + apagado, inicio + DURACION_EFECTOS * (figura.segmentos.length * 0.42 + 3.5 + 1.6));
 		// Los puntitos de la lente forman la misma figura en miniatura y se encienden de a uno.
 		const chispitas = figura.vertices.map(([x, y], i) => ({
 			x: lente.x + x * lente.rx * 0.55,
@@ -1069,7 +1086,8 @@ const constelacion = {
 		escena.instancias.push({
 			tipo: "constelacion",
 			centro,
-			actualizar: () => escena.reloj - t0 < total,
+			// La figura queda en el cielo, titilando, hasta salir de la pantalla.
+			actualizar: () => true,
 			luces(ctx) {
 				const t = escena.reloj - t0;
 				const alfa = envolvente(t, prep + 1.2, 0.12, 0.7);
@@ -1091,8 +1109,8 @@ const constelacion = {
 			},
 			paisaje(ctx) {
 				const t = escena.reloj - t0;
-				const general = Math.min(1, (total - t) / apagado);
-				if (t < inicio || general <= 0) return;
+				const general = 1;
+				if (t < inicio) return;
 				ctx.lineCap = "round";
 				figura.segmentos.forEach(([a, b], j) => {
 					const u = (t - inicio - j * porSegmento) / (porSegmento * 0.85);
@@ -1145,27 +1163,38 @@ const fuegos = {
 		const cantidad = entero(LIMITES.fuegosPorToque[0], LIMITES.fuegosPorToque[1]);
 		const franjas = mezclar([0, 1, 2]);
 		const estilos = mezclar(ESTILOS_FUEGOS);
-		const lista = Array.from({ length: cantidad }, (_, i) => {
+		// Una flor de luz que sale del anteojo en `salida` y se abre en su franja de altura.
+		function nuevoFuego(salida, franja, estilo) {
 			const [primero, segundo] = mezclar(ARCOIRIS);
-			// PREPARAR: el anteojo se va cargando de luz. EMITIR (en `prep`): sale la primera chispa.
 			return {
-				salida: prep + i * 0.85 * D,
+				salida,
+				franja,
 				x: azar(900, 1750),
-				y: CIELO.y[0] + 70 + franjas[i] * 95 + azar(-25, 25),
-				estilo: estilos[i % estilos.length],
+				y: CIELO.y[0] + 70 + franja * 95 + azar(-25, 25),
+				estilo,
 				colores: [primero, segundo],
 				curva: elegir([-1, 1]) * azar(0.3, 0.8),
 				chispas: null,
 				puntitos: []
 			};
-		});
+		}
+		// PREPARAR: el anteojo se va cargando de luz. EMITIR (en `prep`): sale la primera chispa.
+		const lista = Array.from({ length: cantidad }, (_, i) => nuevoFuego(prep + i * 0.85 * D, franjas[i], estilos[i % estilos.length]));
 		const vuelo = 1;
 		const vidaChispa = [1.8 * D, 2.4 * D];
-		const fin = lista[lista.length - 1].salida + vuelo + 2.8 * D;
+		// Cuándo ya se apagaron las chispas y los puntitos de una flor de luz.
+		const apagada = vuelo + 2.9 * D;
 		escena.instancias.push({
 			tipo: "fuegos",
 			actualizar(dt) {
 				const t = escena.reloj - t0;
+				// Quedan hasta salir de la pantalla: cada flor de luz que se apagó vuelve a salir del anteojo
+				// después de una pausa, en otro lugar y con otros colores.
+				lista.forEach((fuego, i) => {
+					if (t - fuego.salida > apagada) {
+						lista[i] = nuevoFuego(t + azar(PAUSAS.fuegos[0], PAUSAS.fuegos[1]), fuego.franja, elegir(ESTILOS_FUEGOS));
+					}
+				});
 				for (const fuego of lista) {
 					const desde = t - fuego.salida - vuelo;
 					if (desde < 0) continue;
@@ -1205,7 +1234,7 @@ const fuegos = {
 						puntito.y += puntito.vy * dt;
 					}
 				}
-				return t < fin;
+				return true;
 			},
 			luces(ctx) {
 				const t = escena.reloj - t0;

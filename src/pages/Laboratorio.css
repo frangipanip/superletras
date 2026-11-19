@@ -14,15 +14,15 @@
 	-webkit-user-select: none;
 }
 
-/* Área del paisaje. Lo que sobra a los costados (pantallas más anchas que 16:9) repite el mismo
-   fondo a la misma altura, así el horizonte sigue de largo; lo que sobra arriba (pantallas más
-   altas) toma el color del cielo. El alto del fondo lo pone el componente con la escala. */
+/* Área del paisaje. Lo que sobra a los costados (pantallas más anchas que 16:9) lo cubren dos copias
+   espejadas del fondo dentro del escenario; lo que sobra arriba (pantallas más altas) toma el color
+   del cielo. */
 .page-laboratorio .lab-paisaje {
 	position: relative;
 	flex: 1 1 auto;
 	min-height: 0;
 	overflow: hidden;
-	background: #4740d4 url("/assets/imagenes/laboratorio/fondo.webp") center bottom / auto 100% repeat-x;
+	background: #4740d4;
 }
 
 .page-laboratorio .lab-escenario {
@@ -30,7 +30,21 @@
 	bottom: 0;
 	left: 50%;
 	transform-origin: 50% 100%;
-	overflow: hidden;
+}
+
+.page-laboratorio .lab-fondo.lab-fondo-izquierda,
+.page-laboratorio .lab-fondo.lab-fondo-derecha {
+	transform: scaleX(-1);
+}
+
+/* Se meten 3 px por debajo del fondo central (que va encima) para que el redondeo del escalado no deje
+   una rayita en la unión. */
+.page-laboratorio .lab-fondo.lab-fondo-izquierda {
+	left: calc(-100% + 3px);
+}
+
+.page-laboratorio .lab-fondo.lab-fondo-derecha {
+	left: calc(100% - 3px);
 }
 
 .page-laboratorio .lab-fondo,

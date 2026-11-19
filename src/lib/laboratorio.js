@@ -39,26 +39,37 @@ export const LIMITES = {
 	ramasPorTallo: [1, 3],
 	floresAbiertas: 15,
 	lugaresDeVides: 8,
-	// Toques de cada efecto que pueden estar a la vista a la vez.
+	// Toques de cada efecto que pueden estar en la escena (todos quedan hasta salir de la pantalla):
+	// llegado el tope, otro toque no cobra.
 	estrellasActivas: 3,
 	burbujasActivas: 2,
 	auroraActivas: 2,
-	constelacionActivas: 2,
+	constelacionActivas: 3,
 	fuegosActivos: 2,
 	// Cantidades por toque.
 	estrellasPorToque: [3, 5],
 	tandasDeBurbujas: 4,
 	burbujasPorTanda: 34,
 	burbujasVivas: 240,
+	// Tamaño de las tandas que siguen saliendo después de las primeras (fracción de burbujasPorTanda).
+	burbujasSostenidas: 0.35,
 	cintasDeAurora: [2, 3],
 	fuegosPorToque: [2, 3],
 	chispasPorFuego: 34
 };
 export const MOVIMIENTO_REDUCIDO = 0.5;
 
-// Cuánto duran los efectos respecto de su diseño original (2 = el doble): estrellas fugaces, burbujas,
-// aurora, constelación y fuegos, y lo que tardan en crecer y florecer las plantas (que después quedan
-// hasta salir).
+// Los efectos no se terminan hasta salir de la pantalla: las estrellas fugaces, las burbujas y los
+// fuegos se repiten cada tanto. Pausa (en segundos, entre mínimo y máximo) antes de que cada estrella
+// vuelva a cruzar el cielo, entre tandas de burbujas y antes de que cada flor de luz vuelva a salir.
+export const PAUSAS = {
+	estrellas: [2, 5],
+	burbujas: [2.5, 4],
+	fuegos: [2.5, 5]
+};
+
+// Velocidad de los efectos respecto de su diseño original (2 = el doble de lento): cada estrella
+// fugaz, burbuja y flor de luz, y lo que tardan en crecer y florecer las plantas.
 export const DURACION_EFECTOS = 2;
 
 // Cada activación tiene dos fases: PREPARAR (el instrumento de la máquina se enciende por dentro)
