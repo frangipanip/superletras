@@ -11,6 +11,7 @@ import { img, MUNDO6_CHARACTER_FRAMES, sound } from "../lib/assets";
 import { actividadCompleta, getProgreso, subscribeProgreso } from "../lib/progreso";
 import MarcaCamino from "../components/MarcaCamino";
 import { readStorage, STORAGE_KEYS, writeStorage } from "../lib/storage";
+import { etiquetaCamino, estiloMarcoEtiqueta, imagenesEtiquetasDelMundo } from "../lib/etiquetasCamino";
 import "./Mundo6.css";
 
 const LETTERS = ["B", "V", "Ñ", "K", "X"];
@@ -61,6 +62,7 @@ export const MUNDO6_IMAGES = [
 	img("FONDOM6.jpg"),
 	img("MENUM6.png"),
 	img("boton.svg"),
+	...imagenesEtiquetasDelMundo(6).map(img),
 	...ACTIVITY_SIGN_IMAGES.map(img),
 	...Object.values(CHARACTERS).map(({ image }) => image),
 	...Object.values(MUNDO6_CHARACTER_FRAMES).flat()
@@ -303,7 +305,13 @@ export default function Mundo6() {
 						>
 							{index === nextActivityIndex && <span className="camino-siguiente-brillo" aria-hidden="true" />}
 							<MarcaCamino letra={pathLetter} actividad={ACTIVIDADES_M6[index]?.clave} hecha={isActivityDone(index)} />
-							<img className="mundo6-path-sign" src={img(ACTIVIDADES_M6[index]?.cartel || ACTIVITY_SIGN_IMAGES[index] || "GLOBOSbtn.png")} alt="" draggable={false} />
+							<img
+								className={`mundo6-path-sign${etiquetaCamino(6, ACTIVIDADES_M6[index]?.clave) ? " camino-etiqueta" : ""}`}
+								src={img(etiquetaCamino(6, ACTIVIDADES_M6[index]?.clave) || ACTIVIDADES_M6[index]?.cartel || ACTIVITY_SIGN_IMAGES[index] || "GLOBOSbtn.png")}
+								style={estiloMarcoEtiqueta(6, pathLetter)}
+								alt=""
+								draggable={false}
+							/>
 							<button
 								className={`mundo6-path-button${ACTIVIDADES_M6[index] ? " is-available" : ""}`}
 								type="button"

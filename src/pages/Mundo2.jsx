@@ -13,6 +13,7 @@ import { CAMINOS } from "../lib/caminos";
 import { actividadCompleta, getProgreso, subscribeProgreso } from "../lib/progreso";
 import MarcaCamino from "../components/MarcaCamino";
 import MonstruoDelMenu from "../components/MonstruoDelMenu";
+import { etiquetaCamino, estiloMarcoEtiqueta, imagenesEtiquetasDelMundo } from "../lib/etiquetasCamino";
 import "./Mundo2.css";
 
 const LETTERS = ["P", "N", "D", "F", "H"];
@@ -79,6 +80,7 @@ export const MUNDO2_IMAGES = [
 	...LETTERS.map((letter) => img(`letra${letter}.png`)),
 	...["A", "E", "I", "O", "U"].flatMap((vowel) => [1, 2, 3].map((frame) => img(`mariquita${vowel}${frame}.png`))),
 	img("boton.svg"),
+	...imagenesEtiquetasDelMundo(2).map(img),
 	...ACTIVITY_SIGN_IMAGES.map(img),
 	img("cabezasupernena.png"),
 	img("cabezasupernene.png"),
@@ -383,7 +385,13 @@ export default function Mundo2() {
 						<div className="mundo2-path-activity" key={`${left}-${top}`} style={{ left: `${left}%`, top: `${top}%` }}>
 							{index === nextActivityIndex && index !== characterIndex && <span className="camino-siguiente-brillo" aria-hidden="true" />}
 							<MarcaCamino letra={pathLetter.toLowerCase()} actividad={CAMINOS[2][index]} hecha={isDone(pathLetter, index)} />
-							<img className="mundo2-path-sign available" src={img(ACTIVITY_SIGN_IMAGES[index])} alt="" draggable={false} />
+							<img
+								className={`mundo2-path-sign available${etiquetaCamino(2, CAMINOS[2][index]) ? " camino-etiqueta" : ""}`}
+								src={img(etiquetaCamino(2, CAMINOS[2][index]) || ACTIVITY_SIGN_IMAGES[index])}
+								style={estiloMarcoEtiqueta(2, selectedLetter || LETTERS[0])}
+								alt=""
+								draggable={false}
+							/>
 							<button
 								className={`mundo2-path-button${selectedLetter ? ` path-letter-${selectedLetter.toLowerCase()}` : index === 0 ? " path-letter-p" : ""}`}
 								type="button"

@@ -13,6 +13,7 @@ import { STORAGE_KEYS, readStorage, writeStorage } from "../lib/storage";
 import { ACTIVIDADES, TIPOS_ACTIVIDAD } from "../../shared/actividades.js";
 import { COMIDA_POR_ACTIVIDAD, COMIDAS } from "../../shared/comidas.js";
 import { cantidadComida, comidaParaDar, getRecompensas, subscribeRecompensas } from "../lib/recompensas";
+import { etiquetaCamino, estiloMarcoEtiqueta, imagenesEtiquetasDelMundo } from "../lib/etiquetasCamino";
 import ContadorEstrellas from "../components/ContadorEstrellas";
 import ContadorComida from "../components/ContadorComida";
 import MarcaCamino from "../components/MarcaCamino";
@@ -84,6 +85,7 @@ export const MUNDO1_IMAGES = [
 	img("GLOBOSbtn.png"),
 	img("cartelPALABRAS.png"),
 	...CELEBRATION_FRAMES,
+	...imagenesEtiquetasDelMundo(1).map(img),
 	...ACTIVITY_SIGN_IMAGES.map(img),
 	...MENU_OPTIONS.map(({ image }) => img(image)),
 	...Object.values(SCOOP_IMAGES).map(img),
@@ -656,8 +658,9 @@ export default function Mundo1() {
 							{index === nextActivityIndex && index !== characterIndex && <span className="camino-siguiente-brillo" aria-hidden="true" />}
 							{isActivityVisible(index) && <MarcaCamino letra={selectedOption} actividad={ACTIVIDADES[index]?.clave} hecha={isActivityDone(index)} />}
 							<img
-								className="path-activity-sign"
-								src={img(ACTIVITY_SIGN_IMAGES[index] || "GLOBOSbtn.png")}
+								className={`path-activity-sign${etiquetaCamino(1, ACTIVIDADES[index]?.clave) ? " camino-etiqueta" : ""}`}
+								src={img(etiquetaCamino(1, ACTIVIDADES[index]?.clave) || ACTIVITY_SIGN_IMAGES[index] || "GLOBOSbtn.png")}
+								style={estiloMarcoEtiqueta(1, selectedOption || MENU_OPTIONS[0].key)}
 								alt=""
 								draggable={false}
 							/>

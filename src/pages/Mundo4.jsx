@@ -15,6 +15,7 @@ import { actividadCompleta, getProgreso, subscribeProgreso } from "../lib/progre
 import MarcaCamino from "../components/MarcaCamino";
 import MonstruoDelMenu from "../components/MonstruoDelMenu";
 import SeaLifeEffects from "../components/SeaLifeEffects";
+import { etiquetaCamino, estiloMarcoEtiqueta, imagenesEtiquetasDelMundo } from "../lib/etiquetasCamino";
 import "./Mundo4.css";
 
 const LETTERS = ["C", "Q", "CE", "Z", "CH"];
@@ -88,6 +89,7 @@ function getPerchStyle(index) {
 export const MUNDO4_IMAGES = [
 	img("FONDOM4.jpg"),
 	img("fondofloresM4.png"),
+	...imagenesEtiquetasDelMundo(4).map(img),
 	...[
 		"almejasilabas.png",
 		"caballitoAmarillo1.png", "caballitoAmarillo2.png", "caballitoAmarillo3.png",
@@ -401,7 +403,13 @@ export default function Mundo4() {
 						>
 							{index === nextActivityIndex && index !== characterIndex && <span className="camino-siguiente-brillo" aria-hidden="true" />}
 							<MarcaCamino letra={pathLetter} actividad={ACTIVIDADES_M4[index]} hecha={isActivityDone(index)} />
-							<img className="mundo4-path-sign" src={img(ACTIVITY_SIGN_IMAGES[index] || "GLOBOSbtn.png")} alt="" draggable={false} />
+							<img
+								className={`mundo4-path-sign${etiquetaCamino(4, ACTIVIDADES_M4[index]) ? " camino-etiqueta" : ""}`}
+								src={img(etiquetaCamino(4, ACTIVIDADES_M4[index]) || ACTIVITY_SIGN_IMAGES[index] || "GLOBOSbtn.png")}
+								style={estiloMarcoEtiqueta(4, pathLetter)}
+								alt=""
+								draggable={false}
+							/>
 							<button
 								className={`mundo4-path-button path-letter-${(selectedLetter || LETTERS[0]).toLowerCase()}${index < ACTIVIDADES_ABIERTAS ? " is-available" : ""}`}
 								type="button"

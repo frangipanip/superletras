@@ -15,6 +15,7 @@ import { CAMINOS } from "../lib/caminos";
 import { actividadCompleta, getProgreso, subscribeProgreso } from "../lib/progreso";
 import MarcaCamino from "../components/MarcaCamino";
 import MonstruoDelMenu from "../components/MonstruoDelMenu";
+import { etiquetaCamino, estiloMarcoEtiqueta, imagenesEtiquetasDelMundo } from "../lib/etiquetasCamino";
 import "./Mundo3.css";
 
 const LETTERS = ["R", "RR", "AR", "Y", "LL"];
@@ -106,6 +107,7 @@ export const MUNDO3_IMAGES = [
 	img("menuM3.png"),
 	img("nubeM3.png"),
 	img("boton.svg"),
+	...imagenesEtiquetasDelMundo(3).map(img),
 	...ACTIVITY_SIGN_IMAGES.map(img),
 	...Object.values(LETTER_BLOCKS),
 	...Object.values(MUNDO3_CHARACTERS).map(({ image }) => image),
@@ -369,8 +371,9 @@ export default function Mundo3() {
 								{visible && index === nextActivityIndex && index !== characterIndex && <span className="camino-siguiente-brillo" aria-hidden="true" />}
 								{visible && <MarcaCamino letra={pathLetter.toLowerCase()} actividad={CAMINOS[3][index]} hecha={isDone(pathLetter, index)} />}
 								<img
-									className="mundo3-path-sign"
-									src={img(VISIBLE_ACTIVITY_SIGNS[index] || ACTIVITY_SIGN_IMAGES[index] || "GLOBOSbtn.png")}
+									className={`mundo3-path-sign${etiquetaCamino(3, CAMINOS[3][index]) ? " camino-etiqueta" : ""}`}
+									src={img(etiquetaCamino(3, CAMINOS[3][index]) || VISIBLE_ACTIVITY_SIGNS[index] || ACTIVITY_SIGN_IMAGES[index] || "GLOBOSbtn.png")}
+									style={estiloMarcoEtiqueta(3, pathLetter)}
 									alt=""
 									draggable={false}
 								/>
