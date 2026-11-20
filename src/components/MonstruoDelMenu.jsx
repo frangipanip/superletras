@@ -29,12 +29,18 @@ export default function MonstruoDelMenu({ mundo, letra, disabled = false }) {
 	return (
 		<>
 			<button
-				className={`monstruo-menu-boton${mundo !== 5 ? " monstruo-menu-derecha" : ""}${pendientes > 0 ? " monstruo-con-comida" : ""}`}
+				className={`monstruo-menu-boton${mundo !== 5 ? " monstruo-menu-derecha" : ""}${mundo === 4 ? " monstruo-menu-burbuja" : ""}${pendientes > 0 ? " monstruo-con-comida" : ""}`}
 				type="button"
 				aria-label={`Ver al monstruo y sus comidas${pendientes > 0 ? `: tiene ${pendientes} ${pendientes === 1 ? "comida" : "comidas"} para darle` : ""}`}
 				onClick={abrir}
 			>
-				<img className="monstruo-menu-nube" src={img("nube.png")} alt="" aria-hidden="true" draggable={false} />
+				<img
+					className={mundo === 4 ? "monstruo-menu-burbuja-imagen" : "monstruo-menu-nube"}
+					src={img(mundo === 4 ? "burbuja.png" : "nube.png")}
+					alt=""
+					aria-hidden="true"
+					draggable={false}
+				/>
 				<Monstruo letra={actual} evolucionado={evolucionado} />
 				<ContadorComida cantidad={pendientes} />
 			</button>

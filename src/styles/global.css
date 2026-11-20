@@ -358,6 +358,10 @@ img.camino-etiqueta {
 	left: 66%;
 }
 
+.monstruo-menu-boton.monstruo-menu-burbuja {
+	top: clamp(2.5rem, 7vmin, 3.5rem);
+}
+
 .monstruo-menu-boton:hover,
 .monstruo-menu-boton:focus-visible {
 	transform: translateX(-50%) scale(1.1);
@@ -372,6 +376,19 @@ img.camino-etiqueta {
 	width: 145%;
 	height: auto;
 	transform: translateX(-50%);
+	pointer-events: none;
+}
+
+.monstruo-menu-burbuja-imagen {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	z-index: 2;
+	display: block;
+	width: 138%;
+	height: auto;
+	transform: translate(-50%, -50%);
+	filter: drop-shadow(0 4px 7px rgba(21, 111, 137, 0.18));
 	pointer-events: none;
 }
 
