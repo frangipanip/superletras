@@ -398,10 +398,43 @@
 	object-fit: contain;
 }
 
+.page-tren.tren-mundo-3 .selected-character {
+	--selected-character-width: clamp(150.42px, 41.4vmin, 287.04px);
+	z-index: 0;
+}
+
+.page-tren.tren-mundo-3 .selected-character.mundo3-character {
+	animation: none;
+}
+
+.page-tren.tren-mundo-3 .selected-character:not(.celebrating) {
+	bottom: 30%;
+}
+
+.page-tren.tren-mundo-3 .selected-character.celebrating {
+	top: auto;
+	bottom: 30%;
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+.page-tren.tren-mundo-3 .selected-character:not(.celebrating) > img:first-child,
+.page-tren.tren-mundo-3 .selected-character.celebrating > img:first-child {
+	width: auto;
+	max-width: 100%;
+	max-height: 44.16vh;
+	margin: 0 auto;
+}
+
 .page-tren .vowel-token.double-token {
 	width: 72%;
 	aspect-ratio: 1.2 / 1;
 	font-size: clamp(1.15rem, 3.7vmin, 2.1rem);
+}
+
+.page-tren.tren-mundo-2 .vowel-token,
+.page-tren.tren-mundo-4 .vowel-token {
+	top: -75%;
 }
 
 .page-tren .sequence-slot.double-token {
