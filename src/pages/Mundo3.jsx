@@ -13,6 +13,7 @@ import { img, MUNDO3_CHARACTERS, MUNDO3_MOUTH_IMAGES, sound } from "../lib/asset
 import { STORAGE_KEYS, readStorage, writeStorage } from "../lib/storage";
 import { CAMINOS } from "../lib/caminos";
 import { actividadCompleta, getProgreso, subscribeProgreso } from "../lib/progreso";
+import { comidasGanadasPorActividad, getRecompensas, subscribeRecompensas } from "../lib/recompensas";
 import MarcaCamino from "../components/MarcaCamino";
 import MonstruoDelMenu from "../components/MonstruoDelMenu";
 import { etiquetaCamino, estiloMarcoEtiqueta, imagenesEtiquetasDelMundo } from "../lib/etiquetasCamino";
@@ -133,7 +134,12 @@ export default function Mundo3() {
 	});
 	const [savedPerches, setSavedPerches] = useState(readSavedPerches);
 	const progreso = useSyncExternalStore(subscribeProgreso, getProgreso);
-	const isDone = (letter, index) => index < CAMINOS[3].length && actividadCompleta(progreso, letter.toLowerCase(), CAMINOS[3][index]);
+	const recompensas = useSyncExternalStore(subscribeRecompensas, getRecompensas);
+	const isDone = (letter, index) => {
+		const actividad = CAMINOS[3][index];
+		return index < CAMINOS[3].length && actividadCompleta(progreso, letter.toLowerCase(), actividad,
+			comidasGanadasPorActividad(recompensas.letras, letter.toLowerCase(), actividad));
+	};
 	const nextLetter = LETTERS.find((letter) => CAMINOS[3].some((_, index) => !isDone(letter, index)));
 	const perchIndex = selectedLetter ? (savedPerches[selectedLetter] ?? null) : null;
 	const characterIndex = teleport ? teleport.position : perchIndex;

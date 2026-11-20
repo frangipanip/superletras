@@ -9,6 +9,7 @@ import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
 import { img, MUNDO5_CHARACTERS, MUNDO5_MOUTH_IMAGES, sound } from "../lib/assets";
 import { actividadCompleta, getProgreso, subscribeProgreso } from "../lib/progreso";
+import { comidasGanadasPorActividad, getRecompensas, subscribeRecompensas } from "../lib/recompensas";
 import MarcaCamino from "../components/MarcaCamino";
 import MonstruoDelMenu from "../components/MonstruoDelMenu";
 import { readStorage, STORAGE_KEYS, writeStorage } from "../lib/storage";
@@ -104,15 +105,21 @@ export default function Mundo5() {
 		return LETTERS.includes(saved) ? saved : null;
 	});
 	const progreso = useSyncExternalStore(subscribeProgreso, getProgreso);
+	const recompensas = useSyncExternalStore(subscribeRecompensas, getRecompensas);
 	const [savedPerches, setSavedPerches] = useState(readSavedPerches);
 	const perch = savedPerches[selectedLetter];
 	const perchPosition = PATH_BUTTONS[perch];
 	const pathLetter = (selectedLetter || LETTERS[0]).toLowerCase();
-	const isActivityDone = (index) => index < ACTIVIDADES_M5.length && actividadCompleta(progreso, pathLetter, ACTIVIDADES_M5[index].clave);
+	const isActivityDone = (index) => {
+		const actividad = ACTIVIDADES_M5[index]?.clave;
+		return Boolean(actividad) && actividadCompleta(progreso, pathLetter, actividad,
+			comidasGanadasPorActividad(recompensas.letras, pathLetter, actividad));
+	};
 	const nextActivityIndex = ACTIVIDADES_M5.findIndex((_, index) => !isActivityDone(index));
 	// Letra que conviene jugar (solo se sugiere): la primera con alguna actividad sin completar.
 	const nextLetter = LETTERS.find((letter) =>
-		ACTIVIDADES_M5.some(({ clave }) => !actividadCompleta(progreso, letter.toLowerCase(), clave)));
+		ACTIVIDADES_M5.some(({ clave }) => !actividadCompleta(progreso, letter.toLowerCase(), clave,
+			comidasGanadasPorActividad(recompensas.letras, letter.toLowerCase(), clave))));
 	const [menuPanelVisible, setMenuPanelVisible] = useState(true);
 	const [compactMenuOpen, setCompactMenuOpen] = useState(false);
 	const [introAudio] = useState(() => runtime.audio(sound("InicioMundos.mp3"), { preload: true }));

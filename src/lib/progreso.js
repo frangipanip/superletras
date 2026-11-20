@@ -79,8 +79,8 @@ export function puntajeDe(progresoActual, letra, actividad) {
 	return progresoActual[claveLetra]?.[claveActividad] || 0;
 }
 
-// Completa: se juntaron las 3 estrellas o, en Mundo 1, las 3 comidas (`ganadas`, estén dadas al
-// monstruo o no). Las comidas se pasan desde el menú porque viven en recompensas.js.
+// Completa: se juntaron 3 puntos de progreso o las 3 comidas (`ganadas`, estén dadas al monstruo o
+// no). Las comidas se pasan desde el menú porque viven en recompensas.js.
 export function actividadCompleta(progresoActual, letra, actividad, comidasGanadas = 0) {
 	return Math.max(puntajeDe(progresoActual, letra, actividad), comidasGanadas) >= NECESARIAS_POR_ACTIVIDAD;
 }

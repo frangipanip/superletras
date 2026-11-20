@@ -9,6 +9,7 @@ import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { img, MUNDO6_CHARACTER_FRAMES, sound } from "../lib/assets";
 import { actividadCompleta, getProgreso, subscribeProgreso } from "../lib/progreso";
+import { comidasGanadasPorActividad, getRecompensas, subscribeRecompensas } from "../lib/recompensas";
 import MarcaCamino from "../components/MarcaCamino";
 import { readStorage, STORAGE_KEYS, writeStorage } from "../lib/storage";
 import { etiquetaCamino, estiloMarcoEtiqueta, imagenesEtiquetasDelMundo } from "../lib/etiquetasCamino";
@@ -81,12 +82,18 @@ export default function Mundo6() {
 	const [introAudio] = useState(() => runtime.audio(sound("InicioMundos.mp3"), { preload: true }));
 	const letterAudioRef = useRef(null);
 	const progreso = useSyncExternalStore(subscribeProgreso, getProgreso);
+	const recompensas = useSyncExternalStore(subscribeRecompensas, getRecompensas);
 	const pathLetter = (selectedLetter || LETTERS[0]).toLowerCase();
-	const isActivityDone = (index) => index < ACTIVIDADES_M6.length && actividadCompleta(progreso, pathLetter, ACTIVIDADES_M6[index].clave);
+	const isActivityDone = (index) => {
+		const actividad = ACTIVIDADES_M6[index]?.clave;
+		return Boolean(actividad) && actividadCompleta(progreso, pathLetter, actividad,
+			comidasGanadasPorActividad(recompensas.letras, pathLetter, actividad));
+	};
 	const nextActivityIndex = ACTIVIDADES_M6.findIndex((_, index) => !isActivityDone(index));
 	// Letra que conviene jugar (solo se sugiere): la primera con alguna actividad sin completar.
 	const nextLetter = LETTERS.find((letter) =>
-		ACTIVIDADES_M6.some(({ clave }) => !actividadCompleta(progreso, letter.toLowerCase(), clave)));
+		ACTIVIDADES_M6.some(({ clave }) => !actividadCompleta(progreso, letter.toLowerCase(), clave,
+			comidasGanadasPorActividad(recompensas.letras, letter.toLowerCase(), clave))));
 	const [menuPanelVisible, setMenuPanelVisible] = useState(true);
 	const [compactMenuOpen, setCompactMenuOpen] = useState(false);
 	const pageRef = useRef(null);

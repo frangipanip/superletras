@@ -11,6 +11,7 @@ import { img, MUNDO2_CHARACTER_FRAMES, MUNDO2_CHARACTERS, MUNDO2_MOUTH_IMAGES, s
 import { STORAGE_KEYS, readStorage, writeStorage } from "../lib/storage";
 import { CAMINOS } from "../lib/caminos";
 import { actividadCompleta, getProgreso, subscribeProgreso } from "../lib/progreso";
+import { comidasGanadasPorActividad, getRecompensas, subscribeRecompensas } from "../lib/recompensas";
 import MarcaCamino from "../components/MarcaCamino";
 import MonstruoDelMenu from "../components/MonstruoDelMenu";
 import { etiquetaCamino, estiloMarcoEtiqueta, imagenesEtiquetasDelMundo } from "../lib/etiquetasCamino";
@@ -106,7 +107,12 @@ export default function Mundo2() {
 	});
 	const [savedPerches, setSavedPerches] = useState(readSavedPerches);
 	const progreso = useSyncExternalStore(subscribeProgreso, getProgreso);
-	const isDone = (letter, index) => actividadCompleta(progreso, letter.toLowerCase(), CAMINOS[2][index]);
+	const recompensas = useSyncExternalStore(subscribeRecompensas, getRecompensas);
+	const isDone = (letter, index) => {
+		const actividad = CAMINOS[2][index];
+		return actividadCompleta(progreso, letter.toLowerCase(), actividad,
+			comidasGanadasPorActividad(recompensas.letras, letter.toLowerCase(), actividad));
+	};
 	const pathLetter = selectedLetter || LETTERS[0];
 	const nextActivityIndex = CAMINOS[2].findIndex((_, index) => !isDone(pathLetter, index));
 	const nextLetter = LETTERS.find((letter) => CAMINOS[2].some((_, index) => !isDone(letter, index)));

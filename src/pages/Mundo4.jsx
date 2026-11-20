@@ -12,6 +12,7 @@ import { useTeleport } from "../hooks/useTeleport";
 import { img, MUNDO4_CHARACTER_FRAMES, MUNDO4_CHARACTERS, MUNDO4_MOUTH_IMAGES, sound } from "../lib/assets";
 import { STORAGE_KEYS, readStorage, writeStorage } from "../lib/storage";
 import { actividadCompleta, getProgreso, subscribeProgreso } from "../lib/progreso";
+import { comidasGanadasPorActividad, getRecompensas, subscribeRecompensas } from "../lib/recompensas";
 import MarcaCamino from "../components/MarcaCamino";
 import MonstruoDelMenu from "../components/MonstruoDelMenu";
 import SeaLifeEffects from "../components/SeaLifeEffects";
@@ -127,12 +128,18 @@ export default function Mundo4() {
 	});
 	const [savedPerches, setSavedPerches] = useState(readSavedPerches);
 	const progreso = useSyncExternalStore(subscribeProgreso, getProgreso);
+	const recompensas = useSyncExternalStore(subscribeRecompensas, getRecompensas);
 	const pathLetter = (selectedLetter || LETTERS[0]).toLowerCase();
-	const isActivityDone = (index) => index < ACTIVIDADES_M4.length && actividadCompleta(progreso, pathLetter, ACTIVIDADES_M4[index]);
+	const isActivityDone = (index) => {
+		const actividad = ACTIVIDADES_M4[index];
+		return index < ACTIVIDADES_M4.length && actividadCompleta(progreso, pathLetter, actividad,
+			comidasGanadasPorActividad(recompensas.letras, pathLetter, actividad));
+	};
 	const nextActivityIndex = ACTIVIDADES_M4.findIndex((_, index) => !isActivityDone(index));
 	// Letra que conviene jugar (solo se sugiere, todas se pueden elegir): la primera con alguna actividad sin completar.
 	const nextLetter = LETTERS.find((letter) =>
-		ACTIVIDADES_M4.some((clave) => !actividadCompleta(progreso, letter.toLowerCase(), clave)));
+		ACTIVIDADES_M4.some((clave) => !actividadCompleta(progreso, letter.toLowerCase(), clave,
+			comidasGanadasPorActividad(recompensas.letras, letter.toLowerCase(), clave))));
 	const perchIndex = selectedLetter ? (savedPerches[selectedLetter] ?? null) : null;
 	const characterIndex = teleport ? teleport.position : perchIndex;
 	const [menuPanelVisible, setMenuPanelVisible] = useState(true);

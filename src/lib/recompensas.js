@@ -56,6 +56,11 @@ export function cantidadComida(letras, letra, clave) {
 	return letras[letra]?.[clave] || { ganadas: 0, dadas: 0 };
 }
 
+export function comidasGanadasPorActividad(letras, letra, actividad) {
+	const comida = COMIDA_POR_ACTIVIDAD[actividad];
+	return comida ? cantidadComida(letras, letra, comida.clave).ganadas : 0;
+}
+
 // Comidas que el monstruo de la letra pide ahora (sílabas o, ya evolucionado en Mundo 1, palabras).
 export function comidasPedidas(letras, letra) {
 	return comidasDelMonstruo(letra, (clave) => cantidadComida(letras, letra, clave));
