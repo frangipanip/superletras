@@ -19,7 +19,7 @@ export function crearConfigTren(mundo, letra) {
 	return {
 		sequences,
 		sequenceTokens: Object.fromEntries(sequences.map((silaba) => [silaba,
-			letra === "ar" ? Array.from(silaba) : [silaba.slice(0, -1), silaba.slice(-1)]
+			letra === "rr" || letra === "ar" ? Array.from(silaba) : [silaba.slice(0, -1), silaba.slice(-1)]
 		])),
 		distractores: letra === "gu" ? ["G"] : letra === "gü" ? ["GU"] : letra === "q" ? ["Q"] : null,
 		speechAudios: {
