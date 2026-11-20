@@ -1175,10 +1175,14 @@
 	width: 58%;
 	transform: translate(-50%, -50%);
 	color: #8e3bd1;
-	font: 900 clamp(4.5rem, 12vw, 10.5rem) / 1 "Arial Black", Arial, Helvetica, sans-serif;
+	font: 900 clamp(4.5rem, 12vw, 10.5rem) / 1 Arial, Helvetica, sans-serif;
 	text-align: center;
-	-webkit-text-stroke: 0.035em #fff;
-	text-shadow: 0 3px 4px rgba(93, 0, 130, 0.55), 0 0 14px rgba(255, 255, 255, 0.9);
+	white-space: nowrap;
+	text-shadow:
+		-0.035em -0.035em 0 #fff, 0 -0.035em 0 #fff, 0.035em -0.035em 0 #fff,
+		-0.035em 0 0 #fff, 0.035em 0 0 #fff,
+		-0.035em 0.035em 0 #fff, 0 0.035em 0 #fff, 0.035em 0.035em 0 #fff,
+		0 3px 4px rgba(93, 0, 130, 0.55), 0 0 14px rgba(255, 255, 255, 0.9);
 }
 
 .page-inicio-actividad.world-unicornios .inicio-activity-letter-image-wrap {
@@ -1221,6 +1225,7 @@
 	height: clamp(9rem, 32vh, 17rem);
 	filter: none;
 	font-size: clamp(2.75rem, 5.2vw, 5rem);
+	font-family: Arial, Helvetica, sans-serif;
 }
 
 .page-inicio-actividad.world-unicornios .inicio-vowel-button::before {
@@ -1241,6 +1246,7 @@
 	z-index: 1;
 	transform: translateY(-0.15em);
 	color: #71398e;
+	white-space: nowrap;
 	text-shadow: 0 1px 3px #fff, 0 0 8px rgba(255, 255, 255, 0.95);
 }
 
@@ -1250,7 +1256,11 @@
 
 @media (max-width: 768px), (max-height: 560px) {
 	.page-inicio-actividad.world-unicornios .inicio-activity-letter-image-wrap {
-		width: clamp(11rem, 37vw, 24rem);
+		width: clamp(10rem, min(32vw, 65vh), 20rem);
+	}
+
+	.page-inicio-actividad.world-unicornios .inicio-activity-letter-text {
+		font-size: clamp(3rem, min(10vw, 22vh), 8rem);
 	}
 
 	.page-inicio-actividad.world-unicornios .inicio-vowel-button {
