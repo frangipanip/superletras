@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useNavigate } from "react-router";
 import CharacterLocator from "../components/CharacterLocator";
+import PufCrema, { PUF_CHARACTER_CLASS } from "../components/PufCrema";
 import MonstruoDelMenu from "../components/MonstruoDelMenu";
 import UserNav from "../components/UserNav";
 import { useCharacterLocator } from "../hooks/useCharacterLocator";
 import { usePageRuntime } from "../hooks/usePageRuntime";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
+import { useTeleport } from "../hooks/useTeleport";
 import { img, MUNDO6_CHARACTER_FRAMES, sound } from "../lib/assets";
 import { actividadCompleta, getProgreso, subscribeProgreso } from "../lib/progreso";
 import { comidasGanadasPorActividad, getRecompensas, subscribeRecompensas } from "../lib/recompensas";
@@ -53,14 +55,33 @@ const ACTIVITY_SIGN_IMAGES = [
 	"GLOBOSbtn.png"
 ];
 const PATH_BUTTONS = [
-	[20, 70], [25, 76], [30, 72], [35, 67], [40, 72],
-	[45, 77], [50, 73], [55, 68], [60, 72], [65, 77],
-	[70, 73], [75, 68], [80, 73], [85, 78], [90, 73],
-	[94, 68], [96, 73], [98, 78], [99, 74]
+	[25, 75], //INICIO
+	[36.5, 70], //MARIPOSAS
+	[45, 70], //FLORES
+	[54, 57], //PELUCHES
+	[65, 72], //TREN
+	[75, 67], //DIBUJAR
+	[85, 72], //¿B O V?
+	[95, 77], //BARCOS
+	[105, 73],
+	[115, 68], [125, 72], [135, 77],
+	[145, 73], [155, 68], [165, 73], [185, 78], [190, 73],
+	[194, 68], [196, 73], [198, 78], [199, 74]
 ];
+
+function readSavedPerches() {
+	try {
+		const perches = JSON.parse(readStorage(STORAGE_KEYS.mundo6Perches) || "{}") || {};
+		return Object.fromEntries(Object.entries(perches).filter(([letter, index]) =>
+			LETTERS.includes(letter) && Number.isInteger(index) && index >= 0 && index < ACTIVIDADES_M6.length));
+	} catch {
+		return {};
+	}
+}
 
 export const MUNDO6_IMAGES = [
 	img("FONDOM6.jpg"),
+	img("mundo6bis.jpg"),
 	img("MENUM6.png"),
 	img("boton.svg"),
 	...imagenesEtiquetasDelMundo(6).map(img),
@@ -74,6 +95,7 @@ export default function Mundo6() {
 	const runtime = usePageRuntime();
 	const navigate = useNavigate();
 	const [character] = useSelectedCharacter();
+	const { teleport, teleportCharacter } = useTeleport(runtime);
 	const [characterFrame, setCharacterFrame] = useState(0);
 	const [selectedLetter, setSelectedLetter] = useState(() => {
 		const saved = readStorage(STORAGE_KEYS.mundo6MenuOption);
@@ -83,6 +105,9 @@ export default function Mundo6() {
 	const letterAudioRef = useRef(null);
 	const progreso = useSyncExternalStore(subscribeProgreso, getProgreso);
 	const recompensas = useSyncExternalStore(subscribeRecompensas, getRecompensas);
+	const [savedPerches, setSavedPerches] = useState(readSavedPerches);
+	const perchIndex = selectedLetter ? savedPerches[selectedLetter] ?? null : null;
+	const characterIndex = teleport ? teleport.position : perchIndex;
 	const pathLetter = (selectedLetter || LETTERS[0]).toLowerCase();
 	const isActivityDone = (index) => {
 		const actividad = ACTIVIDADES_M6[index]?.clave;
@@ -102,7 +127,7 @@ export default function Mundo6() {
 	const compactMenuToggleRef = useRef(null);
 	const characterSpotRef = useRef(null);
 	const { offscreen: characterOffscreen, direction: characterDirection, scrollToCharacter } =
-		useCharacterLocator(pageRef, characterSpotRef, character);
+		useCharacterLocator(pageRef, characterSpotRef, character, characterIndex);
 	const drag = useRef({ pointerId: null, startX: 0, startScroll: 0, moved: false }).current;
 	const [dragging, setDragging] = useState(false);
 
@@ -198,6 +223,7 @@ export default function Mundo6() {
 	}, [character]);
 
 	function selectLetter(letter) {
+		if (teleport) return;
 		setSelectedLetter(letter);
 		writeStorage(STORAGE_KEYS.mundo6MenuOption, letter);
 		setCompactMenuOpen(false);
@@ -210,11 +236,22 @@ export default function Mundo6() {
 
 	function openActivity(index) {
 		const actividad = ACTIVIDADES_M6[index];
-		if (!actividad) return;
+		if (!actividad || teleport) return;
 		const letter = selectedLetter || LETTERS[0];
 		setSelectedLetter(letter);
 		writeStorage(STORAGE_KEYS.mundo6MenuOption, letter);
-		navigate(actividad.ruta, { state: { world: 6, menuOption: letter } });
+		const perches = { ...savedPerches, [letter]: index };
+		setSavedPerches(perches);
+		writeStorage(STORAGE_KEYS.mundo6Perches, JSON.stringify(perches));
+		const goToActivity = () => navigate(actividad.ruta, { state: { world: 6, menuOption: letter } });
+		if (!character || perchIndex === index) {
+			goToActivity();
+			return;
+		}
+		introAudio.pause();
+		letterAudioRef.current?.pause();
+		letterAudioRef.current = null;
+		teleportCharacter(perchIndex, index).then(goToActivity);
 	}
 
 	function handlePointerDown(event) {
@@ -254,7 +291,7 @@ export default function Mundo6() {
 	return (
 		<div
 			ref={pageRef}
-			className={`page page-mundo6${dragging ? " dragging" : ""}`}
+			className={`page page-mundo6${dragging ? " dragging" : ""}${teleport ? " traveling" : ""}`}
 			onPointerDown={handlePointerDown}
 			onPointerMove={handlePointerMove}
 			onPointerUp={endDrag}
@@ -302,7 +339,10 @@ export default function Mundo6() {
 				<CharacterLocator character={character} direction={characterDirection} onClick={scrollToCharacter} />
 			)}
 			<main className="mundo6-scene" aria-label="Mundo 6">
-				<img className="mundo6-background" src={img("FONDOM6.jpg")} alt="" draggable={false} />
+				<div className="mundo6-backgrounds" aria-hidden="true">
+					<img className="mundo6-background" src={img("FONDOM6.jpg")} alt="" draggable={false} />
+					<img className="mundo6-background" src={img("mundo6bis.jpg")} alt="" draggable={false} />
+				</div>
 				<div className="mundo6-path" aria-label="Camino de actividades">
 					{PATH_BUTTONS.map(([left, top], index) => (
 						<div
@@ -332,12 +372,22 @@ export default function Mundo6() {
 					))}
 				</div>
 				{character && (
-					<div ref={characterSpotRef} className="mundo6-character">
-						<img
-							src={MUNDO6_CHARACTER_FRAMES[character]?.[characterFrame] || CHARACTERS[character].image}
-							alt={CHARACTERS[character].alt}
-							draggable={false}
-						/>
+					<div
+						ref={characterSpotRef}
+						className={`mundo6-character${characterIndex === null ? "" : " perched"}`}
+						style={characterIndex === null ? undefined : {
+							left: `${PATH_BUTTONS[characterIndex][0]}%`,
+							top: `${PATH_BUTTONS[characterIndex][1]}%`
+						}}
+					>
+						<div className={teleport ? PUF_CHARACTER_CLASS[teleport.stage] : undefined}>
+							<img
+								src={MUNDO6_CHARACTER_FRAMES[character]?.[characterFrame] || CHARACTERS[character].image}
+								alt={CHARACTERS[character].alt}
+								draggable={false}
+							/>
+						</div>
+						{teleport && <PufCrema mode={teleport.stage} className="mundo6-puf" />}
 					</div>
 				)}
 				<aside ref={menuPanelRef} className="mundo6-menu-panel" aria-label="Letras del Mundo 6">

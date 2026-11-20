@@ -61,14 +61,14 @@ export function siguienteActividad(mundo, clave, letra) {
 }
 
 // Dónde guarda cada menú la actividad junto a la que se para el personaje, por letra (el índice
-// es el de CAMINOS). Mundo 1 usa la letra en minúscula; los otros, en mayúscula. Mundo 6 no
-// mueve al personaje.
+// es el de CAMINOS). Mundo 1 usa la letra en minúscula; los otros, en mayúscula.
 const POSICIONES_EN_CAMINO = {
 	1: STORAGE_KEYS.mundo1Perches,
 	2: STORAGE_KEYS.mundo2Perches,
 	3: STORAGE_KEYS.mundo3Perches,
 	4: STORAGE_KEYS.mundo4Perches,
-	5: STORAGE_KEYS.mundo5Perches
+	5: STORAGE_KEYS.mundo5Perches,
+	6: STORAGE_KEYS.mundo6Perches
 };
 
 // Anota `clave` como la última actividad jugada de la letra: al volver al menú (por ejemplo,

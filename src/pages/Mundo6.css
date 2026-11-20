@@ -11,6 +11,12 @@
 	scrollbar-width: none;
 }
 
+.page-mundo6.traveling .mundo6-path-button,
+.page-mundo6.traveling .mundo6-letter,
+.page-mundo6.traveling .mundo6-character {
+	pointer-events: none;
+}
+
 .page-mundo6 .top-nav {
 	position: fixed;
 	inset: 0;
@@ -51,14 +57,22 @@
 	position: relative;
 	display: inline-block;
 	vertical-align: top;
+	width: max-content;
 	min-width: 100vw;
 	height: 100%;
 	user-select: none;
 	-webkit-user-select: none;
 }
 
+.mundo6-backgrounds {
+	display: flex;
+	width: max-content;
+	height: 100%;
+}
+
 .mundo6-background {
 	display: block;
+	flex: none;
 	width: auto;
 	max-width: none;
 	height: 100%;
@@ -68,6 +82,7 @@
 	position: absolute;
 	inset: 0;
 	z-index: 3;
+	overflow: hidden;
 	pointer-events: none;
 }
 
@@ -182,6 +197,20 @@
 	z-index: 3;
 	width: clamp(140px, 34vh, 280px);
 	filter: drop-shadow(0 5px 7px rgba(68, 61, 110, 0.38));
+}
+
+.mundo6-character.perched {
+	bottom: auto;
+	z-index: 4;
+	width: clamp(108px, 27vmin, 198px);
+	transform: translate(calc(-100% - clamp(40px, 7.5vmin, 62px)), calc(-100% + clamp(40px, 7.5vmin, 62px)));
+}
+
+.mundo6-puf {
+	top: -10%;
+	right: -24%;
+	bottom: -8%;
+	left: -24%;
 }
 
 .mundo6-character img {
