@@ -2,9 +2,8 @@
    de la viga o cofre en la arena) con el dibujo apoyado, la palabra en su cartel y el sonido pedido en
    el cartel de arriba. Las medidas del soporte llegan como variables desde PeluchesPlataformas. */
 .page-peluches-m3 {
-	/* El escenario conserva las proporciones del fondo (1600x883) y lo cubre. Se limita en pantallas
-	   más cuadradas (118vw: no cortar los soportes a los costados) y en las muy anchas (205vh: que
-	   se vea el frente de los soportes); las franjas que sobran toman el degradé. */
+	/* El escenario conserva las proporciones del fondo (1600x883). Se limita para no cortar soportes;
+	   la imagen de fondo se extiende aparte hasta cubrir todo el viewport. */
 	--pm3-stage-w: min(max(100vw, 181.2vh), 118vw, 205vh);
 	--pm3-stage-h: calc(var(--pm3-stage-w) * 0.551875);
 	/* Lugar libre a la izquierda de los soportes (hasta el 26.5% del escenario) para el personaje. */
@@ -23,6 +22,22 @@
 		background-size: 100% 100%;
 		background-repeat: no-repeat;
 		transform: translateX(-50%);
+	}
+
+	.pm3-stage::before {
+		content: "";
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		z-index: 0;
+		width: max(100vw, 100%);
+		height: max(100vh, 100%);
+		background-image: var(--pm3-stage-fondo);
+		background-position: center;
+		background-size: 100% 100%;
+		background-repeat: no-repeat;
+		transform: translate(-50%, -50%);
+		pointer-events: none;
 	}
 
 	/* Cartel de arriba: el sonido que se pide. Va por encima de los soportes (la hamaca del medio
@@ -138,6 +153,10 @@
 		--selected-character-width: max(110px, min(calc(var(--pm3-free-left) * 0.8), 44vh));
 		animation: pm3-character-drift 2.8s ease-in-out infinite;
 	}
+}
+
+.page-peluches-m3.page-peluches-m4 .pm3-sign {
+	display: none;
 }
 
 /* Soporte: su ancho (--pm3-ancho, fracción del escenario) depende de cuántos dibujos tiene la ronda;

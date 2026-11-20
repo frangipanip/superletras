@@ -227,7 +227,7 @@ export function PeluchesPlataformas({ titulo, grupos, acentos = {}, pares = {}, 
 			<BackButton />
 			<FullscreenButton toggle />
 			{/* Escenario con las proporciones del fondo (1600x883): todo se ubica en % sobre él. */}
-			<main className={`pm3-stage pm3-con-${cantidad}${actividadLista ? "" : " pm3-esperando-cofres"}`} style={{ backgroundImage: `url("${FONDO}")`, ...medidas }}>
+			<main className={`pm3-stage pm3-con-${cantidad}${actividadLista ? "" : " pm3-esperando-cofres"}`} style={{ "--pm3-stage-fondo": `url("${FONDO}")`, ...medidas }}>
 				<div className="pm3-sign" key={`cartel-${activityIndex}`} aria-live="polite">
 					<span>{activity.consigna.toUpperCase()}</span>
 				</div>
