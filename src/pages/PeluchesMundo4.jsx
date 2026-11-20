@@ -42,6 +42,7 @@ const ACENTOS = {
 const COFRE = {
 	tipo: "cofre",
 	imagen: "cofre.png",
+	imagenInicial: "cofreCerrado.png",
 	proporcion: 534 / 640,
 	abajo: 6,
 	altos: { 2: 0.4, 3: 0.33 },

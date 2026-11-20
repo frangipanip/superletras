@@ -161,6 +161,15 @@
 	animation: pm3-cofre-aparece 600ms cubic-bezier(0.34, 1.45, 0.64, 1) both;
 }
 
+.page-peluches-m3 .pm3-soporte-cofre-inicial {
+	z-index: 2;
+	animation: none;
+}
+
+.page-peluches-m3 .pm3-soporte-cofre-inicial.pm3-soporte-cayendo {
+	animation: pm3-cofre-caida var(--pm3-caida-duracion, 3000ms) linear both;
+}
+
 .page-peluches-m3 .pm3-vaiven {
 	position: relative;
 }
@@ -175,6 +184,37 @@
 .page-peluches-m3 .pm3-soporte-cofre .pm3-vaiven {
 	transform-origin: 50% 100%;
 	animation: pm3-cofre-salto 650ms ease-out both;
+}
+
+.page-peluches-m3 .pm3-soporte-cofre-inicial .pm3-vaiven {
+	transform-origin: 100% 100%;
+	animation: none;
+}
+
+.page-peluches-m3 .pm3-soporte-cofre-inicial.pm3-soporte-cayendo .pm3-vaiven {
+	animation: pm3-cofre-giro var(--pm3-caida-duracion, 3000ms) linear both;
+}
+
+.page-peluches-m3 .pm3-cofre-estela {
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	pointer-events: none;
+}
+
+.page-peluches-m3 .pm3-cofre-burbuja {
+	position: absolute;
+	top: var(--pm3-burbuja-y);
+	left: var(--pm3-burbuja-x);
+	width: var(--pm3-burbuja-ancho);
+	filter: saturate(1.8) brightness(1.35) drop-shadow(0 0 6px rgba(255, 255, 255, 0.95));
+	pointer-events: none;
+	animation: pm3-cofre-burbuja 2200ms ease-out var(--pm3-burbuja-retraso) both;
+}
+
+.page-peluches-m3 .pm3-esperando-cofres .pm3-option,
+.page-peluches-m3 .pm3-esperando-cofres .pm3-name {
+	visibility: hidden;
 }
 
 /* Del cofre, el dibujo sale para arriba. */
@@ -216,6 +256,19 @@
 	.page-peluches-m3 .pm3-vaiven {
 		transition: none;
 		animation: none;
+	}
+
+	.page-peluches-m3 .pm3-soporte-cofre-inicial.pm3-soporte-cayendo {
+		animation: pm3-cofre-caida 1ms linear both;
+	}
+
+	.page-peluches-m3 .pm3-soporte-cofre-inicial.pm3-soporte-cayendo .pm3-vaiven {
+		animation: pm3-cofre-giro 1ms linear both;
+	}
+
+	.page-peluches-m3 .pm3-cofre-burbuja {
+		animation: none;
+		opacity: 0;
 	}
 }
 
@@ -301,6 +354,131 @@
 	100% {
 		opacity: 1;
 		transform: translateY(0) scale(1);
+	}
+}
+
+@keyframes pm3-cofre-caida {
+	/* La trayectoria acelera bajo gravedad y se aproxima a velocidad terminal por el arrastre del agua. */
+	0% {
+		opacity: 0;
+		transform: translateY(-115vh);
+	}
+
+	8% {
+		opacity: 1;
+		transform: translateY(-112vh);
+	}
+
+	16% {
+		transform: translateY(-104.5vh);
+	}
+
+	25% {
+		transform: translateY(-94.2vh);
+	}
+
+	33% {
+		transform: translateY(-82.4vh);
+	}
+
+	41% {
+		transform: translateY(-69.6vh);
+	}
+
+	49% {
+		transform: translateY(-56.2vh);
+	}
+
+	57% {
+		transform: translateY(-42.4vh);
+	}
+
+	66% {
+		transform: translateY(-28.4vh);
+	}
+
+	74% {
+		transform: translateY(-14.2vh);
+	}
+
+	82% {
+		opacity: 1;
+		transform: translateY(0);
+	}
+
+	85% {
+		transform: translateY(-0.9vh);
+	}
+
+	89% {
+		transform: translateY(0);
+	}
+
+	92% {
+		transform: translateY(-0.2vh);
+	}
+
+	95%,
+	100% {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes pm3-cofre-giro {
+	/* El impacto nivela el cofre con un pequeño sobrepaso que se amortigua enseguida. */
+	0%,
+	82% {
+		transform: rotate(45deg);
+	}
+
+	83% {
+		transform: rotate(35deg);
+	}
+
+	84% {
+		transform: rotate(20deg);
+	}
+
+	85.5% {
+		transform: rotate(5deg);
+	}
+
+	87% {
+		transform: rotate(-3deg);
+	}
+
+	89% {
+		transform: rotate(1deg);
+	}
+
+	92% {
+		transform: rotate(-0.3deg);
+	}
+
+	95%,
+	100% {
+		transform: rotate(0);
+	}
+}
+
+@keyframes pm3-cofre-burbuja {
+	0% {
+		opacity: 0;
+		transform: translateY(0.5vh) scale(0.35);
+	}
+
+	15% {
+		opacity: 1;
+	}
+
+	78% {
+		opacity: 0.95;
+	}
+
+	100% {
+		opacity: 0;
+		transform: translateY(-1vh) scale(1.15);
 	}
 }
 

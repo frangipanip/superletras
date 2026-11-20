@@ -83,6 +83,13 @@ const POSICIONES = { 2: [41, 71.5], 3: [37.5, 60, 82.5] };
 const ALTOS = { 2: 0.74, 3: 0.62 };
 const ANCHOS_MAXIMOS = { 2: 0.27, 3: 0.205 };
 const PROPORCION_ESCENARIO = 1600 / 883;
+const COFRE_CAIDA_MS = 3000;
+const BURBUJAS_ESTELA = Array.from({ length: 24 }, (_, indice) => ({
+	y: `${3 + indice * 3}%`,
+	lateral: [-0.38, 0.12, 0.42, -0.16, 0.3, -0.46][indice % 6],
+	ancho: `${3.2 + (indice % 5) * 0.8}%`,
+	retraso: `${Math.round(indice * COFRE_CAIDA_MS / (24 - 1))}ms`
+}));
 
 // Hamaca de Mundo 3. Medidas en fracciones de su imagen (recortada a su contorno): proporción
 // alto / ancho, caja del dibujo apoyado en el asiento y cartel del frente donde va la palabra.
@@ -168,6 +175,10 @@ export function PeluchesPlataformas({ titulo, grupos, acentos = {}, pares = {}, 
 	const imagenDe = (id) => img(`peluches/${carpeta}/${id}.png`);
 	const FONDO = img(`peluches/${carpeta}/fondo.jpg`);
 	const IMAGEN_SOPORTE = img(`peluches/${carpeta}/${soporte.imagen}`);
+	const IMAGEN_SOPORTE_INICIAL = soporte.imagenInicial ? img(`peluches/${carpeta}/${soporte.imagenInicial}`) : null;
+	const IMAGEN_BURBUJA = IMAGEN_SOPORTE_INICIAL ? img("burbuja.png") : null;
+	const [soportesAbiertos, setSoportesAbiertos] = useState(() => new Set());
+	const [rondaVisible, setRondaVisible] = useState(() => (IMAGEN_SOPORTE_INICIAL ? -1 : undefined));
 	const { activity, activityIndex, acertada, vibrating, premio, pista, elegir, escucharPalabra, repetirConsigna } = usePeluchesJuego({
 		runtime,
 		letra,
@@ -176,14 +187,23 @@ export function PeluchesPlataformas({ titulo, grupos, acentos = {}, pares = {}, 
 		palabraAudio: (id) => `peluche/${carpeta}/${id}.mp3`,
 		instructionAudioFile: usaContiene(letra) ? "pulsacontiene.mp3" : undefined,
 		startTalking,
-		stopTalking
+		stopTalking,
+		rondaVisible
 	});
 
 	useEffect(() => {
-		preloadImages([FONDO, IMAGEN_SOPORTE, ...rondas.flatMap((ronda) => ronda.options.map((option) => imagenDe(option.id)))]);
+		preloadImages([FONDO, IMAGEN_SOPORTE, IMAGEN_SOPORTE_INICIAL, IMAGEN_BURBUJA, ...rondas.flatMap((ronda) => ronda.options.map((option) => imagenDe(option.id)))].filter(Boolean));
 	}, [rondas]);
 
 	const cantidad = activity.options.length === 3 ? 3 : 2;
+	const soportesListos = !IMAGEN_SOPORTE_INICIAL || soportesAbiertos.size >= cantidad;
+	const actividadLista = soportesListos && (rondaVisible === undefined || rondaVisible === activityIndex);
+	useEffect(() => {
+		if (soportesListos && IMAGEN_SOPORTE_INICIAL) {
+			setRondaVisible(activityIndex);
+		}
+	}, [activityIndex, soportesListos]);
+
 	const posiciones = soporte.posiciones?.[cantidad] || POSICIONES[cantidad];
 	const alto = soporte.altos?.[cantidad] || ALTOS[cantidad];
 	// Medidas del soporte para el CSS (fracciones de su imagen y del escenario).
@@ -207,10 +227,29 @@ export function PeluchesPlataformas({ titulo, grupos, acentos = {}, pares = {}, 
 			<BackButton />
 			<FullscreenButton toggle />
 			{/* Escenario con las proporciones del fondo (1600x883): todo se ubica en % sobre él. */}
-			<main className={`pm3-stage pm3-con-${cantidad}`} style={{ backgroundImage: `url("${FONDO}")`, ...medidas }}>
+			<main className={`pm3-stage pm3-con-${cantidad}${actividadLista ? "" : " pm3-esperando-cofres"}`} style={{ backgroundImage: `url("${FONDO}")`, ...medidas }}>
 				<div className="pm3-sign" key={`cartel-${activityIndex}`} aria-live="polite">
 					<span>{activity.consigna.toUpperCase()}</span>
 				</div>
+				{IMAGEN_SOPORTE_INICIAL ? activity.options.map((_, optionIndex) => (
+					<div key={`estela-cofre-${optionIndex}`} className="pm3-cofre-estela" aria-hidden="true">
+						{BURBUJAS_ESTELA.map((burbuja, indice) => (
+							<img
+								key={indice}
+								className="pm3-cofre-burbuja"
+								src={IMAGEN_BURBUJA}
+								alt=""
+								draggable={false}
+								style={{
+									"--pm3-burbuja-x": `${posiciones[optionIndex] + burbuja.lateral * medidas["--pm3-ancho"] * 100}%`,
+									"--pm3-burbuja-y": burbuja.y,
+									"--pm3-burbuja-ancho": burbuja.ancho,
+									"--pm3-burbuja-retraso": burbuja.retraso
+								}}
+							/>
+						))}
+					</div>
+				)) : null}
 				{activity.options.map((option, optionIndex) => {
 					const texto = textoDe(option.id);
 					const classNames = ["pm3-option", "opcion-peluche"];
@@ -225,23 +264,32 @@ export function PeluchesPlataformas({ titulo, grupos, acentos = {}, pares = {}, 
 					if (pista && option.correct) {
 						classNames.push("pista-correcta");
 					}
+					const cofreAbierto = !IMAGEN_SOPORTE_INICIAL || soportesAbiertos.has(optionIndex);
+					const cofreCayendo = Boolean(IMAGEN_SOPORTE_INICIAL && !cofreAbierto);
 					// El soporte queda montado entre rondas (al pasar de dos a tres se corre a su lugar nuevo);
 					// lo de adentro se vuelve a montar en cada ronda para que se balancee con el dibujo nuevo.
 					return (
 						<div
 							key={`soporte-${optionIndex}`}
-							className={`pm3-soporte pm3-soporte-${soporte.tipo}`}
-							style={{ "--pm3-x": `${posiciones[optionIndex]}%` }}
+							className={`pm3-soporte pm3-soporte-${soporte.tipo}${IMAGEN_SOPORTE_INICIAL ? " pm3-soporte-cofre-inicial" : ""}${cofreCayendo ? " pm3-soporte-cayendo" : ""}`}
+							style={{ "--pm3-x": `${posiciones[optionIndex]}%`, "--pm3-caida-duracion": `${COFRE_CAIDA_MS}ms` }}
+							onAnimationEnd={(event) => {
+								if (event.target !== event.currentTarget || event.animationName !== "pm3-cofre-caida") {
+									return;
+								}
+								setSoportesAbiertos((abiertos) => new Set(abiertos).add(optionIndex));
+							}}
 						>
-							<div key={`ronda-${activityIndex}`} className="pm3-vaiven">
-								<img className="pm3-soporte-img" src={IMAGEN_SOPORTE} alt="" draggable={false} />
+							<div key={`ronda-${activityIndex}-${actividadLista}`} className="pm3-vaiven">
+								<img className="pm3-soporte-img" src={cofreAbierto ? IMAGEN_SOPORTE : IMAGEN_SOPORTE_INICIAL} alt="" draggable={false} />
 								{/* Cofre: la pared de adelante va otra vez por encima del dibujo, que así sale de adentro. */}
-								{soporte.frente ? <img className="pm3-soporte-img pm3-soporte-frente" src={IMAGEN_SOPORTE} alt="" draggable={false} /> : null}
+								{soporte.frente && cofreAbierto ? <img className="pm3-soporte-img pm3-soporte-frente" src={IMAGEN_SOPORTE} alt="" draggable={false} /> : null}
 								<button
 									type="button"
 									className={classNames.join(" ")}
 									onClick={() => elegir(option)}
 									aria-label={texto}
+									disabled={!actividadLista}
 								>
 									<img src={imagenDe(option.id)} alt={texto} draggable={false} />
 								</button>
@@ -251,6 +299,7 @@ export function PeluchesPlataformas({ titulo, grupos, acentos = {}, pares = {}, 
 									style={{ "--letras": Math.max(texto.length, 4) }}
 									onClick={() => escucharPalabra(option.id)}
 									aria-label={`Escuchar ${texto}`}
+									disabled={!actividadLista}
 								>
 										<PalabraResaltada grupo={grupo} id={option.id} texto={texto} />
 								</button>
