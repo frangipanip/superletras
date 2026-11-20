@@ -55,12 +55,12 @@ const ACTIVITY_SIGN_IMAGES = [
 	"GLOBOSbtn.png"
 ];
 const PATH_BUTTONS = [
-	[25, 75], //INICIO
-	[36.5, 70], //MARIPOSAS
-	[45, 70], //FLORES
-	[54, 57], //PELUCHES
-	[65, 72], //TREN
-	[75, 67], //DIBUJAR
+	[16, 79], //INICIO
+	[24, 70], //MARIPOSAS
+	[30, 70], //FLORES
+	[35, 57], //PELUCHES
+	[42, 72], //TREN
+	[48, 67], //DIBUJAR
 	[85, 72], //¿B O V?
 	[95, 77], //BARCOS
 	[105, 73],
