@@ -21,12 +21,12 @@ export const NOMBRES_LABORATORIO = {
 
 // Precio de cada botón, en estrellas del mundo.
 export const PRECIOS = {
-	flores: 2,
-	estrellas: 2,
-	burbujas: 2,
-	aurora: 3,
-	constelacion: 3,
-	fuegos: 5
+	flores: 1,
+	estrellas: 1,
+	burbujas: 1,
+	aurora: 2,
+	constelacion: 2,
+	fuegos: 3
 };
 
 // Límites visuales: si un efecto llegó a su tope, el toque no cobra. Con movimiento reducido
@@ -46,13 +46,13 @@ export const LIMITES = {
 	constelacionActivas: 3,
 	fuegosActivos: 2,
 	// Cantidades por toque.
-	estrellasPorToque: [3, 5],
+	estrellasPorToque: [4, 6],
 	tandasDeBurbujas: 4,
 	burbujasPorTanda: 34,
 	burbujasVivas: 240,
 	// Tamaño de las tandas que siguen saliendo después de las primeras (fracción de burbujasPorTanda).
 	burbujasSostenidas: 0.35,
-	cintasDeAurora: [2, 3],
+	cintasDeAurora: [4, 6],
 	fuegosPorToque: [2, 3],
 	chispasPorFuego: 34
 };
@@ -62,7 +62,7 @@ export const MOVIMIENTO_REDUCIDO = 0.5;
 // fuegos se repiten cada tanto. Pausa (en segundos, entre mínimo y máximo) antes de que cada estrella
 // vuelva a cruzar el cielo, entre tandas de burbujas y antes de que cada flor de luz vuelva a salir.
 export const PAUSAS = {
-	estrellas: [2, 5],
+	estrellas: [1.5, 3.5],
 	burbujas: [2.5, 4],
 	fuegos: [2.5, 5]
 };

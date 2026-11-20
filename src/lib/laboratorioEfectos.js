@@ -713,9 +713,9 @@ const estrellas = {
 					const x = estrella.x + estrella.dx * avance;
 					const y = estrella.y + estrella.dy * avance;
 					const alfa = Math.min(1, u * 5, (1 - u) * 4);
-					estela(ctx, x, y, estrella.dx, estrella.dy, 170 * Math.min(1, u * 3), 4.5, "235,240,255", 0.85 * alfa);
-					brillo(ctx, x, y, 16, "255,255,235", 0.9 * alfa);
-					punto(ctx, x, y, 2.6, `rgba(255,255,255,${alfa})`);
+					estela(ctx, x, y, estrella.dx, estrella.dy, 220 * Math.min(1, u * 3), 6, "235,240,255", 0.85 * alfa);
+					brillo(ctx, x, y, 21, "255,255,235", 0.9 * alfa);
+					punto(ctx, x, y, 3.2, `rgba(255,255,255,${alfa})`);
 				}
 			}
 		});
@@ -922,15 +922,15 @@ const aurora = {
 		const colores = mezclar(COLORES_AURORA);
 		const cintas = Array.from({ length: cantidad }, (_, i) => ({
 			color: colores[i % colores.length],
-			base: CIELO.y[0] + 60 + i * 85 + azar(-20, 20),
+			base: CIELO.y[0] + 85 + (i / Math.max(1, cantidad - 1)) * (CIELO.y[1] - CIELO.y[0] - 95) + azar(-18, 18),
 			amplitud: azar(25, 50),
 			frecuencia: azar(0.0025, 0.0042),
 			velocidad: azar(0.25, 0.45) * (escena.reducido ? 0.6 : 1),
 			fase: azar(0, TAU),
-			alto: azar(80, 135),
+			alto: azar(175, 235),
 			alfa: azar(0.75, 0.95),
-			desde: CIELO.x[0] + azar(20, 140),
-			hasta: CIELO.x[1] - azar(0, 120)
+			desde: azar(0, 40),
+			hasta: ANCHO - azar(0, 40)
 		}));
 		// PREPARAR: una cinta menta y lila ondula dentro del globo de arriba (y el prisma brilla).
 		// EMITIR (en `prep`): se despliegan las cintas del cielo.
