@@ -47,7 +47,7 @@ const MUNDO2_SYLLABLES = {
 };
 const MUNDO3_SYLLABLES = {
 	r: ["RA", "RE", "RI", "RO", "RU"],
-	rr: ["RRA", "RRE", "RRI", "RRO", "RRU"],
+	rr: ["RRA", "RRE", "RRI", "RRO", "RRU", "RA", "RE", "RI", "RO", "RU"],
 	ar: ["ARA", "ERE", "IRI", "ORO", "URU"],
 	y: ["YA", "YE", "YI", "YO", "YU"],
 	ll: ["LLA", "LLE", "LLI", "LLO", "LLU"]
@@ -176,10 +176,13 @@ function createButterflies(mode, targetValue, generation, syllableModes = SYLLAB
 		const correctSyllables = syllableModes[mode].filter((item) => !SILABAS_SIN_PRACTICA.includes(item));
 		const incorrectPool = MUNDO3_CONTRASTE[mode] || MUNDO3_INCORRECT_SYLLABLES;
 		const incorrectSyllables = shuffle(incorrectPool).slice(0, TOTAL_BUTTERFLIES - TOTAL_CORRECT);
+		// RR combina las formas con R inicial y con RR; se eligen cinco distintas por ronda.
 		// Si quedan menos de cinco (la Y sin YI), se repite alguna para llegar a los cinco bloques.
-		const correct = Array.from({ length: TOTAL_CORRECT }, (_, index) =>
-			correctSyllables[index % correctSyllables.length]
-		);
+		const correct = mode === "rr"
+			? shuffle(correctSyllables).slice(0, TOTAL_CORRECT)
+			: Array.from({ length: TOTAL_CORRECT }, (_, index) =>
+				correctSyllables[index % correctSyllables.length]
+			);
 		shuffle([...correct, ...incorrectSyllables]).forEach((label, index) =>
 			addItem(label, correctSyllables.includes(label), index)
 		);
