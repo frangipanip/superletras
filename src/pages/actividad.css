@@ -269,12 +269,12 @@
 	/* Las ruedas (abajo del convoy) quedan apoyadas en la vía, sin importar el alto del tren. */
 	.train-convoy {
 		position: absolute;
-		top: 0;
+		bottom: 100%;
 		left: 50%;
 		display: flex;
 		align-items: flex-end;
 		gap: clamp(0.05rem, 0.6vw, 0.5rem);
-		transform: translate(-50%, -100%) scale(1.5);
+		transform: translateX(-50%) scale(1.5);
 		transform-origin: 50% 100%;
 	}
 
@@ -437,16 +437,16 @@
 
 @keyframes train-arrival {
 	from {
-		transform: translate(calc(-50% - 100vw), -100%) scale(1.5);
+		transform: translateX(calc(-50% - 100vw)) scale(1.5);
 	}
 	to {
-		transform: translate(-50%, -100%) scale(1.5);
+		transform: translateX(-50%) scale(1.5);
 	}
 }
 
 @keyframes train-departure {
 	to {
-		transform: translate(calc(50% + 100vw), -100%) scale(1.5);
+		transform: translateX(calc(50% + 100vw)) scale(1.5);
 	}
 }
 

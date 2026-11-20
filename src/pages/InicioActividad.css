@@ -659,7 +659,7 @@
 	display: none;
 }
 
-/* Disposición de los globos en arco libre */
+/* Disposición de las fichas en arco libre */
 .inicio-vowels {
 	position: absolute;
 	top: 0;
@@ -737,7 +737,7 @@
 	transform: translate(-8%, -35%);
 }
 
-/* Globo oculto (no revelado todavía) */
+/* Ficha oculta (no revelada todavía) */
 .inicio-vowel-button.hidden-balloon {
 	opacity: 0;
 	transform: scale(0.3) translateY(30px);
@@ -745,7 +745,7 @@
 	animation: none;
 }
 
-/* Globo revelándose */
+/* Ficha revelándose */
 .inicio-vowel-button.reveal-balloon {
 	animation: balloon-appear 500ms ease-out forwards;
 }
@@ -759,7 +759,7 @@
 	animation-delay: 0s;
 }
 
-/* Posiciones y colores de cada globo: arco
+/* Posiciones de cada ficha: arco
    1: arriba-izq, 2: centro, 3: arriba-der, 4: abajo-izq, 5: abajo-der */
 
 .inicio-vowel-button:nth-child(1) {
@@ -798,12 +798,12 @@
 }
 
 /* El animation-delay de cada posición es para el flotar; si se aplicara a la aparición,
-   el globo se ve primero por la transición y después la animación lo vuelve a hacer aparecer. */
+   la ficha se ve primero por la transición y después la animación la volvería a hacer aparecer. */
 .inicio-vowel-button.reveal-balloon:nth-child(n) {
 	animation-delay: 0s;
 }
 
-/* Hover para globos: escalar sin pisar el filtro de color */
+/* Hover para las fichas: escalar sin pisar el filtro de color */
 .inicio-vowel-button:hover:not(.hidden-balloon),
 .inicio-vowel-button:focus-visible:not(.hidden-balloon) {
 	transform: translateY(-8px) scale(1.08);
@@ -813,7 +813,7 @@
 	transform: scale(1.18);
 }
 
-/* Selected no cambia el globo, lo agranda un poquito y el texto brilla */
+/* Selected agranda un poco la ficha y hace brillar el texto */
 .inicio-vowel-button.selected {
 	transform: scale(1.1);
 	z-index: 2;
@@ -830,7 +830,7 @@
 	animation: balloon-letter-disappear 0.4s forwards;
 }
 
-/* Durante shuffle los globos mantienen su globo */
+/* Durante shuffle se mantiene el dibujo de cada ficha */
 .inicio-vowel-button.shuffling {
 	animation: inicio-vowel-shuffle 1200ms ease-in-out;
 }
@@ -1161,22 +1161,108 @@
 	background-image: url("/assets/imagenes/fondoInicioM5.jpg");
 }
 
-/* Mundo 6 (unicornios): fondo propio y letra escrita (no hay imagen por letra). */
+/* Mundo 6 (unicornios): fondo propio, cristal para la letra y cristales para las sílabas. */
 .page-inicio-actividad.world-unicornios {
-	background-image: url("/assets/imagenes/fondoInicioM6.jpg");
+	background-image: url("/assets/imagenes/fondoIinicioM6.png");
 }
 
 .inicio-activity-letter-text {
+	position: absolute;
+	top: 48%;
+	left: 50%;
 	display: grid;
 	place-items: center;
-	width: clamp(8rem, 18vw, 16rem);
-	aspect-ratio: 1;
-	border: 6px solid #fff;
-	border-radius: 50%;
-	background: radial-gradient(circle at 35% 30%, #fff6fb 0%, #ffc7e6 55%, #f59bd0 100%);
-	box-shadow: 0 8px 18px rgba(120, 40, 110, 0.3);
+	width: 58%;
+	transform: translate(-50%, -50%);
 	color: #8e3bd1;
-	font: 900 clamp(4rem, 11vw, 9rem) / 1 "Arial Black", Arial, Helvetica, sans-serif;
+	font: 900 clamp(4.5rem, 12vw, 10.5rem) / 1 "Arial Black", Arial, Helvetica, sans-serif;
+	text-align: center;
+	-webkit-text-stroke: 0.035em #fff;
+	text-shadow: 0 3px 4px rgba(93, 0, 130, 0.55), 0 0 14px rgba(255, 255, 255, 0.9);
+}
+
+.page-inicio-actividad.world-unicornios .inicio-activity-letter-image-wrap {
+	top: 0;
+	width: clamp(11rem, 37vw, 34rem);
+	filter: drop-shadow(0 10px 14px rgba(76, 35, 122, 0.35));
+	transition: top 700ms ease-in-out, transform 700ms ease-in-out, opacity 220ms ease;
+}
+
+.page-inicio-actividad.world-unicornios .inicio-activity-letter-image-wrap.is-visible {
+	opacity: 1;
+	transform: translate(-50%, 0) scale(1);
+}
+
+.page-inicio-actividad.world-unicornios .inicio-activity-letter-image-wrap.is-visible.is-centered {
+	top: 50%;
+	transform: translate(-50%, -50%) scale(1);
+	animation: mundo6-crystal-float 2.6s ease-in-out infinite;
+}
+
+.inicio-activity-letter-crystal {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+@keyframes mundo6-crystal-float {
+	0%,
+	100% {
+		transform: translate(-50%, -50%) scale(1);
+	}
+
+	50% {
+		transform: translate(-50%, calc(-50% - 1vh)) scale(1);
+	}
+}
+
+.page-inicio-actividad.world-unicornios .inicio-vowel-button {
+	width: clamp(10rem, 17.5vw, 19rem);
+	height: clamp(9rem, 32vh, 17rem);
+	filter: none;
+	font-size: clamp(2.75rem, 5.2vw, 5rem);
+}
+
+.page-inicio-actividad.world-unicornios .inicio-vowel-button::before {
+	display: none;
+}
+
+.page-inicio-actividad.world-unicornios .inicio-syllable-crystal {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	pointer-events: none;
+}
+
+.page-inicio-actividad.world-unicornios .inicio-vowel-button > span {
+	position: relative;
+	z-index: 1;
+	transform: translateY(-0.15em);
+	color: #71398e;
+	text-shadow: 0 1px 3px #fff, 0 0 8px rgba(255, 255, 255, 0.95);
+}
+
+.page-inicio-actividad.world-unicornios .inicio-vowel-button.selected > img {
+	animation: balloon-explode 0.4s forwards;
+}
+
+@media (max-width: 768px), (max-height: 560px) {
+	.page-inicio-actividad.world-unicornios .inicio-activity-letter-image-wrap {
+		width: clamp(11rem, 37vw, 24rem);
+	}
+
+	.page-inicio-actividad.world-unicornios .inicio-vowel-button {
+		width: clamp(10rem, 18vw, 12rem);
+		height: clamp(8rem, 32vh, 11rem);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.page-inicio-actividad.world-unicornios .inicio-activity-letter-image-wrap.is-visible.is-centered {
+		animation: none;
+	}
 }
 
 .page-inicio-actividad .inicio-q-continuar {

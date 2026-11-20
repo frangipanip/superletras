@@ -138,6 +138,20 @@ const MUNDO6_MODES = {
 	k: { ...createSyllableMode("k", ["KA", "KE", "KI", "KO", "KU"]), intro: ["Esta es la letra K.mp3", "recordaK.mp3"] },
 	x: { ...createSyllableMode("x", ["XA", "XE", "XI", "XO", "XU"]), intro: ["Esta es la letra X.mp3", "ConLasVocales.mp3"] }
 };
+const MUNDO6_SYLLABLE_CRYSTALS = [
+	"cristalRosa.png",
+	"cristalAmarillo.png",
+	"cristalCeleste.png",
+	"cristalVerde.png",
+	"cristalVioleta.png"
+];
+const MUNDO6_SYLLABLE_POSITIONS = [
+	{ left: "17%", top: "15%" },
+	{ left: "67%", top: "15%" },
+	{ left: "29%", top: "39%" },
+	{ left: "56%", top: "39%" },
+	{ left: "42%", top: "59%" }
+];
 const MUNDO5_LETTER_IMAGES = {
 	g: "robotG.png",
 	ge: "robotGE.png",
@@ -355,7 +369,7 @@ export default function InicioActividad() {
 	const letterLabels = isMundo5 ? MUNDO5_LETTER_LABELS : isMundo3 ? MUNDO3_LETTER_LABELS : isMundo2 ? MUNDO2_LETTER_LABELS : LETTER_LABELS;
 	const bigLetterImage = img(activityLetterImages[menuOption] || activityLetterImages[fallbackOption]);
 	// Mundo 3: el bloque cae del cielo al centro y se va a su lugar (atrás) cuando empiezan los carros.
-	const bigLetterCentered = isMundo3 && showBigLetter && visibleItems.size === 0;
+	const bigLetterCentered = (isMundo3 || isMundo6) && showBigLetter && visibleItems.size === 0;
 
 	function setIntro(value) {
 		introductionActive.current = value;
@@ -801,7 +815,7 @@ export default function InicioActividad() {
 					}
 				};
 			}
-			// Revelar el globo justo antes de reproducir su audio
+			// Revelar la ficha justo antes de reproducir su audio
 			if (step.item) {
 				revealItem(step.item);
 			}
@@ -926,6 +940,7 @@ export default function InicioActividad() {
 			)}
 			<div className={`inicio-vowels inicio-syllables${isPhaseThree ? " en-movimiento" : ""}`} aria-label={mode.listName}>
 					{itemOrder.map((item) => {
+						const itemIndex = mode.items.indexOf(item);
 						const isHidden = !visibleItems.has(item);
 						const isRevealing = revealingItem === item;
 						const isExploded = selectedItems.has(item) || activitySelectedItems.has(item);
@@ -933,7 +948,7 @@ export default function InicioActividad() {
 							<div
 								key={item}
 								className={`inicio-vowel-button inicio-vowel-${item.toLowerCase()}${isExploded ? " selected" : ""}${activeItem === item ? " active" : ""}${incorrectItem === item ? " incorrect" : ""}${ayuda.pista && requestedItem === item ? " pista-correcta" : ""}${isShuffling ? " shuffling" : ""}${isHidden ? " hidden-balloon" : ""}${isRevealing ? " reveal-balloon" : ""}${isDriving && !activitySelectedItems.has(item) ? " driving" : ""}`}
-								style={isMundo4 ? {
+								style={isMundo6 ? MUNDO6_SYLLABLE_POSITIONS[itemOrder.indexOf(item)] : isMundo4 ? {
 									"--mundo4-syllable-color": MUNDO4_SYLLABLE_COLORS[(isMundo4Q ? MUNDO4_Q_ROUND_ITEMS : mode.items).indexOf(item)],
 									...(itemOrder.length < 5 ? {
 										left: `${itemOrder.length === 2 ? 38 + itemOrder.indexOf(item) * 24 : 25 + itemOrder.indexOf(item) * 20}%`,
@@ -961,6 +976,9 @@ export default function InicioActividad() {
 								))}
 								{isMundo3 && (
 									<img className="inicio-car-image" src={MUNDO3_CAR_IMAGES[mode.items.indexOf(item)]} alt="" draggable={false} />
+								)}
+								{isMundo6 && (
+									<img className="inicio-syllable-crystal" src={img(MUNDO6_SYLLABLE_CRYSTALS[itemIndex])} alt="" draggable={false} />
 								)}
 								<span>{item}</span>
 							</div>
@@ -1037,7 +1055,10 @@ export default function InicioActividad() {
 					aria-hidden="true"
 				>
 					{isMundo6 ? (
-						<span className="inicio-activity-letter-text">{(menuOption || fallbackOption).toUpperCase()}</span>
+						<>
+							<img className="inicio-activity-letter-crystal" src={img("cristalLetra}.png")} alt="" draggable={false} />
+							<span className="inicio-activity-letter-text">{(menuOption || fallbackOption).toUpperCase()}</span>
+						</>
 					) : (
 						<img className="inicio-activity-letter-image" src={bigLetterImage} alt={letterLabels[menuOption] || letterLabels[fallbackOption]} />
 					)}
