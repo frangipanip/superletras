@@ -30,9 +30,9 @@ const ACTIVIDADES_M6 = [
 	{ clave: "mariposas", ruta: "/mariposas", cartel: "MARIPOSAbtn.png", nombre: "Iniciar actividad de mariposas con sílabas" },
 	{ clave: "flores", ruta: "/flores", cartel: "FLORbtn.png", nombre: "Iniciar actividad del jardín de sílabas" },
 	{ clave: "peluches", ruta: "/peluches", cartel: "PELUCHESbtn.png", nombre: "Iniciar actividad de palabras con peluches" },
-	{ clave: "elegir", ruta: "/elegir", cartel: "BoVbtn.png", nombre: "Iniciar actividad: ¿va con B o con V?" },
 	{ clave: "tren", ruta: "/tren", cartel: "TRENbtn.png", nombre: "Iniciar actividad del tren" },
-	{ clave: "dibujar", ruta: "/dibujar", cartel: "DIBUJARbtn.png", nombre: "Iniciar actividad de dibujar sílabas" }
+	{ clave: "dibujar", ruta: "/dibujar", cartel: "DIBUJARbtn.png", nombre: "Iniciar actividad de dibujar sílabas" },
+	{ clave: "elegir", ruta: "/elegir", cartel: "BoVbtn.png", nombre: "Iniciar actividad: ¿va con B o con V?" }
 ];
 const CHARACTER_FRAME_DURATION = 180;
 const CHARACTERS = {

@@ -9,9 +9,33 @@ export const CAMINOS = {
 	2: ["inicio", "mariposas", "flores", "peluches", "tren", "dibujar"],
 	3: ["inicio", "mariposas", "flores", "peluches", "tren", "dibujar"],
 	4: ["inicio", "mariposas", "flores", "peluches", "tren", "dibujar"],
-	5: ["inicio", "tren", "peluches", "elegir", "mariposas", "flores", "dibujar"],
-	6: ["inicio", "mariposas", "flores", "peluches", "elegir", "tren", "dibujar"]
+	5: ["inicio", "mariposas", "flores", "peluches", "tren", "dibujar", "elegir"],
+	6: ["inicio", "mariposas", "flores", "peluches", "tren", "dibujar", "elegir"]
 };
+
+const INDICES_PERCHES_M5_ORDEN_ANTERIOR = [0, 4, 3, 6, 1, 2, 5];
+
+export function leerPosicionesMundo5() {
+	let posiciones = {};
+	try {
+		posiciones = JSON.parse(readStorage(STORAGE_KEYS.mundo5Perches) || "{}") || {};
+	} catch {
+		posiciones = {};
+	}
+
+	if (readStorage(STORAGE_KEYS.mundo5PerchesOrder) !== "2") {
+		posiciones = Object.fromEntries(Object.entries(posiciones).map(([letra, indice]) => [
+			letra,
+			Number.isInteger(indice) && INDICES_PERCHES_M5_ORDEN_ANTERIOR[indice] !== undefined
+				? INDICES_PERCHES_M5_ORDEN_ANTERIOR[indice]
+				: indice
+		]));
+		writeStorage(STORAGE_KEYS.mundo5Perches, JSON.stringify(posiciones));
+		writeStorage(STORAGE_KEYS.mundo5PerchesOrder, "2");
+	}
+
+	return posiciones;
+}
 
 function palabrasDesbloqueadas(letra) {
 	try {
@@ -56,10 +80,14 @@ export function anotarPosicionEnCamino(mundo, letra, clave) {
 		return;
 	}
 	let posiciones = {};
-	try {
-		posiciones = JSON.parse(readStorage(storageKey) || "{}") || {};
-	} catch {
-		posiciones = {};
+	if (mundo === 5) {
+		posiciones = leerPosicionesMundo5();
+	} else {
+		try {
+			posiciones = JSON.parse(readStorage(storageKey) || "{}") || {};
+		} catch {
+			posiciones = {};
+		}
 	}
 	const clavePorLetra = mundo === 1 ? letra.toLowerCase() : letra.toUpperCase();
 	writeStorage(storageKey, JSON.stringify({ ...posiciones, [clavePorLetra]: indice }));

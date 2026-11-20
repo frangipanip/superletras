@@ -9,6 +9,7 @@ import { useSelectedCharacter } from "../hooks/useSelectedCharacter";
 import { useTalkingMouth } from "../hooks/useTalkingMouth";
 import { img, MUNDO5_CHARACTERS, MUNDO5_MOUTH_IMAGES, sound } from "../lib/assets";
 import { actividadCompleta, getProgreso, subscribeProgreso } from "../lib/progreso";
+import { leerPosicionesMundo5 } from "../lib/caminos";
 import { comidasGanadasPorActividad, getRecompensas, subscribeRecompensas } from "../lib/recompensas";
 import MarcaCamino from "../components/MarcaCamino";
 import MonstruoDelMenu from "../components/MonstruoDelMenu";
@@ -58,21 +59,21 @@ const ACTIVITY_SIGN_IMAGES = [
 // Actividades habilitadas del camino, en orden (tiene que coincidir con CAMINOS[5] de caminos.js).
 const ACTIVIDADES_M5 = [
 	{ clave: "inicio", ruta: "/inicio", cartel: "INICIALESbtn.png", nombre: "Iniciar actividad de sílabas" },
-	{ clave: "tren", ruta: "/tren", cartel: "TRENbtn.png", nombre: "Iniciar actividad del tren" },
-	{ clave: "peluches", ruta: "/peluches", cartel: "PELUCHESbtn.png", nombre: "Iniciar actividad de palabras con peluches" },
-	{ clave: "elegir", ruta: "/elegir", cartel: "JoGbtn.png", nombre: "Iniciar actividad: ¿va con J o con G?" },
 	{ clave: "mariposas", ruta: "/mariposas", cartel: "MARIPOSAbtn.png", nombre: "Iniciar actividad de robots voladores" },
 	{ clave: "flores", ruta: "/flores", cartel: "FLORbtn.png", nombre: "Iniciar actividad del jardín de robots" },
-	{ clave: "dibujar", ruta: "/dibujar", cartel: "DIBUJARbtn.png", nombre: "Iniciar actividad de dibujar sílabas" }
+	{ clave: "peluches", ruta: "/peluches", cartel: "PELUCHESbtn.png", nombre: "Iniciar actividad de palabras con peluches" },
+	{ clave: "tren", ruta: "/tren", cartel: "TRENbtn.png", nombre: "Iniciar actividad del tren" },
+	{ clave: "dibujar", ruta: "/dibujar", cartel: "DIBUJARbtn.png", nombre: "Iniciar actividad de dibujar sílabas" },
+	{ clave: "elegir", ruta: "/elegir", cartel: "JoGbtn.png", nombre: "Iniciar actividad: ¿va con J o con G?" }
 ];
 const PATH_BUTTONS = [
 	[10, 83], //INICIO
-	[17, 83], //MARIPOSAS
-	[26, 83], //FLORES
-	[35, 83], //PELUCHES
-	[44, 83], //DIBUJAR
-	[53, 83], //TREN
-	[62, 83],
+	[15.5, 70], //MARIPOSAS - PALANCAS
+	[20.5, 75], //FLORES - ROBOTS
+	[25, 75], //PELUCHES - HAMACAS
+	[30, 70], //TREN
+	[34, 68], //DIBUJAR
+	[38, 78], //¿J O G?
 	[71, 83],
 	[80, 83],
 	[90, 83],
@@ -83,13 +84,9 @@ const PATH_BUTTONS = [
 ];
 
 function readSavedPerches() {
-	try {
-		const guardadas = JSON.parse(readStorage(STORAGE_KEYS.mundo5Perches) || "{}");
-		return Object.fromEntries(Object.entries(guardadas).filter(([letra, indice]) =>
-			LETTERS.includes(letra) && Number.isInteger(indice) && indice >= 0 && indice < ACTIVIDADES_M5.length));
-	} catch {
-		return {};
-	}
+	const guardadas = leerPosicionesMundo5();
+	return Object.fromEntries(Object.entries(guardadas).filter(([letra, indice]) =>
+		LETTERS.includes(letra) && Number.isInteger(indice) && indice >= 0 && indice < ACTIVIDADES_M5.length));
 }
 
 export const MUNDO5_IMAGES = [

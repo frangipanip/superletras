@@ -133,6 +133,10 @@
 	.mundo5-path-activity {
 		width: clamp(80px, 15vmin, 125px);
 	}
+
+	.mundo5-character-spot.perched {
+		transform: translate(calc(-100% - clamp(40px, 7.5vmin, 62.5px)), calc(-100% + clamp(40px, 7.5vmin, 62.5px)));
+	}
 }
 
 .mundo5-menu-image {
@@ -325,8 +329,9 @@
 
 .mundo5-character-spot.perched {
 	bottom: auto;
-	width: clamp(110px, 22vmin, 210px);
-	transform: translate(-50%, -100%);
+	z-index: 4;
+	width: clamp(108px, 27vmin, 198px);
+	transform: translate(calc(-100% - clamp(54px, 9vmin, 78px)), calc(-100% + clamp(54px, 9vmin, 78px)));
 }
 
 .mundo5-character-spot .mundo5-character {
